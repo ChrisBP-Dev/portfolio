@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "267758672045",
+    "project_id": "portfolio-chrisbp",
+    "storage_bucket": "portfolio-chrisbp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:267758672045:android:6a897cbd687564dc3dce24",
+        "android_client_info": {
+          "package_name": "com.chrisbp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBroKXcxIqLVZlY81PYtpS2mRIbNBZ_fX8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

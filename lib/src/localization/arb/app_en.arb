@@ -1,0 +1,20 @@
+{
+    "@@locale": "en",
+    "initialBannerTitle": "Wellcome to my",
+    "homeTitle": "Home",
+    "goHome": "Go Home",
+    "aboutText": "I do code and\nmake content ",
+    "aboutIt":"about it!",
+    "aboutMeDescription": "I am a skilled Flutter developer with 3 years of experience in building robust mobile and web applications. I specialize in Flutter and Firebase, and have successfully integrated AI technologies like Gemini into past projects, including work with dynamic startups. Constantly honing my craft, I’m preparing to share my knowledge through upcoming content on TikTok and YouTube.",
+    "getInTouch": "Get In Touch",
+    "downloadCV": "Download CV",
+    "knowledgeOf": "Knowledge of",
+    "projectsTitle": "Projects",
+    "clickHereToVisit": "Click here to visit",
+    "experienceTitle": "Experience",
+    "contactTitle": "Contact",
+    "pageNotFound404":"404 - Page not found!"
+    
+
+    
+}
