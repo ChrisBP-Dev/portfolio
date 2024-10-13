@@ -10,10 +10,16 @@
     "downloadCV": "Descargar CV",
     "knowledgeOf": "Conocimiento de",
     "projectsTitle": "Proyectos",
+    "projectDescription": "Como desarrollador he tenido la oportunidad de trabajar en diferentes proyectos, tanto personales como profesionales. A continuación, algunos de los proyectos en los que he trabajado:",
+    "websiteTitle": "Sitio Web",
+    "technologiesTitle": "Tecnologías",
+    "screenshotsTitle": "Capturas de Pantalla",
+    "seeAllButtonTitle": "Ver Todos",
     "clickHereToVisit": "Haz clic aquí para visitar",
     "experienceTitle": "Experiencia",
     "contactTitle": "Contacto",
-    "pageNotFound404":"404 - Página no encontrada!"
+    "pageNotFound404":"404 - Página no encontrada!",
+    "close": "Cerrar"
     
 
 }

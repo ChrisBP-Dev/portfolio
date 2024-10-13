@@ -13,6 +13,10 @@ enum AppRoute {
     path: '/projects',
     page: ProjectsPage(),
   ),
+  imageViewer(
+    path: '/projects/imageviewer',
+    page: SizedBox.shrink(),
+  ),
   experience(
     path: '/experience',
     page: ExperiencePage(),
@@ -35,4 +39,11 @@ enum AppRoute {
 
   final String path;
   final Widget page;
+  // final String? subPath; // change this if you want to add subroutes
+  static List<AppRoute> get shellRoutes => [
+        AppRoute.home,
+        AppRoute.projects,
+        AppRoute.experience,
+        AppRoute.contact,
+      ];
 }

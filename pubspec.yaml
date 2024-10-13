@@ -63,5 +63,6 @@ flutter:
   assets:
     - assets/projects/cabanita-main-image.png
     - assets/projects/qeto-main-image.png
+    - assets/projects/guardowl-main-image.jpeg
     - assets/logo/cbp-short-logo-dark.png
     - assets/logo/cbp-large-logo-dark.png

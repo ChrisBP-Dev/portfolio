@@ -29,6 +29,11 @@ class SocialLauncherController extends _$SocialLauncherController {
     return _launch(launcher.linkedInLauncher);
   }
 
+  Future<void> launchAnyLink(String link) async {
+    final launcher = ref.read(socialLauncherRepositoryProvider);
+    return _launch(() => launcher.launchAnyLink(link));
+  }
+
   Future<void> _launch(Future<void> Function() launcher) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(launcher);

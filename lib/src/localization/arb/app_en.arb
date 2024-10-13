@@ -10,10 +10,16 @@
     "downloadCV": "Download CV",
     "knowledgeOf": "Knowledge of",
     "projectsTitle": "Projects",
+    "projectDescription": "As a developer I have had the opportunity to work on different projects, both personal and professional. Below are some of the projects I have worked on:",
+    "websiteTitle": "Website",
+    "technologiesTitle": "Tecnologies",
+    "screenshotsTitle": "Screenshots",
+    "seeAllButtonTitle": "See All",
     "clickHereToVisit": "Click here to visit",
     "experienceTitle": "Experience",
     "contactTitle": "Contact",
-    "pageNotFound404":"404 - Page not found!"
+    "pageNotFound404":"404 - Page not found!",
+    "close": "Close"
     
 
     

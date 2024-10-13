@@ -2,6 +2,7 @@ import 'package:portfolio/src/features/knowledge/domain/knowledge.dart';
 
 class Project {
   Project({
+    required this.id,
     required this.companyNameEs,
     required this.companyNameEn,
     required this.shortDescriptionEs,
@@ -17,6 +18,7 @@ class Project {
     this.sourceCodeUrl,
   });
 
+  final String id;
   final String companyNameEs;
   final String companyNameEn;
   final String shortDescriptionEs;
@@ -31,4 +33,25 @@ class Project {
   final List<String> imagesUrls;
   final String? websiteUrl;
   final String? sourceCodeUrl;
+
+  bool get hasWebsite => websiteUrl != null;
+  bool get hasSourceCode => sourceCodeUrl != null;
+}
+
+extension ProjectX on Project {
+  String companyName(String languageCode) {
+    return languageCode == 'en' ? companyNameEn : companyNameEs;
+  }
+
+  String shortDescription(String languageCode) {
+    return languageCode == 'en' ? shortDescriptionEn : shortDescriptionEs;
+  }
+
+  List<String> features(String languageCode) {
+    return languageCode == 'en' ? featuresEn : featuresEs;
+  }
+
+  List<String> myContributions(String languageCode) {
+    return languageCode == 'en' ? myContributionsEn : myContributionsEs;
+  }
 }

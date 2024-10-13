@@ -32,6 +32,10 @@ class SocialLauncherRepository {
     await _customLauncher(BusinessInformation.gitHubLink);
   }
 
+  Future<void> launchAnyLink(String link) async {
+    await _customLauncher(link);
+  }
+
   Future<void> _customLauncher(String link) async {
     final url = Uri.parse(link);
     try {
