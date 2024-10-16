@@ -15,12 +15,12 @@ class ContactRepository extends _$ContactRepository {
 
   Future<void> sendContactMessage(ContactMessage contactMessage) async {
     return switch (contactMessage.sendThrough) {
-      SendThrough.whatsapp => sendWhatsApp(contactMessage),
-      SendThrough.email => sendEmail(contactMessage)
+      SendThrough.whatsapp => _sendWhatsApp(contactMessage),
+      SendThrough.email => _sendEmail(contactMessage)
     };
   }
 
-  Future<void> sendWhatsApp(ContactMessage contactMessage) async {
+  Future<void> _sendWhatsApp(ContactMessage contactMessage) async {
     final link = WhatsAppUnilink(
       phoneNumber: BusinessInformation.phone,
       text: contactMessage.formattedMessage,
@@ -28,7 +28,7 @@ class ContactRepository extends _$ContactRepository {
     await ref.read(urlLauncherRepositoryProvider).launchLink('$link');
   }
 
-  Future<void> sendEmail(ContactMessage contactMessage) async {
+  Future<void> _sendEmail(ContactMessage contactMessage) async {
     final link = Mailto(
       to: [BusinessInformation.email],
       cc: [],

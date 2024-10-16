@@ -33,14 +33,14 @@ you can contact me through:
     String? email,
     String? message,
     ContactPhoneNumber? phoneNumber,
-    SendThrough? sendVia,
+    SendThrough? sendThrough,
   }) {
     return ContactMessage(
       name: name ?? this.name,
       email: email ?? this.email,
       message: message ?? this.message,
       phoneNumber: phoneNumber ?? this.phoneNumber,
-      sendThrough: sendVia ?? sendThrough,
+      sendThrough: sendThrough ?? this.sendThrough,
     );
   }
 }
