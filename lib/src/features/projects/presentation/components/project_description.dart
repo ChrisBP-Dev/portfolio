@@ -13,13 +13,9 @@ class ProjectDescription extends StatelessWidget {
 
     return ResponsiveCenter(
       padding: const EdgeInsets.all(Sizes.globalPadding),
-      child: Column(
-        children: [
-          Text(
-            l10n.projectDescription,
-            style: bodyLarge,
-          ),
-        ],
+      child: Text(
+        l10n.projectDescription,
+        style: bodyLarge,
       ),
     );
   }

@@ -14,9 +14,9 @@ class SocialButtons extends ConsumerWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         SocialButton(
-          icon: FontAwesomeIcons.at,
+          icon: FontAwesomeIcons.tiktok,
           onTap: () {
-            ref.read(socialLauncherControllerProvider.notifier).launchMailTo();
+            // TODO(me): Implement TikTok launcher
           },
         ),
         gapW20,

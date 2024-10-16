@@ -7,13 +7,13 @@ part of 'social_launcher_repository.dart';
 // **************************************************************************
 
 String _$socialLauncherRepositoryHash() =>
-    r'a77256a8b5e9ca70c43c0a931259e4038d12fb33';
+    r'5f2d9512f0c54281875124c6fd12ae43c874ca07';
 
-/// See also [socialLauncherRepository].
-@ProviderFor(socialLauncherRepository)
+/// See also [SocialLauncherRepository].
+@ProviderFor(SocialLauncherRepository)
 final socialLauncherRepositoryProvider =
-    AutoDisposeProvider<SocialLauncherRepository>.internal(
-  socialLauncherRepository,
+    AutoDisposeAsyncNotifierProvider<SocialLauncherRepository, void>.internal(
+  SocialLauncherRepository.new,
   name: r'socialLauncherRepositoryProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
@@ -22,7 +22,6 @@ final socialLauncherRepositoryProvider =
   allTransitiveDependencies: null,
 );
 
-typedef SocialLauncherRepositoryRef
-    = AutoDisposeProviderRef<SocialLauncherRepository>;
+typedef _$SocialLauncherRepository = AutoDisposeAsyncNotifier<void>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

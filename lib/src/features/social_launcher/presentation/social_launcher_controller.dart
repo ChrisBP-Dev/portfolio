@@ -9,28 +9,18 @@ class SocialLauncherController extends _$SocialLauncherController {
     // nothing to do for now
   }
 
-  Future<void> launchWhatsApp() async {
-    final launcher = ref.read(socialLauncherRepositoryProvider);
-    return _launch(launcher.whatsAppLauncher);
-  }
-
-  Future<void> launchMailTo() async {
-    final launcher = ref.read(socialLauncherRepositoryProvider);
-    return _launch(launcher.mailToLauncher);
-  }
-
   Future<void> launchGitHub() async {
-    final launcher = ref.read(socialLauncherRepositoryProvider);
+    final launcher = ref.read(socialLauncherRepositoryProvider.notifier);
     return _launch(launcher.gitHubLauncher);
   }
 
   Future<void> launchLinkedIn() async {
-    final launcher = ref.read(socialLauncherRepositoryProvider);
+    final launcher = ref.read(socialLauncherRepositoryProvider.notifier);
     return _launch(launcher.linkedInLauncher);
   }
 
   Future<void> launchAnyLink(String link) async {
-    final launcher = ref.read(socialLauncherRepositoryProvider);
+    final launcher = ref.read(socialLauncherRepositoryProvider.notifier);
     return _launch(() => launcher.launchAnyLink(link));
   }
 

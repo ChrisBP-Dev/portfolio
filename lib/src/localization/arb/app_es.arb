@@ -18,6 +18,13 @@
     "clickHereToVisit": "Haz clic aquí para visitar",
     "experienceTitle": "Experiencia",
     "contactTitle": "Contacto",
+    "contactDescription": "Si tienes alguna pregunta o te gustaría trabajar conmigo, no dudes en contactarme utilizando el formulario a continuación. Me pondré en contacto contigo lo antes posible. ¡Gracias!",
+    "whatsYourName": "¿Cuál es tu nombre?",
+    "whatsYourEmail": "¿Cuál es tu correo electrónico?",
+    "whatsYourPhone": "¿Cuál es tu número de teléfono?",
+    "whatsYourMessage": "¿Cuál es tu mensaje?",
+    "sendThrough": "Enviar mediante",
+    "sendMessage": "Enviar Mensaje",
     "pageNotFound404":"404 - Página no encontrada!",
     "close": "Cerrar"
     
