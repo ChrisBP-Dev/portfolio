@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:portfolio/src/common_widgets/wrap_network_image.dart';
 
 class ProjectImageCard extends StatelessWidget {
   const ProjectImageCard({required this.imageUrl, super.key});
@@ -6,13 +7,8 @@ class ProjectImageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO(me): change for CacheNetwotkImage
-    // return Image.network(urlImage);
-    return Image.asset(
-      imageUrl,
-      height: double.infinity,
-      width: double.infinity,
-      fit: BoxFit.cover,
+    return WrapNetworkImage(
+      imageUrl: imageUrl,
     );
   }
 }

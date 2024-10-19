@@ -15,9 +15,10 @@ class BusinessInformation {
 Hi,\nI came from your website $website\nand I would like to find out more about...''';
 
   // social links for contact
-  static const gitHubLink = 'https://github.com/Criszx17Dev';
+  static const gitHubLink = 'https://github.com/ChrisBP-Dev';
   static const linkedInLink =
       'https://www.linkedin.com/in/christopher-bobadilla-plasencia';
+  static const tiktokLink = 'https://www.tiktok.com/@chrisbp.com';
 
   // business Colors - Light
   // const primaryLightColor = ;

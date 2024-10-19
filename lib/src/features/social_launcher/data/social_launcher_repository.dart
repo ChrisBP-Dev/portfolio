@@ -10,6 +10,12 @@ class SocialLauncherRepository extends _$SocialLauncherRepository {
     // nothing to do for now.
   }
 
+  Future<void> tiktokLauncher() async {
+    await ref
+        .read(urlLauncherRepositoryProvider)
+        .launchLink(BusinessInformation.tiktokLink);
+  }
+
   Future<void> linkedInLauncher() async {
     await ref
         .read(urlLauncherRepositoryProvider)

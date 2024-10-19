@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:portfolio/src/common_widgets/responsive_center.dart';
+import 'package:portfolio/src/common_widgets/wrap_network_image.dart';
 import 'package:portfolio/src/constants/app_sizes.dart';
 import 'package:portfolio/src/constants/projects.dart';
 import 'package:portfolio/src/localization/l10n.dart';
@@ -69,26 +70,19 @@ class MainImageViewer extends StatelessWidget {
         IconButton(
           icon: const Icon(Icons.arrow_back_ios),
           onPressed: (currentIndex != 0).whenOrNull(
-            isTrue: () => () {
-              final newIndex = currentIndex - 1;
-              moveToPage(newIndex);
-            },
+            isTrue: () => () => moveToPage(currentIndex - 1),
           ),
         ),
         Expanded(
-          // TODO(me): Change to a CachedNetworkImage
-          child: Image.asset(
-            project.imagesUrls[currentIndex],
+          child: WrapNetworkImage(
+            imageUrl: project.imagesUrls[currentIndex],
             fit: BoxFit.contain,
           ),
         ),
         IconButton(
           icon: const Icon(Icons.arrow_forward_ios),
           onPressed: (currentIndex != project.imagesUrls.length - 1).whenOrNull(
-            isTrue: () => () {
-              final newIndex = currentIndex + 1;
-              moveToPage(newIndex);
-            },
+            isTrue: () => () => moveToPage(currentIndex + 1),
           ),
         ),
       ],

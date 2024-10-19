@@ -14,7 +14,7 @@ class PrimaryButton extends StatelessWidget {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         padding: EdgeInsets.symmetric(
-          horizontal: 30.0.sizeScaled(screenWidth, minSize: 10),
+          horizontal: 30.0.sizeScaled(screenWidth, minSize: 15),
           vertical: 18.0.sizeScaled(screenWidth, minSize: 12),
         ),
         backgroundColor: currentTheme.colorScheme.primary,

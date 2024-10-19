@@ -4,16 +4,67 @@ import 'package:portfolio/src/features/projects/domain/project.dart';
 final kProjects = [
   Project(
     id: '1',
-    companyNameEs: 'LA CABANITA - FASTFOOD',
-    companyNameEn: 'LA CABANITA - COMIDA RAPIDA',
-    websiteUrl: 'https://lacabanita-store.web.app/hamburguesas',
+    companyNameEn: 'QETO - STARTUP',
+    companyNameEs: 'QETO - STARTUP',
+    websiteUrl: 'https://www.qeto.app',
     shortDescriptionEs: '''
-Negocio de comida rápida en la ciudad de Lima, Perú.
-Se generó una aplicación móvil para la gestión de pedidos dentro del local y de los que se recibian desde el website creado tambien con flutter web.
+Qeto es una plataforma (app móvil) que reúne la mayor cantidad de información de los productos de los mercados de barrio, ayudando a los consumidores a ahorrar dinero y a los comerciantes a aumentar sus ventas, impulsando el desarrollo económico y mejorando la calidad de vida de las personas.
 ''',
     shortDescriptionEn: '''
-Business of fast food in Lima, Peru.
-A mobile application was generated for order management within the premises and those received from the website also created with flutter web.
+Qeto is a platform (mobile app) that brings together the most information about products from neighborhood markets, helping consumers save money and merchants increase their sales, driving economic development and improving people's quality of life.
+''',
+    featuresEs: [
+      'Descubre ofertas cercanas',
+      'Compara precios',
+      'Encuentra los mejores productos en tus tiendas locales',
+      'Explora las últimas tendencias',
+      'Busca productos esenciales',
+      'Ahorra tiempo y dinero',
+    ],
+    featuresEn: [
+      'Discover nearby offers',
+      'Compare prices',
+      'Find the best products in your local stores',
+      'Explore the latest trends',
+      'Search for essential products',
+      'Save time and money',
+    ],
+    myContributionsEs: [
+      '''
+Desarrollo de componentes personalizados y extensiones reutilizables para optimizar el código.''',
+      'Convertir el diseño de Figma a código aplicando las reglas del negocio.',
+      '''
+Migración de la gestión de estado de Provider a Flutter_Bloc, preparándome para una mayor escalabilidad.''',
+    ],
+    myContributionsEn: [
+      '''
+Development of custom components and reusable extensions to optimize the code.''',
+      'I converted the Figma design to code applying the business rules.',
+      '''
+Migration from Provider state management to Flutter_Bloc, preparing for higher scalability.''',
+    ],
+    tecnologies: [
+      ...kKnowledge.tecnologies,
+    ],
+    mainImageUrl:
+        'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fqeto%2Fqeto-main-image.png?alt=media&token=72bcbf1e-9a67-4f75-86b7-b9738953c25c',
+    imagesUrls: [
+      'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fqeto%2Fqeto-1-img.png?alt=media&token=0c584aa2-8ecf-41fe-83b8-b5a06822fc2d',
+      'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fqeto%2Fqeto-2-img.png?alt=media&token=775ac991-01c8-4d5c-89a3-757c911f952f',
+      'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fqeto%2Fqeto-3-img.png?alt=media&token=26da1c53-1a00-47d6-a358-03b2ce1f8eb9',
+      'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fqeto%2Fqeto-4-img.png?alt=media&token=e7f00ab2-0a77-4c75-96ff-1c27e94083fc',
+    ],
+  ),
+  Project(
+    id: '2',
+    companyNameEn: 'LA CABANITA - FASTFOOD',
+    companyNameEs: 'LA CABANITA - COMIDA RAPIDA',
+    websiteUrl: 'https://lacabanita-store.web.app/hamburguesas',
+    shortDescriptionEs: '''
+Negocio de comida rápida en la ciudad de Lima, Perú. Se generó una aplicación móvil para la gestión de pedidos dentro del local y de los que se recibian desde el website creado tambien con flutter web.
+''',
+    shortDescriptionEn: '''
+Business of fast food in Lima, Peru. A mobile application was generated for order management within the premises and those received from the website also created with flutter web.
 ''',
     featuresEs: [
       'Generacion de comandas para cocina (impresión de comanda y recibos)',
@@ -54,58 +105,19 @@ A mobile application was generated for order management within the premises and 
     tecnologies: [
       ...kKnowledge.tecnologies,
     ],
-    mainImageUrl: 'assets/projects/cabanita-main-image.png',
+    mainImageUrl:
+        'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fcabanita%2Fcabanita-main-image.png?alt=media&token=63d60b98-4b42-446e-ade6-211666721038',
     imagesUrls: [
-      'assets/projects/cabanita-main-image.png',
-      'assets/projects/cabanita-main-image.png',
-      'assets/projects/cabanita-main-image.png',
-      'assets/projects/cabanita-main-image.png',
-    ],
-  ),
-  Project(
-    id: '2',
-    companyNameEs: 'QETO - STARTUP',
-    companyNameEn: 'QETO - STARTUP',
-    websiteUrl: 'https://www.qeto.app',
-    shortDescriptionEs: '''
-Qeto es una plataforma (app móvil) que reúne la mayor cantidad de información de los productos de los mercados de barrio, ayudando a los consumidores a ahorrar dinero y a los comerciantes a aumentar sus ventas, impulsando el desarrollo económico y mejorando la calidad de vida de las personas.
-''',
-    shortDescriptionEn: '''
-Qeto is a platform (mobile app) that brings together the most information about products from neighborhood markets, helping consumers save money and merchants increase their sales, driving economic development and improving people's quality of life.
-''',
-    featuresEs: [
-      'Descubre ofertas cercanas',
-      'Compara precios',
-      'Encuentra los mejores productos en tus tiendas locales',
-      'Explora las últimas tendencias',
-      'Busca productos esenciales',
-      'Ahorra tiempo y dinero',
-    ],
-    featuresEn: [
-      'Discover nearby offers',
-      'Compare prices',
-      'Find the best products in your local stores',
-      'Explore the latest trends',
-      'Search for essential products',
-      'Save time and money',
-    ],
-    myContributionsEs: [],
-    myContributionsEn: [],
-    tecnologies: [
-      ...kKnowledge.tecnologies,
-    ],
-    mainImageUrl: 'assets/projects/qeto-main-image.png',
-    imagesUrls: [
-      'assets/projects/qeto-main-image.png',
-      'assets/projects/qeto-main-image.png',
-      'assets/projects/qeto-main-image.png',
-      'assets/projects/qeto-main-image.png',
+      'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fcabanita%2Fcabanita-1-img.png?alt=media&token=38bd428c-572f-48e2-93db-782848c46ed8',
+      'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fcabanita%2Fcabanita-2-img.png?alt=media&token=2bc38a7e-4a48-4b03-9eac-ef563ab1937b',
+      'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fcabanita%2Fcabanita-3-img.png?alt=media&token=52436aa8-095b-4e1a-b47d-33f4ca79f5de',
+      'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fcabanita%2Fcabanita-4-img.png?alt=media&token=eb72d0d1-335a-4a83-84ad-3582d5cc402d',
     ],
   ),
   Project(
     id: '3',
-    companyNameEs: 'GUARDOWL',
     companyNameEn: 'GUARDOWL',
+    companyNameEs: 'GUARDOWL',
     websiteUrl: 'https://guarowl.vercel.app',
     shortDescriptionEs: '''
 GuardOwl es una app diseñada para ofrecer seguridad y tranquilidad a los viajeros. Utilizando inteligencia artificial, la app proporciona alertas de seguridad en tiempo real, acceso a contactos importantes como embajadas y policía y permite a los usuarios reportar fácilmente incidentes. GuardOwl actúa como un guardián personal en cada destino, ayudando a los viajeros a mantenerse informados y seguros durante sus aventuras.
@@ -127,15 +139,28 @@ GuardOwl is an app designed to offer security and peace of mind to travellers. U
       'Personal guardian in each destination',
       'Stay informed and safe during your adventures',
     ],
-    myContributionsEs: [],
-    myContributionsEn: [],
+    myContributionsEs: [
+      '''
+Desarrollo de componentes personalizados y extensiones reutilizables para optimizar el código.''',
+      'Convertir el diseño de Figma a código aplicando las reglas del negocio.',
+      'Implementar al Api de Gemini.',
+    ],
+    myContributionsEn: [
+      '''
+Development of custom components and reusable extensions to optimize the code.''',
+      'I converted the Figma design to code applying the business rules.',
+      'Implement the Gemini Api.',
+    ],
     tecnologies: [
       ...kKnowledge.tecnologies,
     ],
-    mainImageUrl: 'assets/projects/guardowl-main-image.jpeg',
+    mainImageUrl:
+        'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fguardowl%2Fguardowl-main-image.png?alt=media&token=b591f044-7402-470f-aacc-af474642efea',
     imagesUrls: [
-      'assets/projects/guardowl-main-image.jpeg',
-      'assets/projects/qeto-main-image.png',
+      'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fguardowl%2Fguardowl-1-img.png?alt=media&token=3d05f469-eefa-4641-8215-af523e9f6dd2',
+      'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fguardowl%2Fguardowl-2-img.png?alt=media&token=488d68af-2dc7-4d6c-87e4-bb5472e32eb2',
+      'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fguardowl%2Fguardowl-3-img.png?alt=media&token=c1522bcc-3ac6-4959-85cf-02e21ea55e80',
+      'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fguardowl%2Fguardowl-4-img.png?alt=media&token=caee5a72-4fcd-4b41-a5a7-e3646802ab16',
     ],
   ),
 ];

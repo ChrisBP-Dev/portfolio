@@ -16,7 +16,7 @@ class SocialButtons extends ConsumerWidget {
         SocialButton(
           icon: FontAwesomeIcons.tiktok,
           onTap: () {
-            // TODO(me): Implement TikTok launcher
+            ref.read(socialLauncherControllerProvider.notifier).launchTikTok();
           },
         ),
         gapW20,

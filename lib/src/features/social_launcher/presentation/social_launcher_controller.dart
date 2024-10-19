@@ -9,6 +9,11 @@ class SocialLauncherController extends _$SocialLauncherController {
     // nothing to do for now
   }
 
+  Future<void> launchTikTok() async {
+    final launcher = ref.read(socialLauncherRepositoryProvider.notifier);
+    return _launch(launcher.tiktokLauncher);
+  }
+
   Future<void> launchGitHub() async {
     final launcher = ref.read(socialLauncherRepositoryProvider.notifier);
     return _launch(launcher.gitHubLauncher);

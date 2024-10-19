@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:portfolio/src/constants/app_sizes.dart';
 
 import 'package:portfolio/src/constants/projects.dart';
 import 'package:portfolio/src/features/home/presentation/components/projects/project_card.dart';
+import 'package:portfolio/src/routing/app_route.dart';
 
 class ProjectsList extends StatelessWidget {
   const ProjectsList({super.key});
@@ -18,7 +20,7 @@ class ProjectsList extends StatelessWidget {
           .map(
             (project) => ProjectCard(
               project: project,
-              onTap: () {},
+              onTap: () => context.goNamed(AppRoute.projects.name),
             ),
           )
           .toList(),

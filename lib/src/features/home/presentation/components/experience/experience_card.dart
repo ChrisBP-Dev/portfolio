@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:portfolio/src/common_widgets/async_value_widget.dart';
+import 'package:portfolio/src/common_widgets/business_chip_text.dart';
 import 'package:portfolio/src/constants/app_sizes.dart';
 import 'package:portfolio/src/features/experience/domain/experience.dart';
 import 'package:portfolio/src/features/settings/presentation/locale_controller.dart';
-import 'package:portfolio/src/utils/theme/color_app.dart';
 
 class ExperienceCard extends ConsumerWidget {
   const ExperienceCard({
@@ -41,23 +41,7 @@ class ExperienceCard extends ConsumerWidget {
                 ),
               ],
             ),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(Sizes.p8),
-                border: Border.all(
-                  color: color,
-                  width: .5,
-                ),
-                gradient: AppColor.textBusinessGradient,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(Sizes.p4),
-                child: Text(
-                  experience.jobName(languageCode),
-                  style: bodySmall,
-                ),
-              ),
-            ),
+            BusinessChipText(text: experience.jobName(languageCode)),
             gapH20,
             ...experience.responsabilities(languageCode).map(
                   (responsability) => Text(

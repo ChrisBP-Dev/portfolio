@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:portfolio/src/constants/assets.dart';
+import 'package:portfolio/src/routing/app_route.dart';
+import 'package:portfolio/src/utils/bool_extensions.dart';
 
 class BusinessLogo extends StatelessWidget {
   const BusinessLogo({
@@ -15,12 +18,21 @@ class BusinessLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Image.asset(
-      large ? Assets.largeLogoDark : Assets.shortLogoDark,
-      isAntiAlias: true,
-      fit: BoxFit.contain,
-      height: height,
-      width: width,
+    final routerPath =
+        GoRouter.of(context).routeInformationProvider.value.uri.path;
+
+    final alreadyInhome = routerPath == AppRoute.home.path;
+    return InkWell(
+      onTap: alreadyInhome.whenOrNull(
+        isFalse: () => () => context.go(AppRoute.home.path),
+      ),
+      child: Image.asset(
+        large ? Assets.largeLogoDark : Assets.shortLogoDark,
+        isAntiAlias: true,
+        fit: BoxFit.contain,
+        height: height,
+        width: width,
+      ),
     );
   }
 }
