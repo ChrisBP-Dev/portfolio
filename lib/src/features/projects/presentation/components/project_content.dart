@@ -78,7 +78,7 @@ class ProjectContent extends ConsumerWidget {
           Wrap(
             runSpacing: Sizes.p8,
             spacing: Sizes.p8,
-            children: project.tecnologies.map((tech) {
+            children: project.technologies.map((tech) {
               return OutlinedButton.icon(
                 label: Text(tech.name, style: bodyText),
                 onPressed: null,

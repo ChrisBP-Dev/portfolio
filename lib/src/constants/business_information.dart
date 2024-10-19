@@ -5,6 +5,8 @@ class BusinessInformation {
   static const phone = '+12393831519';
   static const email = 'criszx17dev@icloud.com';
   static const address = '152 Cape Sable Dr. Naples, Florida';
+  static const resumeLink =
+      'https://drive.google.com/file/d/1IuQVWZlrhEddgmxMjfy8N-XU5JAOyJRV/view?usp=sharing';
 
   static const websiteType = 'Portfolio';
   static const website = 'chrisbp.com';

@@ -43,7 +43,7 @@ Development of custom components and reusable extensions to optimize the code.''
       '''
 Migration from Provider state management to Flutter_Bloc, preparing for higher scalability.''',
     ],
-    tecnologies: [
+    technologies: [
       ...kKnowledge.tecnologies,
     ],
     mainImageUrl:
@@ -102,7 +102,7 @@ Business of fast food in Lima, Peru. A mobile application was generated for orde
       'Development of the backend (firebase)',
       'Development of the database (firestore)',
     ],
-    tecnologies: [
+    technologies: [
       ...kKnowledge.tecnologies,
     ],
     mainImageUrl:
@@ -151,7 +151,7 @@ Development of custom components and reusable extensions to optimize the code.''
       'I converted the Figma design to code applying the business rules.',
       'Implement the Gemini Api.',
     ],
-    tecnologies: [
+    technologies: [
       ...kKnowledge.tecnologies,
     ],
     mainImageUrl:

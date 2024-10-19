@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:portfolio/src/common_widgets/primary_button.dart';
 import 'package:portfolio/src/common_widgets/secondary_button.dart';
 import 'package:portfolio/src/constants/app_sizes.dart';
+import 'package:portfolio/src/constants/business_information.dart';
+import 'package:portfolio/src/features/social_launcher/data/social_launcher_repository.dart';
 import 'package:portfolio/src/localization/l10n.dart';
 import 'package:portfolio/src/routing/app_route.dart';
 
@@ -23,9 +25,11 @@ class AboutButtons extends ConsumerWidget {
           onTap: () => context.goNamed(AppRoute.contact.name),
         ),
         SecondaryButton(
-          title: context.l10n.downloadCV,
+          title: context.l10n.downloadResume,
           onTap: () {
-            // TODO(me): implement download cv
+            ref.read(socialLauncherRepositoryProvider.notifier).launchAnyLink(
+                  BusinessInformation.resumeLink,
+                );
           },
         ),
       ],

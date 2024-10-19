@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:portfolio/src/common_widgets/async_value_widget.dart';
 import 'package:portfolio/src/common_widgets/responsive_center.dart';
 import 'package:portfolio/src/common_widgets/wrap_network_image.dart';
 import 'package:portfolio/src/constants/app_sizes.dart';
-import 'package:portfolio/src/constants/projects.dart';
+import 'package:portfolio/src/features/projects/data/firebase_projects_repository.dart';
 import 'package:portfolio/src/localization/l10n.dart';
 import 'package:portfolio/src/routing/app_route.dart';
 import 'package:portfolio/src/utils/bool_extensions.dart';
@@ -43,17 +45,14 @@ class ImageViewer extends StatelessWidget {
   }
 }
 
-class MainImageViewer extends StatelessWidget {
+class MainImageViewer extends ConsumerWidget {
   const MainImageViewer({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final state = GoRouterState.of(context);
     final extra = state.pathParameters;
     final projectId = extra['id'];
-    final project = kProjects.firstWhere((element) => element.id == projectId);
-    final currentIndex = int.parse(extra['index'] ?? '0')
-        .clamp(0, project.imagesUrls.length - 1);
 
     void moveToPage(int index) {
       context.goNamed(
@@ -65,27 +64,37 @@ class MainImageViewer extends StatelessWidget {
       );
     }
 
-    return Row(
-      children: [
-        IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
-          onPressed: (currentIndex != 0).whenOrNull(
-            isTrue: () => () => moveToPage(currentIndex - 1),
-          ),
-        ),
-        Expanded(
-          child: WrapNetworkImage(
-            imageUrl: project.imagesUrls[currentIndex],
-            fit: BoxFit.contain,
-          ),
-        ),
-        IconButton(
-          icon: const Icon(Icons.arrow_forward_ios),
-          onPressed: (currentIndex != project.imagesUrls.length - 1).whenOrNull(
-            isTrue: () => () => moveToPage(currentIndex + 1),
-          ),
-        ),
-      ],
+    return AsyncValueWidget(
+      value: ref.watch(getProjectsStreamProvider),
+      data: (projects) {
+        final project =
+            projects.firstWhere((element) => element.id == projectId);
+        final currentIndex = int.parse(extra['index'] ?? '0')
+            .clamp(0, project.imagesUrls.length - 1);
+        return Row(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.arrow_back_ios),
+              onPressed: (currentIndex != 0).whenOrNull(
+                isTrue: () => () => moveToPage(currentIndex - 1),
+              ),
+            ),
+            Expanded(
+              child: WrapNetworkImage(
+                imageUrl: project.imagesUrls[currentIndex],
+                fit: BoxFit.contain,
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.arrow_forward_ios),
+              onPressed:
+                  (currentIndex != project.imagesUrls.length - 1).whenOrNull(
+                isTrue: () => () => moveToPage(currentIndex + 1),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

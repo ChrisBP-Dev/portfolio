@@ -1,44 +1,49 @@
-import 'package:portfolio/src/features/knowledge/domain/knowledge.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:portfolio/src/features/knowledge/domain/technology.dart';
 
-class Project {
-  Project({
-    required this.id,
-    required this.companyNameEs,
-    required this.companyNameEn,
-    required this.shortDescriptionEs,
-    required this.shortDescriptionEn,
-    required this.featuresEs,
-    required this.featuresEn,
-    required this.myContributionsEs,
-    required this.myContributionsEn,
-    required this.tecnologies,
-    required this.mainImageUrl,
-    required this.imagesUrls,
-    this.websiteUrl,
-    this.sourceCodeUrl,
-  });
+part 'project.freezed.dart';
+part 'project.g.dart';
 
-  final String id;
-  final String companyNameEs;
-  final String companyNameEn;
-  final String shortDescriptionEs;
-  final String shortDescriptionEn;
+@freezed
+class Project with _$Project {
+  const factory Project({
+    required String id,
+    required String companyNameEs,
+    required String companyNameEn,
+    required String shortDescriptionEs,
+    required String shortDescriptionEn,
+    required List<Technology> technologies,
+    required List<String> featuresEs,
+    required List<String> featuresEn,
+    required List<String> myContributionsEs,
+    required List<String> myContributionsEn,
+    required String mainImageUrl,
+    required List<String> imagesUrls,
+    String? websiteUrl,
+    String? sourceCodeUrl,
+  }) = _Project;
 
-  final List<Tecnology> tecnologies;
-  final List<String> featuresEs;
-  final List<String> featuresEn;
-  final List<String> myContributionsEs;
-  final List<String> myContributionsEn;
-  final String mainImageUrl;
-  final List<String> imagesUrls;
-  final String? websiteUrl;
-  final String? sourceCodeUrl;
+  const Project._();
 
-  bool get hasWebsite => websiteUrl != null;
-  bool get hasSourceCode => sourceCodeUrl != null;
+  factory Project.fromJson(Map<String, dynamic> json) =>
+      _$ProjectFromJson(json);
+
+  static Map<String, dynamic> toFirebase(Project project) {
+    final projectX = project.toJson();
+
+    if (project.technologies.isEmpty) return projectX;
+
+    projectX['technologies'] =
+        project.technologies.map((technology) => technology.toJson()).toList();
+
+    return projectX;
+  }
 }
 
 extension ProjectX on Project {
+  bool get hasWebsite => websiteUrl != null;
+  bool get hasSourceCode => sourceCodeUrl != null;
+
   String companyName(String languageCode) {
     return languageCode == 'en' ? companyNameEn : companyNameEs;
   }

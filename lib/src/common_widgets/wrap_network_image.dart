@@ -17,12 +17,6 @@ class WrapNetworkImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // return Image.asset(
-    //   imageUrl,
-    //   height: height ?? double.infinity,
-    //   width: width ?? double.infinity,
-    //   fit: fit,
-    // );
     return CachedNetworkImage(
       imageUrl: imageUrl,
       height: height ?? double.infinity,

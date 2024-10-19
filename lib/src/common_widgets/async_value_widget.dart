@@ -11,8 +11,10 @@ class AsyncValueWidget<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     return value.when(
       data: data,
-      error: (e, st) => Center(child: ErrorMessageWidget(e.toString())),
-      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, st) => Center(
+        child: ErrorMessageWidget('Error: $e\nStack: $st'),
+      ),
+      loading: () => const Center(child: CircularProgressIndicator.adaptive()),
     );
   }
 }
@@ -32,10 +34,10 @@ class AsyncValueSliverWidget<T> extends StatelessWidget {
     return value.when(
       data: data,
       loading: () => const SliverToBoxAdapter(
-        child: Center(child: CircularProgressIndicator()),
+        child: Center(child: CircularProgressIndicator.adaptive()),
       ),
       error: (e, st) => SliverToBoxAdapter(
-        child: Center(child: ErrorMessageWidget(e.toString())),
+        child: Center(child: ErrorMessageWidget('Error: $e\nStack: $st')),
       ),
     );
   }
