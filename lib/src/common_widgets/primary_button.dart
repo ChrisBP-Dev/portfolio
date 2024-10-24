@@ -9,7 +9,7 @@ class PrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentTheme = Theme.of(context);
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth = MediaQuery.sizeOf(context).width;
     final labelLarge = currentTheme.textTheme.labelLarge;
     return ElevatedButton(
       style: ElevatedButton.styleFrom(

@@ -70,7 +70,7 @@ class _AnimatedHeaderContainerState extends ConsumerState<AnimatedMenuContainer>
                 ),
               ],
             ),
-            width: MediaQuery.of(context).size.width,
+            width: MediaQuery.sizeOf(context).width,
             child: Column(
               children: [
                 MobileMenuItem(

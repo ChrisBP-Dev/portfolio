@@ -1,3 +1,4 @@
+import 'package:portfolio/src/features/contact/data/contact_repository.dart';
 import 'package:portfolio/src/features/contact/domain/contact_message.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -41,6 +42,8 @@ class ContactController extends _$ContactController {
   }
 
   Future<void> sendContactMessage() async {
-    // Aquí puedes agregar la lógica para enviar el mensaje de contacto
+    await ref
+        .read(contactRepositoryProvider.notifier)
+        .sendContactMessage(state);
   }
 }

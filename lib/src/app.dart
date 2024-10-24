@@ -13,7 +13,7 @@ class App extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final goRouter = ref.watch(goRouterProvider);
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth = MediaQuery.sizeOf(context).width;
     final darkTheme = ref.read(darkThemeProvider(screenWidth));
     final lightTheme = ref.read(lightThemeProvider(screenWidth));
     final themeProvider = ref.watch(themeControllerProvider);

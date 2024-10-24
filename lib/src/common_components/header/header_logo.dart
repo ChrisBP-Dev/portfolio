@@ -7,7 +7,7 @@ class HeaderLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth = MediaQuery.sizeOf(context).width;
     return BusinessLogo(
       height: 100,
       width: 180.0.sizeScaled(screenWidth, minSize: 165),

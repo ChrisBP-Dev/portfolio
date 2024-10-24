@@ -16,7 +16,7 @@ class HeaderComponent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     const heigthHeader = 82.0;
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth = MediaQuery.sizeOf(context).width;
     final isTablet = screenWidth <= Breakpoint.tablet;
     final isOpen = ref.watch(headerMenuControllerProvider);
 

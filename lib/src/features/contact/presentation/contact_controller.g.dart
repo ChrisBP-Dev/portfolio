@@ -6,7 +6,7 @@ part of 'contact_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$contactControllerHash() => r'f7b007b93c902909aa0decae680afe02c762d3a9';
+String _$contactControllerHash() => r'0f822d923a197e91b4cb74b33b7c138aeb691965';
 
 /// See also [ContactController].
 @ProviderFor(ContactController)
