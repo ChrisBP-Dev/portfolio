@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:portfolio/src/utils/resize_extensions.dart';
-import 'package:portfolio/src/utils/theme/color_app.dart';
+import 'package:portfolio/src/core/utils/resize_extensions.dart';
+import 'package:portfolio/src/core/utils/theme/color_app.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'text_theme.g.dart';

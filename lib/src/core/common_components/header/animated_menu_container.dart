@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:portfolio/src/common_components/header/header_menu_controller.dart';
-import 'package:portfolio/src/common_components/header/mobile_menu_item.dart';
+import 'package:portfolio/src/core/common_components/header/header_menu_controller.dart';
+import 'package:portfolio/src/core/common_components/header/mobile_menu_item.dart';
 import 'package:portfolio/src/localization/l10n.dart';
 import 'package:portfolio/src/routing/app_route.dart';
 

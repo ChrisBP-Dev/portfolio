@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:portfolio/src/common_widgets/business_logo.dart';
-import 'package:portfolio/src/utils/theme/color_app.dart';
+import 'package:portfolio/src/core/common_widgets/business_logo.dart';
+import 'package:portfolio/src/core/utils/theme/color_app.dart';
 
 class Avatar extends StatelessWidget {
   const Avatar({super.key});

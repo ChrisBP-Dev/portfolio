@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:portfolio/src/common_widgets/async_value_widget.dart';
-import 'package:portfolio/src/common_widgets/responsive_center.dart';
-import 'package:portfolio/src/common_widgets/wrap_network_image.dart';
-import 'package:portfolio/src/constants/app_sizes.dart';
+import 'package:portfolio/src/core/common_widgets/async_value_widget.dart';
+import 'package:portfolio/src/core/common_widgets/responsive_center.dart';
+import 'package:portfolio/src/core/common_widgets/wrap_network_image.dart';
+import 'package:portfolio/src/core/constants/app_sizes.dart';
+import 'package:portfolio/src/core/utils/bool_extensions.dart';
 import 'package:portfolio/src/features/projects/data/firebase_projects_repository.dart';
 import 'package:portfolio/src/localization/l10n.dart';
 import 'package:portfolio/src/routing/app_route.dart';
-import 'package:portfolio/src/utils/bool_extensions.dart';
 
 class ImageViewer extends StatelessWidget {
   const ImageViewer({super.key});

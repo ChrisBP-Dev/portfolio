@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:portfolio/src/common_widgets/business_logo.dart';
-import 'package:portfolio/src/utils/resize_extensions.dart';
+import 'package:portfolio/src/core/common_widgets/business_logo.dart';
+import 'package:portfolio/src/core/utils/resize_extensions.dart';
 
 class HeaderLogo extends StatelessWidget {
   const HeaderLogo({super.key});

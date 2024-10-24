@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:portfolio/src/common_widgets/responsive_center.dart';
-import 'package:portfolio/src/constants/app_sizes.dart';
+import 'package:portfolio/src/core/common_widgets/responsive_center.dart';
+import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/features/home/presentation/components/about_me/about_buttons.dart';
 import 'package:portfolio/src/features/home/presentation/components/about_me/about_details.dart';
 import 'package:portfolio/src/features/home/presentation/components/about_me/about_text.dart';

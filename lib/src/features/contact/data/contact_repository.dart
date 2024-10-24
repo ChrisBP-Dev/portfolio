@@ -1,5 +1,5 @@
 import 'package:mailto/mailto.dart';
-import 'package:portfolio/src/constants/business_information.dart';
+import 'package:portfolio/src/core/constants/business_information.dart';
 import 'package:portfolio/src/features/contact/domain/contact_message.dart';
 import 'package:portfolio/src/features/social_launcher/data/url_launcher_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';

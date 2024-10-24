@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:portfolio/src/common_widgets/responsive_center.dart';
-import 'package:portfolio/src/constants/app_sizes.dart';
+import 'package:portfolio/src/core/common_widgets/responsive_center.dart';
+import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/features/projects/domain/project.dart';
 import 'package:portfolio/src/features/projects/presentation/components/project_content.dart';
 

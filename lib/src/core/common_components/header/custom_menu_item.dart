@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:portfolio/src/common_widgets/shader_text_effect.dart';
-import 'package:portfolio/src/constants/app_sizes.dart';
-import 'package:portfolio/src/utils/bool_extensions.dart';
-import 'package:portfolio/src/utils/theme/color_app.dart';
+import 'package:portfolio/src/core/common_widgets/shader_text_effect.dart';
+import 'package:portfolio/src/core/constants/app_sizes.dart';
+import 'package:portfolio/src/core/utils/bool_extensions.dart';
+import 'package:portfolio/src/core/utils/theme/color_app.dart';
 
 class CustomMenuItem extends ConsumerStatefulWidget {
   const CustomMenuItem({

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:portfolio/src/common_widgets/shader_text_effect.dart';
+import 'package:portfolio/src/core/common_widgets/shader_text_effect.dart';
+import 'package:portfolio/src/core/utils/theme/color_app.dart';
 import 'package:portfolio/src/localization/l10n.dart';
-import 'package:portfolio/src/utils/theme/color_app.dart';
 
 class AboutText extends StatelessWidget {
   const AboutText({super.key});

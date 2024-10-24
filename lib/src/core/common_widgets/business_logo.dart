@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:portfolio/src/constants/assets.dart';
+import 'package:portfolio/src/core/constants/assets.dart';
+import 'package:portfolio/src/core/utils/bool_extensions.dart';
 import 'package:portfolio/src/routing/app_route.dart';
-import 'package:portfolio/src/utils/bool_extensions.dart';
 
 class BusinessLogo extends StatelessWidget {
   const BusinessLogo({

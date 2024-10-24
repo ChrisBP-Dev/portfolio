@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:portfolio/src/common_widgets/social_button.dart';
-import 'package:portfolio/src/constants/app_sizes.dart';
+import 'package:portfolio/src/core/common_widgets/social_button.dart';
+import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/features/social_launcher/presentation/social_launcher_controller.dart';
 
 class SocialButtons extends ConsumerWidget {

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:portfolio/src/common_components/header/animated_menu_container.dart';
-import 'package:portfolio/src/common_components/header/custom_menu_item.dart';
-import 'package:portfolio/src/common_components/header/header_logo.dart';
-import 'package:portfolio/src/common_components/header/header_menu_controller.dart';
-import 'package:portfolio/src/common_widgets/responsive_center.dart';
-import 'package:portfolio/src/constants/app_sizes.dart';
-import 'package:portfolio/src/constants/breakpoints.dart';
+import 'package:portfolio/src/core/common_components/header/animated_menu_container.dart';
+import 'package:portfolio/src/core/common_components/header/custom_menu_item.dart';
+import 'package:portfolio/src/core/common_components/header/header_logo.dart';
+import 'package:portfolio/src/core/common_components/header/header_menu_controller.dart';
+import 'package:portfolio/src/core/common_widgets/responsive_center.dart';
+import 'package:portfolio/src/core/constants/app_sizes.dart';
+import 'package:portfolio/src/core/constants/breakpoints.dart';
 import 'package:portfolio/src/localization/l10n.dart';
 import 'package:portfolio/src/routing/app_route.dart';
 

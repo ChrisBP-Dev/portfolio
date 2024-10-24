@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:portfolio/src/common_widgets/wrapper_scroll.dart';
-import 'package:portfolio/src/constants/app_sizes.dart';
+import 'package:portfolio/src/core/common_widgets/wrapper_scroll.dart';
+import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/features/contact/presentation/components/contact_description.dart';
 import 'package:portfolio/src/features/contact/presentation/components/contact_form.dart';
 

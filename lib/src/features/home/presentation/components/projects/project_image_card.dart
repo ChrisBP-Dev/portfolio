@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:portfolio/src/common_widgets/wrap_network_image.dart';
+import 'package:portfolio/src/core/common_widgets/wrap_network_image.dart';
 
 class ProjectImageCard extends StatelessWidget {
   const ProjectImageCard({required this.imageUrl, super.key});

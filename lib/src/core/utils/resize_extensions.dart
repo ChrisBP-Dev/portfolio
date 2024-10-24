@@ -1,4 +1,4 @@
-import 'package:portfolio/src/constants/breakpoints.dart';
+import 'package:portfolio/src/core/constants/breakpoints.dart';
 
 extension DoubleX on double {
   double sizeScaled(

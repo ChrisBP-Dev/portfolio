@@ -1,5 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:portfolio/src/constants/business_information.dart';
+import 'package:portfolio/src/core/constants/business_information.dart';
 
 class ContactMessage {
   const ContactMessage({

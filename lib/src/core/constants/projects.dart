@@ -1,4 +1,4 @@
-import 'package:portfolio/src/constants/knowledge.dart';
+import 'package:portfolio/src/core/constants/knowledge.dart';
 import 'package:portfolio/src/features/projects/domain/project.dart';
 
 final kProjects = [

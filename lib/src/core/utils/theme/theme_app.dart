@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:portfolio/src/utils/theme/color_app.dart';
-import 'package:portfolio/src/utils/theme/text_theme.dart';
+import 'package:portfolio/src/core/utils/theme/color_app.dart';
+import 'package:portfolio/src/core/utils/theme/text_theme.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'theme_app.g.dart';
 

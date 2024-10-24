@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:portfolio/src/constants/experiences.dart';
+import 'package:portfolio/src/core/constants/experiences.dart';
 import 'package:portfolio/src/features/home/presentation/components/experience/experience_card.dart';
 
 class ExperiencesList extends StatelessWidget {

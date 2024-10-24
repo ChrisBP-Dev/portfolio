@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:portfolio/src/constants/business_information.dart';
+import 'package:portfolio/src/core/constants/business_information.dart';
 
 class AppColor {
   //? do Light later

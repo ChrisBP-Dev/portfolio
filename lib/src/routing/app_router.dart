@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:portfolio/src/common_components/full_page_container.dart';
+import 'package:portfolio/src/core/common_components/full_page_container.dart';
 import 'package:portfolio/src/features/projects/presentation/components/image_viewer.dart';
 import 'package:portfolio/src/routing/app_route.dart';
 import 'package:portfolio/src/routing/not_found_page.dart';

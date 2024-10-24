@@ -1,7 +1,7 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:portfolio/src/constants/breakpoints.dart';
+import 'package:portfolio/src/core/constants/breakpoints.dart';
 import 'package:portfolio/src/features/contact/presentation/contact_controller.dart';
 import 'package:portfolio/src/localization/l10n.dart';
 

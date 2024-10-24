@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:portfolio/src/common_widgets/custom_text_form_field.dart';
-import 'package:portfolio/src/common_widgets/primary_button.dart';
-import 'package:portfolio/src/common_widgets/responsive_center.dart';
-import 'package:portfolio/src/common_widgets/title_form_field.dart';
-import 'package:portfolio/src/constants/app_sizes.dart';
-import 'package:portfolio/src/constants/breakpoints.dart';
+import 'package:portfolio/src/core/common_widgets/custom_text_form_field.dart';
+import 'package:portfolio/src/core/common_widgets/primary_button.dart';
+import 'package:portfolio/src/core/common_widgets/responsive_center.dart';
+import 'package:portfolio/src/core/common_widgets/title_form_field.dart';
+import 'package:portfolio/src/core/constants/app_sizes.dart';
+import 'package:portfolio/src/core/constants/breakpoints.dart';
 import 'package:portfolio/src/features/contact/presentation/components/country_picker.dart';
 import 'package:portfolio/src/features/contact/presentation/components/send_through_dropdown_button.dart';
 import 'package:portfolio/src/features/contact/presentation/contact_controller.dart';

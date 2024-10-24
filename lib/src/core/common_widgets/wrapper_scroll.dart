@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:portfolio/src/common_components/footer/footer_component.dart';
-import 'package:portfolio/src/common_components/header/header_component.dart';
-import 'package:portfolio/src/common_widgets/initial_banner.dart';
+import 'package:portfolio/src/core/common_components/footer/footer_component.dart';
+import 'package:portfolio/src/core/common_components/header/header_component.dart';
+import 'package:portfolio/src/core/common_widgets/initial_banner.dart';
 
 class WrapperScroll extends StatelessWidget {
   const WrapperScroll({required this.components, super.key});

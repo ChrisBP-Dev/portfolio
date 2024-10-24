@@ -1,4 +1,4 @@
-import 'package:portfolio/src/constants/business_information.dart';
+import 'package:portfolio/src/core/constants/business_information.dart';
 import 'package:portfolio/src/features/social_launcher/data/url_launcher_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'social_launcher_repository.g.dart';

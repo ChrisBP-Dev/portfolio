@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:portfolio/src/core/utils/theme/theme_app.dart';
 import 'package:portfolio/src/features/settings/presentation/locale_controller.dart';
 import 'package:portfolio/src/features/settings/presentation/theme_controller.dart';
-
 import 'package:portfolio/src/localization/l10n.dart';
 import 'package:portfolio/src/routing/app_router.dart';
-import 'package:portfolio/src/utils/theme/theme_app.dart';
 
 class App extends ConsumerWidget {
   const App({super.key});

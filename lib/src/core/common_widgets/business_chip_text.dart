@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:portfolio/src/constants/app_sizes.dart';
-import 'package:portfolio/src/utils/theme/color_app.dart';
+import 'package:portfolio/src/core/constants/app_sizes.dart';
+import 'package:portfolio/src/core/utils/theme/color_app.dart';
 
 class BusinessChipText extends StatelessWidget {
   const BusinessChipText({required this.text, super.key});

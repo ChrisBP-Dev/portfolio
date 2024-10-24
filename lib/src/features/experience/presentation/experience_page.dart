@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:portfolio/src/common_widgets/wrapper_scroll.dart';
+import 'package:portfolio/src/core/common_widgets/wrapper_scroll.dart';
 
 class ExperiencePage extends StatelessWidget {
   const ExperiencePage({super.key});
