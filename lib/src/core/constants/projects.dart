@@ -7,6 +7,7 @@ final kProjects = [
     companyNameEn: 'QETO - STARTUP',
     companyNameEs: 'QETO - STARTUP',
     websiteUrl: 'https://www.qeto.app',
+    sourceCodeUrl: 'source-code',
     shortDescriptionEs: '''
 Qeto es una plataforma (app móvil) que reúne la mayor cantidad de información de los productos de los mercados de barrio, ayudando a los consumidores a ahorrar dinero y a los comerciantes a aumentar sus ventas, impulsando el desarrollo económico y mejorando la calidad de vida de las personas.
 ''',
@@ -160,7 +161,6 @@ Development of custom components and reusable extensions to optimize the code.''
       'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fguardowl%2Fguardowl-1-img.png?alt=media&token=3d05f469-eefa-4641-8215-af523e9f6dd2',
       'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fguardowl%2Fguardowl-2-img.png?alt=media&token=488d68af-2dc7-4d6c-87e4-bb5472e32eb2',
       'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fguardowl%2Fguardowl-3-img.png?alt=media&token=c1522bcc-3ac6-4959-85cf-02e21ea55e80',
-      'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fguardowl%2Fguardowl-4-img.png?alt=media&token=caee5a72-4fcd-4b41-a5a7-e3646802ab16',
     ],
   ),
 ];

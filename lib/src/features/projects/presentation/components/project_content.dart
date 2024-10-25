@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:portfolio/src/core/common_widgets/async_value_widget.dart';
-import 'package:portfolio/src/core/common_widgets/business_chip_text.dart';
+// import 'package:portfolio/src/core/common_widgets/business_chip_text.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/features/home/presentation/components/knowledge/knowledge_icon.dart';
 import 'package:portfolio/src/features/projects/domain/project.dart';
@@ -11,10 +11,7 @@ import 'package:portfolio/src/features/social_launcher/presentation/social_launc
 import 'package:portfolio/src/localization/l10n.dart';
 
 class ProjectContent extends ConsumerWidget {
-  const ProjectContent({
-    required this.project,
-    super.key,
-  });
+  const ProjectContent({required this.project, super.key});
 
   final Project project;
 
@@ -93,39 +90,39 @@ class ProjectContent extends ConsumerWidget {
           ),
           gapH14,
           ProjectImagesList(project: project),
-          const Divider(thickness: .5),
+          // const Divider(thickness: .5),
           gapH14,
-          BusinessChipText(text: l10n.featuresTitle),
-          gapH14,
-          ...project.features(locale.languageCode).map(
-                (contribution) => Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '- ',
-                      style: bodyText?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    Expanded(child: Text(contribution, style: bodyText)),
-                  ],
-                ),
-              ),
-          gapH14,
-          const Divider(thickness: .5),
-          gapH14,
-          BusinessChipText(text: l10n.myContributionsTitle),
-          gapH14,
-          ...project.myContributions(locale.languageCode).map(
-                (contribution) => Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '- ',
-                      style: bodyText?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    Expanded(child: Text(contribution, style: bodyText)),
-                  ],
-                ),
-              ),
+          // BusinessChipText(text: l10n.featuresTitle),
+          // gapH14,
+          // ...project.features(locale.languageCode).map(
+          //       (contribution) => Row(
+          //         crossAxisAlignment: CrossAxisAlignment.start,
+          //         children: [
+          //           Text(
+          //             '- ',
+          //             style: bodyText?.copyWith(fontWeight: FontWeight.bold),
+          //           ),
+          //           Expanded(child: Text(contribution, style: bodyText)),
+          //         ],
+          //       ),
+          //     ),
+          // gapH14,
+          // const Divider(thickness: .5),
+          // gapH14,
+          // BusinessChipText(text: l10n.myContributionsTitle),
+          // gapH14,
+          // ...project.myContributions(locale.languageCode).map(
+          //       (contribution) => Row(
+          //         crossAxisAlignment: CrossAxisAlignment.start,
+          //         children: [
+          //           Text(
+          //             '- ',
+          //             style: bodyText?.copyWith(fontWeight: FontWeight.bold),
+          //           ),
+          //           Expanded(child: Text(contribution, style: bodyText)),
+          //         ],
+          //       ),
+          //     ),
         ],
       ),
     );

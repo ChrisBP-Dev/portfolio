@@ -33,11 +33,6 @@ class FirebaseProjectsRepository implements ProjectsRepository {
   }
 }
 
-@riverpod
-ProjectsRepository projectsRepository(ProjectsRepositoryRef ref) {
-  return FirebaseProjectsRepository();
-}
-
 @Riverpod(keepAlive: true)
 Stream<List<Project>> getProjectsStream(GetProjectsStreamRef ref) {
   return ref.read(projectsRepositoryProvider).getProjectsStream();

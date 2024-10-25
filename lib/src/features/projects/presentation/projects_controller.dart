@@ -1,6 +1,6 @@
 import 'package:portfolio/src/core/constants/projects.dart';
-import 'package:portfolio/src/features/projects/data/firebase_projects_repository.dart';
 import 'package:portfolio/src/features/projects/domain/project.dart';
+import 'package:portfolio/src/features/projects/domain/projects_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'projects_controller.g.dart';
 
