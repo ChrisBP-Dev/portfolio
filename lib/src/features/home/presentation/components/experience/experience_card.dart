@@ -44,10 +44,22 @@ class ExperienceCard extends ConsumerWidget {
             BusinessChipText(text: experience.jobName(languageCode)),
             gapH20,
             ...experience.responsabilities(languageCode).map(
-                  (responsability) => Text(
-                    '- $responsability',
-                    style: bodyMedium,
-                    textAlign: TextAlign.left,
+                  (responsability) => Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '-  ',
+                        style:
+                            bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      Expanded(
+                        child: Text(
+                          responsability,
+                          style: bodyMedium,
+                          textAlign: TextAlign.left,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
             gapH20,

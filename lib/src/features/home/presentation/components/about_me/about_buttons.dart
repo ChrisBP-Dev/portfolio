@@ -5,7 +5,7 @@ import 'package:portfolio/src/core/common_widgets/primary_button.dart';
 import 'package:portfolio/src/core/common_widgets/secondary_button.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/core/constants/business_information.dart';
-import 'package:portfolio/src/features/social_launcher/data/social_launcher_repository.dart';
+import 'package:portfolio/src/features/social_launcher/domain/social_launcher_repository.dart';
 import 'package:portfolio/src/localization/l10n.dart';
 import 'package:portfolio/src/routing/app_route.dart';
 
@@ -27,7 +27,7 @@ class AboutButtons extends ConsumerWidget {
         SecondaryButton(
           title: context.l10n.downloadResume,
           onTap: () {
-            ref.read(socialLauncherRepositoryProvider.notifier).launchAnyLink(
+            ref.read(socialLauncherRepositoryProvider).launchAnyLink(
                   BusinessInformation.resumeLink,
                 );
           },

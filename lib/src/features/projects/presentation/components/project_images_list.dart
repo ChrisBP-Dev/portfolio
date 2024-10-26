@@ -31,18 +31,19 @@ class ProjectImagesList extends StatelessWidget {
             },
             child: AspectRatio(
               aspectRatio: 9 / 16,
-              child: Container(
-                clipBehavior: Clip.antiAlias,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(Sizes.p8),
-                  border: Border.all(color: theme.dividerColor),
-                ),
-                margin: const EdgeInsets.only(right: Sizes.p8),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(Sizes.p8),
-                  child: WrapNetworkImage(
-                    imageUrl: project.imagesUrls[index],
-                    fit: BoxFit.cover,
+              child: Padding(
+                padding: const EdgeInsets.only(right: Sizes.p8),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(Sizes.p8),
+                    border: Border.all(color: theme.dividerColor),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(Sizes.p8),
+                    child: WrapNetworkImage(
+                      imageUrl: project.imagesUrls[index],
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               ),

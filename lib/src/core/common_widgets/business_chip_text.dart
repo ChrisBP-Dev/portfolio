@@ -12,7 +12,7 @@ class BusinessChipText extends StatelessWidget {
     final theme = Theme.of(context);
     final color = theme.colorScheme.primary;
     final bodySmall = theme.textTheme.bodySmall;
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Sizes.p8),
         border: Border.all(

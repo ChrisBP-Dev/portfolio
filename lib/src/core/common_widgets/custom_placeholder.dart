@@ -14,19 +14,20 @@ class CustomPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = Theme.of(context).colorScheme.primary;
-    return Container(
+    return SizedBox(
       width: width,
       height: height,
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: color,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          border: Border.all(color: color),
         ),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        viewName,
-        style: TextStyle(
-          color: color,
+        child: Align(
+          child: Text(
+            viewName,
+            style: TextStyle(
+              color: color,
+            ),
+          ),
         ),
       ),
     );

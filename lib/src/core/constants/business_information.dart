@@ -13,9 +13,6 @@ class BusinessInformation {
   // static const website = 'makingbrodevs.com';
   static const reservedInfo = '@2024 Christopher Bobadilla';
 
-  static const templateMessageFromWebsite = '''
-Hi,\nI came from your website $website\nand I would like to find out more about...''';
-
   // social links for contact
   static const gitHubLink = 'https://github.com/ChrisBP-Dev';
   static const linkedInLink =

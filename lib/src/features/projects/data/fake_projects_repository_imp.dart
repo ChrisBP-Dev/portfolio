@@ -3,7 +3,7 @@ import 'package:portfolio/src/core/constants/projects.dart';
 import 'package:portfolio/src/features/projects/domain/project.dart';
 import 'package:portfolio/src/features/projects/domain/projects_repository.dart';
 
-class FakeProjectsRepository implements ProjectsRepository {
+class FakeProjectsRepositoryImp implements ProjectsRepository {
   final List<Project> _projects = kProjects;
 
   @override

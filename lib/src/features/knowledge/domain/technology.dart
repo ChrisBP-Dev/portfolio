@@ -7,6 +7,7 @@ class Technology with _$Technology {
   const factory Technology({
     required String name,
     required String imageUrl,
+    @Default('') String experienceTime,
   }) = _Technology;
   // required String description;
   // required double experienceTime;

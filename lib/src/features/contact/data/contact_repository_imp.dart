@@ -1,18 +1,16 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mailto/mailto.dart';
 import 'package:portfolio/src/core/constants/business_information.dart';
 import 'package:portfolio/src/features/contact/domain/contact_message.dart';
-import 'package:portfolio/src/features/social_launcher/data/url_launcher_repository.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:portfolio/src/features/contact/domain/contact_repository.dart';
+import 'package:portfolio/src/features/social_launcher/domain/url_launcher_repository.dart';
 import 'package:whatsapp_unilink/whatsapp_unilink.dart';
-part 'contact_repository.g.dart';
 
-@riverpod
-class ContactRepository extends _$ContactRepository {
+class ContactRepositoryImp implements ContactRepository {
+  const ContactRepositoryImp(this.ref);
+  final Ref ref;
+
   @override
-  Future<void> build() async {
-    // nothing to do for now.
-  }
-
   Future<void> sendContactMessage(ContactMessage contactMessage) async {
     return switch (contactMessage.sendThrough) {
       SendThrough.whatsapp => _sendWhatsApp(contactMessage),

@@ -1,19 +1,22 @@
-class Experience {
-  const Experience({
-    required this.date,
-    required this.companyName,
-    required this.jobNameEn,
-    required this.jobNameEs,
-    required this.responsabilitiesEn,
-    required this.responsabilitiesEs,
-  });
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  final String date;
-  final String companyName;
-  final String jobNameEn;
-  final String jobNameEs;
-  final List<String> responsabilitiesEn;
-  final List<String> responsabilitiesEs;
+part 'experience.freezed.dart';
+part 'experience.g.dart';
+
+@freezed
+class Experience with _$Experience {
+  const factory Experience({
+    required String id,
+    required String date,
+    required String companyName,
+    required String jobNameEn,
+    required String jobNameEs,
+    required List<String> responsabilitiesEn,
+    required List<String> responsabilitiesEs,
+  }) = _Experience;
+
+  factory Experience.fromJson(Map<String, dynamic> json) =>
+      _$ExperienceFromJson(json);
 }
 
 extension ExperienceX on Experience {

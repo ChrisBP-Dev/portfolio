@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:portfolio/src/core/common_widgets/async_value_widget.dart';
+import 'package:portfolio/src/core/common_widgets/technology_icon.dart';
 // import 'package:portfolio/src/core/common_widgets/business_chip_text.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
-import 'package:portfolio/src/features/home/presentation/components/knowledge/knowledge_icon.dart';
 import 'package:portfolio/src/features/projects/domain/project.dart';
 import 'package:portfolio/src/features/projects/presentation/components/project_images_list.dart';
 import 'package:portfolio/src/features/settings/presentation/locale_controller.dart';
@@ -79,7 +79,7 @@ class ProjectContent extends ConsumerWidget {
               return OutlinedButton.icon(
                 label: Text(tech.name, style: bodyText),
                 onPressed: null,
-                icon: KnowledgeIcon(urlSvg: tech.imageUrl, size: 15),
+                icon: TechnologyIcon(technology: tech, size: 15),
               );
             }).toList(),
           ),

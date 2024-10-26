@@ -53,19 +53,20 @@ class MobileMenuItem extends ConsumerWidget {
           context.go(path);
         },
       ),
-      child: Container(
+      child: SizedBox(
         height: kmobileMenuItemHeight,
-        alignment: Alignment.center,
-        child: isSelected.when(
-          isTrue: () => ShaderTextEffect(
-            text: title,
-            gradient: AppColor.textBusinessGradient,
-            style: bodyLarge?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          isFalse: () => Text(
-            title,
-            style: bodyLarge?.copyWith(
-              color: theme.colorScheme.primary,
+        child: Align(
+          child: isSelected.when(
+            isTrue: () => ShaderTextEffect(
+              text: title,
+              gradient: AppColor.textBusinessGradient,
+              style: bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            isFalse: () => Text(
+              title,
+              style: bodyLarge?.copyWith(
+                color: theme.colorScheme.primary,
+              ),
             ),
           ),
         ),

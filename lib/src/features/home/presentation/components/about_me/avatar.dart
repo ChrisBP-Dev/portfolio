@@ -7,17 +7,19 @@ class Avatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: AppColor.textBusinessGradient,
-      ),
+    return const SizedBox(
       height: 213,
       width: 213,
-      child: const BusinessLogo(
-        height: 150,
-        width: 150,
-        large: false,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: AppColor.textBusinessGradient,
+        ),
+        child: BusinessLogo(
+          height: 150,
+          width: 150,
+          large: false,
+        ),
       ),
     );
   }

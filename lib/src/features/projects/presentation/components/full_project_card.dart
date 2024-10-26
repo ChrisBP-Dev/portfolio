@@ -17,15 +17,21 @@ class FullProjectCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(Sizes.p8),
-        border: Border.all(color: theme.dividerColor),
-      ),
+    return SizedBox(
       width: width,
-      clipBehavior: Clip.antiAlias,
-      padding: const EdgeInsets.all(Sizes.globalPadding),
-      child: ProjectContent(project: project),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(Sizes.p8),
+          border: Border.all(color: theme.dividerColor),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(Sizes.p8),
+          child: Padding(
+            padding: const EdgeInsets.all(Sizes.globalPadding),
+            child: ProjectContent(project: project),
+          ),
+        ),
+      ),
     );
   }
 }

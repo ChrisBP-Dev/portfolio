@@ -11,20 +11,25 @@ class InitialBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final wellcomeTo = context.l10n.initialBannerTitle;
     return SliverToBoxAdapter(
-      child: Container(
+      child: SizedBox(
         height: Sizes.p48,
         width: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: AppColor.textBusinessGradient,
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 30),
-        alignment: Alignment.center,
-        child: FittedBox(
-          child: Text(
-            '$wellcomeTo ${BusinessInformation.websiteType}',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontWeight: FontWeight.bold,
+        child: DecoratedBox(
+          decoration: const BoxDecoration(
+            gradient: AppColor.textBusinessGradient,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30),
+            child: Align(
+              child: FittedBox(
+                child: Text(
+                  '$wellcomeTo ${BusinessInformation.websiteType}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
+              ),
+            ),
           ),
         ),
       ),

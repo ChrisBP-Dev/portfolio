@@ -58,7 +58,7 @@ class _AnimatedHeaderContainerState extends ConsumerState<AnimatedMenuContainer>
         child: AnimatedOpacity(
           opacity: _controller.value,
           duration: kanimationDuration,
-          child: Container(
+          child: DecoratedBox(
             decoration: BoxDecoration(
               border: Border.all(),
               boxShadow: [
@@ -70,22 +70,24 @@ class _AnimatedHeaderContainerState extends ConsumerState<AnimatedMenuContainer>
                 ),
               ],
             ),
-            width: MediaQuery.sizeOf(context).width,
-            child: Column(
-              children: [
-                MobileMenuItem(
-                  title: context.l10n.homeTitle,
-                  path: AppRoute.home.path,
-                ),
-                MobileMenuItem(
-                  title: context.l10n.projectsTitle,
-                  path: AppRoute.projects.path,
-                ),
-                MobileMenuItem(
-                  title: context.l10n.contactTitle,
-                  path: AppRoute.contact.path,
-                ),
-              ],
+            child: SizedBox(
+              width: MediaQuery.sizeOf(context).width,
+              child: Column(
+                children: [
+                  MobileMenuItem(
+                    title: context.l10n.homeTitle,
+                    path: AppRoute.home.path,
+                  ),
+                  MobileMenuItem(
+                    title: context.l10n.projectsTitle,
+                    path: AppRoute.projects.path,
+                  ),
+                  MobileMenuItem(
+                    title: context.l10n.contactTitle,
+                    path: AppRoute.contact.path,
+                  ),
+                ],
+              ),
             ),
           ),
         ),

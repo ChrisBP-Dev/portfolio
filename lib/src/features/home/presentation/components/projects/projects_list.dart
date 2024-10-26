@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:portfolio/src/core/common_widgets/async_value_widget.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/features/home/presentation/components/projects/project_card.dart';
-import 'package:portfolio/src/features/projects/data/firebase_projects_repository.dart';
+import 'package:portfolio/src/features/projects/domain/projects_repository.dart';
 import 'package:portfolio/src/routing/app_route.dart';
 
 class ProjectsList extends ConsumerWidget {

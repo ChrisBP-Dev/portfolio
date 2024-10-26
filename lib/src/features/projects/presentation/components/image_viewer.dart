@@ -6,7 +6,7 @@ import 'package:portfolio/src/core/common_widgets/responsive_center.dart';
 import 'package:portfolio/src/core/common_widgets/wrap_network_image.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/core/utils/bool_extensions.dart';
-import 'package:portfolio/src/features/projects/data/firebase_projects_repository.dart';
+import 'package:portfolio/src/features/projects/domain/projects_repository.dart';
 import 'package:portfolio/src/localization/l10n.dart';
 import 'package:portfolio/src/routing/app_route.dart';
 

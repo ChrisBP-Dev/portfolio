@@ -22,6 +22,7 @@ Technology _$TechnologyFromJson(Map<String, dynamic> json) {
 mixin _$Technology {
   String get name => throw _privateConstructorUsedError;
   String get imageUrl => throw _privateConstructorUsedError;
+  String get experienceTime => throw _privateConstructorUsedError;
 
   /// Serializes this Technology to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -39,7 +40,7 @@ abstract class $TechnologyCopyWith<$Res> {
           Technology value, $Res Function(Technology) then) =
       _$TechnologyCopyWithImpl<$Res, Technology>;
   @useResult
-  $Res call({String name, String imageUrl});
+  $Res call({String name, String imageUrl, String experienceTime});
 }
 
 /// @nodoc
@@ -59,6 +60,7 @@ class _$TechnologyCopyWithImpl<$Res, $Val extends Technology>
   $Res call({
     Object? name = null,
     Object? imageUrl = null,
+    Object? experienceTime = null,
   }) {
     return _then(_value.copyWith(
       name: null == name
@@ -68,6 +70,10 @@ class _$TechnologyCopyWithImpl<$Res, $Val extends Technology>
       imageUrl: null == imageUrl
           ? _value.imageUrl
           : imageUrl // ignore: cast_nullable_to_non_nullable
+              as String,
+      experienceTime: null == experienceTime
+          ? _value.experienceTime
+          : experienceTime // ignore: cast_nullable_to_non_nullable
               as String,
     ) as $Val);
   }
@@ -81,7 +87,7 @@ abstract class _$$TechnologyImplCopyWith<$Res>
       __$$TechnologyImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String name, String imageUrl});
+  $Res call({String name, String imageUrl, String experienceTime});
 }
 
 /// @nodoc
@@ -99,6 +105,7 @@ class __$$TechnologyImplCopyWithImpl<$Res>
   $Res call({
     Object? name = null,
     Object? imageUrl = null,
+    Object? experienceTime = null,
   }) {
     return _then(_$TechnologyImpl(
       name: null == name
@@ -109,6 +116,10 @@ class __$$TechnologyImplCopyWithImpl<$Res>
           ? _value.imageUrl
           : imageUrl // ignore: cast_nullable_to_non_nullable
               as String,
+      experienceTime: null == experienceTime
+          ? _value.experienceTime
+          : experienceTime // ignore: cast_nullable_to_non_nullable
+              as String,
     ));
   }
 }
@@ -116,7 +127,8 @@ class __$$TechnologyImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$TechnologyImpl implements _Technology {
-  const _$TechnologyImpl({required this.name, required this.imageUrl});
+  const _$TechnologyImpl(
+      {required this.name, required this.imageUrl, this.experienceTime = ''});
 
   factory _$TechnologyImpl.fromJson(Map<String, dynamic> json) =>
       _$$TechnologyImplFromJson(json);
@@ -125,10 +137,13 @@ class _$TechnologyImpl implements _Technology {
   final String name;
   @override
   final String imageUrl;
+  @override
+  @JsonKey()
+  final String experienceTime;
 
   @override
   String toString() {
-    return 'Technology(name: $name, imageUrl: $imageUrl)';
+    return 'Technology(name: $name, imageUrl: $imageUrl, experienceTime: $experienceTime)';
   }
 
   @override
@@ -138,12 +153,14 @@ class _$TechnologyImpl implements _Technology {
             other is _$TechnologyImpl &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.imageUrl, imageUrl) ||
-                other.imageUrl == imageUrl));
+                other.imageUrl == imageUrl) &&
+            (identical(other.experienceTime, experienceTime) ||
+                other.experienceTime == experienceTime));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, name, imageUrl);
+  int get hashCode => Object.hash(runtimeType, name, imageUrl, experienceTime);
 
   /// Create a copy of Technology
   /// with the given fields replaced by the non-null parameter values.
@@ -164,7 +181,8 @@ class _$TechnologyImpl implements _Technology {
 abstract class _Technology implements Technology {
   const factory _Technology(
       {required final String name,
-      required final String imageUrl}) = _$TechnologyImpl;
+      required final String imageUrl,
+      final String experienceTime}) = _$TechnologyImpl;
 
   factory _Technology.fromJson(Map<String, dynamic> json) =
       _$TechnologyImpl.fromJson;
@@ -173,6 +191,8 @@ abstract class _Technology implements Technology {
   String get name;
   @override
   String get imageUrl;
+  @override
+  String get experienceTime;
 
   /// Create a copy of Technology
   /// with the given fields replaced by the non-null parameter values.

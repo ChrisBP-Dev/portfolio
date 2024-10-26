@@ -48,11 +48,13 @@ class _CustomMenuItemConsumerState extends ConsumerState<CustomMenuItem> {
                 gradient: AppColor.textBusinessGradient,
                 style: bodySmall?.copyWith(fontWeight: FontWeight.bold),
               ),
-              Container(
+              const SizedBox(
                 height: 2,
                 width: 10,
-                decoration: const BoxDecoration(
-                  gradient: AppColor.textBusinessGradient,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: AppColor.textBusinessGradient,
+                  ),
                 ),
               ),
               if (onHover) gapH2,
@@ -66,10 +68,12 @@ class _CustomMenuItemConsumerState extends ConsumerState<CustomMenuItem> {
                   widget.title,
                   style: bodySmall?.copyWith(fontWeight: FontWeight.bold),
                 ),
-                Container(
+                SizedBox(
                   height: 2,
                   width: 10,
-                  color: theme.colorScheme.primary,
+                  child: ColoredBox(
+                    color: theme.colorScheme.primary,
+                  ),
                 ),
               ],
             ),

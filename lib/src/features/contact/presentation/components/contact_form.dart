@@ -25,96 +25,98 @@ class ContactForm extends ConsumerWidget {
     return ResponsiveCenter(
       padding: const EdgeInsets.all(Sizes.globalPadding),
       maxContentWidth: Breakpoint.tablet,
-      child: Container(
-        padding: const EdgeInsets.all(Sizes.globalPadding),
+      child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(Sizes.p8),
           border: Border.all(color: theme.dividerColor),
         ),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              TitleFormField(title: l10n.whatsYourName),
-              CustomTextFormField(
-                formType: FormType.name,
-                onSaved: (value) {
-                  ref
-                      .read(contactControllerProvider.notifier)
-                      .updateName(value!);
-                },
-              ),
-              gapH14,
-              TitleFormField(title: l10n.whatsYourEmail),
-              CustomTextFormField(
-                formType: FormType.email,
-                onSaved: (value) {
-                  ref
-                      .read(contactControllerProvider.notifier)
-                      .updateEmail(value!);
-                },
-              ),
-              gapH14,
-              TitleFormField(title: l10n.whatsYourPhone),
-              Row(
-                children: [
-                  const Expanded(
-                    child: CountryPicker(),
-                  ),
-                  gapW20,
-                  Expanded(
-                    flex: 2,
-                    child: CustomTextFormField(
-                      formType: FormType.phoneNumber,
-                      onSaved: (value) {
-                        ref
-                            .read(contactControllerProvider.notifier)
-                            .updatePhoneNumber(
-                              contactMessage.phoneNumber.countryCode,
-                              value!,
-                            );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              gapH14,
-              TitleFormField(title: l10n.whatsYourMessage),
-              CustomTextFormField(
-                formType: FormType.message,
-                onSaved: (value) {
-                  ref
-                      .read(contactControllerProvider.notifier)
-                      .updateMessage(value!);
-                },
-                maxLines: 6,
-              ),
-              gapH14,
-              TitleFormField(title: l10n.chooseHowToContact),
-              SendThroughDropDownButton(
-                value: contactMessage.sendThrough,
-                onChanged: (value) {
-                  ref
-                      .read(contactControllerProvider.notifier)
-                      .updateSendThrough(value!);
-                },
-              ),
-              gapH39,
-              Center(
-                child: PrimaryButton(
-                  text: l10n.sendMessage,
-                  onTap: () {
-                    if (!_formKey.currentState!.validate()) return;
-                    _formKey.currentState!.save();
+        child: Padding(
+          padding: const EdgeInsets.all(Sizes.globalPadding),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                TitleFormField(title: l10n.whatsYourName),
+                CustomTextFormField(
+                  formType: FormType.name,
+                  onSaved: (value) {
                     ref
                         .read(contactControllerProvider.notifier)
-                        .sendContactMessage();
+                        .updateName(value!);
                   },
                 ),
-              ),
-              gapH39,
-            ],
+                gapH14,
+                TitleFormField(title: l10n.whatsYourEmail),
+                CustomTextFormField(
+                  formType: FormType.email,
+                  onSaved: (value) {
+                    ref
+                        .read(contactControllerProvider.notifier)
+                        .updateEmail(value!);
+                  },
+                ),
+                gapH14,
+                TitleFormField(title: l10n.whatsYourPhone),
+                Row(
+                  children: [
+                    const Expanded(
+                      child: CountryPicker(),
+                    ),
+                    gapW20,
+                    Expanded(
+                      flex: 2,
+                      child: CustomTextFormField(
+                        formType: FormType.phoneNumber,
+                        onSaved: (value) {
+                          ref
+                              .read(contactControllerProvider.notifier)
+                              .updatePhoneNumber(
+                                contactMessage.phoneNumber.countryCode,
+                                value!,
+                              );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                gapH14,
+                TitleFormField(title: l10n.whatsYourMessage),
+                CustomTextFormField(
+                  formType: FormType.message,
+                  onSaved: (value) {
+                    ref
+                        .read(contactControllerProvider.notifier)
+                        .updateMessage(value!);
+                  },
+                  maxLines: 6,
+                ),
+                gapH14,
+                TitleFormField(title: l10n.chooseHowToContact),
+                SendThroughDropDownButton(
+                  value: contactMessage.sendThrough,
+                  onChanged: (value) {
+                    ref
+                        .read(contactControllerProvider.notifier)
+                        .updateSendThrough(value!);
+                  },
+                ),
+                gapH39,
+                Center(
+                  child: PrimaryButton(
+                    text: l10n.sendMessage,
+                    onTap: () {
+                      if (!_formKey.currentState!.validate()) return;
+                      _formKey.currentState!.save();
+                      ref
+                          .read(contactControllerProvider.notifier)
+                          .sendContactMessage();
+                    },
+                  ),
+                ),
+                gapH39,
+              ],
+            ),
           ),
         ),
       ),

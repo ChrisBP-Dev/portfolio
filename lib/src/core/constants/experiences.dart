@@ -2,48 +2,82 @@ import 'package:portfolio/src/features/experience/domain/experience.dart';
 
 const kExperiences = [
   Experience(
-    date: '2022 – 2022',
+    id: '1',
+    date: '2024 - 2024',
+    companyName: 'GuardOwl ',
     jobNameEn: 'Flutter Developer',
     jobNameEs: 'Desarrollador Flutter',
-    companyName: 'QETO, START UP',
     responsabilitiesEn: [
-      'I built reusable custom components and extensions to optimize code.',
-      'I converted the Figma design to code applying the business rules.',
       '''
-I migrated from Provider state management to Flutter_Bloc, preparing for higher scalability.''',
+Developed GuardOwl, an app that helps travelers stay informed and safe through
+real-time security alerts, access to important contacts, and incident reporting.''',
+      '''
+ Completed an MVP in just over a month, demonstrating adaptability to rapid changes
+and strong teamwork.''',
+      '''Integrated Gemini AI API to enhance the user interface with artificial intelligence.''',
     ],
     responsabilitiesEs: [
       '''
-Construí componentes personalizados y extensiones reutilizables para optimizar el código.''',
-      'Convertí el diseño de Figma a código aplicando las reglas del negocio.',
+Desarrollé GuardOwl, una aplicación que ayuda a los viajeros a mantenerse informados y seguros a través
+de alertas de seguridad en tiempo real, acceso a contactos importantes e informes de incidentes.''',
       '''
-Migré de la gestión de estado de Provider a Flutter_Bloc, preparándome para una mayor escalabilidad.''',
+Completé un MVP en poco más de un mes, demostrando adaptabilidad a cambios
+rápidos y un fuerte trabajo en equipo.''',
+      '''Integré la API de Gemini AI para mejorar la interfaz de usuario con inteligencia artificial.''',
     ],
   ),
   Experience(
+    id: '2',
     date: '2022 – 2022',
+    companyName: 'QETO, START UP',
     jobNameEn: 'Flutter Developer',
     jobNameEs: 'Desarrollador Flutter',
-    companyName: 'LA CABANITA - STORE',
     responsabilitiesEn: [
-      '''I built three apps using Flutter and Firebase as back-end: Manager (Android), Local Store (Android), User (web app - PWA).''',
       '''
-I carried out a study of the business needs and the expected solutions with the application.''',
+Developed a mobile application that allows consumers to compare prices and reviews in
+local markets, promoting transparency and reducing price inflation.''',
       '''
-Design the functionalities of the application that includes the authentication flows, adding products to the cart, order request and among others.''',
+Implemented Flutter_Bloc to improve scalability and performance of the application.''',
       '''
-Noticed a significant improvement in customer loyalty and conversion since the app launched.''',
-      'I redesigned the user interface, adding friendly animations.',
+Translated Figma designs into efficient code, adhering to business rules and enhancing
+user experience.''',
     ],
     responsabilitiesEs: [
-      '''Desarrollé tres aplicaciones utilizando Flutter y Firebase como backend: Administrador (Android), Tienda local (Android), Usuario (aplicación web - PWA).''',
       '''
-Realicé un estudio de las necesidades del negocio y las soluciones esperadas con la aplicación.''',
+Desarrollé una aplicación móvil que permite a los consumidores comparar precios y reseñas en
+mercados locales, promoviendo la transparencia y reduciendo la inflación de precios.''',
       '''
-Diseñé las funcionalidades de la aplicación que incluyen los flujos de autenticación, la adición de productos al carrito, la solicitud de pedidos y entre otras.''',
+Implementé Flutter_Bloc para mejorar la escalabilidad y el rendimiento de la aplicación.''',
       '''
-Se notó una mejora significativa en la fidelización y conversión de clientes desde el lanzamiento de la aplicación.''',
-      'Rediseñé la interfaz de usuario, agregando animaciones amigables.',
+Traduje los diseños de Figma en código eficiente, adhiriéndome a las reglas del negocio y mejorando
+la experiencia del usuario.''',
+    ],
+  ),
+  Experience(
+    id: '3',
+    date: '2022 – 2022',
+    companyName: 'LA CABANITA - STORE',
+    jobNameEn: 'Flutter Developer',
+    jobNameEs: 'Desarrollador Flutter',
+    responsabilitiesEn: [
+      '''
+Developed three applications: Local (Android), Manager (Android), and Client (web
+app - PWA), improving order management by 30%.''',
+      '''
+Implemented a rewards system that increased customer loyalty.''',
+      '''
+Used Firebase Firestore, Storage, and a feature-first architecture to ensure scalability
+and maintenance.''',
+    ],
+    responsabilitiesEs: [
+      '''
+Desarrollé tres aplicaciones: Local (Android), Manager (Android) y Cliente (aplicación web - PWA),
+mejorando la gestión de pedidos en un 30%.''',
+      '''
+Implementé un sistema de recompensas que aumentó la fidelidad de los clientes.''',
+      '''
+Usé Firebase Firestore, Storage y una arquitectura orientada a funciones para garantizar la escalabilidad
+y el mantenimiento.''',
     ],
   ),
 ];

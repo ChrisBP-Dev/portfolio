@@ -1,10 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:portfolio/src/features/projects/domain/project.dart';
 import 'package:portfolio/src/features/projects/domain/projects_repository.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-part 'firebase_projects_repository.g.dart';
 
-class FirebaseProjectsRepository implements ProjectsRepository {
+class FirebaseProjectsRepositoryImp implements ProjectsRepository {
   static final _firestore = FirebaseFirestore.instance;
   static final _collection = _firestore.collection('Projects');
 
@@ -31,9 +29,4 @@ class FirebaseProjectsRepository implements ProjectsRepository {
   Future<void> updateProject(Project project) {
     return _collection.doc(project.id).update(project.toJson());
   }
-}
-
-@Riverpod(keepAlive: true)
-Stream<List<Project>> getProjectsStream(GetProjectsStreamRef ref) {
-  return ref.read(projectsRepositoryProvider).getProjectsStream();
 }
