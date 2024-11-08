@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:portfolio/src/core/common_components/full_page_container.dart';
 import 'package:portfolio/src/features/projects/presentation/components/image_viewer.dart';
+import 'package:portfolio/src/routing/admin_app_route.dart';
 import 'package:portfolio/src/routing/app_route.dart';
 import 'package:portfolio/src/routing/not_found_page.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -9,19 +11,13 @@ part 'app_router.g.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
+// final _shellAdminNavigatorKey = GlobalKey<NavigatorState>();
 
 @Riverpod(keepAlive: true)
-GoRouter goRouter(GoRouterRef ref) {
+GoRouter goRouter(Ref ref) {
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/',
-    // redirect: (context, state) {
-    // final path = state.uri.path;
-    // final paths = AppRoute.values.map((e) => e.path).toList();
-    // final validPath = paths.contains(path);
-    // if (!validPath) return AppRoute.home.path;
-    // return null;
-    // },
     routes: [
       ShellRoute(
         navigatorKey: _shellNavigatorKey,
@@ -65,6 +61,23 @@ GoRouter goRouter(GoRouterRef ref) {
             child: child,
           ),
         ),
+      ),
+      ...AdminAppRoute.shellRoutes.map(
+        (route) {
+          return GoRoute(
+            path: route.path,
+            name: route.name,
+            pageBuilder: (context, state) => CustomTransitionPage<void>(
+              key: state.pageKey,
+              child: route.page,
+              transitionsBuilder: (_, animation, __, child) => FadeTransition(
+                opacity: animation,
+                child: child,
+              ),
+            ),
+            // routes: subRoute,
+          );
+        },
       ),
     ],
     errorBuilder: (context, state) => const NotFoundPage(),

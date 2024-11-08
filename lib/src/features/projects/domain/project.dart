@@ -1,5 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:portfolio/src/features/knowledge/domain/technology.dart';
+import 'package:portfolio/src/features/technologies/domain/technology.dart';
 
 part 'project.freezed.dart';
 part 'project.g.dart';
@@ -7,37 +8,53 @@ part 'project.g.dart';
 @freezed
 class Project with _$Project {
   const factory Project({
-    required String id,
     required String companyNameEs,
     required String companyNameEn,
     required String shortDescriptionEs,
     required String shortDescriptionEn,
-    required List<Technology> technologies,
-    required List<String> featuresEs,
-    required List<String> featuresEn,
-    required List<String> myContributionsEs,
-    required List<String> myContributionsEn,
     required String mainImageUrl,
-    required List<String> imagesUrls,
+    String? refMainImage,
+    @Default('') String id,
+    @Default(<String>[]) List<String> imagesUrls,
+    @Default(<String>[]) List<String> refImagesUrls,
+    // @JsonKey(name: Project.technologiesKey)
+    @Default(<Technology>[]) List<Technology> technologies,
+    @Default(<String>[]) List<String> featuresEs,
+    @Default(<String>[]) List<String> featuresEn,
     String? websiteUrl,
     String? sourceCodeUrl,
   }) = _Project;
 
-  const Project._();
-
   factory Project.fromJson(Map<String, dynamic> json) =>
       _$ProjectFromJson(json);
 
-  static Map<String, dynamic> toFirebase(Project project) {
-    final projectX = project.toJson();
+  factory Project.initial() => const Project(
+        companyNameEs: '',
+        companyNameEn: '',
+        shortDescriptionEs: '',
+        shortDescriptionEn: '',
+        mainImageUrl: '',
+        imagesUrls: [''],
+      );
 
-    if (project.technologies.isEmpty) return projectX;
+  const Project._();
 
-    projectX['technologies'] =
-        project.technologies.map((technology) => technology.toJson()).toList();
+  Uint8List get mainImageCharCode => Uint8List.fromList(mainImageUrl.codeUnits);
+  List<Uint8List> get imagesCharCodes =>
+      imagesUrls.map((url) => Uint8List.fromList(url.codeUnits)).toList();
 
-    return projectX;
-  }
+  static const String technologiesKey = 'technologies';
+
+  // static Map<String, dynamic> toFirebase(Project project) {
+  //   final projectX = project.toJson();
+
+  //   if (project.technologies.isEmpty) return projectX;
+
+  //   projectX['technologies'] =
+  //       project.technologies.map((technology) => technology.toJson()).toList();
+
+  //   return projectX;
+  // }
 }
 
 extension ProjectX on Project {
@@ -54,9 +71,5 @@ extension ProjectX on Project {
 
   List<String> features(String languageCode) {
     return languageCode == 'en' ? featuresEn : featuresEs;
-  }
-
-  List<String> myContributions(String languageCode) {
-    return languageCode == 'en' ? myContributionsEn : myContributionsEs;
   }
 }

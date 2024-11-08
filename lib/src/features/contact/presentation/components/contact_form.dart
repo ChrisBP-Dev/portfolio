@@ -6,6 +6,7 @@ import 'package:portfolio/src/core/common_widgets/responsive_center.dart';
 import 'package:portfolio/src/core/common_widgets/title_form_field.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/core/constants/breakpoints.dart';
+import 'package:portfolio/src/core/utils/theme/color_app.dart';
 import 'package:portfolio/src/features/contact/presentation/components/country_picker.dart';
 import 'package:portfolio/src/features/contact/presentation/components/send_through_dropdown_button.dart';
 import 'package:portfolio/src/features/contact/presentation/contact_controller.dart';
@@ -18,7 +19,6 @@ class ContactForm extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
     final l10n = context.l10n;
     final contactMessage = ref.watch(contactControllerProvider);
 
@@ -28,7 +28,7 @@ class ContactForm extends ConsumerWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(Sizes.p8),
-          border: Border.all(color: theme.dividerColor),
+          border: Border.all(color: context.getPrimaryColor()),
         ),
         child: Padding(
           padding: const EdgeInsets.all(Sizes.globalPadding),
@@ -37,7 +37,7 @@ class ContactForm extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                TitleFormField(title: l10n.whatsYourName),
+                TitleFormField(title: l10n.whatsYour(l10n.nameLabel)),
                 CustomTextFormField(
                   formType: FormType.name,
                   onSaved: (value) {
@@ -47,7 +47,7 @@ class ContactForm extends ConsumerWidget {
                   },
                 ),
                 gapH14,
-                TitleFormField(title: l10n.whatsYourEmail),
+                TitleFormField(title: l10n.whatsYour(l10n.emailLabel)),
                 CustomTextFormField(
                   formType: FormType.email,
                   onSaved: (value) {
@@ -57,7 +57,7 @@ class ContactForm extends ConsumerWidget {
                   },
                 ),
                 gapH14,
-                TitleFormField(title: l10n.whatsYourPhone),
+                TitleFormField(title: l10n.whatsYour(l10n.phoneNumberLabel)),
                 Row(
                   children: [
                     const Expanded(
@@ -81,7 +81,7 @@ class ContactForm extends ConsumerWidget {
                   ],
                 ),
                 gapH14,
-                TitleFormField(title: l10n.whatsYourMessage),
+                TitleFormField(title: l10n.whatsYour(l10n.messageLabel)),
                 CustomTextFormField(
                   formType: FormType.message,
                   onSaved: (value) {

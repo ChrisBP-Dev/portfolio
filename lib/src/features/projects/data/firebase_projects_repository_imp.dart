@@ -14,19 +14,4 @@ class FirebaseProjectsRepositoryImp implements ProjectsRepository {
       }).toList();
     });
   }
-
-  @override
-  Future<void> createProject(Project project) {
-    return _collection.add(Project.toFirebase(project));
-  }
-
-  @override
-  Future<void> deleteProject(Project project) {
-    return _collection.doc(project.id).delete();
-  }
-
-  @override
-  Future<void> updateProject(Project project) {
-    return _collection.doc(project.id).update(project.toJson());
-  }
 }

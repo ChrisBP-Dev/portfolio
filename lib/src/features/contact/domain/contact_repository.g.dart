@@ -6,7 +6,7 @@ part of 'contact_repository.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$contactRepositoryHash() => r'78d7931ead254e44c0f70c2b8f57516bfbed3197';
+String _$contactRepositoryHash() => r'3c83f8f74da4f2fdfff5c0ebbb871930a492b48e';
 
 /// See also [contactRepository].
 @ProviderFor(contactRepository)
@@ -21,6 +21,8 @@ final contactRepositoryProvider =
   allTransitiveDependencies: null,
 );
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 typedef ContactRepositoryRef = AutoDisposeProviderRef<ContactRepository>;
 // ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

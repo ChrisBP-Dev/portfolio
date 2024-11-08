@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:portfolio/src/core/common_widgets/technology_icon.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
-import 'package:portfolio/src/features/knowledge/domain/technology.dart';
+import 'package:portfolio/src/features/technologies/domain/technology.dart';
 
 class TechnologyIconText extends StatelessWidget {
   const TechnologyIconText({required this.technology, super.key, this.size});

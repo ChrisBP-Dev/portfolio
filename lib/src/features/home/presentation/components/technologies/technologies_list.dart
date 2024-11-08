@@ -4,7 +4,7 @@ import 'package:portfolio/src/core/common_widgets/async_value_widget.dart';
 import 'package:portfolio/src/core/common_widgets/responsive_center.dart';
 import 'package:portfolio/src/core/constants/breakpoints.dart';
 import 'package:portfolio/src/features/home/presentation/components/technologies/technology_icon_text.dart';
-import 'package:portfolio/src/features/knowledge/domain/knowledge_repository.dart';
+import 'package:portfolio/src/features/technologies/domain/technology_repository.dart';
 
 class TechnologiesList extends ConsumerWidget {
   const TechnologiesList({super.key});
@@ -14,11 +14,11 @@ class TechnologiesList extends ConsumerWidget {
     return ResponsiveCenter(
       maxContentWidth: Breakpoint.mobile,
       child: AsyncValueWidget(
-        value: ref.watch(getKnowledgeProvider),
-        data: (knowledge) {
+        value: ref.watch(getTechnologiesProvider),
+        data: (technologies) {
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: knowledge.tecnologies.map(
+            children: technologies.map(
               (tecnology) {
                 return TechnologyIconText(technology: tecnology);
               },

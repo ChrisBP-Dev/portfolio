@@ -7,7 +7,7 @@ part of 'projects_repository.dart';
 // **************************************************************************
 
 String _$projectsRepositoryHash() =>
-    r'e0f9dd6fd678d1841ce7b6ce59a35490cfd562c7';
+    r'656648a4f29321e343fd490f51c392ce29503d65';
 
 /// See also [projectsRepository].
 @ProviderFor(projectsRepository)
@@ -22,8 +22,10 @@ final projectsRepositoryProvider =
   allTransitiveDependencies: null,
 );
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 typedef ProjectsRepositoryRef = AutoDisposeProviderRef<ProjectsRepository>;
-String _$getProjectsStreamHash() => r'55093fe521091567fd9314e0fc66384cbe56992c';
+String _$getProjectsStreamHash() => r'f1637c2c8d5b6676a0a0f30fb58ad37f065b5cf0';
 
 /// See also [getProjectsStream].
 @ProviderFor(getProjectsStream)
@@ -37,6 +39,8 @@ final getProjectsStreamProvider = StreamProvider<List<Project>>.internal(
   allTransitiveDependencies: null,
 );
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 typedef GetProjectsStreamRef = StreamProviderRef<List<Project>>;
 // ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

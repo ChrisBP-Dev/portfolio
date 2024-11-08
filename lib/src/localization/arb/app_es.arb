@@ -9,39 +9,49 @@
     "getInTouch": "Contáctame",
     "downloadResume": "Descargar Resumen",
     "knowledgeOf": "Conocimiento de",
+
     "projectsTitle": "Proyectos",
+    "project": "Proyecto",
     "projectDescription": "Como desarrollador he tenido la oportunidad de trabajar en diferentes proyectos, tanto personales como profesionales. A continuación, algunos de los proyectos en los que he trabajado:",
     "filterBy": "Filtrar por",
     "allProjects": "Todos los Proyectos",
     "noProjects": "No se encontraron proyectos",
+
+    "mainImageTitle": "Imagen Principal",
+    "companyName": "Nombre de la Empresa",
+    "shortDescription": "Descripción Corta",
     "websiteTitle": "Sitio Web",
-    "technologiesTitle": "Tecnologías",
+    "sourceCodeTitle": "Código Fuente",
     "screenshotsTitle": "Capturas de Pantalla",
-    "myContributionsTitle": "Mis Contribuciones",
     "featuresTitle": "Características",
     "seeAllButtonTitle": "Ver Todos",
-    "clickHereToVisit": "Haz clic aquí para visitar",
+    
+    "technologiesTitle": "Tecnologías",
+    "technology": "Tecnología",
     "experienceTitle": "Experiencia",
+    "experienceTime": "Tiempo de Experiencia",
+
     "contactTitle": "Contacto",
     "contactDescription": "Si tienes alguna pregunta o te gustaría trabajar conmigo, no dudes en contactarme utilizando el formulario a continuación. Me pondré en contacto contigo lo antes posible. ¡Gracias!",
-    "whatsYourName": "¿Cuál es tu nombre?",
     "nameLabel": "Nombre",
-    "nameError": "Por favor, introduce tu nombre",
-    "whatsYourEmail": "¿Cuál es tu correo electrónico?",
     "emailLabel": "Correo Electrónico",
-    "emailError": "Por favor, introduce tu correo electrónico",
-    "whatsYourPhone": "¿Cuál es tu número de teléfono?",
     "phoneNumberLabel": "Número de Teléfono",
-    "phoneNumberError": "Por favor, introduce tu número de teléfono",
-    "whatsYourMessage": "¿Cuál es tu mensaje?",
     "messageLabel": "Mensaje",
-    "messageError": "Por favor, introduce tu mensaje",
     "chooseHowToContact": "Elige cómo contactar",
     "searchCountryHint": "Buscar país",
     "sendThrough": "Enviar a través de",
     "sendMessage": "Enviar Mensaje",
+    
     "pageNotFound404":"404 - Página no encontrada!",
-    "close": "Cerrar"
+    "create": "Crear {fieldName}",
+    "update": "Actualizar {fieldName}",
+    "delete": "Eliminar {fieldName}",
+    "close": "Cerrar",
+    "whatsYour": "¿Cuál es tu {fieldName}?",
+    "errorMessage": "Por favor, introduce tu {fieldName}",
+    "error": "Error"
+
+
     
 
 }

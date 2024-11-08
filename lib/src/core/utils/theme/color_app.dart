@@ -38,3 +38,9 @@ class AppColor {
     ],
   );
 }
+
+extension AppColorExtension on BuildContext {
+  Color getPrimaryColor() => Theme.of(this).brightness == Brightness.light
+      ? AppColor.primaryLightColor
+      : AppColor.primaryDarkColor;
+}

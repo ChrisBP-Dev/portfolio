@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:portfolio/src/features/experience/data/fake_experience_repository_imp.dart';
 // import 'package:portfolio/src/features/experience/data/firebase_experience_repository_imp.dart';
 import 'package:portfolio/src/features/experience/domain/experience.dart';
@@ -12,12 +13,12 @@ abstract class ExperienceRepository {
 }
 
 @riverpod
-ExperienceRepository experienceRepository(ExperienceRepositoryRef ref) {
+ExperienceRepository experienceRepository(Ref ref) {
   return FakeExperienceRepositoryImp();
   // return FirebaseExperienceRepositoryImp();
 }
 
 @Riverpod(keepAlive: true)
-Stream<List<Experience>> getExperiencesStream(GetExperiencesStreamRef ref) {
+Stream<List<Experience>> getExperiencesStream(Ref ref) {
   return ref.read(experienceRepositoryProvider).getExperiencesStream();
 }
