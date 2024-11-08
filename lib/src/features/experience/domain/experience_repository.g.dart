@@ -7,7 +7,7 @@ part of 'experience_repository.dart';
 // **************************************************************************
 
 String _$experienceRepositoryHash() =>
-    r'7c2f19636ab899641a7e4d51dd6c17be927c09f7';
+    r'0758cdd803050bfa3b9253c07c449881a65959a1';
 
 /// See also [experienceRepository].
 @ProviderFor(experienceRepository)
@@ -22,9 +22,11 @@ final experienceRepositoryProvider =
   allTransitiveDependencies: null,
 );
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 typedef ExperienceRepositoryRef = AutoDisposeProviderRef<ExperienceRepository>;
 String _$getExperiencesStreamHash() =>
-    r'e0ce4b703fbcea5ba13a784212b6620ac9d09e3c';
+    r'ceb45dfbc65c75e4a3575cb0462848158190e783';
 
 /// See also [getExperiencesStream].
 @ProviderFor(getExperiencesStream)
@@ -38,6 +40,8 @@ final getExperiencesStreamProvider = StreamProvider<List<Experience>>.internal(
   allTransitiveDependencies: null,
 );
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 typedef GetExperiencesStreamRef = StreamProviderRef<List<Experience>>;
 // ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

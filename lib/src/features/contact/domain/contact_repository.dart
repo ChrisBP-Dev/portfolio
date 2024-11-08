@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:portfolio/src/features/contact/data/contact_repository_imp.dart';
 import 'package:portfolio/src/features/contact/domain/contact_message.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -8,6 +9,6 @@ abstract class ContactRepository {
 }
 
 @riverpod
-ContactRepository contactRepository(ContactRepositoryRef ref) {
+ContactRepository contactRepository(Ref ref) {
   return ContactRepositoryImp(ref);
 }

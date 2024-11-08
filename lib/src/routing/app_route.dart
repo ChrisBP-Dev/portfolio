@@ -25,11 +25,6 @@ enum AppRoute {
     path: '/contact',
     page: ContactPage(),
   ),
-
-  // not implemented yet
-  // signIn
-  // signUp
-
   ;
 
   const AppRoute({

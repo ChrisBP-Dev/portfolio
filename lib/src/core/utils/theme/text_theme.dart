@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:portfolio/src/core/utils/resize_extensions.dart';
 import 'package:portfolio/src/core/utils/theme/color_app.dart';
@@ -94,18 +95,18 @@ class AppTextTheme {
 }
 
 @riverpod
-AppTextTheme appTextTheme(AppTextThemeRef ref) {
+AppTextTheme appTextTheme(Ref ref) {
   return AppTextTheme();
 }
 
 @riverpod
-TextTheme lightTextTheme(LightTextThemeRef ref, double screenWidth) {
+TextTheme lightTextTheme(Ref ref, double screenWidth) {
   final appTextTheme = ref.watch(appTextThemeProvider);
   return appTextTheme.lightTextTheme(screenWidth);
 }
 
 @riverpod
-TextTheme darkTextTheme(DarkTextThemeRef ref, double screenWidth) {
+TextTheme darkTextTheme(Ref ref, double screenWidth) {
   final appTextTheme = ref.watch(appTextThemeProvider);
   return appTextTheme.darkTextTheme(screenWidth);
 }

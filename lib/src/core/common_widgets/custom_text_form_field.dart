@@ -1,5 +1,6 @@
 // lib/src/common_widgets/custom_text_form_field.dart
 import 'package:flutter/material.dart';
+import 'package:portfolio/src/core/utils/theme/color_app.dart';
 import 'package:portfolio/src/localization/l10n.dart';
 
 class CustomTextFormField extends StatelessWidget {
@@ -26,13 +27,13 @@ class CustomTextFormField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: formType.getLabelText(context),
         labelStyle: theme.textTheme.bodySmall
-            ?.copyWith(color: theme.dividerColor.withOpacity(.7)),
-        border: defaultBorder(theme.dividerColor),
-        enabledBorder: defaultBorder(theme.dividerColor),
-        focusedErrorBorder: defaultBorder(theme.dividerColor),
+            ?.copyWith(color: context.getPrimaryColor().withOpacity(.8)),
+        border: defaultBorder(context.getPrimaryColor()),
+        enabledBorder: defaultBorder(context.getPrimaryColor()),
+        focusedErrorBorder: defaultBorder(context.getPrimaryColor()),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: theme.colorScheme.primary),
+          borderSide: BorderSide(color: context.getPrimaryColor()),
         ),
       ),
       onSaved: onSaved,
@@ -75,10 +76,10 @@ extension CustomTextFormFieldTypeX on FormType {
   String getErrorText(BuildContext context) {
     final l10n = context.l10n;
     return switch (this) {
-      FormType.name => l10n.nameError,
-      FormType.email => l10n.emailError,
-      FormType.message => l10n.messageError,
-      FormType.phoneNumber => l10n.phoneNumberError,
+      FormType.name => l10n.errorMessage(l10n.nameLabel),
+      FormType.email => l10n.errorMessage(l10n.emailLabel),
+      FormType.message => l10n.errorMessage(l10n.messageLabel),
+      FormType.phoneNumber => l10n.errorMessage(l10n.phoneNumberLabel),
     };
   }
 

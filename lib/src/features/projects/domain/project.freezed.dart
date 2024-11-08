@@ -20,18 +20,19 @@ Project _$ProjectFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Project {
-  String get id => throw _privateConstructorUsedError;
   String get companyNameEs => throw _privateConstructorUsedError;
   String get companyNameEn => throw _privateConstructorUsedError;
   String get shortDescriptionEs => throw _privateConstructorUsedError;
   String get shortDescriptionEn => throw _privateConstructorUsedError;
+  String get mainImageUrl => throw _privateConstructorUsedError;
+  String? get refMainImage => throw _privateConstructorUsedError;
+  String get id => throw _privateConstructorUsedError;
+  List<String> get imagesUrls => throw _privateConstructorUsedError;
+  List<String> get refImagesUrls =>
+      throw _privateConstructorUsedError; // @JsonKey(name: Project.technologiesKey)
   List<Technology> get technologies => throw _privateConstructorUsedError;
   List<String> get featuresEs => throw _privateConstructorUsedError;
   List<String> get featuresEn => throw _privateConstructorUsedError;
-  List<String> get myContributionsEs => throw _privateConstructorUsedError;
-  List<String> get myContributionsEn => throw _privateConstructorUsedError;
-  String get mainImageUrl => throw _privateConstructorUsedError;
-  List<String> get imagesUrls => throw _privateConstructorUsedError;
   String? get websiteUrl => throw _privateConstructorUsedError;
   String? get sourceCodeUrl => throw _privateConstructorUsedError;
 
@@ -50,18 +51,18 @@ abstract class $ProjectCopyWith<$Res> {
       _$ProjectCopyWithImpl<$Res, Project>;
   @useResult
   $Res call(
-      {String id,
-      String companyNameEs,
+      {String companyNameEs,
       String companyNameEn,
       String shortDescriptionEs,
       String shortDescriptionEn,
+      String mainImageUrl,
+      String? refMainImage,
+      String id,
+      List<String> imagesUrls,
+      List<String> refImagesUrls,
       List<Technology> technologies,
       List<String> featuresEs,
       List<String> featuresEn,
-      List<String> myContributionsEs,
-      List<String> myContributionsEn,
-      String mainImageUrl,
-      List<String> imagesUrls,
       String? websiteUrl,
       String? sourceCodeUrl});
 }
@@ -81,26 +82,22 @@ class _$ProjectCopyWithImpl<$Res, $Val extends Project>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
     Object? companyNameEs = null,
     Object? companyNameEn = null,
     Object? shortDescriptionEs = null,
     Object? shortDescriptionEn = null,
+    Object? mainImageUrl = null,
+    Object? refMainImage = freezed,
+    Object? id = null,
+    Object? imagesUrls = null,
+    Object? refImagesUrls = null,
     Object? technologies = null,
     Object? featuresEs = null,
     Object? featuresEn = null,
-    Object? myContributionsEs = null,
-    Object? myContributionsEn = null,
-    Object? mainImageUrl = null,
-    Object? imagesUrls = null,
     Object? websiteUrl = freezed,
     Object? sourceCodeUrl = freezed,
   }) {
     return _then(_value.copyWith(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
       companyNameEs: null == companyNameEs
           ? _value.companyNameEs
           : companyNameEs // ignore: cast_nullable_to_non_nullable
@@ -117,6 +114,26 @@ class _$ProjectCopyWithImpl<$Res, $Val extends Project>
           ? _value.shortDescriptionEn
           : shortDescriptionEn // ignore: cast_nullable_to_non_nullable
               as String,
+      mainImageUrl: null == mainImageUrl
+          ? _value.mainImageUrl
+          : mainImageUrl // ignore: cast_nullable_to_non_nullable
+              as String,
+      refMainImage: freezed == refMainImage
+          ? _value.refMainImage
+          : refMainImage // ignore: cast_nullable_to_non_nullable
+              as String?,
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      imagesUrls: null == imagesUrls
+          ? _value.imagesUrls
+          : imagesUrls // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      refImagesUrls: null == refImagesUrls
+          ? _value.refImagesUrls
+          : refImagesUrls // ignore: cast_nullable_to_non_nullable
+              as List<String>,
       technologies: null == technologies
           ? _value.technologies
           : technologies // ignore: cast_nullable_to_non_nullable
@@ -128,22 +145,6 @@ class _$ProjectCopyWithImpl<$Res, $Val extends Project>
       featuresEn: null == featuresEn
           ? _value.featuresEn
           : featuresEn // ignore: cast_nullable_to_non_nullable
-              as List<String>,
-      myContributionsEs: null == myContributionsEs
-          ? _value.myContributionsEs
-          : myContributionsEs // ignore: cast_nullable_to_non_nullable
-              as List<String>,
-      myContributionsEn: null == myContributionsEn
-          ? _value.myContributionsEn
-          : myContributionsEn // ignore: cast_nullable_to_non_nullable
-              as List<String>,
-      mainImageUrl: null == mainImageUrl
-          ? _value.mainImageUrl
-          : mainImageUrl // ignore: cast_nullable_to_non_nullable
-              as String,
-      imagesUrls: null == imagesUrls
-          ? _value.imagesUrls
-          : imagesUrls // ignore: cast_nullable_to_non_nullable
               as List<String>,
       websiteUrl: freezed == websiteUrl
           ? _value.websiteUrl
@@ -165,18 +166,18 @@ abstract class _$$ProjectImplCopyWith<$Res> implements $ProjectCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {String id,
-      String companyNameEs,
+      {String companyNameEs,
       String companyNameEn,
       String shortDescriptionEs,
       String shortDescriptionEn,
+      String mainImageUrl,
+      String? refMainImage,
+      String id,
+      List<String> imagesUrls,
+      List<String> refImagesUrls,
       List<Technology> technologies,
       List<String> featuresEs,
       List<String> featuresEn,
-      List<String> myContributionsEs,
-      List<String> myContributionsEn,
-      String mainImageUrl,
-      List<String> imagesUrls,
       String? websiteUrl,
       String? sourceCodeUrl});
 }
@@ -194,26 +195,22 @@ class __$$ProjectImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
     Object? companyNameEs = null,
     Object? companyNameEn = null,
     Object? shortDescriptionEs = null,
     Object? shortDescriptionEn = null,
+    Object? mainImageUrl = null,
+    Object? refMainImage = freezed,
+    Object? id = null,
+    Object? imagesUrls = null,
+    Object? refImagesUrls = null,
     Object? technologies = null,
     Object? featuresEs = null,
     Object? featuresEn = null,
-    Object? myContributionsEs = null,
-    Object? myContributionsEn = null,
-    Object? mainImageUrl = null,
-    Object? imagesUrls = null,
     Object? websiteUrl = freezed,
     Object? sourceCodeUrl = freezed,
   }) {
     return _then(_$ProjectImpl(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
       companyNameEs: null == companyNameEs
           ? _value.companyNameEs
           : companyNameEs // ignore: cast_nullable_to_non_nullable
@@ -230,6 +227,26 @@ class __$$ProjectImplCopyWithImpl<$Res>
           ? _value.shortDescriptionEn
           : shortDescriptionEn // ignore: cast_nullable_to_non_nullable
               as String,
+      mainImageUrl: null == mainImageUrl
+          ? _value.mainImageUrl
+          : mainImageUrl // ignore: cast_nullable_to_non_nullable
+              as String,
+      refMainImage: freezed == refMainImage
+          ? _value.refMainImage
+          : refMainImage // ignore: cast_nullable_to_non_nullable
+              as String?,
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      imagesUrls: null == imagesUrls
+          ? _value._imagesUrls
+          : imagesUrls // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      refImagesUrls: null == refImagesUrls
+          ? _value._refImagesUrls
+          : refImagesUrls // ignore: cast_nullable_to_non_nullable
+              as List<String>,
       technologies: null == technologies
           ? _value._technologies
           : technologies // ignore: cast_nullable_to_non_nullable
@@ -241,22 +258,6 @@ class __$$ProjectImplCopyWithImpl<$Res>
       featuresEn: null == featuresEn
           ? _value._featuresEn
           : featuresEn // ignore: cast_nullable_to_non_nullable
-              as List<String>,
-      myContributionsEs: null == myContributionsEs
-          ? _value._myContributionsEs
-          : myContributionsEs // ignore: cast_nullable_to_non_nullable
-              as List<String>,
-      myContributionsEn: null == myContributionsEn
-          ? _value._myContributionsEn
-          : myContributionsEn // ignore: cast_nullable_to_non_nullable
-              as List<String>,
-      mainImageUrl: null == mainImageUrl
-          ? _value.mainImageUrl
-          : mainImageUrl // ignore: cast_nullable_to_non_nullable
-              as String,
-      imagesUrls: null == imagesUrls
-          ? _value._imagesUrls
-          : imagesUrls // ignore: cast_nullable_to_non_nullable
               as List<String>,
       websiteUrl: freezed == websiteUrl
           ? _value.websiteUrl
@@ -272,35 +273,32 @@ class __$$ProjectImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$ProjectImpl extends _Project {
+class _$ProjectImpl extends _Project with DiagnosticableTreeMixin {
   const _$ProjectImpl(
-      {required this.id,
-      required this.companyNameEs,
+      {required this.companyNameEs,
       required this.companyNameEn,
       required this.shortDescriptionEs,
       required this.shortDescriptionEn,
-      required final List<Technology> technologies,
-      required final List<String> featuresEs,
-      required final List<String> featuresEn,
-      required final List<String> myContributionsEs,
-      required final List<String> myContributionsEn,
       required this.mainImageUrl,
-      required final List<String> imagesUrls,
+      this.refMainImage,
+      this.id = '',
+      final List<String> imagesUrls = const <String>[],
+      final List<String> refImagesUrls = const <String>[],
+      final List<Technology> technologies = const <Technology>[],
+      final List<String> featuresEs = const <String>[],
+      final List<String> featuresEn = const <String>[],
       this.websiteUrl,
       this.sourceCodeUrl})
-      : _technologies = technologies,
+      : _imagesUrls = imagesUrls,
+        _refImagesUrls = refImagesUrls,
+        _technologies = technologies,
         _featuresEs = featuresEs,
         _featuresEn = featuresEn,
-        _myContributionsEs = myContributionsEs,
-        _myContributionsEn = myContributionsEn,
-        _imagesUrls = imagesUrls,
         super._();
 
   factory _$ProjectImpl.fromJson(Map<String, dynamic> json) =>
       _$$ProjectImplFromJson(json);
 
-  @override
-  final String id;
   @override
   final String companyNameEs;
   @override
@@ -309,8 +307,36 @@ class _$ProjectImpl extends _Project {
   final String shortDescriptionEs;
   @override
   final String shortDescriptionEn;
-  final List<Technology> _technologies;
   @override
+  final String mainImageUrl;
+  @override
+  final String? refMainImage;
+  @override
+  @JsonKey()
+  final String id;
+  final List<String> _imagesUrls;
+  @override
+  @JsonKey()
+  List<String> get imagesUrls {
+    if (_imagesUrls is EqualUnmodifiableListView) return _imagesUrls;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_imagesUrls);
+  }
+
+  final List<String> _refImagesUrls;
+  @override
+  @JsonKey()
+  List<String> get refImagesUrls {
+    if (_refImagesUrls is EqualUnmodifiableListView) return _refImagesUrls;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_refImagesUrls);
+  }
+
+// @JsonKey(name: Project.technologiesKey)
+  final List<Technology> _technologies;
+// @JsonKey(name: Project.technologiesKey)
+  @override
+  @JsonKey()
   List<Technology> get technologies {
     if (_technologies is EqualUnmodifiableListView) return _technologies;
     // ignore: implicit_dynamic_type
@@ -319,6 +345,7 @@ class _$ProjectImpl extends _Project {
 
   final List<String> _featuresEs;
   @override
+  @JsonKey()
   List<String> get featuresEs {
     if (_featuresEs is EqualUnmodifiableListView) return _featuresEs;
     // ignore: implicit_dynamic_type
@@ -327,38 +354,11 @@ class _$ProjectImpl extends _Project {
 
   final List<String> _featuresEn;
   @override
+  @JsonKey()
   List<String> get featuresEn {
     if (_featuresEn is EqualUnmodifiableListView) return _featuresEn;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_featuresEn);
-  }
-
-  final List<String> _myContributionsEs;
-  @override
-  List<String> get myContributionsEs {
-    if (_myContributionsEs is EqualUnmodifiableListView)
-      return _myContributionsEs;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_myContributionsEs);
-  }
-
-  final List<String> _myContributionsEn;
-  @override
-  List<String> get myContributionsEn {
-    if (_myContributionsEn is EqualUnmodifiableListView)
-      return _myContributionsEn;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_myContributionsEn);
-  }
-
-  @override
-  final String mainImageUrl;
-  final List<String> _imagesUrls;
-  @override
-  List<String> get imagesUrls {
-    if (_imagesUrls is EqualUnmodifiableListView) return _imagesUrls;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_imagesUrls);
   }
 
   @override
@@ -367,8 +367,29 @@ class _$ProjectImpl extends _Project {
   final String? sourceCodeUrl;
 
   @override
-  String toString() {
-    return 'Project(id: $id, companyNameEs: $companyNameEs, companyNameEn: $companyNameEn, shortDescriptionEs: $shortDescriptionEs, shortDescriptionEn: $shortDescriptionEn, technologies: $technologies, featuresEs: $featuresEs, featuresEn: $featuresEn, myContributionsEs: $myContributionsEs, myContributionsEn: $myContributionsEn, mainImageUrl: $mainImageUrl, imagesUrls: $imagesUrls, websiteUrl: $websiteUrl, sourceCodeUrl: $sourceCodeUrl)';
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+    return 'Project(companyNameEs: $companyNameEs, companyNameEn: $companyNameEn, shortDescriptionEs: $shortDescriptionEs, shortDescriptionEn: $shortDescriptionEn, mainImageUrl: $mainImageUrl, refMainImage: $refMainImage, id: $id, imagesUrls: $imagesUrls, refImagesUrls: $refImagesUrls, technologies: $technologies, featuresEs: $featuresEs, featuresEn: $featuresEn, websiteUrl: $websiteUrl, sourceCodeUrl: $sourceCodeUrl)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'Project'))
+      ..add(DiagnosticsProperty('companyNameEs', companyNameEs))
+      ..add(DiagnosticsProperty('companyNameEn', companyNameEn))
+      ..add(DiagnosticsProperty('shortDescriptionEs', shortDescriptionEs))
+      ..add(DiagnosticsProperty('shortDescriptionEn', shortDescriptionEn))
+      ..add(DiagnosticsProperty('mainImageUrl', mainImageUrl))
+      ..add(DiagnosticsProperty('refMainImage', refMainImage))
+      ..add(DiagnosticsProperty('id', id))
+      ..add(DiagnosticsProperty('imagesUrls', imagesUrls))
+      ..add(DiagnosticsProperty('refImagesUrls', refImagesUrls))
+      ..add(DiagnosticsProperty('technologies', technologies))
+      ..add(DiagnosticsProperty('featuresEs', featuresEs))
+      ..add(DiagnosticsProperty('featuresEn', featuresEn))
+      ..add(DiagnosticsProperty('websiteUrl', websiteUrl))
+      ..add(DiagnosticsProperty('sourceCodeUrl', sourceCodeUrl));
   }
 
   @override
@@ -376,7 +397,6 @@ class _$ProjectImpl extends _Project {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$ProjectImpl &&
-            (identical(other.id, id) || other.id == id) &&
             (identical(other.companyNameEs, companyNameEs) ||
                 other.companyNameEs == companyNameEs) &&
             (identical(other.companyNameEn, companyNameEn) ||
@@ -385,20 +405,21 @@ class _$ProjectImpl extends _Project {
                 other.shortDescriptionEs == shortDescriptionEs) &&
             (identical(other.shortDescriptionEn, shortDescriptionEn) ||
                 other.shortDescriptionEn == shortDescriptionEn) &&
+            (identical(other.mainImageUrl, mainImageUrl) ||
+                other.mainImageUrl == mainImageUrl) &&
+            (identical(other.refMainImage, refMainImage) ||
+                other.refMainImage == refMainImage) &&
+            (identical(other.id, id) || other.id == id) &&
+            const DeepCollectionEquality()
+                .equals(other._imagesUrls, _imagesUrls) &&
+            const DeepCollectionEquality()
+                .equals(other._refImagesUrls, _refImagesUrls) &&
             const DeepCollectionEquality()
                 .equals(other._technologies, _technologies) &&
             const DeepCollectionEquality()
                 .equals(other._featuresEs, _featuresEs) &&
             const DeepCollectionEquality()
                 .equals(other._featuresEn, _featuresEn) &&
-            const DeepCollectionEquality()
-                .equals(other._myContributionsEs, _myContributionsEs) &&
-            const DeepCollectionEquality()
-                .equals(other._myContributionsEn, _myContributionsEn) &&
-            (identical(other.mainImageUrl, mainImageUrl) ||
-                other.mainImageUrl == mainImageUrl) &&
-            const DeepCollectionEquality()
-                .equals(other._imagesUrls, _imagesUrls) &&
             (identical(other.websiteUrl, websiteUrl) ||
                 other.websiteUrl == websiteUrl) &&
             (identical(other.sourceCodeUrl, sourceCodeUrl) ||
@@ -409,18 +430,18 @@ class _$ProjectImpl extends _Project {
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      id,
       companyNameEs,
       companyNameEn,
       shortDescriptionEs,
       shortDescriptionEn,
+      mainImageUrl,
+      refMainImage,
+      id,
+      const DeepCollectionEquality().hash(_imagesUrls),
+      const DeepCollectionEquality().hash(_refImagesUrls),
       const DeepCollectionEquality().hash(_technologies),
       const DeepCollectionEquality().hash(_featuresEs),
       const DeepCollectionEquality().hash(_featuresEn),
-      const DeepCollectionEquality().hash(_myContributionsEs),
-      const DeepCollectionEquality().hash(_myContributionsEn),
-      mainImageUrl,
-      const DeepCollectionEquality().hash(_imagesUrls),
       websiteUrl,
       sourceCodeUrl);
 
@@ -442,26 +463,24 @@ class _$ProjectImpl extends _Project {
 
 abstract class _Project extends Project {
   const factory _Project(
-      {required final String id,
-      required final String companyNameEs,
+      {required final String companyNameEs,
       required final String companyNameEn,
       required final String shortDescriptionEs,
       required final String shortDescriptionEn,
-      required final List<Technology> technologies,
-      required final List<String> featuresEs,
-      required final List<String> featuresEn,
-      required final List<String> myContributionsEs,
-      required final List<String> myContributionsEn,
       required final String mainImageUrl,
-      required final List<String> imagesUrls,
+      final String? refMainImage,
+      final String id,
+      final List<String> imagesUrls,
+      final List<String> refImagesUrls,
+      final List<Technology> technologies,
+      final List<String> featuresEs,
+      final List<String> featuresEn,
       final String? websiteUrl,
       final String? sourceCodeUrl}) = _$ProjectImpl;
   const _Project._() : super._();
 
   factory _Project.fromJson(Map<String, dynamic> json) = _$ProjectImpl.fromJson;
 
-  @override
-  String get id;
   @override
   String get companyNameEs;
   @override
@@ -471,19 +490,21 @@ abstract class _Project extends Project {
   @override
   String get shortDescriptionEn;
   @override
+  String get mainImageUrl;
+  @override
+  String? get refMainImage;
+  @override
+  String get id;
+  @override
+  List<String> get imagesUrls;
+  @override
+  List<String> get refImagesUrls; // @JsonKey(name: Project.technologiesKey)
+  @override
   List<Technology> get technologies;
   @override
   List<String> get featuresEs;
   @override
   List<String> get featuresEn;
-  @override
-  List<String> get myContributionsEs;
-  @override
-  List<String> get myContributionsEn;
-  @override
-  String get mainImageUrl;
-  @override
-  List<String> get imagesUrls;
   @override
   String? get websiteUrl;
   @override

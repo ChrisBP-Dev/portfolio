@@ -1,7 +1,7 @@
-import 'package:portfolio/src/core/constants/knowledge.dart';
+import 'package:portfolio/src/core/constants/technologies.dart';
 import 'package:portfolio/src/features/projects/domain/project.dart';
 
-final kProjects = [
+const kProjects = [
   Project(
     id: '1',
     companyNameEn: 'QETO - STARTUP',
@@ -30,22 +30,8 @@ Qeto is a platform (mobile app) that brings together the most information about 
       'Search for essential products',
       'Save time and money',
     ],
-    myContributionsEs: [
-      '''
-Desarrollo de componentes personalizados y extensiones reutilizables para optimizar el código.''',
-      'Convertir el diseño de Figma a código aplicando las reglas del negocio.',
-      '''
-Migración de la gestión de estado de Provider a Flutter_Bloc, preparándome para una mayor escalabilidad.''',
-    ],
-    myContributionsEn: [
-      '''
-Development of custom components and reusable extensions to optimize the code.''',
-      'I converted the Figma design to code applying the business rules.',
-      '''
-Migration from Provider state management to Flutter_Bloc, preparing for higher scalability.''',
-    ],
     technologies: [
-      ...kKnowledge.tecnologies,
+      ...kTechnologies,
     ],
     mainImageUrl:
         'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fqeto%2Fqeto-main-image.png?alt=media&token=72bcbf1e-9a67-4f75-86b7-b9738953c25c',
@@ -89,22 +75,8 @@ Business of fast food in Lima, Peru. A mobile application was generated for orde
       'Customers accumulated points for each purchase',
       'Prize wheel for customers',
     ],
-    myContributionsEs: [
-      'Todo fue desarrollado por mi',
-      'Desarrollo de las aplicaciones móviles (Local - Manager)',
-      'Desarrollo del website (flutter web app)',
-      'Desarrollo del backend (firebase)',
-      'Desarrollo de la base de datos (firestore)',
-    ],
-    myContributionsEn: [
-      'Everything was developed by me',
-      'Development of mobile applications (Local - Manager)',
-      'Development of the website (flutter web app)',
-      'Development of the backend (firebase)',
-      'Development of the database (firestore)',
-    ],
     technologies: [
-      ...kKnowledge.tecnologies,
+      ...kTechnologies,
     ],
     mainImageUrl:
         'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fcabanita%2Fcabanita-main-image.png?alt=media&token=63d60b98-4b42-446e-ade6-211666721038',
@@ -140,20 +112,8 @@ GuardOwl is an app designed to offer security and peace of mind to travellers. U
       'Personal guardian in each destination',
       'Stay informed and safe during your adventures',
     ],
-    myContributionsEs: [
-      '''
-Desarrollo de componentes personalizados y extensiones reutilizables para optimizar el código.''',
-      'Convertir el diseño de Figma a código aplicando las reglas del negocio.',
-      'Implementar al Api de Gemini.',
-    ],
-    myContributionsEn: [
-      '''
-Development of custom components and reusable extensions to optimize the code.''',
-      'I converted the Figma design to code applying the business rules.',
-      'Implement the Gemini Api.',
-    ],
     technologies: [
-      ...kKnowledge.tecnologies,
+      ...kTechnologies,
     ],
     mainImageUrl:
         'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fguardowl%2Fguardowl-main-image.png?alt=media&token=b591f044-7402-470f-aacc-af474642efea',

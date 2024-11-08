@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'settings_repository.g.dart';
 
@@ -23,6 +24,6 @@ class SettingsRepository {
 }
 
 @riverpod
-SettingsRepository settingsRepository(SettingsRepositoryRef ref) {
+SettingsRepository settingsRepository(Ref ref) {
   return SettingsRepository();
 }

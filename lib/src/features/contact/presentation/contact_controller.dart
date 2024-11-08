@@ -41,6 +41,7 @@ class ContactController extends _$ContactController {
     state = state.copyWith(sendThrough: sendThrough);
   }
 
+// TODO(me): move to a separate file controller using AsyncValue.guard()
   Future<void> sendContactMessage() async {
     await ref.read(contactRepositoryProvider).sendContactMessage(state);
   }

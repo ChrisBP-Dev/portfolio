@@ -6,7 +6,7 @@ part of 'text_theme.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$appTextThemeHash() => r'df67689e6801bf171141801635599ec0b844b0a4';
+String _$appTextThemeHash() => r'a6319f8d85dc58929808c4f8613883fdbd9e1ef1';
 
 /// See also [appTextTheme].
 @ProviderFor(appTextTheme)
@@ -19,8 +19,10 @@ final appTextThemeProvider = AutoDisposeProvider<AppTextTheme>.internal(
   allTransitiveDependencies: null,
 );
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 typedef AppTextThemeRef = AutoDisposeProviderRef<AppTextTheme>;
-String _$lightTextThemeHash() => r'235b7e4df534296b8c10f3b11fba6f2e6c5d2e31';
+String _$lightTextThemeHash() => r'ef9a4833d8aa1ef7603e4754d8ede333af55a84c';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -156,6 +158,8 @@ class LightTextThemeProvider extends AutoDisposeProvider<TextTheme> {
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin LightTextThemeRef on AutoDisposeProviderRef<TextTheme> {
   /// The parameter `screenWidth` of this provider.
   double get screenWidth;
@@ -169,7 +173,7 @@ class _LightTextThemeProviderElement
   double get screenWidth => (origin as LightTextThemeProvider).screenWidth;
 }
 
-String _$darkTextThemeHash() => r'41239cc9aaf36004145de55285086d814444445b';
+String _$darkTextThemeHash() => r'99081f42c2eff8a0cd4bcf27f274e41281f0e612';
 
 /// See also [darkTextTheme].
 @ProviderFor(darkTextTheme)
@@ -284,6 +288,8 @@ class DarkTextThemeProvider extends AutoDisposeProvider<TextTheme> {
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin DarkTextThemeRef on AutoDisposeProviderRef<TextTheme> {
   /// The parameter `screenWidth` of this provider.
   double get screenWidth;
@@ -297,4 +303,4 @@ class _DarkTextThemeProviderElement
   double get screenWidth => (origin as DarkTextThemeProvider).screenWidth;
 }
 // ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

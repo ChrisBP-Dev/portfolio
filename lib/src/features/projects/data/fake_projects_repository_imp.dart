@@ -10,22 +10,4 @@ class FakeProjectsRepositoryImp implements ProjectsRepository {
   Stream<List<Project>> getProjectsStream() {
     return Stream.value(_projects);
   }
-
-  @override
-  Future<void> createProject(Project project) async {
-    _projects.add(project);
-  }
-
-  @override
-  Future<void> updateProject(Project project) async {
-    final index = _projects.indexWhere((p) => p.id == project.id);
-    if (index != -1) {
-      _projects[index] = project;
-    }
-  }
-
-  @override
-  Future<void> deleteProject(Project project) async {
-    _projects.removeWhere((p) => p.id == project.id);
-  }
 }
