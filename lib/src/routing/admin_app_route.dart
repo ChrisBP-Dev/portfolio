@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:portfolio/src/features/experience/presentation/admin/experiences_list/admin_experiences_list_page.dart';
 import 'package:portfolio/src/features/projects/presentation/admin/project_list/admin_projects_list_page.dart';
 import 'package:portfolio/src/features/technologies/presentation/admin/technologies_list/admin_technologies_list_page.dart';
 
@@ -13,7 +14,7 @@ enum AdminAppRoute {
   ),
   adminExperiences(
     path: '/admin/experiences',
-    page: AdminTechnologiesListPage(),
+    page: AdminExperiencesListPage(),
   ),
   ;
 

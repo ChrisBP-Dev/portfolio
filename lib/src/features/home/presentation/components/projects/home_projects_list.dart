@@ -3,12 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:portfolio/src/core/common_widgets/async_value_widget.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
-import 'package:portfolio/src/features/home/presentation/components/projects/project_card.dart';
+import 'package:portfolio/src/features/home/presentation/components/projects/home_project_card.dart';
 import 'package:portfolio/src/features/projects/domain/projects_repository.dart';
 import 'package:portfolio/src/routing/app_route.dart';
 
-class ProjectsList extends ConsumerWidget {
-  const ProjectsList({super.key});
+class HomeProjectsList extends ConsumerWidget {
+  const HomeProjectsList({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -23,7 +23,7 @@ class ProjectsList extends ConsumerWidget {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: homeProjects
               .map(
-                (project) => ProjectCard(
+                (project) => HomeProjectCard(
                   project: project,
                   onTap: () => context.goNamed(AppRoute.projects.name),
                 ),

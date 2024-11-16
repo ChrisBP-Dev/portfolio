@@ -2,9 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
 
 class FeatureCard extends StatelessWidget {
-  const FeatureCard({required this.title, super.key, this.removeTap});
+  const FeatureCard({
+    required this.title,
+    super.key,
+    this.removeTap,
+    this.editTap,
+  });
+
   final String title;
   final void Function()? removeTap;
+  final void Function()? editTap;
 
   @override
   Widget build(BuildContext context) {
@@ -18,8 +25,12 @@ class FeatureCard extends StatelessWidget {
         ),
         child: ListTile(
           title: Text(title),
-          trailing: IconButton(
+          leading: IconButton(
             icon: const Icon(Icons.edit),
+            onPressed: editTap,
+          ),
+          trailing: IconButton(
+            icon: const Icon(Icons.delete),
             onPressed: removeTap,
           ),
         ),

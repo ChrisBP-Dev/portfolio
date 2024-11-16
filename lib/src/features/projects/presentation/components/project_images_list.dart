@@ -17,7 +17,7 @@ class ProjectImagesList extends StatelessWidget {
       height: 180,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: project.imagesUrls.length,
+        itemCount: project.screenshotsUrls.length,
         itemBuilder: (context, index) {
           return InkWell(
             onTap: () {
@@ -41,7 +41,7 @@ class ProjectImagesList extends StatelessWidget {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(Sizes.p8),
                     child: WrapNetworkImage(
-                      imageUrl: project.imagesUrls[index],
+                      imageUrl: project.screenshotsUrls[index],
                       fit: BoxFit.cover,
                     ),
                   ),

@@ -1,6 +1,7 @@
 import 'package:portfolio/src/features/projects/domain/admin_projects_repository.dart';
 import 'package:portfolio/src/features/projects/domain/project.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:uuid/uuid.dart';
 part 'admin_create_project_controller.g.dart';
 
 @riverpod
@@ -12,10 +13,10 @@ class AdminCreateProjectController extends _$AdminCreateProjectController {
 
   Future<void> createProject(Project project) async {
     state = const AsyncValue.loading();
-
+    final id = const Uuid().v4();
     final repository = ref.read(adminProjectsRepositoryProvider);
     state = await AsyncValue.guard(
-      () => repository.createProject(project),
+      () => repository.createProject(project.copyWith(id: id)),
     );
   }
 }

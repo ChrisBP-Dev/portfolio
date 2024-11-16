@@ -1,45 +1,25 @@
 // lib/src/common_widgets/custom_text_form_field.dart
 import 'package:flutter/material.dart';
-import 'package:portfolio/src/core/utils/theme/color_app.dart';
+import 'package:portfolio/src/core/common_widgets/custom_text_form_field.dart';
 import 'package:portfolio/src/localization/l10n.dart';
 
 class ProjectFormField extends StatelessWidget {
   const ProjectFormField({
     required this.formType,
     super.key,
-    this.onChanged,
     this.maxLines,
-    this.initialValue,
+    this.controller,
   });
 
-  final void Function(String)? onChanged;
-
   final int? maxLines;
-  final String? initialValue;
+  final TextEditingController? controller;
   final ProjectFormType formType;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return TextFormField(
-      initialValue: initialValue,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      cursorErrorColor: theme.dividerColor,
-      textCapitalization: TextCapitalization.sentences,
-      decoration: InputDecoration(
-        labelText: formType.getLabelText(context),
-        labelStyle: theme.textTheme.bodySmall
-            ?.copyWith(color: context.getPrimaryColor().withOpacity(.8)),
-        border: defaultBorder(context.getPrimaryColor()),
-        enabledBorder: defaultBorder(context.getPrimaryColor()),
-        focusedErrorBorder: defaultBorder(context.getPrimaryColor()),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: context.getPrimaryColor()),
-        ),
-      ),
-      onChanged: onChanged,
+    return CustomTextFormField(
+      controller: controller,
+      labelText: formType.getLabelText(context),
       validator: (value) {
         if (!formType.isRequired) return null;
         if (value != null && value.isNotEmpty) return null;
@@ -47,14 +27,6 @@ class ProjectFormField extends StatelessWidget {
       },
       keyboardType: formType.getKeyboardType(),
       maxLines: maxLines,
-      textAlignVertical: TextAlignVertical.top,
-    );
-  }
-
-  OutlineInputBorder defaultBorder(Color color) {
-    return OutlineInputBorder(
-      borderRadius: BorderRadius.circular(8),
-      borderSide: BorderSide(color: color),
     );
   }
 }

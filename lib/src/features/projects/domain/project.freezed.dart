@@ -27,12 +27,11 @@ mixin _$Project {
   String get mainImageUrl => throw _privateConstructorUsedError;
   String? get refMainImage => throw _privateConstructorUsedError;
   String get id => throw _privateConstructorUsedError;
-  List<String> get imagesUrls => throw _privateConstructorUsedError;
-  List<String> get refImagesUrls =>
-      throw _privateConstructorUsedError; // @JsonKey(name: Project.technologiesKey)
-  List<Technology> get technologies => throw _privateConstructorUsedError;
-  List<String> get featuresEs => throw _privateConstructorUsedError;
-  List<String> get featuresEn => throw _privateConstructorUsedError;
+  List<String> get screenshotsUrls => throw _privateConstructorUsedError;
+  List<String> get refScreenshotsUrls => throw _privateConstructorUsedError;
+  List<String> get technologies => throw _privateConstructorUsedError;
+  List<String> get featuresES => throw _privateConstructorUsedError;
+  List<String> get featuresEN => throw _privateConstructorUsedError;
   String? get websiteUrl => throw _privateConstructorUsedError;
   String? get sourceCodeUrl => throw _privateConstructorUsedError;
 
@@ -58,11 +57,11 @@ abstract class $ProjectCopyWith<$Res> {
       String mainImageUrl,
       String? refMainImage,
       String id,
-      List<String> imagesUrls,
-      List<String> refImagesUrls,
-      List<Technology> technologies,
-      List<String> featuresEs,
-      List<String> featuresEn,
+      List<String> screenshotsUrls,
+      List<String> refScreenshotsUrls,
+      List<String> technologies,
+      List<String> featuresES,
+      List<String> featuresEN,
       String? websiteUrl,
       String? sourceCodeUrl});
 }
@@ -89,11 +88,11 @@ class _$ProjectCopyWithImpl<$Res, $Val extends Project>
     Object? mainImageUrl = null,
     Object? refMainImage = freezed,
     Object? id = null,
-    Object? imagesUrls = null,
-    Object? refImagesUrls = null,
+    Object? screenshotsUrls = null,
+    Object? refScreenshotsUrls = null,
     Object? technologies = null,
-    Object? featuresEs = null,
-    Object? featuresEn = null,
+    Object? featuresES = null,
+    Object? featuresEN = null,
     Object? websiteUrl = freezed,
     Object? sourceCodeUrl = freezed,
   }) {
@@ -126,25 +125,25 @@ class _$ProjectCopyWithImpl<$Res, $Val extends Project>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
-      imagesUrls: null == imagesUrls
-          ? _value.imagesUrls
-          : imagesUrls // ignore: cast_nullable_to_non_nullable
+      screenshotsUrls: null == screenshotsUrls
+          ? _value.screenshotsUrls
+          : screenshotsUrls // ignore: cast_nullable_to_non_nullable
               as List<String>,
-      refImagesUrls: null == refImagesUrls
-          ? _value.refImagesUrls
-          : refImagesUrls // ignore: cast_nullable_to_non_nullable
+      refScreenshotsUrls: null == refScreenshotsUrls
+          ? _value.refScreenshotsUrls
+          : refScreenshotsUrls // ignore: cast_nullable_to_non_nullable
               as List<String>,
       technologies: null == technologies
           ? _value.technologies
           : technologies // ignore: cast_nullable_to_non_nullable
-              as List<Technology>,
-      featuresEs: null == featuresEs
-          ? _value.featuresEs
-          : featuresEs // ignore: cast_nullable_to_non_nullable
               as List<String>,
-      featuresEn: null == featuresEn
-          ? _value.featuresEn
-          : featuresEn // ignore: cast_nullable_to_non_nullable
+      featuresES: null == featuresES
+          ? _value.featuresES
+          : featuresES // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      featuresEN: null == featuresEN
+          ? _value.featuresEN
+          : featuresEN // ignore: cast_nullable_to_non_nullable
               as List<String>,
       websiteUrl: freezed == websiteUrl
           ? _value.websiteUrl
@@ -173,11 +172,11 @@ abstract class _$$ProjectImplCopyWith<$Res> implements $ProjectCopyWith<$Res> {
       String mainImageUrl,
       String? refMainImage,
       String id,
-      List<String> imagesUrls,
-      List<String> refImagesUrls,
-      List<Technology> technologies,
-      List<String> featuresEs,
-      List<String> featuresEn,
+      List<String> screenshotsUrls,
+      List<String> refScreenshotsUrls,
+      List<String> technologies,
+      List<String> featuresES,
+      List<String> featuresEN,
       String? websiteUrl,
       String? sourceCodeUrl});
 }
@@ -202,11 +201,11 @@ class __$$ProjectImplCopyWithImpl<$Res>
     Object? mainImageUrl = null,
     Object? refMainImage = freezed,
     Object? id = null,
-    Object? imagesUrls = null,
-    Object? refImagesUrls = null,
+    Object? screenshotsUrls = null,
+    Object? refScreenshotsUrls = null,
     Object? technologies = null,
-    Object? featuresEs = null,
-    Object? featuresEn = null,
+    Object? featuresES = null,
+    Object? featuresEN = null,
     Object? websiteUrl = freezed,
     Object? sourceCodeUrl = freezed,
   }) {
@@ -239,25 +238,25 @@ class __$$ProjectImplCopyWithImpl<$Res>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
-      imagesUrls: null == imagesUrls
-          ? _value._imagesUrls
-          : imagesUrls // ignore: cast_nullable_to_non_nullable
+      screenshotsUrls: null == screenshotsUrls
+          ? _value._screenshotsUrls
+          : screenshotsUrls // ignore: cast_nullable_to_non_nullable
               as List<String>,
-      refImagesUrls: null == refImagesUrls
-          ? _value._refImagesUrls
-          : refImagesUrls // ignore: cast_nullable_to_non_nullable
+      refScreenshotsUrls: null == refScreenshotsUrls
+          ? _value._refScreenshotsUrls
+          : refScreenshotsUrls // ignore: cast_nullable_to_non_nullable
               as List<String>,
       technologies: null == technologies
           ? _value._technologies
           : technologies // ignore: cast_nullable_to_non_nullable
-              as List<Technology>,
-      featuresEs: null == featuresEs
-          ? _value._featuresEs
-          : featuresEs // ignore: cast_nullable_to_non_nullable
               as List<String>,
-      featuresEn: null == featuresEn
-          ? _value._featuresEn
-          : featuresEn // ignore: cast_nullable_to_non_nullable
+      featuresES: null == featuresES
+          ? _value._featuresES
+          : featuresES // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      featuresEN: null == featuresEN
+          ? _value._featuresEN
+          : featuresEN // ignore: cast_nullable_to_non_nullable
               as List<String>,
       websiteUrl: freezed == websiteUrl
           ? _value.websiteUrl
@@ -282,18 +281,18 @@ class _$ProjectImpl extends _Project with DiagnosticableTreeMixin {
       required this.mainImageUrl,
       this.refMainImage,
       this.id = '',
-      final List<String> imagesUrls = const <String>[],
-      final List<String> refImagesUrls = const <String>[],
-      final List<Technology> technologies = const <Technology>[],
-      final List<String> featuresEs = const <String>[],
-      final List<String> featuresEn = const <String>[],
+      final List<String> screenshotsUrls = const <String>[],
+      final List<String> refScreenshotsUrls = const <String>[],
+      final List<String> technologies = const <TechnologyID>[],
+      final List<String> featuresES = const <String>[],
+      final List<String> featuresEN = const <String>[],
       this.websiteUrl,
       this.sourceCodeUrl})
-      : _imagesUrls = imagesUrls,
-        _refImagesUrls = refImagesUrls,
+      : _screenshotsUrls = screenshotsUrls,
+        _refScreenshotsUrls = refScreenshotsUrls,
         _technologies = technologies,
-        _featuresEs = featuresEs,
-        _featuresEn = featuresEn,
+        _featuresES = featuresES,
+        _featuresEN = featuresEN,
         super._();
 
   factory _$ProjectImpl.fromJson(Map<String, dynamic> json) =>
@@ -314,51 +313,50 @@ class _$ProjectImpl extends _Project with DiagnosticableTreeMixin {
   @override
   @JsonKey()
   final String id;
-  final List<String> _imagesUrls;
+  final List<String> _screenshotsUrls;
   @override
   @JsonKey()
-  List<String> get imagesUrls {
-    if (_imagesUrls is EqualUnmodifiableListView) return _imagesUrls;
+  List<String> get screenshotsUrls {
+    if (_screenshotsUrls is EqualUnmodifiableListView) return _screenshotsUrls;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_imagesUrls);
+    return EqualUnmodifiableListView(_screenshotsUrls);
   }
 
-  final List<String> _refImagesUrls;
+  final List<String> _refScreenshotsUrls;
   @override
   @JsonKey()
-  List<String> get refImagesUrls {
-    if (_refImagesUrls is EqualUnmodifiableListView) return _refImagesUrls;
+  List<String> get refScreenshotsUrls {
+    if (_refScreenshotsUrls is EqualUnmodifiableListView)
+      return _refScreenshotsUrls;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_refImagesUrls);
+    return EqualUnmodifiableListView(_refScreenshotsUrls);
   }
 
-// @JsonKey(name: Project.technologiesKey)
-  final List<Technology> _technologies;
-// @JsonKey(name: Project.technologiesKey)
+  final List<String> _technologies;
   @override
   @JsonKey()
-  List<Technology> get technologies {
+  List<String> get technologies {
     if (_technologies is EqualUnmodifiableListView) return _technologies;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_technologies);
   }
 
-  final List<String> _featuresEs;
+  final List<String> _featuresES;
   @override
   @JsonKey()
-  List<String> get featuresEs {
-    if (_featuresEs is EqualUnmodifiableListView) return _featuresEs;
+  List<String> get featuresES {
+    if (_featuresES is EqualUnmodifiableListView) return _featuresES;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_featuresEs);
+    return EqualUnmodifiableListView(_featuresES);
   }
 
-  final List<String> _featuresEn;
+  final List<String> _featuresEN;
   @override
   @JsonKey()
-  List<String> get featuresEn {
-    if (_featuresEn is EqualUnmodifiableListView) return _featuresEn;
+  List<String> get featuresEN {
+    if (_featuresEN is EqualUnmodifiableListView) return _featuresEN;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_featuresEn);
+    return EqualUnmodifiableListView(_featuresEN);
   }
 
   @override
@@ -368,7 +366,7 @@ class _$ProjectImpl extends _Project with DiagnosticableTreeMixin {
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'Project(companyNameEs: $companyNameEs, companyNameEn: $companyNameEn, shortDescriptionEs: $shortDescriptionEs, shortDescriptionEn: $shortDescriptionEn, mainImageUrl: $mainImageUrl, refMainImage: $refMainImage, id: $id, imagesUrls: $imagesUrls, refImagesUrls: $refImagesUrls, technologies: $technologies, featuresEs: $featuresEs, featuresEn: $featuresEn, websiteUrl: $websiteUrl, sourceCodeUrl: $sourceCodeUrl)';
+    return 'Project(companyNameEs: $companyNameEs, companyNameEn: $companyNameEn, shortDescriptionEs: $shortDescriptionEs, shortDescriptionEn: $shortDescriptionEn, mainImageUrl: $mainImageUrl, refMainImage: $refMainImage, id: $id, screenshotsUrls: $screenshotsUrls, refScreenshotsUrls: $refScreenshotsUrls, technologies: $technologies, featuresES: $featuresES, featuresEN: $featuresEN, websiteUrl: $websiteUrl, sourceCodeUrl: $sourceCodeUrl)';
   }
 
   @override
@@ -383,11 +381,11 @@ class _$ProjectImpl extends _Project with DiagnosticableTreeMixin {
       ..add(DiagnosticsProperty('mainImageUrl', mainImageUrl))
       ..add(DiagnosticsProperty('refMainImage', refMainImage))
       ..add(DiagnosticsProperty('id', id))
-      ..add(DiagnosticsProperty('imagesUrls', imagesUrls))
-      ..add(DiagnosticsProperty('refImagesUrls', refImagesUrls))
+      ..add(DiagnosticsProperty('screenshotsUrls', screenshotsUrls))
+      ..add(DiagnosticsProperty('refScreenshotsUrls', refScreenshotsUrls))
       ..add(DiagnosticsProperty('technologies', technologies))
-      ..add(DiagnosticsProperty('featuresEs', featuresEs))
-      ..add(DiagnosticsProperty('featuresEn', featuresEn))
+      ..add(DiagnosticsProperty('featuresES', featuresES))
+      ..add(DiagnosticsProperty('featuresEN', featuresEN))
       ..add(DiagnosticsProperty('websiteUrl', websiteUrl))
       ..add(DiagnosticsProperty('sourceCodeUrl', sourceCodeUrl));
   }
@@ -411,15 +409,15 @@ class _$ProjectImpl extends _Project with DiagnosticableTreeMixin {
                 other.refMainImage == refMainImage) &&
             (identical(other.id, id) || other.id == id) &&
             const DeepCollectionEquality()
-                .equals(other._imagesUrls, _imagesUrls) &&
+                .equals(other._screenshotsUrls, _screenshotsUrls) &&
             const DeepCollectionEquality()
-                .equals(other._refImagesUrls, _refImagesUrls) &&
+                .equals(other._refScreenshotsUrls, _refScreenshotsUrls) &&
             const DeepCollectionEquality()
                 .equals(other._technologies, _technologies) &&
             const DeepCollectionEquality()
-                .equals(other._featuresEs, _featuresEs) &&
+                .equals(other._featuresES, _featuresES) &&
             const DeepCollectionEquality()
-                .equals(other._featuresEn, _featuresEn) &&
+                .equals(other._featuresEN, _featuresEN) &&
             (identical(other.websiteUrl, websiteUrl) ||
                 other.websiteUrl == websiteUrl) &&
             (identical(other.sourceCodeUrl, sourceCodeUrl) ||
@@ -437,11 +435,11 @@ class _$ProjectImpl extends _Project with DiagnosticableTreeMixin {
       mainImageUrl,
       refMainImage,
       id,
-      const DeepCollectionEquality().hash(_imagesUrls),
-      const DeepCollectionEquality().hash(_refImagesUrls),
+      const DeepCollectionEquality().hash(_screenshotsUrls),
+      const DeepCollectionEquality().hash(_refScreenshotsUrls),
       const DeepCollectionEquality().hash(_technologies),
-      const DeepCollectionEquality().hash(_featuresEs),
-      const DeepCollectionEquality().hash(_featuresEn),
+      const DeepCollectionEquality().hash(_featuresES),
+      const DeepCollectionEquality().hash(_featuresEN),
       websiteUrl,
       sourceCodeUrl);
 
@@ -470,11 +468,11 @@ abstract class _Project extends Project {
       required final String mainImageUrl,
       final String? refMainImage,
       final String id,
-      final List<String> imagesUrls,
-      final List<String> refImagesUrls,
-      final List<Technology> technologies,
-      final List<String> featuresEs,
-      final List<String> featuresEn,
+      final List<String> screenshotsUrls,
+      final List<String> refScreenshotsUrls,
+      final List<String> technologies,
+      final List<String> featuresES,
+      final List<String> featuresEN,
       final String? websiteUrl,
       final String? sourceCodeUrl}) = _$ProjectImpl;
   const _Project._() : super._();
@@ -496,15 +494,15 @@ abstract class _Project extends Project {
   @override
   String get id;
   @override
-  List<String> get imagesUrls;
+  List<String> get screenshotsUrls;
   @override
-  List<String> get refImagesUrls; // @JsonKey(name: Project.technologiesKey)
+  List<String> get refScreenshotsUrls;
   @override
-  List<Technology> get technologies;
+  List<String> get technologies;
   @override
-  List<String> get featuresEs;
+  List<String> get featuresES;
   @override
-  List<String> get featuresEn;
+  List<String> get featuresEN;
   @override
   String? get websiteUrl;
   @override

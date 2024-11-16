@@ -1,9 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:portfolio/src/features/technologies/domain/technology.dart';
-
+import 'package:portfolio/src/core/utils/string_extensions.dart';
 part 'project.freezed.dart';
 part 'project.g.dart';
+
+typedef TechnologyID = String;
 
 @freezed
 class Project with _$Project {
@@ -15,12 +16,11 @@ class Project with _$Project {
     required String mainImageUrl,
     String? refMainImage,
     @Default('') String id,
-    @Default(<String>[]) List<String> imagesUrls,
-    @Default(<String>[]) List<String> refImagesUrls,
-    // @JsonKey(name: Project.technologiesKey)
-    @Default(<Technology>[]) List<Technology> technologies,
-    @Default(<String>[]) List<String> featuresEs,
-    @Default(<String>[]) List<String> featuresEn,
+    @Default(<String>[]) List<String> screenshotsUrls,
+    @Default(<String>[]) List<String> refScreenshotsUrls,
+    @Default(<TechnologyID>[]) List<TechnologyID> technologies,
+    @Default(<String>[]) List<String> featuresES,
+    @Default(<String>[]) List<String> featuresEN,
     String? websiteUrl,
     String? sourceCodeUrl,
   }) = _Project;
@@ -34,27 +34,14 @@ class Project with _$Project {
         shortDescriptionEs: '',
         shortDescriptionEn: '',
         mainImageUrl: '',
-        imagesUrls: [''],
+        screenshotsUrls: [''],
       );
 
   const Project._();
 
-  Uint8List get mainImageCharCode => Uint8List.fromList(mainImageUrl.codeUnits);
-  List<Uint8List> get imagesCharCodes =>
-      imagesUrls.map((url) => Uint8List.fromList(url.codeUnits)).toList();
-
-  static const String technologiesKey = 'technologies';
-
-  // static Map<String, dynamic> toFirebase(Project project) {
-  //   final projectX = project.toJson();
-
-  //   if (project.technologies.isEmpty) return projectX;
-
-  //   projectX['technologies'] =
-  //       project.technologies.map((technology) => technology.toJson()).toList();
-
-  //   return projectX;
-  // }
+  Uint8List get mainImageCharCode => mainImageUrl.charCode;
+  List<Uint8List> get screenshotsCharCodes =>
+      screenshotsUrls.map((url) => url.charCode).toList();
 }
 
 extension ProjectX on Project {
@@ -70,6 +57,6 @@ extension ProjectX on Project {
   }
 
   List<String> features(String languageCode) {
-    return languageCode == 'en' ? featuresEn : featuresEs;
+    return languageCode == 'en' ? featuresEN : featuresES;
   }
 }

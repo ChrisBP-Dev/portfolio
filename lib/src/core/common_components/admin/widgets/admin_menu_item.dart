@@ -10,10 +10,12 @@ class AdminMenuItem extends StatefulWidget {
     required this.title,
     required this.path,
     super.key,
+    this.onPageSelected,
   });
 
   final String title;
   final String path;
+  final VoidCallback? onPageSelected;
 
   @override
   State<AdminMenuItem> createState() => _AdminMenuItemState();
@@ -36,6 +38,7 @@ class _AdminMenuItemState extends State<AdminMenuItem> {
         isFalse: () => () {
           context.go(widget.path);
           Scaffold.maybeOf(context)?.closeDrawer();
+          widget.onPageSelected?.call();
         },
       ),
       onHover: (value) => setState(() => onHover = value),

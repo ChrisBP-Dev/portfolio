@@ -7,6 +7,7 @@ import 'package:portfolio/src/features/projects/domain/project.dart';
 import 'package:portfolio/src/features/projects/presentation/components/project_images_list.dart';
 import 'package:portfolio/src/features/settings/presentation/locale_controller.dart';
 import 'package:portfolio/src/features/social_launcher/presentation/social_launcher_controller.dart';
+import 'package:portfolio/src/features/technologies/domain/technology_repository.dart';
 import 'package:portfolio/src/localization/l10n.dart';
 
 class ProjectContent extends ConsumerWidget {
@@ -71,16 +72,23 @@ class ProjectContent extends ConsumerWidget {
             style: bodyText?.copyWith(fontWeight: FontWeight.bold),
           ),
           gapH14,
-          Wrap(
-            runSpacing: Sizes.p8,
-            spacing: Sizes.p8,
-            children: project.technologies.map((tech) {
-              return OutlinedButton.icon(
-                label: Text(tech.name, style: bodyText),
-                onPressed: null,
-                icon: TechnologyIcon(technology: tech, size: 15),
+          AsyncValueWidget(
+            value: ref.watch(
+              getTechnologiesByIdProvider(project.technologies),
+            ),
+            data: (data) {
+              return Wrap(
+                runSpacing: Sizes.p8,
+                spacing: Sizes.p8,
+                children: data.map((tech) {
+                  return OutlinedButton.icon(
+                    label: Text(tech.name, style: bodyText),
+                    onPressed: null,
+                    icon: TechnologyIcon(technology: tech, size: 15),
+                  );
+                }).toList(),
               );
-            }).toList(),
+            },
           ),
           gapH14,
           Text(

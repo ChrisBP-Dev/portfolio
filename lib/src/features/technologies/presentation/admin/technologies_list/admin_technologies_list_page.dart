@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:portfolio/src/core/common_components/admin_wrap_list.dart';
+import 'package:portfolio/src/core/common_components/admin/admin_wrap_list.dart';
 import 'package:portfolio/src/core/common_widgets/async_value_widget.dart';
 import 'package:portfolio/src/features/technologies/domain/admin_technology_repository.dart';
 import 'package:portfolio/src/features/technologies/presentation/admin/create_technology/admin_create_technology_page.dart';

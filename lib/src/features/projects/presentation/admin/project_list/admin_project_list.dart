@@ -3,7 +3,8 @@ import 'package:portfolio/src/core/common_widgets/responsive_center.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/core/constants/breakpoints.dart';
 import 'package:portfolio/src/features/projects/domain/project.dart';
-import 'package:portfolio/src/features/projects/presentation/components/full_project_card.dart';
+import 'package:portfolio/src/features/projects/presentation/admin/update_project/admin_update_project_page.dart';
+import 'package:portfolio/src/features/projects/presentation/components/project_card.dart';
 
 class AdminProjectList extends StatelessWidget {
   const AdminProjectList({required this.projects, super.key});
@@ -27,10 +28,14 @@ class AdminProjectList extends StatelessWidget {
                 .map(
                   (project) => InkWell(
                     onTap: () {
-                      // TODO(me): Implement navigation to update projects page
+                      showDialog<void>(
+                        context: context,
+                        builder: (context) =>
+                            AdminUpdateProjectPage(project: project),
+                      );
                     },
                     child: IgnorePointer(
-                      child: FullProjectCard(
+                      child: ProjectCard(
                         project: project,
                         width: width,
                       ),

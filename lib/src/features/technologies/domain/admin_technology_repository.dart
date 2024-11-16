@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:portfolio/src/features/projects/data/services/firestore_service.dart';
+import 'package:portfolio/src/features/projects/data/services/storage_service.dart';
 import 'package:portfolio/src/features/technologies/data/admin/admin_firebase_technology_repository_imp.dart';
 import 'package:portfolio/src/features/technologies/domain/technology.dart';
 import 'package:portfolio/src/features/technologies/domain/technology_repository.dart';
@@ -12,12 +14,20 @@ abstract class AdminTechnologyRepository extends TechnologyRepository {
 }
 
 @riverpod
+FirestoreService<Technology> firestoreServiceTechnology(Ref ref) {
+  return FirestoreService<Technology>(ref.read(firebaseFirestoreProvider));
+}
+
+@riverpod
 AdminTechnologyRepository adminTechnologyRepository(Ref ref) {
   // return AdminFakeTechnologyRepositoryImp();
-  return AdminFirebaseTechnologyRepositoryImp();
+  return AdminFirebaseTechnologyRepositoryImp(
+    storageService: ref.read(storageServiceProvider),
+    firestoreService: ref.read(firestoreServiceTechnologyProvider),
+  );
 }
 
 @Riverpod(keepAlive: true)
 Stream<List<Technology>> getAdminTechnologies(Ref ref) {
-  return ref.read(adminTechnologyRepositoryProvider).getTechnologies();
+  return ref.read(adminTechnologyRepositoryProvider).getAllTechnologies();
 }

@@ -3,8 +3,8 @@ import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/features/projects/domain/project.dart';
 import 'package:portfolio/src/features/projects/presentation/components/project_content.dart';
 
-class FullProjectCard extends StatelessWidget {
-  const FullProjectCard({
+class ProjectCard extends StatelessWidget {
+  const ProjectCard({
     required this.project,
     this.width,
     super.key,

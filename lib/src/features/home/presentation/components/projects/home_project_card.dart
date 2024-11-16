@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:portfolio/src/core/common_widgets/async_value_widget.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
-import 'package:portfolio/src/features/home/presentation/components/projects/project_image_card.dart';
+import 'package:portfolio/src/features/home/presentation/components/projects/home_project_image_card.dart';
 import 'package:portfolio/src/features/projects/domain/project.dart';
 import 'package:portfolio/src/features/settings/presentation/locale_controller.dart';
 
-class ProjectCard extends ConsumerWidget {
-  const ProjectCard({
+class HomeProjectCard extends ConsumerWidget {
+  const HomeProjectCard({
     required this.project,
     super.key,
     this.onTap,
@@ -42,7 +42,8 @@ class ProjectCard extends ConsumerWidget {
                   children: [
                     Expanded(
                       flex: 3,
-                      child: ProjectImageCard(imageUrl: project.mainImageUrl),
+                      child:
+                          HomeProjectImageCard(imageUrl: project.mainImageUrl),
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(

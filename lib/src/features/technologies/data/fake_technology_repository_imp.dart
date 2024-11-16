@@ -6,7 +6,7 @@ class FakeTechnologyRepositoryImp implements TechnologyRepository {
   final _technologies = kTechnologies;
 
   @override
-  Stream<List<Technology>> getTechnologies() {
+  Stream<List<Technology>> getAllTechnologies() {
     return Stream.value(_technologies);
   }
 }

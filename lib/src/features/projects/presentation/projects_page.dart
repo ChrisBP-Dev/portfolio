@@ -6,8 +6,8 @@ import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/features/projects/domain/project.dart';
 import 'package:portfolio/src/features/projects/domain/projects_repository.dart';
 import 'package:portfolio/src/features/projects/presentation/components/filter_dropdown.dart';
-import 'package:portfolio/src/features/projects/presentation/components/full_projects_list.dart';
 import 'package:portfolio/src/features/projects/presentation/components/project_description.dart';
+import 'package:portfolio/src/features/projects/presentation/components/projects_list.dart';
 import 'package:portfolio/src/localization/l10n.dart';
 
 class ProjectsPage extends ConsumerStatefulWidget {
@@ -45,7 +45,7 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
                   child: Text(l10n.noProjects),
                 ),
               ),
-            FullProjectsList(projects: _filterProjects(projects)),
+            ProjectsList(projects: _filterProjects(projects)),
             gapH48,
           ],
         );

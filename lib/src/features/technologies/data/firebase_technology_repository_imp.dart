@@ -7,7 +7,7 @@ class FirebaseTechnologyRepositoryImp implements TechnologyRepository {
   static final _collection = _firestore.collection('technologies');
 
   @override
-  Stream<List<Technology>> getTechnologies() {
+  Stream<List<Technology>> getAllTechnologies() {
     return _collection
         .withConverter<Technology>(
           fromFirestore: (snapshot, _) =>

@@ -6,8 +6,28 @@ part of 'admin_projects_repository.dart';
 // RiverpodGenerator
 // **************************************************************************
 
+String _$firestoreServiceProjectHash() =>
+    r'5d4fc65fb30ea769868e5497ea978767c280655f';
+
+/// See also [firestoreServiceProject].
+@ProviderFor(firestoreServiceProject)
+final firestoreServiceProjectProvider =
+    AutoDisposeProvider<FirestoreService<Project>>.internal(
+  firestoreServiceProject,
+  name: r'firestoreServiceProjectProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$firestoreServiceProjectHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef FirestoreServiceProjectRef
+    = AutoDisposeProviderRef<FirestoreService<Project>>;
 String _$adminProjectsRepositoryHash() =>
-    r'4e1e09baccece2f8c4482cec37d68acc05b6443b';
+    r'4d1a2c045c3ef0467a1e64224a67e370a476f85a';
 
 /// See also [adminProjectsRepository].
 @ProviderFor(adminProjectsRepository)

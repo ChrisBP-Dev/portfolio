@@ -104,7 +104,11 @@ class _AdminCreateTechnologyPageState
                     name: name,
                     experienceTime: experienceTime,
                   ),
-                );
+                )
+                .whenComplete(() {
+              if (!context.mounted) return;
+              Navigator.of(context).pop();
+            });
           },
         ),
       ],

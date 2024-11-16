@@ -1,101 +1,87 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/foundation.dart';
+import 'package:portfolio/src/features/projects/data/services/firestore_service.dart';
+import 'package:portfolio/src/features/projects/data/services/storage_service.dart';
 import 'package:portfolio/src/features/technologies/domain/admin_technology_repository.dart';
 import 'package:portfolio/src/features/technologies/domain/technology.dart';
 
-const collectionName = 'technologies';
+const _collectionName = 'technologies';
 
 class AdminFirebaseTechnologyRepositoryImp
     implements AdminTechnologyRepository {
-  static final _firestore = FirebaseFirestore.instance;
-  static final _storage = FirebaseStorage.instance;
-  static final _collection = _firestore.collection(collectionName);
+  const AdminFirebaseTechnologyRepositoryImp({
+    required this.storageService,
+    required this.firestoreService,
+  });
+
+  final StorageService storageService;
+  final FirestoreService<Technology> firestoreService;
+
   @override
-  Stream<List<Technology>> getTechnologies() {
-    return _collection
-        .withConverter<Technology>(
-          fromFirestore: (snapshot, _) =>
-              Technology.fromJson(snapshot.data()!).copyWith(id: snapshot.id),
-          toFirestore: (product, _) => product.toJson(),
-        )
-        .snapshots()
-        .map((snapshot) => snapshot.docs.map((e) => e.data()).toList());
+  Stream<List<Technology>> getAllTechnologies() {
+    return firestoreService.getCollectionStream(
+      _collectionName,
+      fromJson: Technology.fromJson,
+    );
   }
 
   @override
   Future<void> createTechnology(Technology technology) async {
-    try {
-      final imgRoute = '${technology.name}-${technology.id}/image.webp';
-      final imageReference =
-          _storage.ref().child(collectionName).child(imgRoute);
+    final imgRef =
+        '$_collectionName${technology.name}-${technology.id}/image.webp';
+    final imageUrl = await storageService.uploadImage(
+      technology.imageCharCode,
+      imgRef,
+    );
 
-      await Future.wait([
-        imageReference.putData(
-          Uint8List.fromList(technology.imageUrl.codeUnits),
-        ),
-      ]);
-      final imageUrl = await imageReference.getDownloadURL();
-
-      await _collection.doc(technology.id).set(
-            technology
-                .copyWith(
-                  imageUrl: imageUrl,
-                  refImage: imageReference.fullPath,
-                )
-                .toJson(),
-          );
-    } catch (e) {
-      // TODO(me): handle error
-      FirebaseException(plugin: 'Firebase', message: e.toString());
-    }
+    await firestoreService.addDocument(
+      documentId: technology.id,
+      collectionPath: _collectionName,
+      data: technology.copyWith(imageUrl: imageUrl, refImage: imgRef).toJson(),
+    );
   }
 
   @override
   Future<void> updateTechnology(Technology technology) async {
-    try {
-      final isNewImage = !technology.isImageUrl;
+    final isNewImage = !technology.isImageUrl;
 
-      if (isNewImage && technology.imageUrl.isNotEmpty) {
-        if (technology.hasRefImage) {
-          await _storage.ref().child(technology.refImage!).delete();
-        }
-
-        final imgRoute = '${technology.name}-${technology.id}/image.webp';
-        final imageReference =
-            _storage.ref().child(collectionName).child(imgRoute);
-
-        await imageReference
-            .putData(Uint8List.fromList(technology.imageUrl.codeUnits));
-        final imageUrl = await imageReference.getDownloadURL();
-
-        await _collection.doc(technology.id).update(
-              technology
-                  .copyWith(
-                    imageUrl: imageUrl,
-                    refImage: imageReference.fullPath,
-                  )
-                  .toJson(),
-            );
-      } else {
-        await _collection.doc(technology.id).update(technology.toJson());
+    if (isNewImage && technology.imageUrl.isNotEmpty) {
+      if (technology.hasRefImage) {
+        await storageService.deleteImage(technology.refImage!);
       }
-    } catch (e) {
-      // TODO(me): handle error
-      FirebaseException(plugin: 'Firebase', message: e.toString());
+
+      final refImg =
+          '$_collectionName/${technology.name}-${technology.id}/image.webp';
+      final imageUrl = await storageService.uploadImage(
+        technology.imageCharCode,
+        refImg,
+      );
+
+      await firestoreService.updateDocument(
+        collectionPath: _collectionName,
+        documentId: technology.id,
+        data: technology
+            .copyWith(
+              imageUrl: imageUrl,
+              refImage: refImg,
+            )
+            .toJson(),
+      );
+    } else {
+      await firestoreService.updateDocument(
+        collectionPath: _collectionName,
+        documentId: technology.id,
+        data: technology.toJson(),
+      );
     }
   }
 
   @override
   Future<void> deleteTechnology(Technology technology) async {
-    try {
-      if (technology.refImage != null) {
-        await _storage.ref().child(technology.refImage!).delete();
-      }
-      await _collection.doc(technology.id).delete();
-    } catch (e) {
-      // TODO(me): handle error
-      FirebaseException(plugin: 'Firebase', message: e.toString());
+    if (technology.refImage != null) {
+      await storageService.deleteImage(technology.refImage!);
     }
+    await firestoreService.deleteDocument(
+      collectionPath: _collectionName,
+      documentId: technology.id,
+    );
   }
 }

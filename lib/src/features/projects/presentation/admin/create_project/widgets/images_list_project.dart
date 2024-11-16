@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:portfolio/src/core/common_widgets/image_memory_picked.dart';
-import 'package:portfolio/src/features/projects/presentation/admin/create_project/admin_create_project_form_controller.dart';
+import 'package:portfolio/src/core/utils/string_extensions.dart';
+import 'package:portfolio/src/core/utils/unit8list_extension.dart';
 
-class ImagesListProject extends ConsumerWidget {
-  const ImagesListProject({super.key});
+class ImagesListProject extends StatelessWidget {
+  const ImagesListProject({
+    required this.screenshots,
+    required this.onImageAdded,
+    required this.deleteTap,
+    super.key,
+  });
+
+  final List<String> screenshots;
+  final void Function(String, int) onImageAdded;
+  final void Function(String) deleteTap;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final project = ref.watch(adminCreateProjectFormControllerProvider);
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 20),
       child: Wrap(
@@ -16,28 +24,17 @@ class ImagesListProject extends ConsumerWidget {
         runSpacing: 15,
         spacing: 20,
         children: List.generate(
-          project.imagesUrls.length,
+          screenshots.length,
           (index) => SizedBox(
             height: 180,
             child: AspectRatio(
               aspectRatio: 9 / 16,
               child: ImageMemoryPicked(
                 key: UniqueKey(),
-                imageCharCode: project.imagesCharCodes[index],
-                onImageAdded: (image) {
-                  ref
-                      .read(
-                        adminCreateProjectFormControllerProvider.notifier,
-                      )
-                      .addImageUrl(image, index);
-                },
-                deleteTap: () {
-                  ref
-                      .read(
-                        adminCreateProjectFormControllerProvider.notifier,
-                      )
-                      .removeImageUrl(index);
-                },
+                imageCharCode: screenshots[index].charCode,
+                onImageAdded: (newImage) =>
+                    onImageAdded(newImage.codeUnitsString, index),
+                deleteTap: () => deleteTap(screenshots[index]),
               ),
             ),
           ),

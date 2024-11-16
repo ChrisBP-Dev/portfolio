@@ -1,27 +1,78 @@
 import 'package:flutter/material.dart';
-import 'package:portfolio/src/core/common_widgets/responsive_center.dart';
-import 'package:portfolio/src/core/common_widgets/secondary_button.dart';
+import 'package:portfolio/src/core/common_widgets/custom_text_form_field.dart';
 import 'package:portfolio/src/core/common_widgets/title_form_field.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/core/utils/theme/color_app.dart';
 import 'package:portfolio/src/features/projects/presentation/admin/widgets/feature_card.dart';
-import 'package:portfolio/src/features/projects/presentation/admin/widgets/project_form_field.dart';
 import 'package:portfolio/src/localization/l10n.dart';
-import 'package:portfolio/src/localization/string_hardcoded.dart';
 
-class FeaturesProjectList extends StatelessWidget {
+class FeaturesProjectList extends StatefulWidget {
   const FeaturesProjectList({
+    required this.onFeaturesChanged,
     required this.localeCode,
-    required this.featuresList,
-    required this.addTap,
-    required this.removeTap,
+    this.initialFeatures,
     super.key,
   });
 
-  final void Function(String) addTap;
-  final void Function(String) removeTap;
   final String localeCode;
-  final List<String> featuresList;
+  final void Function(List<String>) onFeaturesChanged;
+  final List<String>? initialFeatures;
+
+  @override
+  State<FeaturesProjectList> createState() => _FeaturesProjectListState();
+}
+
+class _FeaturesProjectListState extends State<FeaturesProjectList> {
+  late List<String> _featuresList;
+  final TextEditingController _controller = TextEditingController();
+  int? _editingIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _featuresList = List<String>.from(widget.initialFeatures ?? []);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _addFeature() {
+    if (_controller.text.isNotEmpty) {
+      setState(() {
+        _featuresList.add(_controller.text);
+        _controller.clear();
+        widget.onFeaturesChanged(_featuresList);
+      });
+    }
+  }
+
+  void _updateFeature() {
+    if (_controller.text.isNotEmpty && _editingIndex != null) {
+      setState(() {
+        _featuresList[_editingIndex!] = _controller.text;
+        _controller.clear();
+        _editingIndex = null;
+        widget.onFeaturesChanged(_featuresList);
+      });
+    }
+  }
+
+  void _editFeature(int index) {
+    setState(() {
+      _controller.text = _featuresList[index];
+      _editingIndex = index;
+    });
+  }
+
+  void _removeFeature(String feature) {
+    setState(() {
+      _featuresList.remove(feature);
+      widget.onFeaturesChanged(_featuresList);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,69 +80,64 @@ class FeaturesProjectList extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        TitleFormField(title: '${l10n.featuresTitle} $localeCode'),
+        TitleFormField(title: '${l10n.featuresTitle} ${widget.localeCode}'),
         DecoratedBox(
           decoration: BoxDecoration(
             border: Border.all(color: context.getPrimaryColor()),
           ),
           child: Column(
             children: [
-              ...featuresList.map((feature) {
-                return FeatureCard(
-                  title: feature,
-                  removeTap: () => removeTap.call(feature),
-                );
+              ...List.generate(_featuresList.length, (index) {
+                final feature = _featuresList[index];
+                if (_editingIndex == index) {
+                  return Padding(
+                    padding: const EdgeInsets.all(Sizes.p8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: CustomTextFormField(
+                            controller: _controller,
+                            labelText: l10n.featuresTitle,
+                            onFieldSubmitted: (_) => _updateFeature(),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.update),
+                          onPressed: _updateFeature,
+                        ),
+                      ],
+                    ),
+                  );
+                } else {
+                  return FeatureCard(
+                    title: feature,
+                    editTap: () => _editFeature(index),
+                    removeTap: () => _removeFeature(feature),
+                  );
+                }
               }),
             ],
           ),
         ),
-        gapH14,
-        Align(
-          alignment: Alignment.centerRight,
-          child: SecondaryButton(
-            onTap: () => _showAddFeatureDialog(
-              onSave: addTap,
-              context: context,
-            ),
-            title: 'Add Feature',
+        if (_editingIndex == null) ...[
+          gapH14,
+          Row(
+            children: [
+              Expanded(
+                child: CustomTextFormField(
+                  controller: _controller,
+                  labelText: l10n.featuresTitle,
+                  onFieldSubmitted: (_) => _addFeature(),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.add),
+                onPressed: _addFeature,
+              ),
+            ],
           ),
-        ),
-        gapH14,
+        ],
       ],
     );
-  }
-
-  Future<void> _showAddFeatureDialog({
-    required void Function(String) onSave,
-    required BuildContext context,
-  }) async {
-    final newFeature = await showDialog<String>(
-      context: context,
-      builder: (BuildContext context) {
-        var featureText = '';
-        return AlertDialog(
-          title: Text('Add New Feature'.hardcoded),
-          content: ResponsiveCenter(
-            child: ProjectFormField(
-              formType: ProjectFormType.features,
-              onChanged: (value) => featureText = value,
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('Cancel'.hardcoded),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(featureText),
-              child: Text('Save'.hardcoded),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (newFeature == null || newFeature.isEmpty) return;
-    onSave.call(newFeature);
   }
 }

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:portfolio/src/core/common_components/admin_menu_item.dart';
+import 'package:portfolio/src/core/common_components/admin/widgets/admin_menu_item.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/routing/admin_app_route.dart';
 
 class AdminDrawer extends StatelessWidget {
-  const AdminDrawer({super.key});
+  const AdminDrawer({super.key, this.onPageSelected});
+  final VoidCallback? onPageSelected;
 
   @override
   Widget build(BuildContext context) {

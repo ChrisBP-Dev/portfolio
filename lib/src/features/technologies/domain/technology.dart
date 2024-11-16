@@ -20,7 +20,7 @@ class Technology with _$Technology {
       _$TechnologyFromJson(json);
   // required String description;
   // required double experienceTime;
-  Uint8List get imageCharCode => Uint8List.fromList(imageUrl.codeUnits);
+  Uint8List get imageCharCode => imageUrl.charCode;
 
   bool get hasRefImage => refImage != null && refImage!.isNotEmpty;
   bool get isImageUrl => imageUrl.isValidUrl;

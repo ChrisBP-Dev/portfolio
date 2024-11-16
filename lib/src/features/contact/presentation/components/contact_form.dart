@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:portfolio/src/core/common_widgets/custom_text_form_field.dart';
 import 'package:portfolio/src/core/common_widgets/primary_button.dart';
 import 'package:portfolio/src/core/common_widgets/responsive_center.dart';
 import 'package:portfolio/src/core/common_widgets/title_form_field.dart';
@@ -10,6 +9,7 @@ import 'package:portfolio/src/core/utils/theme/color_app.dart';
 import 'package:portfolio/src/features/contact/presentation/components/country_picker.dart';
 import 'package:portfolio/src/features/contact/presentation/components/send_through_dropdown_button.dart';
 import 'package:portfolio/src/features/contact/presentation/contact_controller.dart';
+import 'package:portfolio/src/features/contact/presentation/widgets/contact_textform_field.dart';
 import 'package:portfolio/src/localization/l10n.dart';
 
 class ContactForm extends ConsumerWidget {
@@ -27,6 +27,7 @@ class ContactForm extends ConsumerWidget {
       maxContentWidth: Breakpoint.tablet,
       child: DecoratedBox(
         decoration: BoxDecoration(
+          color: Theme.of(context).canvasColor,
           borderRadius: BorderRadius.circular(Sizes.p8),
           border: Border.all(color: context.getPrimaryColor()),
         ),
@@ -38,8 +39,8 @@ class ContactForm extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 TitleFormField(title: l10n.whatsYour(l10n.nameLabel)),
-                CustomTextFormField(
-                  formType: FormType.name,
+                ContactTextformField(
+                  formType: ContactFormType.name,
                   onSaved: (value) {
                     ref
                         .read(contactControllerProvider.notifier)
@@ -48,8 +49,8 @@ class ContactForm extends ConsumerWidget {
                 ),
                 gapH14,
                 TitleFormField(title: l10n.whatsYour(l10n.emailLabel)),
-                CustomTextFormField(
-                  formType: FormType.email,
+                ContactTextformField(
+                  formType: ContactFormType.email,
                   onSaved: (value) {
                     ref
                         .read(contactControllerProvider.notifier)
@@ -66,8 +67,8 @@ class ContactForm extends ConsumerWidget {
                     gapW20,
                     Expanded(
                       flex: 2,
-                      child: CustomTextFormField(
-                        formType: FormType.phoneNumber,
+                      child: ContactTextformField(
+                        formType: ContactFormType.phoneNumber,
                         onSaved: (value) {
                           ref
                               .read(contactControllerProvider.notifier)
@@ -82,8 +83,8 @@ class ContactForm extends ConsumerWidget {
                 ),
                 gapH14,
                 TitleFormField(title: l10n.whatsYour(l10n.messageLabel)),
-                CustomTextFormField(
-                  formType: FormType.message,
+                ContactTextformField(
+                  formType: ContactFormType.message,
                   onSaved: (value) {
                     ref
                         .read(contactControllerProvider.notifier)

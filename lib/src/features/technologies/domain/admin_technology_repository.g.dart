@@ -6,8 +6,28 @@ part of 'admin_technology_repository.dart';
 // RiverpodGenerator
 // **************************************************************************
 
+String _$firestoreServiceTechnologyHash() =>
+    r'e4cbd1e0c38cb4d17f26770804ba90da41c64d03';
+
+/// See also [firestoreServiceTechnology].
+@ProviderFor(firestoreServiceTechnology)
+final firestoreServiceTechnologyProvider =
+    AutoDisposeProvider<FirestoreService<Technology>>.internal(
+  firestoreServiceTechnology,
+  name: r'firestoreServiceTechnologyProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$firestoreServiceTechnologyHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef FirestoreServiceTechnologyRef
+    = AutoDisposeProviderRef<FirestoreService<Technology>>;
 String _$adminTechnologyRepositoryHash() =>
-    r'6f9ad14c5764cb3128a55d6a3b026635f55690b3';
+    r'8e68bc1d3ea9dafe8e0eafd1053e19aedd8345d5';
 
 /// See also [adminTechnologyRepository].
 @ProviderFor(adminTechnologyRepository)
@@ -27,7 +47,7 @@ final adminTechnologyRepositoryProvider =
 typedef AdminTechnologyRepositoryRef
     = AutoDisposeProviderRef<AdminTechnologyRepository>;
 String _$getAdminTechnologiesHash() =>
-    r'ee716e65956deb8a9ac3296761a32db4fdce9c86';
+    r'decbd4ade09b6996055eb36d54822fac23457513';
 
 /// See also [getAdminTechnologies].
 @ProviderFor(getAdminTechnologies)

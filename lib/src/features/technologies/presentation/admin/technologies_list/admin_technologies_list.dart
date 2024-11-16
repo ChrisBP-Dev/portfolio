@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:portfolio/src/core/common_widgets/responsive_center.dart';
 import 'package:portfolio/src/core/common_widgets/technology_icon.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/core/utils/theme/color_app.dart';
 import 'package:portfolio/src/features/technologies/domain/technology.dart';
 import 'package:portfolio/src/features/technologies/presentation/admin/update_technology/update_technology_page.dart';
-// import 'package:portfolio/src/features/technologies/presentation/admin/update_technology/update_technology_page_2.dart';
 
-class AdminTechnologiesList extends ConsumerWidget {
+class AdminTechnologiesList extends StatelessWidget {
   const AdminTechnologiesList({required this.technologies, super.key});
   final List<Technology> technologies;
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return ResponsiveCenter(
       padding: const EdgeInsets.all(Sizes.globalPadding),
       child: ListView.builder(
@@ -31,8 +29,11 @@ class AdminTechnologiesList extends ConsumerWidget {
             borderRadius: BorderRadius.circular(Sizes.p8),
             child: DecoratedBox(
               decoration: BoxDecoration(
-                border: Border.all(color: context.getPrimaryColor()),
+                border: Border.all(
+                  color: context.getPrimaryColor(),
+                ),
                 borderRadius: BorderRadius.circular(Sizes.p8),
+                color: Theme.of(context).canvasColor,
               ),
               child: Padding(
                 padding: const EdgeInsets.all(Sizes.p14),

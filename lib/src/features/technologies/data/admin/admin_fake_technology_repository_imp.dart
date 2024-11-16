@@ -5,7 +5,7 @@ import 'package:portfolio/src/features/technologies/domain/technology.dart';
 class AdminFakeTechnologyRepositoryImp implements AdminTechnologyRepository {
   final _technologies = kTechnologies;
   @override
-  Stream<List<Technology>> getTechnologies() {
+  Stream<List<Technology>> getAllTechnologies() {
     return Stream.value(_technologies);
   }
 

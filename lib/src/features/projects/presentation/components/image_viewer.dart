@@ -70,7 +70,7 @@ class MainImageViewer extends ConsumerWidget {
         final project =
             projects.firstWhere((element) => element.id == projectId);
         final currentIndex = int.parse(extra['index'] ?? '0')
-            .clamp(0, project.imagesUrls.length - 1);
+            .clamp(0, project.screenshotsUrls.length - 1);
         return Row(
           children: [
             IconButton(
@@ -81,14 +81,14 @@ class MainImageViewer extends ConsumerWidget {
             ),
             Expanded(
               child: WrapNetworkImage(
-                imageUrl: project.imagesUrls[currentIndex],
+                imageUrl: project.screenshotsUrls[currentIndex],
                 fit: BoxFit.contain,
               ),
             ),
             IconButton(
               icon: const Icon(Icons.arrow_forward_ios),
-              onPressed:
-                  (currentIndex != project.imagesUrls.length - 1).whenOrNull(
+              onPressed: (currentIndex != project.screenshotsUrls.length - 1)
+                  .whenOrNull(
                 isTrue: () => () => moveToPage(currentIndex + 1),
               ),
             ),
