@@ -20,10 +20,10 @@ FirestoreService<Technology> firestoreServiceTechnology(Ref ref) {
 
 @riverpod
 AdminTechnologyRepository adminTechnologyRepository(Ref ref) {
-  // return AdminFakeTechnologyRepositoryImp();
   return AdminFirebaseTechnologyRepositoryImp(
     storageService: ref.read(storageServiceProvider),
     firestoreService: ref.read(firestoreServiceTechnologyProvider),
+    collectionName: ref.read(collectionTechnologyNameProvider),
   );
 }
 

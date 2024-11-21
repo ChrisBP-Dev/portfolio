@@ -10,7 +10,7 @@ class TechnologyIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return WrapNetworkImage(
-      imageUrl: technology.imageUrl,
+      imageUrl: technology.image.url ?? '',
       height: size ?? 42,
       width: size ?? 42,
     );

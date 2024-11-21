@@ -9,8 +9,7 @@ part of 'technology.dart';
 _$TechnologyImpl _$$TechnologyImplFromJson(Map<String, dynamic> json) =>
     _$TechnologyImpl(
       name: json['name'] as String,
-      imageUrl: json['imageUrl'] as String,
-      refImage: json['refImage'] as String?,
+      image: ImageAndPath.fromJson(json['image'] as Map<String, dynamic>),
       id: json['id'] as String? ?? '',
       experienceTime: json['experienceTime'] as String? ?? '',
     );
@@ -18,8 +17,7 @@ _$TechnologyImpl _$$TechnologyImplFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$$TechnologyImplToJson(_$TechnologyImpl instance) =>
     <String, dynamic>{
       'name': instance.name,
-      'imageUrl': instance.imageUrl,
-      'refImage': instance.refImage,
+      'image': instance.image.toJson(),
       'id': instance.id,
       'experienceTime': instance.experienceTime,
     };

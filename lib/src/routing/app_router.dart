@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:portfolio/src/core/common_components/admin_page_container.dart';
-
+// import 'package:portfolio/src/core/common_components/user_page_container.dart';
 import 'package:portfolio/src/features/projects/presentation/components/image_viewer.dart';
 import 'package:portfolio/src/routing/admin_app_route.dart';
 import 'package:portfolio/src/routing/app_route.dart';
@@ -24,7 +24,9 @@ GoRouter goRouter(Ref ref) {
         navigatorKey: _shellNavigatorKey,
         pageBuilder: (context, state, child) => CustomTransitionPage<void>(
           key: state.pageKey,
+          // TODO(me): verify if is admin or user and return the correct page
           child: AdminPageContainer(page: child),
+          // child: UserPageContainer(page: child),
           transitionsBuilder: (_, animation, __, child) => FadeTransition(
             opacity: animation,
             child: child,

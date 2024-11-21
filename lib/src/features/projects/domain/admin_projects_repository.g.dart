@@ -27,7 +27,7 @@ final firestoreServiceProjectProvider =
 typedef FirestoreServiceProjectRef
     = AutoDisposeProviderRef<FirestoreService<Project>>;
 String _$adminProjectsRepositoryHash() =>
-    r'4d1a2c045c3ef0467a1e64224a67e370a476f85a';
+    r'c6f0604a3c38aa1988f246ec96bf1df4e4917a3f';
 
 /// See also [adminProjectsRepository].
 @ProviderFor(adminProjectsRepository)

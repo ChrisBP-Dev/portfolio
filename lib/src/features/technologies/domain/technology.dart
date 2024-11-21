@@ -1,15 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:portfolio/src/core/utils/string_extensions.dart';
+import 'package:portfolio/src/features/projects/domain/screenshot_image.dart';
 part 'technology.freezed.dart';
 part 'technology.g.dart';
 
 @freezed
 class Technology with _$Technology {
+  // ignore: invalid_annotation_target
+  @JsonSerializable(explicitToJson: true)
   const factory Technology({
     required String name,
-    required String imageUrl,
-    String? refImage,
+    required ImageAndPath image,
     @Default('') String id,
     @Default('') String experienceTime,
   }) = _Technology;
@@ -18,10 +19,4 @@ class Technology with _$Technology {
 
   factory Technology.fromJson(Map<String, dynamic> json) =>
       _$TechnologyFromJson(json);
-  // required String description;
-  // required double experienceTime;
-  Uint8List get imageCharCode => imageUrl.charCode;
-
-  bool get hasRefImage => refImage != null && refImage!.isNotEmpty;
-  bool get isImageUrl => imageUrl.isValidUrl;
 }

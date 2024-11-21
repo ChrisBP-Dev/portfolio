@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:portfolio/src/core/common_components/admin/admin_wrap_list.dart';
 import 'package:portfolio/src/core/common_widgets/async_value_widget.dart';
 import 'package:portfolio/src/features/technologies/domain/admin_technology_repository.dart';
-import 'package:portfolio/src/features/technologies/presentation/admin/create_technology/admin_create_technology_page.dart';
-import 'package:portfolio/src/features/technologies/presentation/admin/technologies_list/admin_technologies_list.dart';
+import 'package:portfolio/src/features/technologies/presentation/admin/admin_technologies_list.dart';
+import 'package:portfolio/src/features/technologies/presentation/admin/admin_technology_page.dart';
 import 'package:portfolio/src/localization/l10n.dart';
 
 class AdminTechnologiesListPage extends ConsumerWidget {
@@ -22,7 +22,7 @@ class AdminTechnologiesListPage extends ConsumerWidget {
           onCreateTap: () {
             showDialog<void>(
               context: context,
-              builder: (context) => const AdminCreateTechnologyPage(),
+              builder: (context) => const AdminTechnologyPage(),
             );
           },
         );

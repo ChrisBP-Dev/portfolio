@@ -1,28 +1,28 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:portfolio/src/core/common_widgets/image_memory_picked.dart';
 import 'package:portfolio/src/core/utils/unit8list_extension.dart';
+import 'package:portfolio/src/features/projects/domain/screenshot_image.dart';
 
 class ImageTechnologyPicker extends StatefulWidget {
   const ImageTechnologyPicker({
     required this.newImage,
-    this.imageCharCode,
+    this.image,
     super.key,
   });
 
-  final Uint8List? imageCharCode;
-  final void Function(String) newImage;
+  final ImageAndPath? image;
+  final void Function(String?) newImage;
 
   @override
   State<ImageTechnologyPicker> createState() => _ImageTechnologyPickerState();
 }
 
 class _ImageTechnologyPickerState extends State<ImageTechnologyPicker> {
-  late Uint8List _image;
+  late ImageAndPath _image;
 
   @override
   void initState() {
-    _image = widget.imageCharCode ?? Uint8List.fromList([]);
+    _image = widget.image ?? const ImageAndPath();
     super.initState();
   }
 
@@ -33,14 +33,18 @@ class _ImageTechnologyPickerState extends State<ImageTechnologyPicker> {
       child: ImageMemoryPicked(
         height: 100,
         width: 100,
-        imageCharCode: _image,
+        image: _image,
         onImageAdded: (newImage) {
-          setState(() => _image = newImage);
+          setState(
+            () => _image = ImageAndPath(
+              localImage: newImage.codeUnitsString,
+            ),
+          );
           widget.newImage(newImage.codeUnitsString);
         },
         deleteTap: () {
-          setState(() => _image = Uint8List.fromList([]));
-          widget.newImage('');
+          setState(() => _image = const ImageAndPath());
+          widget.newImage(null);
         },
       ),
     );

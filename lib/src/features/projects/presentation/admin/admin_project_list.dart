@@ -3,7 +3,7 @@ import 'package:portfolio/src/core/common_widgets/responsive_center.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/core/constants/breakpoints.dart';
 import 'package:portfolio/src/features/projects/domain/project.dart';
-import 'package:portfolio/src/features/projects/presentation/admin/update_project/admin_update_project_page.dart';
+import 'package:portfolio/src/features/projects/presentation/admin/admin_project_page.dart';
 import 'package:portfolio/src/features/projects/presentation/components/project_card.dart';
 
 class AdminProjectList extends StatelessWidget {
@@ -31,7 +31,7 @@ class AdminProjectList extends StatelessWidget {
                       showDialog<void>(
                         context: context,
                         builder: (context) =>
-                            AdminUpdateProjectPage(project: project),
+                            AdminProjectPage(project: project),
                       );
                     },
                     child: IgnorePointer(

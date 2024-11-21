@@ -19,7 +19,6 @@ Future<bool?> showAlertDialog({
     context: context,
     // * Only make the dialog dismissible if there is a cancel button
     barrierDismissible: cancelActionText != null,
-    // * AlertDialog.adaptive was added in Flutter 3.13
     builder: (context) => AlertDialog.adaptive(
       title: Text(title),
       content: content != null ? Text(content) : null,

@@ -33,7 +33,7 @@ class AdminWrapList extends StatelessWidget {
             OutlinedButton(
               onPressed: onCreateTap,
               style: OutlinedButton.styleFrom(
-                backgroundColor: context.getPrimaryColor(),
+                backgroundColor: Colors.white,
                 side: BorderSide(
                   color: AppColor.textBusinessGradient.colors.first,
                 ),

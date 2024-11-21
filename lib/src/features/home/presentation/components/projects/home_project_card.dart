@@ -42,8 +42,9 @@ class HomeProjectCard extends ConsumerWidget {
                   children: [
                     Expanded(
                       flex: 3,
-                      child:
-                          HomeProjectImageCard(imageUrl: project.mainImageUrl),
+                      child: HomeProjectImageCard(
+                        imageUrl: project.mainImage.url ?? '',
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(

@@ -71,7 +71,7 @@ class FirestoreService<T> {
   }
 
   /// Add a document
-  Future<void> addDocument({
+  Future<void> createDocument({
     required String collectionPath,
     required String documentId,
     required Map<String, dynamic> data,

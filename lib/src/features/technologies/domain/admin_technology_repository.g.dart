@@ -27,7 +27,7 @@ final firestoreServiceTechnologyProvider =
 typedef FirestoreServiceTechnologyRef
     = AutoDisposeProviderRef<FirestoreService<Technology>>;
 String _$adminTechnologyRepositoryHash() =>
-    r'8e68bc1d3ea9dafe8e0eafd1053e19aedd8345d5';
+    r'a79bce44dbda7150f8828d7150c089aafe3773e3';
 
 /// See also [adminTechnologyRepository].
 @ProviderFor(adminTechnologyRepository)

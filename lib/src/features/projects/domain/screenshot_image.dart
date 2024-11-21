@@ -1,20 +1,31 @@
+import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:portfolio/src/core/utils/string_extensions.dart';
 part 'screenshot_image.freezed.dart';
 part 'screenshot_image.g.dart';
 
 @freezed
-class ScreenshotImage with _$ScreenshotImage {
-  const factory ScreenshotImage({
-    required String url,
+class ImageAndPath with _$ImageAndPath {
+  const factory ImageAndPath({
+    String? url,
+    String? localImage,
     String? refPath,
-  }) = _ScreenshotImage;
-  const ScreenshotImage._();
+  }) = _ImageAndPath;
+  const ImageAndPath._();
 
-  factory ScreenshotImage.fromJson(Map<String, dynamic> json) =>
-      _$ScreenshotImageFromJson(json);
+  factory ImageAndPath.fromJson(Map<String, dynamic> json) =>
+      _$ImageAndPathFromJson(json);
+}
 
-  bool get isUrlValid => url.isValidUrl;
-  bool get isRemoved => url.isEmpty && refPath != null;
-  bool get isNew => !isUrlValid && refPath == null;
+extension ImageAndPathX on ImageAndPath {
+  bool get hasRefImage => refPath.isNotNullAndNotEmpty;
+
+  bool get hasLocalImage => localImage.isNotNullAndNotEmpty;
+  bool get hasUrl => url.isNotNullAndNotEmpty;
+  bool get needsToDelete => !hasUrl && hasRefImage;
+  bool get needsToUpdate => hasLocalImage && hasRefImage;
+  bool get isEmpty => url.isNullOrEmpty && localImage.isNullOrEmpty;
+
+  Uint8List? get localImageCharCode =>
+      hasLocalImage ? localImage!.charCode : null;
 }

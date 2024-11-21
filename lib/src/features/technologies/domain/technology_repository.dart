@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:portfolio/src/features/projects/domain/project.dart';
 import 'package:portfolio/src/features/technologies/data/firebase_technology_repository_imp.dart';
+import 'package:portfolio/src/features/technologies/domain/admin_technology_repository.dart';
 import 'package:portfolio/src/features/technologies/domain/technology.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'technology_repository.g.dart';
@@ -9,9 +10,16 @@ abstract class TechnologyRepository {
   Stream<List<Technology>> getAllTechnologies();
 }
 
+// TODO(me): change this
+@riverpod
+String collectionTechnologyName(Ref ref) => 'technologies';
+
 @riverpod
 TechnologyRepository technologyRepository(Ref ref) {
-  return FirebaseTechnologyRepositoryImp();
+  return FirebaseTechnologyRepositoryImp(
+    firestoreService: ref.read(firestoreServiceTechnologyProvider),
+    collectionName: ref.read(collectionTechnologyNameProvider),
+  );
 }
 
 @Riverpod(keepAlive: true)

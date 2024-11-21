@@ -1,4 +1,5 @@
 import 'package:portfolio/src/features/projects/domain/project.dart';
+import 'package:portfolio/src/features/projects/domain/screenshot_image.dart';
 
 const kProjects = [
   Project(
@@ -34,14 +35,10 @@ Qeto is a platform (mobile app) that brings together the most information about 
       'b2e9a40e-f83b-46af-ac01-f846361d6e68',
       'c4557f12-d382-4821-a4bb-d6522517b3bc',
     ],
-    mainImageUrl:
-        'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fqeto%2Fqeto-main-image.png?alt=media&token=72bcbf1e-9a67-4f75-86b7-b9738953c25c',
-    screenshotsUrls: [
-      'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fqeto%2Fqeto-1-img.png?alt=media&token=0c584aa2-8ecf-41fe-83b8-b5a06822fc2d',
-      'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fqeto%2Fqeto-2-img.png?alt=media&token=775ac991-01c8-4d5c-89a3-757c911f952f',
-      'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fqeto%2Fqeto-3-img.png?alt=media&token=26da1c53-1a00-47d6-a358-03b2ce1f8eb9',
-      'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fqeto%2Fqeto-4-img.png?alt=media&token=e7f00ab2-0a77-4c75-96ff-1c27e94083fc',
-    ],
+    mainImage: ImageAndPath(
+      url:
+          'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fqeto%2Fqeto-main-image.png?alt=media&token=72bcbf1e-9a67-4f75-86b7-b9738953c25c',
+    ),
   ),
   Project(
     id: '2',
@@ -76,14 +73,10 @@ Business of fast food in Lima, Peru. A mobile application was generated for orde
       'Customers accumulated points for each purchase',
       'Prize wheel for customers',
     ],
-    mainImageUrl:
-        'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fcabanita%2Fcabanita-main-image.png?alt=media&token=63d60b98-4b42-446e-ade6-211666721038',
-    screenshotsUrls: [
-      'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fcabanita%2Fcabanita-1-img.png?alt=media&token=38bd428c-572f-48e2-93db-782848c46ed8',
-      'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fcabanita%2Fcabanita-2-img.png?alt=media&token=2bc38a7e-4a48-4b03-9eac-ef563ab1937b',
-      'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fcabanita%2Fcabanita-3-img.png?alt=media&token=52436aa8-095b-4e1a-b47d-33f4ca79f5de',
-      'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fcabanita%2Fcabanita-4-img.png?alt=media&token=eb72d0d1-335a-4a83-84ad-3582d5cc402d',
-    ],
+    mainImage: ImageAndPath(
+      url:
+          'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fcabanita%2Fcabanita-main-image.png?alt=media&token=63d60b98-4b42-446e-ade6-211666721038',
+    ),
   ),
   Project(
     id: '3',
@@ -110,12 +103,34 @@ GuardOwl is an app designed to offer security and peace of mind to travellers. U
       'Personal guardian in each destination',
       'Stay informed and safe during your adventures',
     ],
-    mainImageUrl:
-        'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fguardowl%2Fguardowl-main-image.png?alt=media&token=b591f044-7402-470f-aacc-af474642efea',
-    screenshotsUrls: [
-      'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fguardowl%2Fguardowl-1-img.png?alt=media&token=3d05f469-eefa-4641-8215-af523e9f6dd2',
-      'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fguardowl%2Fguardowl-2-img.png?alt=media&token=488d68af-2dc7-4d6c-87e4-bb5472e32eb2',
-      'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fguardowl%2Fguardowl-3-img.png?alt=media&token=c1522bcc-3ac6-4959-85cf-02e21ea55e80',
+    mainImage: ImageAndPath(
+      url:
+          'https://firebasestorage.googleapis.com/v0/b/portfolio-chrisbp.appspot.com/o/projects%2Fguardowl%2Fguardowl-main-image.png?alt=media&token=b591f044-7402-470f-aacc-af474642efea',
+    ),
+  ),
+  Project(
+    id: '4',
+    shortDescriptionEn: '''
+CNEL - FICHA is an open-source application created with the purpose of helping the Ecuadorian community to better plan for scheduled power outages. The application consumes the CNEL API to show updated information on the upcoming dates and times of power outages, allowing people to anticipate and take measures''',
+    shortDescriptionEs: '''
+CNEL - FICHA es una aplicación de código abierto creada con el propósito de ayudar a la comunidad de Ecuador a planificar mejor frente a los cortes de energía programados. La aplicación consume la API de CNEL para mostrar información actualizada sobre las próximas fechas y horarios de corte de luz, permitiendo que las personas puedan anticiparse y tomar medidas''',
+    companyNameEn: 'CNEL - FICHA',
+    companyNameEs: 'CNEL - FICHA',
+    websiteUrl: 'https://cnel-ficha.vercel.app',
+    mainImage: ImageAndPath(url: ''),
+    featuresEN: [
+      'Consult scheduled power outage times',
+      'Updated information from CNEL’s API',
+      'User-friendly interface for easy access to information',
+      'Open-source development to contribute to the community',
+      'Easily accessible and available to all users',
+    ],
+    featuresES: [
+      'Consulta de horarios de cortes de energía programados',
+      'Información actualizada de la API de CNEL',
+      'Interfaz amigable para un fácil acceso a la información',
+      'Desarrollo de código abierto para contribuir a la comunidad',
+      'De fácil acceso y disponible para todos los usuarios',
     ],
   ),
 ];

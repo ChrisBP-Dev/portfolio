@@ -21,8 +21,7 @@ Technology _$TechnologyFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$Technology {
   String get name => throw _privateConstructorUsedError;
-  String get imageUrl => throw _privateConstructorUsedError;
-  String? get refImage => throw _privateConstructorUsedError;
+  ImageAndPath get image => throw _privateConstructorUsedError;
   String get id => throw _privateConstructorUsedError;
   String get experienceTime => throw _privateConstructorUsedError;
 
@@ -43,11 +42,9 @@ abstract class $TechnologyCopyWith<$Res> {
       _$TechnologyCopyWithImpl<$Res, Technology>;
   @useResult
   $Res call(
-      {String name,
-      String imageUrl,
-      String? refImage,
-      String id,
-      String experienceTime});
+      {String name, ImageAndPath image, String id, String experienceTime});
+
+  $ImageAndPathCopyWith<$Res> get image;
 }
 
 /// @nodoc
@@ -66,8 +63,7 @@ class _$TechnologyCopyWithImpl<$Res, $Val extends Technology>
   @override
   $Res call({
     Object? name = null,
-    Object? imageUrl = null,
-    Object? refImage = freezed,
+    Object? image = null,
     Object? id = null,
     Object? experienceTime = null,
   }) {
@@ -76,14 +72,10 @@ class _$TechnologyCopyWithImpl<$Res, $Val extends Technology>
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
-      imageUrl: null == imageUrl
-          ? _value.imageUrl
-          : imageUrl // ignore: cast_nullable_to_non_nullable
-              as String,
-      refImage: freezed == refImage
-          ? _value.refImage
-          : refImage // ignore: cast_nullable_to_non_nullable
-              as String?,
+      image: null == image
+          ? _value.image
+          : image // ignore: cast_nullable_to_non_nullable
+              as ImageAndPath,
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
@@ -93,6 +85,16 @@ class _$TechnologyCopyWithImpl<$Res, $Val extends Technology>
           : experienceTime // ignore: cast_nullable_to_non_nullable
               as String,
     ) as $Val);
+  }
+
+  /// Create a copy of Technology
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $ImageAndPathCopyWith<$Res> get image {
+    return $ImageAndPathCopyWith<$Res>(_value.image, (value) {
+      return _then(_value.copyWith(image: value) as $Val);
+    });
   }
 }
 
@@ -105,11 +107,10 @@ abstract class _$$TechnologyImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String name,
-      String imageUrl,
-      String? refImage,
-      String id,
-      String experienceTime});
+      {String name, ImageAndPath image, String id, String experienceTime});
+
+  @override
+  $ImageAndPathCopyWith<$Res> get image;
 }
 
 /// @nodoc
@@ -126,8 +127,7 @@ class __$$TechnologyImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? name = null,
-    Object? imageUrl = null,
-    Object? refImage = freezed,
+    Object? image = null,
     Object? id = null,
     Object? experienceTime = null,
   }) {
@@ -136,14 +136,10 @@ class __$$TechnologyImplCopyWithImpl<$Res>
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
-      imageUrl: null == imageUrl
-          ? _value.imageUrl
-          : imageUrl // ignore: cast_nullable_to_non_nullable
-              as String,
-      refImage: freezed == refImage
-          ? _value.refImage
-          : refImage // ignore: cast_nullable_to_non_nullable
-              as String?,
+      image: null == image
+          ? _value.image
+          : image // ignore: cast_nullable_to_non_nullable
+              as ImageAndPath,
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
@@ -157,12 +153,12 @@ class __$$TechnologyImplCopyWithImpl<$Res>
 }
 
 /// @nodoc
-@JsonSerializable()
+
+@JsonSerializable(explicitToJson: true)
 class _$TechnologyImpl extends _Technology with DiagnosticableTreeMixin {
   const _$TechnologyImpl(
       {required this.name,
-      required this.imageUrl,
-      this.refImage,
+      required this.image,
       this.id = '',
       this.experienceTime = ''})
       : super._();
@@ -173,9 +169,7 @@ class _$TechnologyImpl extends _Technology with DiagnosticableTreeMixin {
   @override
   final String name;
   @override
-  final String imageUrl;
-  @override
-  final String? refImage;
+  final ImageAndPath image;
   @override
   @JsonKey()
   final String id;
@@ -185,7 +179,7 @@ class _$TechnologyImpl extends _Technology with DiagnosticableTreeMixin {
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'Technology(name: $name, imageUrl: $imageUrl, refImage: $refImage, id: $id, experienceTime: $experienceTime)';
+    return 'Technology(name: $name, image: $image, id: $id, experienceTime: $experienceTime)';
   }
 
   @override
@@ -194,8 +188,7 @@ class _$TechnologyImpl extends _Technology with DiagnosticableTreeMixin {
     properties
       ..add(DiagnosticsProperty('type', 'Technology'))
       ..add(DiagnosticsProperty('name', name))
-      ..add(DiagnosticsProperty('imageUrl', imageUrl))
-      ..add(DiagnosticsProperty('refImage', refImage))
+      ..add(DiagnosticsProperty('image', image))
       ..add(DiagnosticsProperty('id', id))
       ..add(DiagnosticsProperty('experienceTime', experienceTime));
   }
@@ -206,10 +199,7 @@ class _$TechnologyImpl extends _Technology with DiagnosticableTreeMixin {
         (other.runtimeType == runtimeType &&
             other is _$TechnologyImpl &&
             (identical(other.name, name) || other.name == name) &&
-            (identical(other.imageUrl, imageUrl) ||
-                other.imageUrl == imageUrl) &&
-            (identical(other.refImage, refImage) ||
-                other.refImage == refImage) &&
+            (identical(other.image, image) || other.image == image) &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.experienceTime, experienceTime) ||
                 other.experienceTime == experienceTime));
@@ -217,8 +207,7 @@ class _$TechnologyImpl extends _Technology with DiagnosticableTreeMixin {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, name, imageUrl, refImage, id, experienceTime);
+  int get hashCode => Object.hash(runtimeType, name, image, id, experienceTime);
 
   /// Create a copy of Technology
   /// with the given fields replaced by the non-null parameter values.
@@ -239,8 +228,7 @@ class _$TechnologyImpl extends _Technology with DiagnosticableTreeMixin {
 abstract class _Technology extends Technology {
   const factory _Technology(
       {required final String name,
-      required final String imageUrl,
-      final String? refImage,
+      required final ImageAndPath image,
       final String id,
       final String experienceTime}) = _$TechnologyImpl;
   const _Technology._() : super._();
@@ -251,9 +239,7 @@ abstract class _Technology extends Technology {
   @override
   String get name;
   @override
-  String get imageUrl;
-  @override
-  String? get refImage;
+  ImageAndPath get image;
   @override
   String get id;
   @override

@@ -1,208 +1,138 @@
-import 'package:flutter/foundation.dart';
 import 'package:portfolio/src/features/projects/data/services/firestore_service.dart';
 import 'package:portfolio/src/features/projects/data/services/storage_service.dart';
 import 'package:portfolio/src/features/projects/domain/admin_projects_repository.dart';
 import 'package:portfolio/src/features/projects/domain/project.dart';
-
-const _collectionName = 'Projects'; // TODO(me): change to 'projects'
+import 'package:portfolio/src/features/projects/domain/screenshot_image.dart';
 
 class FirebaseAdminProjectsRepositoryImp implements AdminProjectsRepository {
   FirebaseAdminProjectsRepositoryImp({
     required this.storageService,
     required this.firestoreService,
+    required this.collectionName,
   });
 
   final StorageService storageService;
   final FirestoreService<Project> firestoreService;
+  final String collectionName;
 
   @override
   Stream<List<Project>> getProjectsStream() {
     return firestoreService.getCollectionStream(
-      _collectionName,
+      collectionName,
       fromJson: Project.fromJson,
     );
   }
 
+  String _generateMainImageRef(String projectId) {
+    return '$collectionName/$projectId/main-image.webp';
+  }
+
+  String _generateScreenshotRef(String projectId, int index) {
+    return '$collectionName/$projectId/screenshots/$index-image.webp';
+  }
+
   @override
   Future<void> createProject(Project project) async {
-    final time = DateTime.now().millisecondsSinceEpoch;
-    final imgRoute = '$_collectionName/${project.id}';
-    final mainImageRef = '$imgRoute/main-image-$time.webp';
-    final mainImageUrl = await storageService.uploadImage(
-      project.mainImageCharCode,
-      mainImageRef,
-    );
+    var newProject = project;
+    if (project.mainImage.hasLocalImage) {
+      final imgRef = _generateMainImageRef(project.id);
+      final mainImage = ImageAndPath(
+        url: await storageService.uploadImage(
+          project.mainImage.localImageCharCode!,
+          imgRef,
+        ),
+        refPath: imgRef,
+      );
+      newProject = newProject.copyWith(mainImage: mainImage);
+    }
 
-    final screenshotsRef = List.generate(
-      project.screenshotsUrls.length,
-      (index) {
-        return '$imgRoute/$index-image-$time.webp';
-      },
-    );
-
-    final screenshotUrls = await Future.wait([
-      ...List.generate(project.screenshotsUrls.length, (index) async {
-        return storageService.uploadImage(
-          project.screenshotsCharCodes[index],
-          screenshotsRef[index],
+    final screenshots = await Future.wait([
+      ...List.generate(project.localScreenshots.length, (index) async {
+        final screnshotPath = _generateScreenshotRef(project.id, index);
+        return ImageAndPath(
+          url: await storageService.uploadImage(
+            project.localScreenshots[index].localImageCharCode!,
+            screnshotPath,
+          ),
+          refPath: screnshotPath,
         );
       }),
     ]);
 
-    await firestoreService.addDocument(
-      collectionPath: _collectionName,
+    // Crear documento en Firestore
+    newProject = newProject.copyWith(
+      screenshots: screenshots,
+    );
+
+    await firestoreService.createDocument(
+      collectionPath: collectionName,
       documentId: project.id,
-      data: project
-          .copyWith(
-            mainImageUrl: mainImageUrl,
-            refMainImage: mainImageRef,
-            screenshotsUrls: screenshotUrls,
-            refScreenshotsUrls: screenshotsRef,
-          )
-          .toJson(),
+      data: newProject.toJson(),
+    );
+  }
+
+  @override
+  Future<void> updateProject(Project project) async {
+    final projectId = project.id;
+    var updatedProject = project;
+    if (project.mainImage.needsToUpdate) {
+      await storageService.deleteImage(project.mainImage.refPath!);
+
+      final mainImageRef = _generateMainImageRef(projectId);
+      final newMainImage = ImageAndPath(
+        url: await storageService.uploadImage(
+          project.mainImage.localImageCharCode!,
+          mainImageRef,
+        ),
+        refPath: mainImageRef,
+      );
+      updatedProject = updatedProject.copyWith(mainImage: newMainImage);
+    }
+
+    final updatedScreenshots = await Future.wait([
+      ...List.generate(project.screenshots.length, (index) async {
+        var screenshot = project.screenshots[index];
+        if (screenshot.needsToDelete || screenshot.needsToUpdate) {
+          await storageService.deleteImage(screenshot.refPath!);
+        }
+        if (screenshot.hasLocalImage) {
+          final screenshotRef = _generateScreenshotRef(projectId, index);
+          screenshot = ImageAndPath(
+            url: await storageService.uploadImage(
+              screenshot.localImageCharCode!,
+              screenshotRef,
+            ),
+            refPath: screenshotRef,
+          );
+        }
+        return screenshot;
+      }),
+    ]);
+    updatedProject = updatedProject.copyWith(
+      screenshots: updatedScreenshots.where((ss) => ss.hasUrl).toList(),
+    );
+
+    await firestoreService.updateDocument(
+      collectionPath: collectionName,
+      documentId: projectId,
+      data: updatedProject.toJson(),
     );
   }
 
   @override
   Future<void> deleteProject(Project project) async {
     await Future.wait([
-      ...List.generate(project.refScreenshotsUrls.length, (index) {
-        return storageService.deleteImage(project.refScreenshotsUrls[index]);
+      ...List.generate(project.refScreenshots.length, (index) {
+        final screnshotPath = project.refScreenshots[index].refPath;
+        return storageService.deleteImage(screnshotPath!);
       }),
-      if (project.refMainImage != null)
-        storageService.deleteImage(project.refMainImage!),
     ]);
+    if (project.mainImage.hasRefImage) {
+      await storageService.deleteImage(project.mainImage.refPath!);
+    }
     await firestoreService.deleteDocument(
-      collectionPath: _collectionName,
+      collectionPath: collectionName,
       documentId: project.id,
     );
-  }
-
-  @override
-  Future<void> updateProject(Project oldProject, Project newProject) async {
-    try {
-      final time = DateTime.now().millisecondsSinceEpoch;
-      final imgRoute = '$_collectionName/${oldProject.id}';
-      final mainImageRef = '$imgRoute/main-image-$time.webp';
-
-      final screenshotsRef = List.generate(
-        newProject.screenshotsUrls.length,
-        (index) => '$imgRoute/$index-image-$time.webp',
-      );
-
-      String? mainImageUrl;
-      if (!listEquals(
-        newProject.mainImageCharCode,
-        oldProject.mainImageCharCode,
-      )) {
-        // Eliminar imagen anterior si existe
-        if (oldProject.refMainImage != null) {
-          await storageService.deleteImage(oldProject.refMainImage!);
-        }
-        // Subir nueva imagen
-        mainImageUrl = await storageService.uploadImage(
-          newProject.mainImageCharCode,
-          mainImageRef,
-        );
-      } else {
-        // Mantener la URL antigua si no ha cambiado
-        mainImageUrl = oldProject.mainImageUrl;
-      }
-
-      /// Manejo de capturas de pantalla
-      final screenshotUrls = await _updateScreenshots(
-        oldProject,
-        newProject,
-        screenshotsRef,
-      );
-
-      // Eliminar capturas de pantalla obsoletas
-      await _deleteObsoleteScreenshots(
-        oldProject,
-        newProject.refScreenshotsUrls,
-      );
-
-      // Actualizar el documento en Firestore
-      await firestoreService.updateDocument(
-        collectionPath: _collectionName,
-        documentId: newProject.id,
-        data: newProject
-            .copyWith(
-              mainImageUrl: mainImageUrl,
-              refMainImage: mainImageRef,
-              screenshotsUrls: screenshotUrls,
-              refScreenshotsUrls: screenshotsRef,
-            )
-            .toJson(),
-      );
-    } on StorageException catch (e, st) {
-      Error.throwWithStackTrace(
-        FirestoreException(
-          'Error al actualizar imágenes en Storage: ${e.message}',
-          FirestoreErrorType.updateError,
-        ),
-        st,
-      );
-    } on FirestoreException catch (e, st) {
-      Error.throwWithStackTrace(
-        FirestoreException(
-          'Error al actualizar proyecto en Firestore: ${e.message}',
-          FirestoreErrorType.updateError,
-        ),
-        st,
-      );
-    }
-  }
-
-  /// Método para actualizar capturas de pantalla
-  Future<List<String>> _updateScreenshots(
-    Project oldProject,
-    Project newProject,
-    List<String> screenshotsRef,
-  ) async {
-    final updatedScreenshotUrls = <String>[];
-
-    for (var index = 0;
-        index < newProject.screenshotsCharCodes.length;
-        index++) {
-      final newScreenshotCode = newProject.screenshotsCharCodes[index];
-
-      // Verificar si la imagen cambió
-      if (index < oldProject.screenshotsCharCodes.length &&
-          listEquals(
-            newScreenshotCode,
-            oldProject.screenshotsCharCodes[index],
-          )) {
-        // Mantener la URL antigua si no ha cambiado
-        updatedScreenshotUrls.add(oldProject.screenshotsUrls[index]);
-      } else {
-        // Eliminar la imagen antigua si se reemplaza
-        if (index < oldProject.refScreenshotsUrls.length) {
-          await storageService
-              .deleteImage(oldProject.refScreenshotsUrls[index]);
-        }
-        // Subir nueva imagen
-        final newScreenshotUrl = await storageService.uploadImage(
-          newScreenshotCode,
-          screenshotsRef[index],
-        );
-        updatedScreenshotUrls.add(newScreenshotUrl);
-      }
-    }
-
-    return updatedScreenshotUrls;
-  }
-
-  /// Método para eliminar capturas de pantalla obsoletas
-  Future<void> _deleteObsoleteScreenshots(
-    Project oldProject,
-    List<String> newScreenshotRefs,
-  ) async {
-    // Eliminar capturas de pantalla que ya no están referenciadas en el nuevo proyecto
-    final obsoleteScreenshots = oldProject.refScreenshotsUrls.where((oldRef) {
-      return !newScreenshotRefs.contains(oldRef);
-    });
-
-    await Future.wait(obsoleteScreenshots.map(storageService.deleteImage));
   }
 }

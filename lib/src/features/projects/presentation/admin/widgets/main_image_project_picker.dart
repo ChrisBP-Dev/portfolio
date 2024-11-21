@@ -1,18 +1,18 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:portfolio/src/core/common_widgets/image_memory_picked.dart';
 import 'package:portfolio/src/core/common_widgets/responsive_center.dart';
 import 'package:portfolio/src/core/constants/breakpoints.dart';
 import 'package:portfolio/src/core/utils/unit8list_extension.dart';
+import 'package:portfolio/src/features/projects/domain/screenshot_image.dart';
 
 class MainImageProjectPicker extends StatefulWidget {
   const MainImageProjectPicker({
     required this.newImage,
-    this.imageCharCode,
+    this.image,
     super.key,
   });
 
-  final Uint8List? imageCharCode;
+  final ImageAndPath? image;
   final void Function(String) newImage;
 
   @override
@@ -20,11 +20,11 @@ class MainImageProjectPicker extends StatefulWidget {
 }
 
 class _MainImageProjectPickerState extends State<MainImageProjectPicker> {
-  late Uint8List _image;
+  late ImageAndPath _image;
 
   @override
   void initState() {
-    _image = widget.imageCharCode ?? Uint8List.fromList([]);
+    _image = widget.image ?? const ImageAndPath();
     super.initState();
   }
 
@@ -37,13 +37,16 @@ class _MainImageProjectPickerState extends State<MainImageProjectPicker> {
         child: AspectRatio(
           aspectRatio: 16 / 9,
           child: ImageMemoryPicked(
-            imageCharCode: _image,
+            image: _image,
             onImageAdded: (newImage) {
-              setState(() => _image = newImage);
+              setState(
+                () => _image =
+                    _image.copyWith(localImage: newImage.codeUnitsString),
+              );
               widget.newImage(newImage.codeUnitsString);
             },
             deleteTap: () {
-              setState(() => _image = Uint8List.fromList([]));
+              setState(() => _image = _image.copyWith(localImage: ''));
               widget.newImage('');
             },
           ),

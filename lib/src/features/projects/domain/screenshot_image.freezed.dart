@@ -14,57 +14,63 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
-ScreenshotImage _$ScreenshotImageFromJson(Map<String, dynamic> json) {
-  return _ScreenshotImage.fromJson(json);
+ImageAndPath _$ImageAndPathFromJson(Map<String, dynamic> json) {
+  return _ImageAndPath.fromJson(json);
 }
 
 /// @nodoc
-mixin _$ScreenshotImage {
-  String get url => throw _privateConstructorUsedError;
+mixin _$ImageAndPath {
+  String? get url => throw _privateConstructorUsedError;
+  String? get localImage => throw _privateConstructorUsedError;
   String? get refPath => throw _privateConstructorUsedError;
 
-  /// Serializes this ScreenshotImage to a JSON map.
+  /// Serializes this ImageAndPath to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
-  /// Create a copy of ScreenshotImage
+  /// Create a copy of ImageAndPath
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $ScreenshotImageCopyWith<ScreenshotImage> get copyWith =>
+  $ImageAndPathCopyWith<ImageAndPath> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $ScreenshotImageCopyWith<$Res> {
-  factory $ScreenshotImageCopyWith(
-          ScreenshotImage value, $Res Function(ScreenshotImage) then) =
-      _$ScreenshotImageCopyWithImpl<$Res, ScreenshotImage>;
+abstract class $ImageAndPathCopyWith<$Res> {
+  factory $ImageAndPathCopyWith(
+          ImageAndPath value, $Res Function(ImageAndPath) then) =
+      _$ImageAndPathCopyWithImpl<$Res, ImageAndPath>;
   @useResult
-  $Res call({String url, String? refPath});
+  $Res call({String? url, String? localImage, String? refPath});
 }
 
 /// @nodoc
-class _$ScreenshotImageCopyWithImpl<$Res, $Val extends ScreenshotImage>
-    implements $ScreenshotImageCopyWith<$Res> {
-  _$ScreenshotImageCopyWithImpl(this._value, this._then);
+class _$ImageAndPathCopyWithImpl<$Res, $Val extends ImageAndPath>
+    implements $ImageAndPathCopyWith<$Res> {
+  _$ImageAndPathCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of ScreenshotImage
+  /// Create a copy of ImageAndPath
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? url = null,
+    Object? url = freezed,
+    Object? localImage = freezed,
     Object? refPath = freezed,
   }) {
     return _then(_value.copyWith(
-      url: null == url
+      url: freezed == url
           ? _value.url
           : url // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
+      localImage: freezed == localImage
+          ? _value.localImage
+          : localImage // ignore: cast_nullable_to_non_nullable
+              as String?,
       refPath: freezed == refPath
           ? _value.refPath
           : refPath // ignore: cast_nullable_to_non_nullable
@@ -74,37 +80,42 @@ class _$ScreenshotImageCopyWithImpl<$Res, $Val extends ScreenshotImage>
 }
 
 /// @nodoc
-abstract class _$$ScreenshotImageImplCopyWith<$Res>
-    implements $ScreenshotImageCopyWith<$Res> {
-  factory _$$ScreenshotImageImplCopyWith(_$ScreenshotImageImpl value,
-          $Res Function(_$ScreenshotImageImpl) then) =
-      __$$ScreenshotImageImplCopyWithImpl<$Res>;
+abstract class _$$ImageAndPathImplCopyWith<$Res>
+    implements $ImageAndPathCopyWith<$Res> {
+  factory _$$ImageAndPathImplCopyWith(
+          _$ImageAndPathImpl value, $Res Function(_$ImageAndPathImpl) then) =
+      __$$ImageAndPathImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String url, String? refPath});
+  $Res call({String? url, String? localImage, String? refPath});
 }
 
 /// @nodoc
-class __$$ScreenshotImageImplCopyWithImpl<$Res>
-    extends _$ScreenshotImageCopyWithImpl<$Res, _$ScreenshotImageImpl>
-    implements _$$ScreenshotImageImplCopyWith<$Res> {
-  __$$ScreenshotImageImplCopyWithImpl(
-      _$ScreenshotImageImpl _value, $Res Function(_$ScreenshotImageImpl) _then)
+class __$$ImageAndPathImplCopyWithImpl<$Res>
+    extends _$ImageAndPathCopyWithImpl<$Res, _$ImageAndPathImpl>
+    implements _$$ImageAndPathImplCopyWith<$Res> {
+  __$$ImageAndPathImplCopyWithImpl(
+      _$ImageAndPathImpl _value, $Res Function(_$ImageAndPathImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of ScreenshotImage
+  /// Create a copy of ImageAndPath
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? url = null,
+    Object? url = freezed,
+    Object? localImage = freezed,
     Object? refPath = freezed,
   }) {
-    return _then(_$ScreenshotImageImpl(
-      url: null == url
+    return _then(_$ImageAndPathImpl(
+      url: freezed == url
           ? _value.url
           : url // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
+      localImage: freezed == localImage
+          ? _value.localImage
+          : localImage // ignore: cast_nullable_to_non_nullable
+              as String?,
       refPath: freezed == refPath
           ? _value.refPath
           : refPath // ignore: cast_nullable_to_non_nullable
@@ -115,70 +126,87 @@ class __$$ScreenshotImageImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$ScreenshotImageImpl extends _ScreenshotImage {
-  const _$ScreenshotImageImpl({required this.url, this.refPath}) : super._();
+class _$ImageAndPathImpl extends _ImageAndPath with DiagnosticableTreeMixin {
+  const _$ImageAndPathImpl({this.url, this.localImage, this.refPath})
+      : super._();
 
-  factory _$ScreenshotImageImpl.fromJson(Map<String, dynamic> json) =>
-      _$$ScreenshotImageImplFromJson(json);
+  factory _$ImageAndPathImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ImageAndPathImplFromJson(json);
 
   @override
-  final String url;
+  final String? url;
+  @override
+  final String? localImage;
   @override
   final String? refPath;
 
   @override
-  String toString() {
-    return 'ScreenshotImage(url: $url, refPath: $refPath)';
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+    return 'ImageAndPath(url: $url, localImage: $localImage, refPath: $refPath)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'ImageAndPath'))
+      ..add(DiagnosticsProperty('url', url))
+      ..add(DiagnosticsProperty('localImage', localImage))
+      ..add(DiagnosticsProperty('refPath', refPath));
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$ScreenshotImageImpl &&
+            other is _$ImageAndPathImpl &&
             (identical(other.url, url) || other.url == url) &&
+            (identical(other.localImage, localImage) ||
+                other.localImage == localImage) &&
             (identical(other.refPath, refPath) || other.refPath == refPath));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, url, refPath);
+  int get hashCode => Object.hash(runtimeType, url, localImage, refPath);
 
-  /// Create a copy of ScreenshotImage
+  /// Create a copy of ImageAndPath
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$ScreenshotImageImplCopyWith<_$ScreenshotImageImpl> get copyWith =>
-      __$$ScreenshotImageImplCopyWithImpl<_$ScreenshotImageImpl>(
-          this, _$identity);
+  _$$ImageAndPathImplCopyWith<_$ImageAndPathImpl> get copyWith =>
+      __$$ImageAndPathImplCopyWithImpl<_$ImageAndPathImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$ScreenshotImageImplToJson(
+    return _$$ImageAndPathImplToJson(
       this,
     );
   }
 }
 
-abstract class _ScreenshotImage extends ScreenshotImage {
-  const factory _ScreenshotImage(
-      {required final String url,
-      final String? refPath}) = _$ScreenshotImageImpl;
-  const _ScreenshotImage._() : super._();
+abstract class _ImageAndPath extends ImageAndPath {
+  const factory _ImageAndPath(
+      {final String? url,
+      final String? localImage,
+      final String? refPath}) = _$ImageAndPathImpl;
+  const _ImageAndPath._() : super._();
 
-  factory _ScreenshotImage.fromJson(Map<String, dynamic> json) =
-      _$ScreenshotImageImpl.fromJson;
+  factory _ImageAndPath.fromJson(Map<String, dynamic> json) =
+      _$ImageAndPathImpl.fromJson;
 
   @override
-  String get url;
+  String? get url;
+  @override
+  String? get localImage;
   @override
   String? get refPath;
 
-  /// Create a copy of ScreenshotImage
+  /// Create a copy of ImageAndPath
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$ScreenshotImageImplCopyWith<_$ScreenshotImageImpl> get copyWith =>
+  _$$ImageAndPathImplCopyWith<_$ImageAndPathImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

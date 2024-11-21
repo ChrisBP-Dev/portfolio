@@ -29,8 +29,8 @@ class _FeaturesProjectListState extends State<FeaturesProjectList> {
 
   @override
   void initState() {
-    super.initState();
     _featuresList = List<String>.from(widget.initialFeatures ?? []);
+    super.initState();
   }
 
   @override

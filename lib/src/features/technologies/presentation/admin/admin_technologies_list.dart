@@ -4,7 +4,7 @@ import 'package:portfolio/src/core/common_widgets/technology_icon.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/core/utils/theme/color_app.dart';
 import 'package:portfolio/src/features/technologies/domain/technology.dart';
-import 'package:portfolio/src/features/technologies/presentation/admin/update_technology/update_technology_page.dart';
+import 'package:portfolio/src/features/technologies/presentation/admin/admin_technology_page.dart';
 
 class AdminTechnologiesList extends StatelessWidget {
   const AdminTechnologiesList({required this.technologies, super.key});
@@ -23,7 +23,7 @@ class AdminTechnologiesList extends StatelessWidget {
               showDialog<void>(
                 context: context,
                 builder: (context) =>
-                    AdminUpdateTechnologyPage(technologies[index]),
+                    AdminTechnologyPage(technology: technologies[index]),
               );
             },
             borderRadius: BorderRadius.circular(Sizes.p8),

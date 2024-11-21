@@ -10,12 +10,12 @@ class AdminUpdateProjectController extends _$AdminUpdateProjectController {
     // nothing to do here
   }
 
-  Future<void> updateProject(Project oldProject, Project newProject) async {
+  Future<void> updateProject(Project project) async {
     state = const AsyncValue.loading();
 
     final repository = ref.read(adminProjectsRepositoryProvider);
     state = await AsyncValue.guard(
-      () => repository.updateProject(oldProject, newProject),
+      () => repository.updateProject(project),
     );
   }
 }

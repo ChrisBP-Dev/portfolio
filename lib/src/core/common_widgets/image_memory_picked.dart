@@ -5,12 +5,12 @@ import 'package:portfolio/src/core/common_widgets/wrap_network_image.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/core/utils/bool_extensions.dart';
 import 'package:portfolio/src/core/utils/theme/color_app.dart';
-import 'package:portfolio/src/core/utils/unit8list_extension.dart';
+import 'package:portfolio/src/features/projects/domain/screenshot_image.dart';
 import 'package:portfolio/src/localization/string_hardcoded.dart';
 
 class ImageMemoryPicked extends StatelessWidget {
   const ImageMemoryPicked({
-    required this.imageCharCode,
+    required this.image,
     required this.onImageAdded,
     super.key,
     this.width,
@@ -22,20 +22,20 @@ class ImageMemoryPicked extends StatelessWidget {
   final double? height;
   final void Function(Uint8List) onImageAdded;
   final VoidCallback? deleteTap;
-  final Uint8List imageCharCode;
+  final ImageAndPath image;
 
   @override
   Widget build(BuildContext context) {
-    final child = imageCharCode.isNotEmpty.when(
-      isTrue: () => imageCharCode.isvalidUrl.when(
-        isTrue: () => WrapNetworkImage(
-          imageUrl: imageCharCode.codeUnitsString,
-          width: width,
-          height: height,
+    final child = (!image.isEmpty).when(
+      isTrue: () => image.hasLocalImage.when(
+        isTrue: () => Image.memory(
+          image.localImageCharCode!,
           fit: BoxFit.cover,
         ),
-        isFalse: () => Image.memory(
-          imageCharCode,
+        isFalse: () => WrapNetworkImage(
+          imageUrl: image.url!,
+          width: width,
+          height: height,
           fit: BoxFit.cover,
         ),
       ),
@@ -83,12 +83,14 @@ class ImageMemoryPicked extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: context.getPrimaryColor()),
               ),
-              padding:
-                  imageCharCode.isNotEmpty ? null : const EdgeInsets.all(20),
-              child: child,
+              padding: (!image.isEmpty) ? null : const EdgeInsets.all(20),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: child,
+              ),
             ),
           ),
-          if (imageCharCode.isNotEmpty)
+          if (!image.isEmpty)
             Positioned(
               top: 10,
               right: 10,

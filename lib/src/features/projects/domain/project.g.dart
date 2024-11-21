@@ -12,17 +12,13 @@ _$ProjectImpl _$$ProjectImplFromJson(Map<String, dynamic> json) =>
       companyNameEn: json['companyNameEn'] as String,
       shortDescriptionEs: json['shortDescriptionEs'] as String,
       shortDescriptionEn: json['shortDescriptionEn'] as String,
-      mainImageUrl: json['mainImageUrl'] as String,
-      refMainImage: json['refMainImage'] as String?,
+      mainImage:
+          ImageAndPath.fromJson(json['mainImage'] as Map<String, dynamic>),
       id: json['id'] as String? ?? '',
-      screenshotsUrls: (json['screenshotsUrls'] as List<dynamic>?)
-              ?.map((e) => e as String)
+      screenshots: (json['screenshots'] as List<dynamic>?)
+              ?.map((e) => ImageAndPath.fromJson(e as Map<String, dynamic>))
               .toList() ??
-          const <String>[],
-      refScreenshotsUrls: (json['refScreenshotsUrls'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          const <String>[],
+          const <ImageAndPath>[],
       technologies: (json['technologies'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
@@ -45,11 +41,9 @@ Map<String, dynamic> _$$ProjectImplToJson(_$ProjectImpl instance) =>
       'companyNameEn': instance.companyNameEn,
       'shortDescriptionEs': instance.shortDescriptionEs,
       'shortDescriptionEn': instance.shortDescriptionEn,
-      'mainImageUrl': instance.mainImageUrl,
-      'refMainImage': instance.refMainImage,
+      'mainImage': instance.mainImage.toJson(),
       'id': instance.id,
-      'screenshotsUrls': instance.screenshotsUrls,
-      'refScreenshotsUrls': instance.refScreenshotsUrls,
+      'screenshots': instance.screenshots.map((e) => e.toJson()).toList(),
       'technologies': instance.technologies,
       'featuresES': instance.featuresES,
       'featuresEN': instance.featuresEN,

@@ -18,7 +18,7 @@ class FakeAdminProjectsRepositoryImp implements AdminProjectsRepository {
   }
 
   @override
-  Future<Project> updateProject(Project oldProject, Project newProject) async {
+  Future<Project> updateProject(Project oldProject) async {
     final index = _projects.indexWhere((p) => p.id == oldProject.id);
     if (index != -1) {
       _projects[index] = oldProject;

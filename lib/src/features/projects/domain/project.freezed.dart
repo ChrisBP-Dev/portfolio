@@ -24,11 +24,9 @@ mixin _$Project {
   String get companyNameEn => throw _privateConstructorUsedError;
   String get shortDescriptionEs => throw _privateConstructorUsedError;
   String get shortDescriptionEn => throw _privateConstructorUsedError;
-  String get mainImageUrl => throw _privateConstructorUsedError;
-  String? get refMainImage => throw _privateConstructorUsedError;
+  ImageAndPath get mainImage => throw _privateConstructorUsedError;
   String get id => throw _privateConstructorUsedError;
-  List<String> get screenshotsUrls => throw _privateConstructorUsedError;
-  List<String> get refScreenshotsUrls => throw _privateConstructorUsedError;
+  List<ImageAndPath> get screenshots => throw _privateConstructorUsedError;
   List<String> get technologies => throw _privateConstructorUsedError;
   List<String> get featuresES => throw _privateConstructorUsedError;
   List<String> get featuresEN => throw _privateConstructorUsedError;
@@ -54,16 +52,16 @@ abstract class $ProjectCopyWith<$Res> {
       String companyNameEn,
       String shortDescriptionEs,
       String shortDescriptionEn,
-      String mainImageUrl,
-      String? refMainImage,
+      ImageAndPath mainImage,
       String id,
-      List<String> screenshotsUrls,
-      List<String> refScreenshotsUrls,
+      List<ImageAndPath> screenshots,
       List<String> technologies,
       List<String> featuresES,
       List<String> featuresEN,
       String? websiteUrl,
       String? sourceCodeUrl});
+
+  $ImageAndPathCopyWith<$Res> get mainImage;
 }
 
 /// @nodoc
@@ -85,11 +83,9 @@ class _$ProjectCopyWithImpl<$Res, $Val extends Project>
     Object? companyNameEn = null,
     Object? shortDescriptionEs = null,
     Object? shortDescriptionEn = null,
-    Object? mainImageUrl = null,
-    Object? refMainImage = freezed,
+    Object? mainImage = null,
     Object? id = null,
-    Object? screenshotsUrls = null,
-    Object? refScreenshotsUrls = null,
+    Object? screenshots = null,
     Object? technologies = null,
     Object? featuresES = null,
     Object? featuresEN = null,
@@ -113,26 +109,18 @@ class _$ProjectCopyWithImpl<$Res, $Val extends Project>
           ? _value.shortDescriptionEn
           : shortDescriptionEn // ignore: cast_nullable_to_non_nullable
               as String,
-      mainImageUrl: null == mainImageUrl
-          ? _value.mainImageUrl
-          : mainImageUrl // ignore: cast_nullable_to_non_nullable
-              as String,
-      refMainImage: freezed == refMainImage
-          ? _value.refMainImage
-          : refMainImage // ignore: cast_nullable_to_non_nullable
-              as String?,
+      mainImage: null == mainImage
+          ? _value.mainImage
+          : mainImage // ignore: cast_nullable_to_non_nullable
+              as ImageAndPath,
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
-      screenshotsUrls: null == screenshotsUrls
-          ? _value.screenshotsUrls
-          : screenshotsUrls // ignore: cast_nullable_to_non_nullable
-              as List<String>,
-      refScreenshotsUrls: null == refScreenshotsUrls
-          ? _value.refScreenshotsUrls
-          : refScreenshotsUrls // ignore: cast_nullable_to_non_nullable
-              as List<String>,
+      screenshots: null == screenshots
+          ? _value.screenshots
+          : screenshots // ignore: cast_nullable_to_non_nullable
+              as List<ImageAndPath>,
       technologies: null == technologies
           ? _value.technologies
           : technologies // ignore: cast_nullable_to_non_nullable
@@ -155,6 +143,16 @@ class _$ProjectCopyWithImpl<$Res, $Val extends Project>
               as String?,
     ) as $Val);
   }
+
+  /// Create a copy of Project
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $ImageAndPathCopyWith<$Res> get mainImage {
+    return $ImageAndPathCopyWith<$Res>(_value.mainImage, (value) {
+      return _then(_value.copyWith(mainImage: value) as $Val);
+    });
+  }
 }
 
 /// @nodoc
@@ -169,16 +167,17 @@ abstract class _$$ProjectImplCopyWith<$Res> implements $ProjectCopyWith<$Res> {
       String companyNameEn,
       String shortDescriptionEs,
       String shortDescriptionEn,
-      String mainImageUrl,
-      String? refMainImage,
+      ImageAndPath mainImage,
       String id,
-      List<String> screenshotsUrls,
-      List<String> refScreenshotsUrls,
+      List<ImageAndPath> screenshots,
       List<String> technologies,
       List<String> featuresES,
       List<String> featuresEN,
       String? websiteUrl,
       String? sourceCodeUrl});
+
+  @override
+  $ImageAndPathCopyWith<$Res> get mainImage;
 }
 
 /// @nodoc
@@ -198,11 +197,9 @@ class __$$ProjectImplCopyWithImpl<$Res>
     Object? companyNameEn = null,
     Object? shortDescriptionEs = null,
     Object? shortDescriptionEn = null,
-    Object? mainImageUrl = null,
-    Object? refMainImage = freezed,
+    Object? mainImage = null,
     Object? id = null,
-    Object? screenshotsUrls = null,
-    Object? refScreenshotsUrls = null,
+    Object? screenshots = null,
     Object? technologies = null,
     Object? featuresES = null,
     Object? featuresEN = null,
@@ -226,26 +223,18 @@ class __$$ProjectImplCopyWithImpl<$Res>
           ? _value.shortDescriptionEn
           : shortDescriptionEn // ignore: cast_nullable_to_non_nullable
               as String,
-      mainImageUrl: null == mainImageUrl
-          ? _value.mainImageUrl
-          : mainImageUrl // ignore: cast_nullable_to_non_nullable
-              as String,
-      refMainImage: freezed == refMainImage
-          ? _value.refMainImage
-          : refMainImage // ignore: cast_nullable_to_non_nullable
-              as String?,
+      mainImage: null == mainImage
+          ? _value.mainImage
+          : mainImage // ignore: cast_nullable_to_non_nullable
+              as ImageAndPath,
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
-      screenshotsUrls: null == screenshotsUrls
-          ? _value._screenshotsUrls
-          : screenshotsUrls // ignore: cast_nullable_to_non_nullable
-              as List<String>,
-      refScreenshotsUrls: null == refScreenshotsUrls
-          ? _value._refScreenshotsUrls
-          : refScreenshotsUrls // ignore: cast_nullable_to_non_nullable
-              as List<String>,
+      screenshots: null == screenshots
+          ? _value._screenshots
+          : screenshots // ignore: cast_nullable_to_non_nullable
+              as List<ImageAndPath>,
       technologies: null == technologies
           ? _value._technologies
           : technologies // ignore: cast_nullable_to_non_nullable
@@ -271,25 +260,23 @@ class __$$ProjectImplCopyWithImpl<$Res>
 }
 
 /// @nodoc
-@JsonSerializable()
+
+@JsonSerializable(explicitToJson: true)
 class _$ProjectImpl extends _Project with DiagnosticableTreeMixin {
   const _$ProjectImpl(
       {required this.companyNameEs,
       required this.companyNameEn,
       required this.shortDescriptionEs,
       required this.shortDescriptionEn,
-      required this.mainImageUrl,
-      this.refMainImage,
+      required this.mainImage,
       this.id = '',
-      final List<String> screenshotsUrls = const <String>[],
-      final List<String> refScreenshotsUrls = const <String>[],
+      final List<ImageAndPath> screenshots = const <ImageAndPath>[],
       final List<String> technologies = const <TechnologyID>[],
       final List<String> featuresES = const <String>[],
       final List<String> featuresEN = const <String>[],
       this.websiteUrl,
       this.sourceCodeUrl})
-      : _screenshotsUrls = screenshotsUrls,
-        _refScreenshotsUrls = refScreenshotsUrls,
+      : _screenshots = screenshots,
         _technologies = technologies,
         _featuresES = featuresES,
         _featuresEN = featuresEN,
@@ -307,29 +294,17 @@ class _$ProjectImpl extends _Project with DiagnosticableTreeMixin {
   @override
   final String shortDescriptionEn;
   @override
-  final String mainImageUrl;
-  @override
-  final String? refMainImage;
+  final ImageAndPath mainImage;
   @override
   @JsonKey()
   final String id;
-  final List<String> _screenshotsUrls;
+  final List<ImageAndPath> _screenshots;
   @override
   @JsonKey()
-  List<String> get screenshotsUrls {
-    if (_screenshotsUrls is EqualUnmodifiableListView) return _screenshotsUrls;
+  List<ImageAndPath> get screenshots {
+    if (_screenshots is EqualUnmodifiableListView) return _screenshots;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_screenshotsUrls);
-  }
-
-  final List<String> _refScreenshotsUrls;
-  @override
-  @JsonKey()
-  List<String> get refScreenshotsUrls {
-    if (_refScreenshotsUrls is EqualUnmodifiableListView)
-      return _refScreenshotsUrls;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_refScreenshotsUrls);
+    return EqualUnmodifiableListView(_screenshots);
   }
 
   final List<String> _technologies;
@@ -366,7 +341,7 @@ class _$ProjectImpl extends _Project with DiagnosticableTreeMixin {
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'Project(companyNameEs: $companyNameEs, companyNameEn: $companyNameEn, shortDescriptionEs: $shortDescriptionEs, shortDescriptionEn: $shortDescriptionEn, mainImageUrl: $mainImageUrl, refMainImage: $refMainImage, id: $id, screenshotsUrls: $screenshotsUrls, refScreenshotsUrls: $refScreenshotsUrls, technologies: $technologies, featuresES: $featuresES, featuresEN: $featuresEN, websiteUrl: $websiteUrl, sourceCodeUrl: $sourceCodeUrl)';
+    return 'Project(companyNameEs: $companyNameEs, companyNameEn: $companyNameEn, shortDescriptionEs: $shortDescriptionEs, shortDescriptionEn: $shortDescriptionEn, mainImage: $mainImage, id: $id, screenshots: $screenshots, technologies: $technologies, featuresES: $featuresES, featuresEN: $featuresEN, websiteUrl: $websiteUrl, sourceCodeUrl: $sourceCodeUrl)';
   }
 
   @override
@@ -378,11 +353,9 @@ class _$ProjectImpl extends _Project with DiagnosticableTreeMixin {
       ..add(DiagnosticsProperty('companyNameEn', companyNameEn))
       ..add(DiagnosticsProperty('shortDescriptionEs', shortDescriptionEs))
       ..add(DiagnosticsProperty('shortDescriptionEn', shortDescriptionEn))
-      ..add(DiagnosticsProperty('mainImageUrl', mainImageUrl))
-      ..add(DiagnosticsProperty('refMainImage', refMainImage))
+      ..add(DiagnosticsProperty('mainImage', mainImage))
       ..add(DiagnosticsProperty('id', id))
-      ..add(DiagnosticsProperty('screenshotsUrls', screenshotsUrls))
-      ..add(DiagnosticsProperty('refScreenshotsUrls', refScreenshotsUrls))
+      ..add(DiagnosticsProperty('screenshots', screenshots))
       ..add(DiagnosticsProperty('technologies', technologies))
       ..add(DiagnosticsProperty('featuresES', featuresES))
       ..add(DiagnosticsProperty('featuresEN', featuresEN))
@@ -403,15 +376,11 @@ class _$ProjectImpl extends _Project with DiagnosticableTreeMixin {
                 other.shortDescriptionEs == shortDescriptionEs) &&
             (identical(other.shortDescriptionEn, shortDescriptionEn) ||
                 other.shortDescriptionEn == shortDescriptionEn) &&
-            (identical(other.mainImageUrl, mainImageUrl) ||
-                other.mainImageUrl == mainImageUrl) &&
-            (identical(other.refMainImage, refMainImage) ||
-                other.refMainImage == refMainImage) &&
+            (identical(other.mainImage, mainImage) ||
+                other.mainImage == mainImage) &&
             (identical(other.id, id) || other.id == id) &&
             const DeepCollectionEquality()
-                .equals(other._screenshotsUrls, _screenshotsUrls) &&
-            const DeepCollectionEquality()
-                .equals(other._refScreenshotsUrls, _refScreenshotsUrls) &&
+                .equals(other._screenshots, _screenshots) &&
             const DeepCollectionEquality()
                 .equals(other._technologies, _technologies) &&
             const DeepCollectionEquality()
@@ -432,11 +401,9 @@ class _$ProjectImpl extends _Project with DiagnosticableTreeMixin {
       companyNameEn,
       shortDescriptionEs,
       shortDescriptionEn,
-      mainImageUrl,
-      refMainImage,
+      mainImage,
       id,
-      const DeepCollectionEquality().hash(_screenshotsUrls),
-      const DeepCollectionEquality().hash(_refScreenshotsUrls),
+      const DeepCollectionEquality().hash(_screenshots),
       const DeepCollectionEquality().hash(_technologies),
       const DeepCollectionEquality().hash(_featuresES),
       const DeepCollectionEquality().hash(_featuresEN),
@@ -465,11 +432,9 @@ abstract class _Project extends Project {
       required final String companyNameEn,
       required final String shortDescriptionEs,
       required final String shortDescriptionEn,
-      required final String mainImageUrl,
-      final String? refMainImage,
+      required final ImageAndPath mainImage,
       final String id,
-      final List<String> screenshotsUrls,
-      final List<String> refScreenshotsUrls,
+      final List<ImageAndPath> screenshots,
       final List<String> technologies,
       final List<String> featuresES,
       final List<String> featuresEN,
@@ -488,15 +453,11 @@ abstract class _Project extends Project {
   @override
   String get shortDescriptionEn;
   @override
-  String get mainImageUrl;
-  @override
-  String? get refMainImage;
+  ImageAndPath get mainImage;
   @override
   String get id;
   @override
-  List<String> get screenshotsUrls;
-  @override
-  List<String> get refScreenshotsUrls;
+  List<ImageAndPath> get screenshots;
   @override
   List<String> get technologies;
   @override

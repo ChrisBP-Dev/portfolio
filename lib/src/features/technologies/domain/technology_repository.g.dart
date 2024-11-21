@@ -6,8 +6,26 @@ part of 'technology_repository.dart';
 // RiverpodGenerator
 // **************************************************************************
 
+String _$collectionTechnologyNameHash() =>
+    r'549067487a462de00fec0324624e3998507b7f27';
+
+/// See also [collectionTechnologyName].
+@ProviderFor(collectionTechnologyName)
+final collectionTechnologyNameProvider = AutoDisposeProvider<String>.internal(
+  collectionTechnologyName,
+  name: r'collectionTechnologyNameProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$collectionTechnologyNameHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef CollectionTechnologyNameRef = AutoDisposeProviderRef<String>;
 String _$technologyRepositoryHash() =>
-    r'f927b89bdde529f7b460fc2a709c652e2d124386';
+    r'c73467bc9d57980bc1362ccb06028891608e1a67';
 
 /// See also [technologyRepository].
 @ProviderFor(technologyRepository)

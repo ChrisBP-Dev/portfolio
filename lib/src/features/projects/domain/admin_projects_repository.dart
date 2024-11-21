@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:portfolio/src/features/projects/data/admin/fake_admin_projects_repository_imp.dart';
 import 'package:portfolio/src/features/projects/data/admin/firebase_admin_projects_repository_imp.dart';
 import 'package:portfolio/src/features/projects/data/services/firestore_service.dart';
 import 'package:portfolio/src/features/projects/data/services/storage_service.dart';
@@ -11,7 +10,7 @@ part 'admin_projects_repository.g.dart';
 abstract class AdminProjectsRepository extends ProjectsRepository {
   Future<void> createProject(Project project);
   Future<void> deleteProject(Project project);
-  Future<void> updateProject(Project oldProject, Project newProject);
+  Future<void> updateProject(Project project);
 }
 
 @riverpod
@@ -24,8 +23,8 @@ AdminProjectsRepository adminProjectsRepository(Ref ref) {
   return FirebaseAdminProjectsRepositoryImp(
     storageService: ref.read(storageServiceProvider),
     firestoreService: ref.read(firestoreServiceProjectProvider),
+    collectionName: ref.read(collectionProjectNameProvider),
   );
-  // return FakeAdminProjectsRepositoryImp();
 }
 
 @Riverpod(keepAlive: true)

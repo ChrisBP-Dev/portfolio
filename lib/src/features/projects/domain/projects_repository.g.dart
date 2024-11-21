@@ -6,8 +6,26 @@ part of 'projects_repository.dart';
 // RiverpodGenerator
 // **************************************************************************
 
+String _$collectionProjectNameHash() =>
+    r'514098b68199027659ff4f9b279a667e74bf1bf2';
+
+/// See also [collectionProjectName].
+@ProviderFor(collectionProjectName)
+final collectionProjectNameProvider = AutoDisposeProvider<String>.internal(
+  collectionProjectName,
+  name: r'collectionProjectNameProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$collectionProjectNameHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef CollectionProjectNameRef = AutoDisposeProviderRef<String>;
 String _$projectsRepositoryHash() =>
-    r'656648a4f29321e343fd490f51c392ce29503d65';
+    r'6ce0dfb834eb4bb0635a5291f6b6a973aba2a9db';
 
 /// See also [projectsRepository].
 @ProviderFor(projectsRepository)
