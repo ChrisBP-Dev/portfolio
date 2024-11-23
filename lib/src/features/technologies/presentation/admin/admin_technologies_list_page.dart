@@ -13,18 +13,17 @@ class AdminTechnologiesListPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    return AsyncValueWidget(
-      value: ref.watch(getAdminTechnologiesProvider),
-      data: (technologies) {
-        return AdminWrapList(
-          title: l10n.create(l10n.technology),
-          listWidget: AdminTechnologiesList(technologies: technologies),
-          onCreateTap: () {
-            showDialog<void>(
-              context: context,
-              builder: (context) => const AdminTechnologyPage(),
-            );
-          },
+    return AdminWrapList(
+      title: l10n.create(l10n.technology),
+      listWidget: AsyncValueWidget(
+        value: ref.watch(getAdminTechnologiesProvider),
+        data: (technologies) =>
+            AdminTechnologiesList(technologies: technologies),
+      ),
+      onCreateTap: () {
+        showDialog<void>(
+          context: context,
+          builder: (context) => const AdminTechnologyPage(),
         );
       },
     );

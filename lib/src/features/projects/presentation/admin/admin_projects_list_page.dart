@@ -12,18 +12,17 @@ class AdminProjectsListPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return AsyncValueWidget(
-      value: ref.watch(getAdminProjectsStreamProvider),
-      data: (projects) {
-        return AdminWrapList(
-          title: context.l10n.create(context.l10n.project),
-          listWidget: AdminProjectList(projects: projects),
-          onCreateTap: () {
-            showDialog<void>(
-              context: context,
-              builder: (context) => const AdminProjectPage(),
-            );
-          },
+    final l10n = context.l10n;
+    return AdminWrapList(
+      title: l10n.create(l10n.project),
+      listWidget: AsyncValueWidget(
+        value: ref.watch(getAdminProjectsStreamProvider),
+        data: (projects) => AdminProjectList(projects: projects),
+      ),
+      onCreateTap: () {
+        showDialog<void>(
+          context: context,
+          builder: (context) => const AdminProjectPage(),
         );
       },
     );
