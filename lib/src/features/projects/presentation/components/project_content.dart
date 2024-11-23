@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:portfolio/src/core/common_widgets/async_value_widget.dart';
 import 'package:portfolio/src/core/common_widgets/technology_icon.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
+import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
 import 'package:portfolio/src/features/projects/domain/project.dart';
 import 'package:portfolio/src/features/projects/presentation/components/project_images_list.dart';
 import 'package:portfolio/src/features/settings/presentation/locale_controller.dart';
@@ -17,10 +18,8 @@ class ProjectContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
     final l10n = context.l10n;
-    final bodyText = theme.textTheme.bodyMedium;
-    final headlineSmall = theme.textTheme.headlineSmall;
+
     return AsyncValueWidget(
       value: ref.watch(localeControllerProvider),
       data: (locale) => Column(
@@ -28,18 +27,18 @@ class ProjectContent extends ConsumerWidget {
         children: [
           Text(
             project.companyName(locale.languageCode),
-            style: headlineSmall,
+            style: context.headlineSmall,
           ),
           gapH14,
           Text(
             project.shortDescription(locale.languageCode),
-            style: bodyText,
+            style: context.bodyMedium,
           ),
           gapH14,
           if (project.hasWebsite) ...[
             Text(
               l10n.websiteTitle,
-              style: bodyText?.copyWith(fontWeight: FontWeight.bold),
+              style: context.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             gapH2,
             TextButton(
@@ -48,7 +47,7 @@ class ProjectContent extends ConsumerWidget {
                   .launchAnyLink(project.websiteUrl!),
               child: Text(
                 project.websiteUrl!,
-                style: bodyText?.copyWith(color: Colors.blue),
+                style: context.bodyMedium?.copyWith(color: Colors.blue),
               ),
             ),
             gapH14,
@@ -62,14 +61,14 @@ class ProjectContent extends ConsumerWidget {
                   .launchAnyLink(project.sourceCodeUrl!),
               child: Text(
                 project.sourceCodeUrl!,
-                style: bodyText?.copyWith(color: Colors.blue),
+                style: context.bodyMedium?.copyWith(color: Colors.blue),
               ),
             ),
             gapH14,
           ],
           Text(
             l10n.technologiesTitle,
-            style: bodyText?.copyWith(fontWeight: FontWeight.bold),
+            style: context.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           gapH14,
           AsyncValueWidget(
@@ -82,7 +81,7 @@ class ProjectContent extends ConsumerWidget {
                 spacing: Sizes.p8,
                 children: data.map((tech) {
                   return OutlinedButton.icon(
-                    label: Text(tech.name, style: bodyText),
+                    label: Text(tech.name, style: context.bodyMedium),
                     onPressed: null,
                     icon: TechnologyIcon(technology: tech, size: 15),
                   );
@@ -93,7 +92,7 @@ class ProjectContent extends ConsumerWidget {
           gapH14,
           Text(
             l10n.screenshotsTitle,
-            style: bodyText?.copyWith(fontWeight: FontWeight.bold),
+            style: context.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           gapH14,
           ProjectImagesList(project: project),

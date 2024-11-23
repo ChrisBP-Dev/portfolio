@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:portfolio/src/features/experience/presentation/admin/experiences_list/admin_experiences_list_page.dart';
+import 'package:portfolio/src/features/experience/presentation/admin/admin_experiences_list_page.dart';
 import 'package:portfolio/src/features/projects/presentation/admin/admin_projects_list_page.dart';
 import 'package:portfolio/src/features/technologies/presentation/admin/admin_technologies_list_page.dart';
 
