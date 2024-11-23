@@ -18,27 +18,29 @@ class ImageViewer extends StatelessWidget {
     final l10n = context.l10n;
 
     return Scaffold(
-      body: ResponsiveCenter(
-        padding: const EdgeInsets.all(Sizes.globalPadding),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Positioned.fill(
-              child: GestureDetector(
-                onTap: () => context.goNamed(AppRoute.projects.name),
+      body: SafeArea(
+        child: ResponsiveCenter(
+          padding: const EdgeInsets.all(Sizes.globalPadding),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Positioned.fill(
+                child: GestureDetector(
+                  onTap: () => context.goNamed(AppRoute.projects.name),
+                ),
               ),
-            ),
-            const MainImageViewer(),
-            Positioned(
-              top: 0,
-              right: 0,
-              child: OutlinedButton.icon(
-                label: Text(l10n.close),
-                icon: const Icon(Icons.close),
-                onPressed: () => context.goNamed(AppRoute.projects.name),
+              const MainImageViewer(),
+              Positioned(
+                top: 0,
+                right: 0,
+                child: OutlinedButton.icon(
+                  label: Text(l10n.close),
+                  icon: const Icon(Icons.close),
+                  onPressed: () => context.goNamed(AppRoute.projects.name),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

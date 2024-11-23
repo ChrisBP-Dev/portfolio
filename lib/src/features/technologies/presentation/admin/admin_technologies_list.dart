@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:portfolio/src/core/common_widgets/responsive_center.dart';
-import 'package:portfolio/src/core/common_widgets/technology_icon.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
-import 'package:portfolio/src/core/utils/theme/color_app.dart';
-import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
 import 'package:portfolio/src/features/technologies/domain/technology.dart';
 import 'package:portfolio/src/features/technologies/presentation/admin/admin_technology_page.dart';
+import 'package:portfolio/src/features/technologies/presentation/admin/widgets/technology_list_card.dart';
 
 class AdminTechnologiesList extends StatelessWidget {
   const AdminTechnologiesList({required this.technologies, super.key});
@@ -28,27 +26,7 @@ class AdminTechnologiesList extends StatelessWidget {
               );
             },
             borderRadius: BorderRadius.circular(Sizes.p8),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: context.getPrimaryColor(),
-                ),
-                borderRadius: BorderRadius.circular(Sizes.p8),
-                color: context.theme.canvasColor,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(Sizes.p14),
-                child: Row(
-                  children: [
-                    TechnologyIcon(technology: technologies[index]),
-                    gapW20,
-                    Text(technologies[index].name),
-                    const Spacer(),
-                    Text(technologies[index].experienceTime),
-                  ],
-                ),
-              ),
-            ),
+            child: TechnologyListCard(technology: technologies[index]),
           ),
         ),
       ),
