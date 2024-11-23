@@ -7,6 +7,7 @@ import 'package:portfolio/src/core/common_components/header/header_menu_controll
 import 'package:portfolio/src/core/common_widgets/responsive_center.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/core/constants/breakpoints.dart';
+import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
 import 'package:portfolio/src/localization/l10n.dart';
 import 'package:portfolio/src/routing/app_route.dart';
 
@@ -16,32 +17,36 @@ class HeaderComponent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     const heigthHeader = 82.0;
-    final screenWidth = MediaQuery.sizeOf(context).width;
-    final isTablet = screenWidth <= Breakpoint.tablet;
     final isOpen = ref.watch(headerMenuControllerProvider);
 
     return PinnedHeaderSliver(
       child: AnimatedContainer(
         duration: kanimationDuration,
         height: isOpen ? heigthHeader + 150 : heigthHeader,
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            if (isTablet)
-              const Positioned(
-                left: 0,
-                right: 0,
-                top: heigthHeader,
-                child: AnimatedMenuContainer(),
-              ),
-            Positioned(
-              height: heigthHeader,
-              top: 0,
-              left: 0,
-              right: 0,
-              child: ResponsiveHeader(isTablet: isTablet, isOpen: isOpen),
-            ),
-          ],
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final screenWidth = constraints.maxWidth;
+            final isTablet = screenWidth <= Breakpoint.tablet;
+            return Stack(
+              clipBehavior: Clip.none,
+              children: [
+                if (isTablet)
+                  const Positioned(
+                    left: 0,
+                    right: 0,
+                    top: heigthHeader,
+                    child: AnimatedMenuContainer(),
+                  ),
+                Positioned(
+                  height: heigthHeader,
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: ResponsiveHeader(isTablet: isTablet, isOpen: isOpen),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -61,7 +66,7 @@ class ResponsiveHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
-      color: Theme.of(context).cardColor,
+      color: context.theme.cardColor,
       child: ResponsiveCenter(
         padding: const EdgeInsets.symmetric(
           horizontal: Sizes.globalPadding,

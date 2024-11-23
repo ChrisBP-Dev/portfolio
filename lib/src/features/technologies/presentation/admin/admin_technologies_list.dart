@@ -3,6 +3,7 @@ import 'package:portfolio/src/core/common_widgets/responsive_center.dart';
 import 'package:portfolio/src/core/common_widgets/technology_icon.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/core/utils/theme/color_app.dart';
+import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
 import 'package:portfolio/src/features/technologies/domain/technology.dart';
 import 'package:portfolio/src/features/technologies/presentation/admin/admin_technology_page.dart';
 
@@ -33,7 +34,7 @@ class AdminTechnologiesList extends StatelessWidget {
                   color: context.getPrimaryColor(),
                 ),
                 borderRadius: BorderRadius.circular(Sizes.p8),
-                color: Theme.of(context).canvasColor,
+                color: context.theme.canvasColor,
               ),
               child: Padding(
                 padding: const EdgeInsets.all(Sizes.p14),

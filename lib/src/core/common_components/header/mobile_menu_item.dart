@@ -5,6 +5,7 @@ import 'package:portfolio/src/core/common_components/header/header_menu_controll
 import 'package:portfolio/src/core/common_widgets/shader_text_effect.dart';
 import 'package:portfolio/src/core/utils/bool_extensions.dart';
 import 'package:portfolio/src/core/utils/theme/color_app.dart';
+import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
 
 const kmobileMenuItemHeight = 50.0;
 
@@ -20,8 +21,6 @@ class MobileMenuItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final bodyLarge = theme.textTheme.bodyLarge;
     final routerPath =
         GoRouter.of(context).routeInformationProvider.value.uri.path;
 
@@ -33,14 +32,14 @@ class MobileMenuItem extends ConsumerWidget {
           isSelected.when(
             isFalse: () =>
                 AppColor.textBusinessGradient.colors.last.withOpacity(.3),
-            isTrue: () => theme.colorScheme.primary,
+            isTrue: () => context.theme.colorScheme.primary,
           ),
         ),
         splashFactory: NoSplash.splashFactory,
         backgroundColor: WidgetStateProperty.all<Color>(
           isSelected.when(
-            isFalse: () => theme.scaffoldBackgroundColor,
-            isTrue: () => theme.colorScheme.primary,
+            isFalse: () => context.theme.scaffoldBackgroundColor,
+            isTrue: () => context.theme.colorScheme.primary,
           ),
         ),
         shape: WidgetStateProperty.all<OutlinedBorder>(
@@ -60,12 +59,12 @@ class MobileMenuItem extends ConsumerWidget {
             isTrue: () => ShaderTextEffect(
               text: title,
               gradient: AppColor.textBusinessGradient,
-              style: bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+              style: context.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             isFalse: () => Text(
               title,
-              style: bodyLarge?.copyWith(
-                color: theme.colorScheme.primary,
+              style: context.bodyLarge?.copyWith(
+                color: context.theme.colorScheme.primary,
               ),
             ),
           ),

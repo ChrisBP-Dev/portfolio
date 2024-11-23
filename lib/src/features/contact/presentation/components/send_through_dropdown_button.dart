@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
 import 'package:portfolio/src/features/contact/domain/contact_message.dart';
 import 'package:portfolio/src/localization/l10n.dart';
 
@@ -12,11 +13,10 @@ class SendThroughDropDownButton extends StatelessWidget {
   final void Function(SendThrough?) onChanged;
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     OutlineInputBorder defaultBorder() => OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(
-            color: theme.dividerColor,
+            color: context.theme.dividerColor,
           ),
         );
 
@@ -26,8 +26,8 @@ class SendThroughDropDownButton extends StatelessWidget {
       value: value,
       decoration: InputDecoration(
         labelText: l10n.sendThrough,
-        labelStyle: theme.textTheme.bodyLarge?.copyWith(
-          color: theme.colorScheme.onSurface,
+        labelStyle: context.bodyLarge?.copyWith(
+          color: context.theme.colorScheme.onSurface,
         ),
         border: defaultBorder(),
         enabledBorder: defaultBorder(),
@@ -38,16 +38,16 @@ class SendThroughDropDownButton extends StatelessWidget {
           value: option,
           child: Text(
             option.name,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: theme.colorScheme.onSurface,
+            style: context.bodyLarge?.copyWith(
+              color: context.theme.colorScheme.onSurface,
             ),
           ),
         );
       }).toList(),
       onChanged: onChanged,
-      dropdownColor: theme.scaffoldBackgroundColor,
-      iconEnabledColor: theme.colorScheme.onSurface,
-      iconDisabledColor: theme.disabledColor,
+      dropdownColor: context.theme.scaffoldBackgroundColor,
+      iconEnabledColor: context.theme.colorScheme.onSurface,
+      iconDisabledColor: context.theme.disabledColor,
       elevation: 5,
     );
   }

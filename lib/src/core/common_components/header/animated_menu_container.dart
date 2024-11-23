@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:portfolio/src/core/common_components/header/header_menu_controller.dart';
 import 'package:portfolio/src/core/common_components/header/mobile_menu_item.dart';
+import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
 import 'package:portfolio/src/localization/l10n.dart';
 import 'package:portfolio/src/routing/app_route.dart';
 
@@ -49,7 +50,6 @@ class _AnimatedHeaderContainerState extends ConsumerState<AnimatedMenuContainer>
         _controller.reverse();
       }
     });
-    final theme = Theme.of(context);
 
     return AnimatedBuilder(
       animation: _controller,
@@ -63,7 +63,7 @@ class _AnimatedHeaderContainerState extends ConsumerState<AnimatedMenuContainer>
               border: Border.all(),
               boxShadow: [
                 BoxShadow(
-                  color: theme.colorScheme.primary.withOpacity(0.2),
+                  color: context.theme.colorScheme.primary.withOpacity(0.2),
                   spreadRadius: 5,
                   blurRadius: 7,
                   offset: const Offset(0, 3),

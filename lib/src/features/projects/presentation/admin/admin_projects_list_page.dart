@@ -5,7 +5,7 @@ import 'package:portfolio/src/core/common_widgets/async_value_widget.dart';
 import 'package:portfolio/src/features/projects/domain/admin_projects_repository.dart';
 import 'package:portfolio/src/features/projects/presentation/admin/admin_project_list.dart';
 import 'package:portfolio/src/features/projects/presentation/admin/admin_project_page.dart';
-import 'package:portfolio/src/localization/string_hardcoded.dart';
+import 'package:portfolio/src/localization/l10n.dart';
 
 class AdminProjectsListPage extends ConsumerWidget {
   const AdminProjectsListPage({super.key});
@@ -16,7 +16,7 @@ class AdminProjectsListPage extends ConsumerWidget {
       value: ref.watch(getAdminProjectsStreamProvider),
       data: (projects) {
         return AdminWrapList(
-          title: 'Create Project'.hardcoded,
+          title: context.l10n.create(context.l10n.project),
           listWidget: AdminProjectList(projects: projects),
           onCreateTap: () {
             showDialog<void>(

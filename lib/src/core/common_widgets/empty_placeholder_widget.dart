@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:portfolio/src/core/common_widgets/primary_button.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
+import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
 import 'package:portfolio/src/localization/l10n.dart';
 import 'package:portfolio/src/routing/app_route.dart';
 
@@ -13,7 +14,6 @@ class EmptyPlaceholderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.all(Sizes.globalPadding),
       child: Center(
@@ -22,8 +22,8 @@ class EmptyPlaceholderWidget extends StatelessWidget {
           children: [
             Text(
               message,
-              style: theme.textTheme.headlineMedium?.copyWith(
-                color: theme.colorScheme.error,
+              style: context.headlineMedium?.copyWith(
+                color: context.theme.colorScheme.error,
               ),
               textAlign: TextAlign.center,
             ),

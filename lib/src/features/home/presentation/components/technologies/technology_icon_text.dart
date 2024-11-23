@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:portfolio/src/core/common_widgets/technology_icon.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
+import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
 import 'package:portfolio/src/features/technologies/domain/technology.dart';
 
 class TechnologyIconText extends StatelessWidget {
@@ -10,7 +11,6 @@ class TechnologyIconText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bodyLarge = Theme.of(context).textTheme.bodyLarge;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -18,7 +18,7 @@ class TechnologyIconText extends StatelessWidget {
         gapH14,
         Text(
           technology.name,
-          style: bodyLarge,
+          style: context.bodyLarge,
         ),
       ],
     );

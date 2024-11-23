@@ -4,6 +4,7 @@ import 'package:portfolio/src/core/common_widgets/shader_text_effect.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/core/utils/bool_extensions.dart';
 import 'package:portfolio/src/core/utils/theme/color_app.dart';
+import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
 
 class AdminMenuItem extends StatefulWidget {
   const AdminMenuItem({
@@ -26,8 +27,6 @@ class _AdminMenuItemState extends State<AdminMenuItem> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final bodySmall = theme.textTheme.bodySmall;
     final routerPath =
         GoRouter.of(context).routeInformationProvider.value.uri.path;
 
@@ -59,14 +58,14 @@ class _AdminMenuItemState extends State<AdminMenuItem> {
             isTrue: () => ShaderTextEffect(
               text: widget.title,
               gradient: AppColor.textBusinessGradient,
-              style: bodySmall?.copyWith(fontWeight: FontWeight.bold),
+              style: context.bodySmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             isFalse: () => onHover.when(
               isTrue: () => Text(
                 widget.title,
-                style: bodySmall?.copyWith(fontWeight: FontWeight.bold),
+                style: context.bodySmall?.copyWith(fontWeight: FontWeight.bold),
               ),
-              isFalse: () => Text(widget.title, style: bodySmall),
+              isFalse: () => Text(widget.title, style: context.bodySmall),
             ),
           ),
         ),

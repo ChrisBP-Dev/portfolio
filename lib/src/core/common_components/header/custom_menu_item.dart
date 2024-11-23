@@ -5,6 +5,7 @@ import 'package:portfolio/src/core/common_widgets/shader_text_effect.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/core/utils/bool_extensions.dart';
 import 'package:portfolio/src/core/utils/theme/color_app.dart';
+import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
 
 class CustomMenuItem extends ConsumerStatefulWidget {
   const CustomMenuItem({
@@ -25,8 +26,6 @@ class _CustomMenuItemConsumerState extends ConsumerState<CustomMenuItem> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final bodySmall = theme.textTheme.bodySmall;
     final routerPath =
         GoRouter.of(context).routeInformationProvider.value.uri.path;
 
@@ -46,7 +45,7 @@ class _CustomMenuItemConsumerState extends ConsumerState<CustomMenuItem> {
               ShaderTextEffect(
                 text: widget.title,
                 gradient: AppColor.textBusinessGradient,
-                style: bodySmall?.copyWith(fontWeight: FontWeight.bold),
+                style: context.bodySmall?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(
                 height: 2,
@@ -66,18 +65,19 @@ class _CustomMenuItemConsumerState extends ConsumerState<CustomMenuItem> {
               children: [
                 Text(
                   widget.title,
-                  style: bodySmall?.copyWith(fontWeight: FontWeight.bold),
+                  style:
+                      context.bodySmall?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 SizedBox(
                   height: 2,
                   width: 10,
                   child: ColoredBox(
-                    color: theme.colorScheme.primary,
+                    color: context.theme.colorScheme.primary,
                   ),
                 ),
               ],
             ),
-            isFalse: () => Text(widget.title, style: bodySmall),
+            isFalse: () => Text(widget.title, style: context.bodySmall),
           ),
         ),
       ),

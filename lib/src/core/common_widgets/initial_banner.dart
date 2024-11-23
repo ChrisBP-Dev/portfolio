@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/core/constants/business_information.dart';
 import 'package:portfolio/src/core/utils/theme/color_app.dart';
+import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
 import 'package:portfolio/src/localization/l10n.dart';
 
 class InitialBanner extends StatelessWidget {
@@ -24,9 +25,9 @@ class InitialBanner extends StatelessWidget {
               child: FittedBox(
                 child: Text(
                   '$wellcomeTo ${BusinessInformation.websiteType}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: context.bodySmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),

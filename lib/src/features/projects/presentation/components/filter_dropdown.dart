@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:portfolio/src/core/common_widgets/responsive_center.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
+import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
 import 'package:portfolio/src/localization/l10n.dart';
+import 'package:portfolio/src/localization/string_hardcoded.dart';
 
 enum FilterType {
   websiteUrl,
@@ -13,7 +15,7 @@ extension FilterTypeExtension on FilterType {
   String getValue(BuildContext context) {
     final l10n = context.l10n;
     return switch (this) {
-      FilterType.websiteUrl => 'Website URL',
+      FilterType.websiteUrl => 'Website URL'.hardcoded,
       FilterType.sourceCodeUrl => 'Source Code URL',
       FilterType.all => l10n.allProjects,
     };
@@ -40,7 +42,7 @@ class FilterDropdown extends StatelessWidget {
           const Spacer(),
           DecoratedBox(
             decoration: BoxDecoration(
-              border: Border.all(color: Theme.of(context).dividerColor),
+              border: Border.all(color: context.theme.dividerColor),
               borderRadius: BorderRadius.circular(4),
             ),
             child: Padding(
@@ -54,7 +56,7 @@ class FilterDropdown extends StatelessWidget {
                   gapW20,
                   DropdownButton<FilterType>(
                     padding: const EdgeInsets.symmetric(horizontal: Sizes.p8),
-                    focusColor: Theme.of(context).scaffoldBackgroundColor,
+                    focusColor: context.theme.scaffoldBackgroundColor,
                     underline: const SizedBox(),
                     value: filterType,
                     items: FilterType.values
@@ -68,9 +70,9 @@ class FilterDropdown extends StatelessWidget {
                         )
                         .toList(),
                     onChanged: onSortChanged,
-                    dropdownColor: Theme.of(context).cardColor,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    iconEnabledColor: Theme.of(context).iconTheme.color,
+                    dropdownColor: context.theme.cardColor,
+                    style: context.bodyMedium,
+                    iconEnabledColor: context.theme.iconTheme.color,
                   ),
                 ],
               ),

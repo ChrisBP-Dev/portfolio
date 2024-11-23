@@ -1,6 +1,7 @@
 // lib/src/common_widgets/custom_text_form_field.dart
 import 'package:flutter/material.dart';
 import 'package:portfolio/src/core/utils/theme/color_app.dart';
+import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
 import 'package:portfolio/src/localization/l10n.dart';
 
 class TechnologyFormField extends StatelessWidget {
@@ -15,16 +16,14 @@ class TechnologyFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return TextFormField(
       controller: controller,
       autovalidateMode: AutovalidateMode.onUserInteraction,
-      cursorErrorColor: theme.dividerColor,
+      cursorErrorColor: context.theme.dividerColor,
       textCapitalization: TextCapitalization.sentences,
       decoration: InputDecoration(
         labelText: formType.getLabelText(context),
-        labelStyle: theme.textTheme.bodySmall
+        labelStyle: context.bodySmall
             ?.copyWith(color: context.getPrimaryColor().withOpacity(.8)),
         border: defaultBorder(context.getPrimaryColor()),
         enabledBorder: defaultBorder(context.getPrimaryColor()),

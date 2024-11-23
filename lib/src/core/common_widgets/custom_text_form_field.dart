@@ -1,6 +1,7 @@
 // lib/src/common_widgets/custom_text_form_field.dart
 import 'package:flutter/material.dart';
 import 'package:portfolio/src/core/utils/theme/color_app.dart';
+import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
 
 class CustomTextFormField extends StatelessWidget {
   const CustomTextFormField({
@@ -29,7 +30,7 @@ class CustomTextFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final theme = context.theme;
 
     return TextFormField(
       initialValue: initialValue,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:portfolio/src/core/common_widgets/shader_text_effect.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/core/utils/theme/color_app.dart';
+import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
 
 class AdminWrapList extends StatelessWidget {
   const AdminWrapList({
@@ -17,7 +18,6 @@ class AdminWrapList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return CustomScrollView(
       slivers: [
         SliverAppBar(
@@ -41,7 +41,7 @@ class AdminWrapList extends StatelessWidget {
               child: ShaderTextEffect(
                 text: title,
                 gradient: AppColor.textBusinessGradient,
-                style: theme.textTheme.bodySmall,
+                style: context.bodySmall,
               ),
             ),
             gapW20,

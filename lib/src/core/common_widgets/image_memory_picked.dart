@@ -6,7 +6,7 @@ import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/core/utils/bool_extensions.dart';
 import 'package:portfolio/src/core/utils/theme/color_app.dart';
 import 'package:portfolio/src/features/projects/domain/screenshot_image.dart';
-import 'package:portfolio/src/localization/string_hardcoded.dart';
+import 'package:portfolio/src/localization/l10n.dart';
 
 class ImageMemoryPicked extends StatelessWidget {
   const ImageMemoryPicked({
@@ -50,8 +50,8 @@ class ImageMemoryPicked extends StatelessWidget {
               size: 35,
             ),
             gapH14,
-            Text('Subir'.hardcoded),
-            Text('imagen'.hardcoded),
+            Text(context.l10n.upload),
+            Text(context.l10n.image),
           ],
         ),
       ),

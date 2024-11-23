@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
+import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
 
 class FeatureCard extends StatelessWidget {
   const FeatureCard({
@@ -20,7 +21,7 @@ class FeatureCard extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           border: Border.all(
-            color: Theme.of(context).dividerColor,
+            color: context.theme.dividerColor,
           ),
         ),
         child: ListTile(

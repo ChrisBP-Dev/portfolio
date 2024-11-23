@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/core/utils/theme/color_app.dart';
+import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
 
 class BusinessChipText extends StatelessWidget {
   const BusinessChipText({required this.text, super.key});
@@ -9,14 +10,11 @@ class BusinessChipText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final color = theme.colorScheme.primary;
-    final bodySmall = theme.textTheme.bodySmall;
     return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Sizes.p8),
         border: Border.all(
-          color: color,
+          color: context.theme.colorScheme.primary,
           width: .5,
         ),
         gradient: AppColor.textBusinessGradient,
@@ -25,7 +23,7 @@ class BusinessChipText extends StatelessWidget {
         padding: const EdgeInsets.all(Sizes.p4),
         child: Text(
           text,
-          style: bodySmall,
+          style: context.bodySmall,
         ),
       ),
     );

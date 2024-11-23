@@ -1,7 +1,9 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/core/constants/breakpoints.dart';
+import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
 import 'package:portfolio/src/features/contact/presentation/contact_controller.dart';
 import 'package:portfolio/src/localization/l10n.dart';
 
@@ -10,21 +12,20 @@ class CountryPicker extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
     final contactMessage = ref.watch(contactControllerProvider);
     final l10n = context.l10n;
     return Theme(
-      data: theme.copyWith(
+      data: context.theme.copyWith(
         textButtonTheme: TextButtonThemeData(
           style: ButtonStyle(
             shape: WidgetStateProperty.all(
               RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(Sizes.p8),
               ),
             ),
             side: WidgetStateProperty.all(
               BorderSide(
-                color: theme.dividerColor,
+                color: context.theme.dividerColor,
               ),
             ),
           ),
@@ -43,32 +44,32 @@ class CountryPicker extends ConsumerWidget {
         },
         initialSelection: 'US',
         favorite: const ['+1', 'US'],
-        textStyle: theme.textTheme.bodyLarge?.copyWith(
-          color: theme.colorScheme.onSurface,
+        textStyle: context.bodyLarge?.copyWith(
+          color: context.theme.colorScheme.onSurface,
         ),
         searchDecoration: InputDecoration(
           hintText: l10n.searchCountryHint,
-          hintStyle: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.hintColor,
+          hintStyle: context.bodyMedium?.copyWith(
+            color: context.theme.hintColor,
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
           ),
         ),
-        dialogBackgroundColor: theme.scaffoldBackgroundColor,
-        dialogTextStyle: theme.textTheme.bodyLarge?.copyWith(
-          color: theme.colorScheme.onSurface,
+        dialogBackgroundColor: context.theme.scaffoldBackgroundColor,
+        dialogTextStyle: context.bodyLarge?.copyWith(
+          color: context.theme.colorScheme.onSurface,
         ),
         barrierColor: Colors.black.withOpacity(0.5),
         boxDecoration: BoxDecoration(
-          color: theme.scaffoldBackgroundColor,
-          borderRadius: BorderRadius.circular(8),
+          color: context.theme.scaffoldBackgroundColor,
+          borderRadius: BorderRadius.circular(Sizes.p8),
         ),
         showFlagDialog: true,
         showFlagMain: true,
         closeIcon: Icon(
           Icons.close,
-          color: theme.colorScheme.onSurface,
+          color: context.theme.colorScheme.onSurface,
         ),
       ),
     );

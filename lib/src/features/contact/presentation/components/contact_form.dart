@@ -6,6 +6,7 @@ import 'package:portfolio/src/core/common_widgets/title_form_field.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/core/constants/breakpoints.dart';
 import 'package:portfolio/src/core/utils/theme/color_app.dart';
+import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
 import 'package:portfolio/src/features/contact/presentation/components/country_picker.dart';
 import 'package:portfolio/src/features/contact/presentation/components/send_through_dropdown_button.dart';
 import 'package:portfolio/src/features/contact/presentation/contact_controller.dart';
@@ -27,7 +28,7 @@ class ContactForm extends ConsumerWidget {
       maxContentWidth: Breakpoint.tablet,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: Theme.of(context).canvasColor,
+          color: context.theme.canvasColor,
           borderRadius: BorderRadius.circular(Sizes.p8),
           border: Border.all(color: context.getPrimaryColor()),
         ),

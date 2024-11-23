@@ -5,6 +5,7 @@ import 'package:portfolio/src/core/common_widgets/responsive_center.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/core/constants/business_information.dart';
 import 'package:portfolio/src/core/utils/theme/color_app.dart';
+import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
 import 'package:portfolio/src/features/social_launcher/presentation/social_buttons.dart';
 import 'package:portfolio/src/localization/l10n.dart';
 import 'package:portfolio/src/routing/admin_app_route.dart';
@@ -16,7 +17,7 @@ class FooterComponent extends StatelessWidget {
   Widget build(BuildContext context) {
     return SliverToBoxAdapter(
       child: ColoredBox(
-        color: Theme.of(context).cardColor,
+        color: context.theme.cardColor,
         child: ResponsiveCenter(
           padding: const EdgeInsets.symmetric(horizontal: Sizes.globalPadding),
           child: Column(

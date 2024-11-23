@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:portfolio/src/core/common_components/admin/widgets/admin_menu_item.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
+import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
+import 'package:portfolio/src/localization/l10n.dart';
 import 'package:portfolio/src/routing/admin_app_route.dart';
 
 class AdminDrawer extends StatelessWidget {
@@ -9,11 +11,10 @@ class AdminDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return SizedBox(
       width: 230,
       child: ColoredBox(
-        color: theme.cardColor,
+        color: context.theme.cardColor,
         child: Padding(
           padding: const EdgeInsets.all(Sizes.globalPadding),
           child: Column(
@@ -21,9 +22,8 @@ class AdminDrawer extends StatelessWidget {
             children: [
               gapH48,
               Text(
-                'Admin Panel',
-                style: theme.textTheme.headlineSmall
-                    ?.copyWith(color: Colors.white),
+                context.l10n.adminPanel,
+                style: context.headlineSmall?.copyWith(color: Colors.white),
               ),
               const Divider(
                 color: Colors.white,

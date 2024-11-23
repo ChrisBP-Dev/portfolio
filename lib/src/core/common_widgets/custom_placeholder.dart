@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
 
 class CustomPlaceholder extends StatelessWidget {
   const CustomPlaceholder({
@@ -13,7 +14,7 @@ class CustomPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = Theme.of(context).colorScheme.primary;
+    final color = context.theme.colorScheme.primary;
     return SizedBox(
       width: width,
       height: height,

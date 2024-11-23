@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:portfolio/src/core/common_widgets/responsive_center.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/core/constants/breakpoints.dart';
+import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
 import 'package:portfolio/src/localization/l10n.dart';
 
 class ContactDescription extends StatelessWidget {
@@ -9,8 +10,6 @@ class ContactDescription extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final bodyLarge = theme.textTheme.bodyLarge;
     final l10n = context.l10n;
 
     return ResponsiveCenter(
@@ -22,12 +21,12 @@ class ContactDescription extends StatelessWidget {
           gapH20,
           Text(
             l10n.contactTitle,
-            style: theme.textTheme.headlineMedium,
+            style: context.headlineMedium,
           ),
           gapH20,
           Text(
             l10n.contactDescription,
-            style: bodyLarge,
+            style: context.bodyLarge,
           ),
           gapH14,
         ],

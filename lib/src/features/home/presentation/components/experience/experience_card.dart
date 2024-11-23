@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:portfolio/src/core/common_widgets/async_value_widget.dart';
 import 'package:portfolio/src/core/common_widgets/business_chip_text.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
+import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
 import 'package:portfolio/src/features/experience/domain/experience.dart';
 import 'package:portfolio/src/features/settings/presentation/locale_controller.dart';
 
@@ -15,11 +16,8 @@ class ExperienceCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final color = theme.colorScheme.primary;
-    final headlineSmall = theme.textTheme.headlineSmall;
-    final bodyMedium = theme.textTheme.bodyMedium;
-    final bodySmall = theme.textTheme.bodySmall;
+    final color = context.theme.colorScheme.primary;
+
     return AsyncValueWidget(
       value: ref.watch(localeControllerProvider),
       data: (locale) {
@@ -30,11 +28,11 @@ class ExperienceCard extends ConsumerWidget {
             gapH20,
             Row(
               children: [
-                Text(experience.companyName, style: headlineSmall),
+                Text(experience.companyName, style: context.headlineSmall),
                 const Spacer(),
                 Text(
                   experience.date,
-                  style: bodySmall?.copyWith(
+                  style: context.bodySmall?.copyWith(
                     color: color,
                     fontWeight: FontWeight.bold,
                   ),
@@ -49,13 +47,13 @@ class ExperienceCard extends ConsumerWidget {
                     children: [
                       Text(
                         '-  ',
-                        style:
-                            bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                        style: context.bodyMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       Expanded(
                         child: Text(
                           responsability,
-                          style: bodyMedium,
+                          style: context.bodyMedium,
                           textAlign: TextAlign.left,
                         ),
                       ),

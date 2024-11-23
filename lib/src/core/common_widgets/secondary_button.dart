@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:portfolio/src/core/utils/resize_extensions.dart';
+import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
 
 class SecondaryButton extends StatelessWidget {
   const SecondaryButton({required this.title, super.key, this.onTap});
@@ -7,9 +8,8 @@ class SecondaryButton extends StatelessWidget {
   final VoidCallback? onTap;
   @override
   Widget build(BuildContext context) {
-    final currentTheme = Theme.of(context);
     final screenWidth = MediaQuery.sizeOf(context).width;
-    final labelLarge = currentTheme.textTheme.labelLarge;
+
     return OutlinedButton(
       style: OutlinedButton.styleFrom(
         padding: EdgeInsets.symmetric(
@@ -18,7 +18,7 @@ class SecondaryButton extends StatelessWidget {
         ),
       ),
       onPressed: onTap,
-      child: Text(title, style: labelLarge),
+      child: Text(title, style: context.labelLarge),
     );
   }
 }
