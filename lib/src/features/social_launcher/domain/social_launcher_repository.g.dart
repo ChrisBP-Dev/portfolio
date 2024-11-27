@@ -7,7 +7,7 @@ part of 'social_launcher_repository.dart';
 // **************************************************************************
 
 String _$socialLauncherRepositoryHash() =>
-    r'5cef8283782cfd36b72b665a49472a5128fa313d';
+    r'47c48eb244343a903fcf37f9f0e14a32f0197cd3';
 
 /// See also [socialLauncherRepository].
 @ProviderFor(socialLauncherRepository)

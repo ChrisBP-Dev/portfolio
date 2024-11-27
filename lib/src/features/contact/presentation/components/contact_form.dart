@@ -106,7 +106,7 @@ class ContactForm extends ConsumerWidget {
                 gapH39,
                 Center(
                   child: PrimaryButton(
-                    text: l10n.sendMessage,
+                    title: l10n.sendMessage,
                     onTap: () {
                       if (!_formKey.currentState!.validate()) return;
                       _formKey.currentState!.save();

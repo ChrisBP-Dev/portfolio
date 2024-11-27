@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:portfolio/src/core/common_components/admin/widgets/admin_menu_item.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
+import 'package:portfolio/src/features/auth/presentation/widgets/sign_out_button.dart';
 import 'package:portfolio/src/localization/l10n.dart';
 import 'package:portfolio/src/routing/admin_app_route.dart';
 
@@ -35,6 +36,9 @@ class AdminDrawer extends StatelessWidget {
                   path: route.path,
                 ),
               ),
+              const Spacer(),
+              const SignOutButton(),
+              gapH48,
             ],
           ),
         ),

@@ -20,7 +20,7 @@ class UpdateTechnologyButton extends ConsumerWidget {
       value: ref.watch(adminUpdateTechnologyControllerProvider),
       data: (data) {
         return PrimaryButton(
-          text: l10n.update(l10n.technology),
+          title: l10n.update(l10n.technology),
           onTap: onTap,
         );
       },

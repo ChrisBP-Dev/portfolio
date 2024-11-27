@@ -3,8 +3,8 @@ import 'package:portfolio/src/core/utils/resize_extensions.dart';
 import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
 
 class PrimaryButton extends StatelessWidget {
-  const PrimaryButton({required this.text, this.onTap, super.key});
-  final String text;
+  const PrimaryButton({required this.title, this.onTap, super.key});
+  final String title;
   final VoidCallback? onTap;
 
   @override
@@ -21,7 +21,7 @@ class PrimaryButton extends StatelessWidget {
       ),
       onPressed: onTap,
       child: Text(
-        text,
+        title,
         style: context.labelLarge?.copyWith(
           color: context.theme.scaffoldBackgroundColor,
         ),

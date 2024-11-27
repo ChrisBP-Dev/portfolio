@@ -53,7 +53,13 @@
 
     "adminPanel": "Admin Panel",
     "upload": "Upload",
-    "image": "Image"
+    "image": "Image",
+
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "password": "Password",
+    "areYouSure": "Are you sure you want to {fieldName} ?",
+    "cancel": "Cancel"
 
 
 

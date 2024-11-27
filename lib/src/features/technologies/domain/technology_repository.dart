@@ -10,7 +10,6 @@ abstract class TechnologyRepository {
   Stream<List<Technology>> getAllTechnologies();
 }
 
-// TODO(me): change this
 @riverpod
 String collectionTechnologyName(Ref ref) => 'technologies';
 

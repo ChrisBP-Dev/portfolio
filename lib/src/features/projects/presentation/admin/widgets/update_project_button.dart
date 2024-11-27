@@ -17,7 +17,7 @@ class UpdateProjectButton extends ConsumerWidget {
       value: ref.watch(adminUpdateProjectControllerProvider),
       data: (data) {
         return PrimaryButton(
-          text: l10n.update(l10n.project),
+          title: l10n.update(l10n.project),
           onTap: onTap,
         );
       },

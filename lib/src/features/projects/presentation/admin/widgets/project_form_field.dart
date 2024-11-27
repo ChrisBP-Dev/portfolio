@@ -39,7 +39,7 @@ enum ProjectFormType {
   sourceCodeUrl,
 }
 
-extension CustomTextFormFieldTypeX on ProjectFormType {
+extension ProjectFormFieldTypeX on ProjectFormType {
   String getLabelText(BuildContext context) {
     final l10n = context.l10n;
     return switch (this) {

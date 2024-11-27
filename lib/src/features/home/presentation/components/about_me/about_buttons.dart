@@ -21,7 +21,7 @@ class AboutButtons extends ConsumerWidget {
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         PrimaryButton(
-          text: context.l10n.getInTouch,
+          title: context.l10n.getInTouch,
           onTap: () => context.goNamed(AppRoute.contact.name),
         ),
         SecondaryButton(

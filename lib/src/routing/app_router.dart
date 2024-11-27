@@ -1,32 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:portfolio/src/core/common_components/admin_page_container.dart';
+import 'package:portfolio/src/core/common_components/full_page_container.dart';
+import 'package:portfolio/src/features/auth/domain/auth_repository.dart';
 // import 'package:portfolio/src/core/common_components/user_page_container.dart';
 import 'package:portfolio/src/features/projects/presentation/components/image_viewer.dart';
 import 'package:portfolio/src/routing/admin_app_route.dart';
 import 'package:portfolio/src/routing/app_route.dart';
+import 'package:portfolio/src/routing/go_router_refresh_stream.dart';
 import 'package:portfolio/src/routing/not_found_page.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'app_router.g.dart';
 
-final _rootNavigatorKey = GlobalKey<NavigatorState>();
+final rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
 // final _shellAdminNavigatorKey = GlobalKey<NavigatorState>();
 
 @Riverpod(keepAlive: true)
 GoRouter goRouter(Ref ref) {
   return GoRouter(
-    navigatorKey: _rootNavigatorKey,
+    navigatorKey: rootNavigatorKey,
     initialLocation: '/',
+    refreshListenable: GoRouterRefreshStream(
+      ref.watch(authRepositoryProvider).authStateChanges(),
+    ),
     routes: [
       ShellRoute(
         navigatorKey: _shellNavigatorKey,
         pageBuilder: (context, state, child) => CustomTransitionPage<void>(
           key: state.pageKey,
-          // TODO(me): verify if is admin or user and return the correct page
-          child: AdminPageContainer(page: child),
-          // child: UserPageContainer(page: child),
+          child: FullPageContainer(page: child),
           transitionsBuilder: (_, animation, __, child) => FadeTransition(
             opacity: animation,
             child: child,

@@ -31,7 +31,7 @@ class EmptyPlaceholderWidget extends StatelessWidget {
             Consumer(
               builder: (context, ref, _) => PrimaryButton(
                 onTap: () => context.goNamed(AppRoute.home.name),
-                text: context.l10n.goHome,
+                title: context.l10n.goHome,
               ),
             ),
           ],

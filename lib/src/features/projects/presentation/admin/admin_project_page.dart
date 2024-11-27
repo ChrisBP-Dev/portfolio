@@ -250,7 +250,7 @@ class _AdminCreateProjectPageState extends ConsumerState<AdminProjectPage> {
         value: ref.watch(adminDeleteProjectControllerProvider),
         data: (data) {
           return PrimaryButton(
-            text: l10n.delete(l10n.project),
+            title: l10n.delete(l10n.project),
             onTap: () {
               ref
                   .read(adminDeleteProjectControllerProvider.notifier)

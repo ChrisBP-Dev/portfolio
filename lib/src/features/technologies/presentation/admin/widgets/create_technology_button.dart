@@ -16,7 +16,7 @@ class CreateTechnologyButton extends ConsumerWidget {
       value: ref.watch(adminCreateTechnologyControllerProvider),
       data: (data) {
         return PrimaryButton(
-          text: l10n.create(l10n.technology),
+          title: l10n.create(l10n.technology),
           onTap: onTap,
         );
       },

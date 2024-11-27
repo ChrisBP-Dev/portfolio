@@ -10,7 +10,6 @@ abstract class ProjectsRepository {
   Stream<List<Project>> getProjectsStream();
 }
 
-// TODO(me): change this
 @riverpod
 String collectionProjectName(Ref ref) => 'projects';
 

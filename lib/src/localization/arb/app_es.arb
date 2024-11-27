@@ -53,7 +53,13 @@
 
     "adminPanel": "Panel de Administración",
     "upload": "Subir",
-    "image": "Imagen"
+    "image": "Imagen",
+
+    "signIn": "Iniciar Sesión",
+    "signOut": "Cerrar Sesión",
+    "password": "Contraseña",
+    "areYouSure": "¿Estás seguro de que quieres {fieldName} ?",
+    "cancel": "Cancelar"
 
 
     

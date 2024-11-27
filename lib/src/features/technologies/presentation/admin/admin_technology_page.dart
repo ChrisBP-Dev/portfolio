@@ -117,7 +117,7 @@ class _AdminUpdateTechnologyPageState
         value: ref.watch(adminDeleteTechnologyControllerProvider),
         data: (data) {
           return PrimaryButton(
-            text: l10n.delete(l10n.technology),
+            title: l10n.delete(l10n.technology),
             onTap: () {
               ref
                   .read(adminDeleteTechnologyControllerProvider.notifier)

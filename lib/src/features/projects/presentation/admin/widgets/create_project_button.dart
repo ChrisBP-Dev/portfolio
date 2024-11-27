@@ -17,7 +17,7 @@ class CreateProjectButton extends ConsumerWidget {
       value: ref.watch(adminCreateProjectControllerProvider),
       data: (data) {
         return PrimaryButton(
-          text: l10n.create(l10n.project),
+          title: l10n.create(l10n.project),
           onTap: onTap,
         );
       },
