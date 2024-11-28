@@ -7,21 +7,67 @@ import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/core/constants/breakpoints.dart';
 import 'package:portfolio/src/core/utils/theme/color_app.dart';
 import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
+import 'package:portfolio/src/features/contact/domain/contact_message.dart';
+import 'package:portfolio/src/features/contact/domain/contact_phone_number.dart';
 import 'package:portfolio/src/features/contact/presentation/components/country_picker.dart';
 import 'package:portfolio/src/features/contact/presentation/components/send_through_dropdown_button.dart';
 import 'package:portfolio/src/features/contact/presentation/contact_controller.dart';
 import 'package:portfolio/src/features/contact/presentation/widgets/contact_textform_field.dart';
 import 'package:portfolio/src/localization/l10n.dart';
 
-class ContactForm extends ConsumerWidget {
+class ContactForm extends StatefulWidget {
   const ContactForm({super.key});
 
-  static final _formKey = GlobalKey<FormState>();
+  @override
+  State<ContactForm> createState() => _ContactFormState();
+}
+
+class _ContactFormState extends State<ContactForm> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController nameController;
+  late final TextEditingController emailController;
+  late final TextEditingController phoneNumberController;
+  late final TextEditingController messageController;
+  String countryCode = '+1';
+  SendThrough sendThrough = SendThrough.email;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void initState() {
+    super.initState();
+    nameController = TextEditingController();
+    emailController = TextEditingController();
+    phoneNumberController = TextEditingController();
+    messageController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    phoneNumberController.dispose();
+    messageController.dispose();
+    super.dispose();
+  }
+
+  String get name => nameController.text;
+  String get email => emailController.text;
+  String get phoneNumber => phoneNumberController.text;
+  String get message => messageController.text;
+
+  ContactMessage get contactMessage => ContactMessage(
+        name: name,
+        email: email,
+        phoneNumber: ContactPhoneNumber(
+          countryCode: countryCode,
+          phoneNumber: phoneNumber,
+        ),
+        message: message,
+        sendThrough: sendThrough,
+      );
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final contactMessage = ref.watch(contactControllerProvider);
 
     return ResponsiveCenter(
       padding: const EdgeInsets.all(Sizes.globalPadding),
@@ -42,42 +88,31 @@ class ContactForm extends ConsumerWidget {
                 TitleFormField(title: l10n.whatsYour(l10n.nameLabel)),
                 ContactTextformField(
                   formType: ContactFormType.name,
-                  onSaved: (value) {
-                    ref
-                        .read(contactControllerProvider.notifier)
-                        .updateName(value!);
-                  },
+                  controller: nameController,
                 ),
                 gapH14,
                 TitleFormField(title: l10n.whatsYour(l10n.emailLabel)),
                 ContactTextformField(
                   formType: ContactFormType.email,
-                  onSaved: (value) {
-                    ref
-                        .read(contactControllerProvider.notifier)
-                        .updateEmail(value!);
-                  },
+                  controller: emailController,
                 ),
                 gapH14,
                 TitleFormField(title: l10n.whatsYour(l10n.phoneNumberLabel)),
                 Row(
                   children: [
-                    const Expanded(
-                      child: CountryPicker(),
+                    Expanded(
+                      child: CountryPicker(
+                        onChanged: (countryCode) {
+                          setState(() => this.countryCode = countryCode);
+                        },
+                      ),
                     ),
                     gapW20,
                     Expanded(
                       flex: 2,
                       child: ContactTextformField(
                         formType: ContactFormType.phoneNumber,
-                        onSaved: (value) {
-                          ref
-                              .read(contactControllerProvider.notifier)
-                              .updatePhoneNumber(
-                                contactMessage.phoneNumber.countryCode,
-                                value!,
-                              );
-                        },
+                        controller: phoneNumberController,
                       ),
                     ),
                   ],
@@ -86,35 +121,32 @@ class ContactForm extends ConsumerWidget {
                 TitleFormField(title: l10n.whatsYour(l10n.messageLabel)),
                 ContactTextformField(
                   formType: ContactFormType.message,
-                  onSaved: (value) {
-                    ref
-                        .read(contactControllerProvider.notifier)
-                        .updateMessage(value!);
-                  },
+                  controller: messageController,
                   maxLines: 6,
                 ),
                 gapH14,
                 TitleFormField(title: l10n.chooseHowToContact),
                 SendThroughDropDownButton(
-                  value: contactMessage.sendThrough,
-                  onChanged: (value) {
-                    ref
-                        .read(contactControllerProvider.notifier)
-                        .updateSendThrough(value!);
+                  value: sendThrough,
+                  onChanged: (sendThrough) {
+                    setState(() => this.sendThrough = sendThrough);
                   },
                 ),
                 gapH39,
-                Center(
-                  child: PrimaryButton(
-                    title: l10n.sendMessage,
-                    onTap: () {
-                      if (!_formKey.currentState!.validate()) return;
-                      _formKey.currentState!.save();
-                      ref
-                          .read(contactControllerProvider.notifier)
-                          .sendContactMessage();
-                    },
-                  ),
+                Consumer(
+                  builder: (context, ref, child) {
+                    return Center(
+                      child: PrimaryButton(
+                        title: l10n.sendMessage,
+                        onTap: () {
+                          if (!_formKey.currentState!.validate()) return;
+                          ref
+                              .read(contactControllerProvider.notifier)
+                              .sendContactMessage(contactMessage);
+                        },
+                      ),
+                    );
+                  },
                 ),
                 gapH39,
               ],

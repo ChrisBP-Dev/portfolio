@@ -1,28 +1,27 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'contact_repository.dart';
+part of 'app_localization_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$contactRepositoryHash() => r'037032765260cd0a698c726b79eac0425b35d971';
+String _$appLocalizationsHash() => r'9c2238b53f6dbc3b4bf7dcc36ca3939915a2a1bc';
 
-/// See also [contactRepository].
-@ProviderFor(contactRepository)
-final contactRepositoryProvider =
-    AutoDisposeProvider<ContactRepository>.internal(
-  contactRepository,
-  name: r'contactRepositoryProvider',
+/// See also [appLocalizations].
+@ProviderFor(appLocalizations)
+final appLocalizationsProvider = AutoDisposeProvider<AppLocalizations>.internal(
+  appLocalizations,
+  name: r'appLocalizationsProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$contactRepositoryHash,
+      : _$appLocalizationsHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef ContactRepositoryRef = AutoDisposeProviderRef<ContactRepository>;
+typedef AppLocalizationsRef = AutoDisposeProviderRef<AppLocalizations>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

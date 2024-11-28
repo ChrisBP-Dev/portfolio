@@ -6,25 +6,24 @@ class ContactTextformField extends StatelessWidget {
   const ContactTextformField({
     required this.formType,
     super.key,
-    this.onSaved,
+    this.controller,
     this.maxLines,
   });
 
-  final FormFieldSetter<String>? onSaved;
-
+  final TextEditingController? controller;
   final int? maxLines;
   final ContactFormType formType;
 
   @override
   Widget build(BuildContext context) {
     return CustomTextFormField(
+      controller: controller,
       labelText: formType.getLabelText(context),
       validator: (value) {
         if (value != null && value.isNotEmpty) return null;
         return formType.getErrorText(context);
       },
       keyboardType: formType.getKeyboardType(),
-      onSaved: onSaved,
       maxLines: maxLines,
     );
   }

@@ -1,65 +1,32 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:portfolio/src/core/constants/business_information.dart';
+import 'package:portfolio/src/features/contact/domain/contact_phone_number.dart';
+import 'package:portfolio/src/localization/l10n.dart';
+part 'contact_message.freezed.dart';
+part 'contact_message.g.dart';
 
-class ContactMessage {
-  const ContactMessage({
-    required this.name,
-    required this.email,
-    required this.message,
-    required this.phoneNumber,
-    this.sendThrough = SendThrough.whatsapp,
-  });
-  final String name;
-  final String email;
-  final String message;
-  final ContactPhoneNumber phoneNumber;
-  final SendThrough sendThrough;
+@freezed
+class ContactMessage with _$ContactMessage {
+  const factory ContactMessage({
+    required String name,
+    required String email,
+    required String message,
+    required ContactPhoneNumber phoneNumber,
+    @Default(SendThrough.whatsapp) SendThrough sendThrough,
+  }) = _ContactMessage;
 
-  String get formattedMessage => '''
-Hi,
-My name is *$name*,
-I came from your website ${BusinessInformation.website}
-*and I would like to find out more about:*
-  
-$message
-
-you can contact me through:
-*Phone Number:* ${phoneNumber.countryCode} ${phoneNumber.number}
-*Email:* $email
-''';
-
-  ContactMessage copyWith({
-    String? name,
-    String? email,
-    String? message,
-    ContactPhoneNumber? phoneNumber,
-    SendThrough? sendThrough,
-  }) {
-    return ContactMessage(
-      name: name ?? this.name,
-      email: email ?? this.email,
-      message: message ?? this.message,
-      phoneNumber: phoneNumber ?? this.phoneNumber,
-      sendThrough: sendThrough ?? this.sendThrough,
-    );
-  }
+  factory ContactMessage.fromJson(Map<String, dynamic> json) =>
+      _$ContactMessageFromJson(json);
 }
 
-class ContactPhoneNumber {
-  const ContactPhoneNumber({
-    required this.countryCode,
-    required this.number,
-  });
-  final String countryCode;
-  final String number;
-
-  ContactPhoneNumber copyWith({
-    String? countryCode,
-    String? number,
-  }) {
-    return ContactPhoneNumber(
-      countryCode: countryCode ?? this.countryCode,
-      number: number ?? this.number,
+extension ContactMessageX on ContactMessage {
+  String formattedMessage(AppLocalizations l10n) {
+    return l10n.messageTemplate(
+      name,
+      BusinessInformation.website,
+      message,
+      '${phoneNumber.countryCode}${phoneNumber.phoneNumber}',
+      email,
     );
   }
 }

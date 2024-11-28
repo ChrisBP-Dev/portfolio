@@ -5,12 +5,13 @@ import 'package:portfolio/src/localization/l10n.dart';
 
 class SendThroughDropDownButton extends StatelessWidget {
   const SendThroughDropDownButton({
-    required this.value,
     required this.onChanged,
+    required this.value,
     super.key,
   });
+  final void Function(SendThrough) onChanged;
   final SendThrough value;
-  final void Function(SendThrough?) onChanged;
+
   @override
   Widget build(BuildContext context) {
     OutlineInputBorder defaultBorder() => OutlineInputBorder(
@@ -44,7 +45,10 @@ class SendThroughDropDownButton extends StatelessWidget {
           ),
         );
       }).toList(),
-      onChanged: onChanged,
+      onChanged: (SendThrough? newValue) {
+        if (newValue == null) return;
+        onChanged.call(newValue);
+      },
       dropdownColor: context.theme.scaffoldBackgroundColor,
       iconEnabledColor: context.theme.colorScheme.onSurface,
       iconDisabledColor: context.theme.disabledColor,

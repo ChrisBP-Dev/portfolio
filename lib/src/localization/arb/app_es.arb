@@ -41,6 +41,7 @@
     "searchCountryHint": "Buscar país",
     "sendThrough": "Enviar a través de",
     "sendMessage": "Enviar Mensaje",
+    "messageTemplate": "Hola,\nMi nombre es *{fieldName}*,\nVengo de tu sitio web {fieldName2}\n*y me gustaría saber más sobre:*\n\n{fieldName3}\n\nPuedes contactarme a través de:\n*Número de Teléfono:* {fieldName4}\n*Correo Electrónico:* {fieldName5}\n\n*¡Gracias!*",
     
     "pageNotFound404":"404 - Página no encontrada!",
     "create": "Crear {fieldName}",

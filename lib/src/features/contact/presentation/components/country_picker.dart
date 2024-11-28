@@ -1,18 +1,16 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/core/constants/breakpoints.dart';
 import 'package:portfolio/src/core/utils/theme/theme_extension.dart';
-import 'package:portfolio/src/features/contact/presentation/contact_controller.dart';
 import 'package:portfolio/src/localization/l10n.dart';
 
-class CountryPicker extends ConsumerWidget {
-  const CountryPicker({super.key});
+class CountryPicker extends StatelessWidget {
+  const CountryPicker({required this.onChanged, super.key});
+  final void Function(String) onChanged;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final contactMessage = ref.watch(contactControllerProvider);
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
     return Theme(
       data: context.theme.copyWith(
@@ -36,12 +34,8 @@ class CountryPicker extends ConsumerWidget {
           Breakpoint.mobile / 2,
           Breakpoint.mobile * .85,
         ),
-        onChanged: (countryCode) {
-          ref.read(contactControllerProvider.notifier).updatePhoneNumber(
-                countryCode.dialCode ?? '+1',
-                contactMessage.phoneNumber.number,
-              );
-        },
+        onChanged: (countryCode) =>
+            onChanged.call(countryCode.dialCode ?? '+1'),
         initialSelection: 'US',
         favorite: const ['+1', 'US'],
         textStyle: context.bodyLarge?.copyWith(

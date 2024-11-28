@@ -41,6 +41,7 @@
     "searchCountryHint": "Search country",
     "sendThrough": "Send through",
     "sendMessage": "Send Message",
+    "messageTemplate": "Hi,\nMy name is *{fieldName}*,\nI came from your website {fieldName2}\n*and I would like to find out more about:*\n\n{fieldName3}\n\nYou can contact me through:\n*Phone Number:* {fieldName4}\n*Email:* {fieldName5}\n\n*Thank you!*",
 
     "pageNotFound404":"404 - Page not found!",
     "create": "Create {fieldName}",
