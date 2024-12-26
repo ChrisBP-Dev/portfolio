@@ -1,5 +1,6 @@
 import 'package:portfolio/src/features/projects/domain/admin_projects_repository.dart';
 import 'package:portfolio/src/features/projects/domain/project.dart';
+import 'package:portfolio/src/routing/app_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
 part 'admin_create_project_controller.g.dart';
@@ -18,5 +19,8 @@ class AdminCreateProjectController extends _$AdminCreateProjectController {
     state = await AsyncValue.guard(
       () => repository.createProject(project.copyWith(id: id)),
     );
+    if (!state.hasError) {
+      ref.read(goRouterProvider).pop();
+    }
   }
 }

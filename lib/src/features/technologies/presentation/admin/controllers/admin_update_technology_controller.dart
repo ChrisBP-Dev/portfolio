@@ -1,5 +1,6 @@
 import 'package:portfolio/src/features/technologies/domain/admin_technology_repository.dart';
 import 'package:portfolio/src/features/technologies/domain/technology.dart';
+import 'package:portfolio/src/routing/app_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'admin_update_technology_controller.g.dart';
 
@@ -18,5 +19,8 @@ class AdminUpdateTechnologyController
     state = await AsyncValue.guard(
       () => repository.updateTechnology(technology),
     );
+    if (!state.hasError) {
+      ref.read(goRouterProvider).pop();
+    }
   }
 }

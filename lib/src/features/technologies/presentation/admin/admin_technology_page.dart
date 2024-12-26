@@ -5,7 +5,7 @@ import 'package:portfolio/src/core/common_widgets/async_value_widget.dart';
 import 'package:portfolio/src/core/common_widgets/primary_button.dart';
 import 'package:portfolio/src/core/common_widgets/title_form_field.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
-import 'package:portfolio/src/features/projects/domain/screenshot_image.dart';
+import 'package:portfolio/src/features/projects/domain/image_and_path.dart';
 import 'package:portfolio/src/features/technologies/domain/technology.dart';
 import 'package:portfolio/src/features/technologies/presentation/admin/controllers/admin_create_technology_controller.dart';
 import 'package:portfolio/src/features/technologies/presentation/admin/controllers/admin_delete_technology_controller.dart';
@@ -94,11 +94,7 @@ class _AdminUpdateTechnologyPageState
           if (!_formKey.currentState!.validate()) return;
           ref
               .read(adminCreateTechnologyControllerProvider.notifier)
-              .createTechnology(currentTechnology)
-              .whenComplete(() {
-            if (!context.mounted) return;
-            Navigator.of(context).pop();
-          });
+              .createTechnology(currentTechnology);
         },
       ),
       updateButton: UpdateTechnologyButton(
@@ -106,11 +102,7 @@ class _AdminUpdateTechnologyPageState
           if (!_formKey.currentState!.validate()) return;
           ref
               .read(adminUpdateTechnologyControllerProvider.notifier)
-              .updateTechnology(currentTechnology)
-              .whenComplete(() {
-            if (!context.mounted) return;
-            Navigator.of(context).pop();
-          });
+              .updateTechnology(currentTechnology);
         },
       ),
       deleteButton: AsyncValueWidget(
@@ -121,11 +113,7 @@ class _AdminUpdateTechnologyPageState
             onTap: () {
               ref
                   .read(adminDeleteTechnologyControllerProvider.notifier)
-                  .deleteTechnology(oldTechnology!)
-                  .whenComplete(() {
-                if (!context.mounted) return;
-                Navigator.of(context).pop();
-              });
+                  .deleteTechnology(oldTechnology!);
             },
           );
         },

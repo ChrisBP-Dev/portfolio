@@ -7,7 +7,7 @@ part of 'admin_delete_technology_controller.dart';
 // **************************************************************************
 
 String _$adminDeleteTechnologyControllerHash() =>
-    r'b311d3c0d441726109ed96b056eee5f4c9bc56c1';
+    r'02a797b0ff151ce16ebb68c3e205d85264a3f422';
 
 /// See also [AdminDeleteTechnologyController].
 @ProviderFor(AdminDeleteTechnologyController)

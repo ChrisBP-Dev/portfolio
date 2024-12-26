@@ -1,6 +1,6 @@
 import 'package:portfolio/src/features/projects/data/services/firestore_service.dart';
 import 'package:portfolio/src/features/projects/data/services/storage_service.dart';
-import 'package:portfolio/src/features/projects/domain/screenshot_image.dart';
+import 'package:portfolio/src/features/projects/domain/image_and_path.dart';
 import 'package:portfolio/src/features/technologies/domain/admin_technology_repository.dart';
 import 'package:portfolio/src/features/technologies/domain/technology.dart';
 

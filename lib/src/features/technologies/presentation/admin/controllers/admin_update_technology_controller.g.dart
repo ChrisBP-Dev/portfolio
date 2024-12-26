@@ -7,7 +7,7 @@ part of 'admin_update_technology_controller.dart';
 // **************************************************************************
 
 String _$adminUpdateTechnologyControllerHash() =>
-    r'f8598c5a231f18900e6918690a18aab55a68d421';
+    r'eee7cf272e12e87c728f4844ad3ea69223dd418e';
 
 /// See also [AdminUpdateTechnologyController].
 @ProviderFor(AdminUpdateTechnologyController)

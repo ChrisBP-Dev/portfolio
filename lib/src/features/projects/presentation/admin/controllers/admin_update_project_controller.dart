@@ -1,5 +1,6 @@
 import 'package:portfolio/src/features/projects/domain/admin_projects_repository.dart';
 import 'package:portfolio/src/features/projects/domain/project.dart';
+import 'package:portfolio/src/routing/app_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'admin_update_project_controller.g.dart';
 
@@ -17,5 +18,8 @@ class AdminUpdateProjectController extends _$AdminUpdateProjectController {
     state = await AsyncValue.guard(
       () => repository.updateProject(project),
     );
+    if (!state.hasError) {
+      ref.read(goRouterProvider).pop();
+    }
   }
 }

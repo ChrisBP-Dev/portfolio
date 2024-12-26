@@ -1,5 +1,6 @@
 import 'package:portfolio/src/features/technologies/domain/admin_technology_repository.dart';
 import 'package:portfolio/src/features/technologies/domain/technology.dart';
+import 'package:portfolio/src/routing/app_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
 part 'admin_create_technology_controller.g.dart';
@@ -20,5 +21,8 @@ class AdminCreateTechnologyController
     state = await AsyncValue.guard(
       () => repository.createTechnology(technology.copyWith(id: id)),
     );
+    if (!state.hasError) {
+      ref.read(goRouterProvider).pop();
+    }
   }
 }

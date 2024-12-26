@@ -7,7 +7,7 @@ part of 'admin_create_technology_controller.dart';
 // **************************************************************************
 
 String _$adminCreateTechnologyControllerHash() =>
-    r'fcf67c100ff18002833a7e8afbfe5b31c8c6e4be';
+    r'739ef71df917d283c57fc958c9e2a5187cd38fd7';
 
 /// See also [AdminCreateTechnologyController].
 @ProviderFor(AdminCreateTechnologyController)

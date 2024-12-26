@@ -7,7 +7,7 @@ part of 'admin_delete_project_controller.dart';
 // **************************************************************************
 
 String _$adminDeleteProjectControllerHash() =>
-    r'8508e272b8b502736d5511994e8741292f83408b';
+    r'901132b365dd10be96ba176859bb96d2858176b7';
 
 /// See also [AdminDeleteProjectController].
 @ProviderFor(AdminDeleteProjectController)

@@ -5,7 +5,7 @@ import 'package:portfolio/src/core/common_widgets/wrap_network_image.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/core/utils/bool_extensions.dart';
 import 'package:portfolio/src/core/utils/theme/color_app.dart';
-import 'package:portfolio/src/features/projects/domain/screenshot_image.dart';
+import 'package:portfolio/src/features/projects/domain/image_and_path.dart';
 import 'package:portfolio/src/localization/l10n.dart';
 
 class ImageMemoryPicked extends StatelessWidget {

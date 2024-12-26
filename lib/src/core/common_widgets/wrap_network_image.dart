@@ -1,4 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
+// TODO(me): check this and remove when no error
+import 'package:cached_network_image_platform_interface/cached_network_image_platform_interface.dart';
 import 'package:flutter/material.dart';
 
 class WrapNetworkImage extends StatelessWidget {
@@ -22,6 +24,7 @@ class WrapNetworkImage extends StatelessWidget {
       height: height ?? double.infinity,
       width: width ?? double.infinity,
       fit: fit ?? BoxFit.cover,
+      imageRenderMethodForWeb: ImageRenderMethodForWeb.HttpGet,
       errorWidget: (_, __, ___) => const Center(
         child: Icon(
           Icons.error,

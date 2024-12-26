@@ -40,10 +40,10 @@ class CustomTextFormField extends StatelessWidget {
       textCapitalization: TextCapitalization.sentences,
       decoration: InputDecoration(
         filled: true,
-        fillColor: theme.appBarTheme.backgroundColor?.withOpacity(.3),
+        fillColor: theme.appBarTheme.backgroundColor?.withValues(alpha: .3),
         labelText: labelText,
         labelStyle: theme.textTheme.bodySmall
-            ?.copyWith(color: context.getPrimaryColor().withOpacity(.8)),
+            ?.copyWith(color: context.getPrimaryColor().withValues(alpha: .8)),
         border: defaultBorder(context.getPrimaryColor()),
         enabledBorder: defaultBorder(context.getPrimaryColor()),
         focusedErrorBorder: defaultBorder(context.getPrimaryColor()),

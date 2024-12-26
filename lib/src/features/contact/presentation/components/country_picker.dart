@@ -54,7 +54,7 @@ class CountryPicker extends StatelessWidget {
         dialogTextStyle: context.bodyLarge?.copyWith(
           color: context.theme.colorScheme.onSurface,
         ),
-        barrierColor: Colors.black.withOpacity(0.5),
+        barrierColor: Colors.black.withValues(alpha: 0.5),
         boxDecoration: BoxDecoration(
           color: context.theme.scaffoldBackgroundColor,
           borderRadius: BorderRadius.circular(Sizes.p8),

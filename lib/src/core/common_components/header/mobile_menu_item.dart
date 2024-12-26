@@ -31,7 +31,7 @@ class MobileMenuItem extends ConsumerWidget {
         overlayColor: WidgetStateProperty.all<Color>(
           isSelected.when(
             isFalse: () =>
-                AppColor.textBusinessGradient.colors.last.withOpacity(.3),
+                AppColor.textBusinessGradient.colors.last.withValues(alpha: .3),
             isTrue: () => context.theme.colorScheme.primary,
           ),
         ),

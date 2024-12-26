@@ -63,7 +63,8 @@ class _AnimatedHeaderContainerState extends ConsumerState<AnimatedMenuContainer>
               border: Border.all(),
               boxShadow: [
                 BoxShadow(
-                  color: context.theme.colorScheme.primary.withOpacity(0.2),
+                  color:
+                      context.theme.colorScheme.primary.withValues(alpha: 0.2),
                   spreadRadius: 5,
                   blurRadius: 7,
                   offset: const Offset(0, 3),

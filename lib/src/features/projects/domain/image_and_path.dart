@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:portfolio/src/core/utils/string_extensions.dart';
-part 'screenshot_image.freezed.dart';
-part 'screenshot_image.g.dart';
+part 'image_and_path.freezed.dart';
+part 'image_and_path.g.dart';
 
 @freezed
 class ImageAndPath with _$ImageAndPath {

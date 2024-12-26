@@ -24,7 +24,7 @@ class TechnologyFormField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: formType.getLabelText(context),
         labelStyle: context.bodySmall
-            ?.copyWith(color: context.getPrimaryColor().withOpacity(.8)),
+            ?.copyWith(color: context.getPrimaryColor().withValues(alpha: .8)),
         border: defaultBorder(context.getPrimaryColor()),
         enabledBorder: defaultBorder(context.getPrimaryColor()),
         focusedErrorBorder: defaultBorder(context.getPrimaryColor()),

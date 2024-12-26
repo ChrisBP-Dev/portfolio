@@ -3,7 +3,7 @@ import 'package:portfolio/src/core/common_widgets/image_memory_picked.dart';
 import 'package:portfolio/src/core/common_widgets/responsive_center.dart';
 import 'package:portfolio/src/core/constants/breakpoints.dart';
 import 'package:portfolio/src/core/utils/unit8list_extension.dart';
-import 'package:portfolio/src/features/projects/domain/screenshot_image.dart';
+import 'package:portfolio/src/features/projects/domain/image_and_path.dart';
 
 class MainImageProjectPicker extends StatefulWidget {
   const MainImageProjectPicker({

@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:portfolio/src/core/common_widgets/admin_dialog.dart';
-import 'package:portfolio/src/core/common_widgets/async_value_widget.dart';
-import 'package:portfolio/src/core/common_widgets/primary_button.dart';
 import 'package:portfolio/src/core/common_widgets/title_form_field.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
 import 'package:portfolio/src/core/utils/string_extensions.dart';
+import 'package:portfolio/src/features/projects/domain/image_and_path.dart';
 import 'package:portfolio/src/features/projects/domain/project.dart';
-import 'package:portfolio/src/features/projects/domain/screenshot_image.dart';
 import 'package:portfolio/src/features/projects/presentation/admin/controllers/admin_create_project_controller.dart';
 import 'package:portfolio/src/features/projects/presentation/admin/controllers/admin_delete_project_controller.dart';
 import 'package:portfolio/src/features/projects/presentation/admin/controllers/admin_update_project_controller.dart';
 import 'package:portfolio/src/features/projects/presentation/admin/widgets/create_project_button.dart';
+import 'package:portfolio/src/features/projects/presentation/admin/widgets/delete_project_button.dart';
 import 'package:portfolio/src/features/projects/presentation/admin/widgets/features_project_list.dart';
 import 'package:portfolio/src/features/projects/presentation/admin/widgets/images_list_project.dart';
 import 'package:portfolio/src/features/projects/presentation/admin/widgets/main_image_project_picker.dart';
@@ -116,6 +115,7 @@ class _AdminCreateProjectPageState extends ConsumerState<AdminProjectPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    _screenshots.sort((a, b) => a.hasLocalImage ? -1 : -1);
     return AdminDialog(
       asCreating: asCreating,
       title: l10n.project,
@@ -197,7 +197,7 @@ class _AdminCreateProjectPageState extends ConsumerState<AdminProjectPage> {
         gapH14,
         TitleFormField(title: l10n.screenshotsTitle),
         ImagesListProject(
-          screenshots: _screenshots..sort((a, b) => a.hasLocalImage ? -1 : -1),
+          screenshots: _screenshots,
           onImageAdded: (screenShotImage, index) {
             _screenshots[index] = ImageAndPath(
               localImage: screenShotImage.localImage,
@@ -224,11 +224,7 @@ class _AdminCreateProjectPageState extends ConsumerState<AdminProjectPage> {
           if (!_formKey.currentState!.validate()) return;
           ref
               .read(adminCreateProjectControllerProvider.notifier)
-              .createProject(currentProject)
-              .whenComplete(() {
-            if (!context.mounted) return;
-            Navigator.of(context).pop();
-          });
+              .createProject(currentProject);
         },
       ),
       updateButton: UpdateProjectButton(
@@ -237,30 +233,16 @@ class _AdminCreateProjectPageState extends ConsumerState<AdminProjectPage> {
             if (currentProject != oldProject) {
               ref
                   .read(adminUpdateProjectControllerProvider.notifier)
-                  .updateProject(currentProject)
-                  .whenComplete(() {
-                if (!context.mounted) return;
-                Navigator.of(context).pop();
-              });
+                  .updateProject(currentProject);
             }
           }
         },
       ),
-      deleteButton: AsyncValueWidget(
-        value: ref.watch(adminDeleteProjectControllerProvider),
-        data: (data) {
-          return PrimaryButton(
-            title: l10n.delete(l10n.project),
-            onTap: () {
-              ref
-                  .read(adminDeleteProjectControllerProvider.notifier)
-                  .deleteProject(widget.project!)
-                  .whenComplete(() {
-                if (!context.mounted) return;
-                Navigator.of(context).pop();
-              });
-            },
-          );
+      deleteButton: DeleteProjectButton(
+        onTap: () {
+          ref
+              .read(adminDeleteProjectControllerProvider.notifier)
+              .deleteProject(oldProject!);
         },
       ),
     );

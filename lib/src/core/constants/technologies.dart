@@ -1,4 +1,4 @@
-import 'package:portfolio/src/features/projects/domain/screenshot_image.dart';
+import 'package:portfolio/src/features/projects/domain/image_and_path.dart';
 import 'package:portfolio/src/features/technologies/domain/technology.dart';
 
 const kTechnologies = [

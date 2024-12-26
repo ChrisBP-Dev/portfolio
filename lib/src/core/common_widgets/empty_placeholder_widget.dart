@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:portfolio/src/core/common_widgets/primary_button.dart';
 import 'package:portfolio/src/core/constants/app_sizes.dart';
@@ -28,11 +27,9 @@ class EmptyPlaceholderWidget extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             gapH39,
-            Consumer(
-              builder: (context, ref, _) => PrimaryButton(
-                onTap: () => context.goNamed(AppRoute.home.name),
-                title: context.l10n.goHome,
-              ),
+            PrimaryButton(
+              onTap: () => context.goNamed(AppRoute.home.name),
+              title: context.l10n.goHome,
             ),
           ],
         ),
