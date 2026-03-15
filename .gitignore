@@ -75,9 +75,8 @@ ehthumbs.db
 .gradle/
 
 # Linux
-linux/flutter/generated_plugin_registrant.cc
-linux/ephemeral/
-linux/build/
+linux/
+
 
 # Web
 web/generated_plugin_registrant.dart
@@ -86,3 +85,8 @@ web/.dart_tool/
 # Firebase (if using FlutterFire)
 firebase_app_distribution.apks
 firebase_app_distribution_apks/
+.firebase/
+
+# Auto-generated
+.metadata
+test/
