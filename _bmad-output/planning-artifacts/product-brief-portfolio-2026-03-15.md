@@ -206,7 +206,7 @@ El objetivo de negocio es singular y claro: **conseguir oportunidades laborales*
 
 ### Features Principales
 
-Este es un proyecto de migración — el alcance es replicar todas las features existentes con calidad profesional. No se agregan features nuevas.
+Este es un proyecto de migración — el alcance es replicar todas las features existentes con calidad profesional, más la adición de un blog técnico integrado con el admin como feature estratégica del MVP.
 
 #### Sitio Público
 
@@ -220,6 +220,7 @@ Este es un proyecto de migración — el alcance es replicar todas las features 
 | **Tema** | Toggle dark/light mode | Persistencia y respeto a preferencia del sistema |
 | **SEO** | Meta tags, OpenGraph, Twitter Cards, sitemap, robots.txt | Mejora fundamental — de cero indexación a SEO completo |
 | **Responsive** | Mobile, tablet, desktop | Mismos breakpoints, implementación con Tailwind CSS |
+| **Blog** | Listado de artículos publicados, página individual por artículo con formato rico | Feature nueva — aporta SEO orgánico y demuestra capacidad de contenido dinámico |
 
 #### Panel de Administración
 
@@ -230,6 +231,7 @@ Este es un proyecto de migración — el alcance es replicar todas las features 
 | **CRUD Technologies** | Crear, editar, eliminar tecnologías con icono | Mismo patrón de gestión de assets |
 | **CRUD Experiences** | Crear, editar, eliminar experiencias laborales | Conectado a Firebase (actualmente usa datos fake) |
 | **Gestión de Imágenes** | Upload, reemplazo, eliminación de imágenes en Firebase Storage | Estrategia explícita: al reemplazar se elimina el anterior, al borrar entidad se limpian todos sus assets |
+| **CRUD Blog** | Crear, editar, eliminar artículos con formato rico, imágenes, slugs y estado publicado/borrador | Feature nueva — editor de contenido integrado en admin |
 
 #### Infraestructura y Calidad
 
@@ -245,8 +247,6 @@ Este es un proyecto de migración — el alcance es replicar todas las features 
 
 ### Fuera de Alcance del MVP
 
-- Features nuevas no presentes en el portfolio actual
-- Blog o sección de artículos
 - CMS externo (Prismic, Sanity, etc.)
 - Analytics dashboard o métricas de visitantes en el admin
 - Registro de usuarios o roles adicionales
@@ -260,7 +260,7 @@ El MVP se considera exitoso cuando:
 
 1. **Paridad funcional**: Todas las features del portfolio actual están replicadas y funcionando
 2. **Calidad técnica**: Lighthouse >95 en las 4 categorías, Core Web Vitals aprobados, cobertura de tests >80%
-3. **Admin funcional**: CRUD completo de projects, technologies y experiences sin bugs, gestión de imágenes sin huérfanos
+3. **Admin funcional**: CRUD completo de projects, technologies, experiences y blog sin bugs, gestión de imágenes sin huérfanos
 4. **Open source ready**: Repositorio público con README, `.env.example`, sin credenciales expuestas, clonable y deployable
 5. **Datos actualizados**: Información profesional de Christopher al día
 6. **Cero bugs conocidos**: Toda funcionalidad testeada y verificada
@@ -269,7 +269,6 @@ El MVP se considera exitoso cuando:
 
 Aunque no está en el alcance del MVP, estas son posibles evoluciones post-lanzamiento:
 
-- **Blog técnico**: Sección de artículos usando Content Collections de Astro para compartir conocimiento y mejorar SEO orgánico
 - **Analytics integrado**: Dashboard básico en el admin con métricas de visitas (Vercel Analytics o Firebase Analytics)
 - **Mejoras de contenido**: Sección de certificaciones, testimonios de colegas, o caso de estudios de proyectos
 - **Template mode**: Documentación y configuración más granular para que otros devs personalicen el portfolio más fácilmente (temas, secciones configurables)

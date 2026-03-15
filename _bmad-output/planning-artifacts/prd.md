@@ -313,12 +313,12 @@ Targets de performance y criterios de accesibilidad completos en la sección **N
 ### Visualización de Contenido Público
 
 - **FR1:** Visitantes pueden ver la página principal con secciones de About Me, Technologies, Projects destacados y Experience
-- **FR2:** Visitantes pueden navegar al catálogo completo de proyectos con filtros
+- **FR2:** Visitantes pueden navegar al catálogo completo de proyectos con filtro por tecnología utilizada
 - **FR3:** Visitantes pueden ver el detalle de cada proyecto con imágenes, descripción, tecnologías usadas y links externos
 - **FR4:** Visitantes pueden ver screenshots de proyectos en un visor de imágenes ampliado
 - **FR5:** Visitantes pueden ver la experiencia laboral en formato timeline
 - **FR6:** Visitantes pueden ver el listado de artículos de blog publicados
-- **FR7:** Visitantes pueden leer un artículo de blog individual con formato rico e imágenes
+- **FR7:** Visitantes pueden leer un artículo de blog individual con formato rico (headings, párrafos, listas, código, negritas, links, imágenes embebidas)
 - **FR8:** Visitantes pueden enviar un mensaje de contacto seleccionando canal (WhatsApp o Email) y código de país
 - **FR9:** Visitantes pueden navegar a perfiles de redes sociales (GitHub, LinkedIn, TikTok)
 
@@ -360,7 +360,7 @@ Targets de performance y criterios de accesibilidad completos en la sección **N
 
 ### Gestión de Blog (Admin)
 
-- **FR31:** Christopher puede crear un nuevo artículo de blog con título (ES/EN), contenido con formato rico, slug personalizable, imagen de portada y estado (publicado/borrador)
+- **FR31:** Christopher puede crear un nuevo artículo de blog con título (ES/EN), contenido con formato rico (headings, párrafos, listas, código, negritas, links, imágenes embebidas), slug personalizable, imagen de portada y estado (publicado/borrador)
 - **FR32:** Christopher puede insertar imágenes dentro del contenido de un artículo
 - **FR33:** Christopher puede editar cualquier campo de un artículo existente
 - **FR34:** Christopher puede eliminar un artículo y todos sus assets asociados
@@ -400,7 +400,7 @@ Targets de performance y criterios de accesibilidad completos en la sección **N
 | **NFR3:** Layout no salta durante la carga | CLS | < 0.05 |
 | **NFR4:** SSR responde rápido desde el servidor | TTFB | < 200ms |
 | **NFR5:** JavaScript mínimo enviado al navegador | Bundle total | < 50KB |
-| **NFR6:** Imágenes no bloquean la carga inicial | Lazy loading | Imágenes below-the-fold cargan diferido |
+| **NFR6:** Imágenes no bloquean la carga inicial | Lazy loading | Imágenes below-the-fold cargan diferido, verificado via auditoría Lighthouse (no images in initial network waterfall) |
 | **NFR7:** Operaciones CRUD del admin completan sin esperas largas | Tiempo de operación | < 3s para crear/editar/eliminar incluyendo upload de imágenes |
 
 ### Security
