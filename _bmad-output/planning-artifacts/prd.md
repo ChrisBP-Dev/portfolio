@@ -51,6 +51,14 @@ El alcance incluye: sitio público con SEO nativo y HTML semántico, panel de ad
 
 4. **Blog técnico integrado con admin.** Sistema de contenido completo gestionable desde el panel de administración, demostrando capacidad de construir features de contenido dinámico y aportando SEO orgánico a largo plazo.
 
+### Visual Design Fidelity
+
+**Sitio público:** El diseño visual del portfolio Flutter Web actual funciona bien y debe conservarse en la migración. La estructura de secciones, la composición de componentes, la disposición de elementos y la estética general del sitio público deben replicarse fielmente en Astro. Se permiten mejoras en animaciones, transiciones y micro-interacciones aprovechando capacidades nativas de HTML/CSS/JS, pero no se debe cambiar el "look & feel" del sitio que los visitantes ven. La especificación UX contiene una sección "Referencia Visual del Sitio Público Actual" con screenshots y descripciones detalladas que sirven como fuente de verdad visual.
+
+**Panel de administración:** Se rediseña completamente. El admin actual tiene un drawer oculto con acceso secreto y UX inconsistente. El nuevo admin usa sidebar explícita con navegación clara, formularios organizados y feedback visual profesional.
+
+**Blog:** Feature nueva que no existe en el sitio actual. Se diseña desde cero pero visualmente consistente con la estética del sitio público existente (mismos colores, fuente, dark mode, estilo de cards).
+
 ## Project Classification
 
 | Aspecto | Valor |

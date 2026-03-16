@@ -222,7 +222,7 @@ This document provides the complete epic and story breakdown for portfolio, deco
 - UX-DR24: ContactForm (Svelte 5 island): name/email/message, estados idle/validating/sending/sent/error
 
 **Layout & Estructura (UX-DR25 — UX-DR27):**
-- UX-DR25: Header sticky desktop, absolute mobile, logo + nav horizontal/hamburger + ThemeToggle + LocaleToggle, scroll-aware
+- UX-DR25: Header pinned en top con logo ChrisBP (mascota) a la izquierda + menú horizontal 3 items (Home, Projects, Contact) desktop / menú animado slide-down mobile con X close. ThemeToggle (sol/luna) y LocaleToggle (bandera) como FABs flotantes separados abajo-derecha, no integrados en el header. Blog se agrega como 4to item de menú en la migración.
 - UX-DR26: Footer con nav links, social icons (LinkedIn, GitHub, email), copyright, grid responsivo
 - UX-DR27: BackToTop button flotante visible >50vh scroll, smooth scroll to top
 
@@ -254,7 +254,7 @@ This document provides the complete epic and story breakdown for portfolio, deco
 
 **Navegación (UX-DR48 — UX-DR51):**
 - UX-DR48: Menú 5 items (Home, Projects, Experience, Blog, Contact) con active state gradient underline
-- UX-DR49: Header scroll-aware: shrink/change al scrollear, nav siempre accesible
+- UX-DR49: Header permanece visible en scroll (pinned). No implementar patrón scroll-aware tipo Stripe (shrink/change) — mantener comportamiento actual del sitio Flutter.
 - UX-DR50: Admin breadcrumb: Admin > Section > Action, clickable excepto current
 - UX-DR51: Skip link "Saltar al contenido" como primer elemento focusable
 
@@ -272,13 +272,13 @@ This document provides the complete epic and story breakdown for portfolio, deco
 - UX-DR62: High contrast mode support con forced-colors media query
 
 **Sitio Público — Diseño Específico (UX-DR63 — UX-DR73):**
-- UX-DR63: Hero: nombre display, rol, avatar con gradient border, CTA a proyectos, above-the-fold en <1.5s
+- UX-DR63: Hero: Banner gradiente "Welcome to my Portfolio" full-width en top, seguido de avatar/mascota ChrisBP circular centrado, heading "I code and create content" (palabra "content" en gradiente), descripción personal centrada, botones "Get in Touch" + "Download Resume". Mantener composición actual (ver screenshots). Above-the-fold renderizado en <1.5s.
 - UX-DR64: About: descripción profesional breve con skills destacados
-- UX-DR65: Technologies: grid visual con iconos, nombres, categorías (Frontend, Backend, etc.)
+- UX-DR65: Knowledge Of: fila horizontal centrada de tecnologías (actualmente 4: Google Gemini, Flutter, Dart, Firebase), cada una con ícono/imagen + nombre debajo. Mantener layout horizontal actual, no cambiar a grid categorizado.
 - UX-DR66: Projects: 3 featured en home + "See All", cards con thumbnail/title/desc/tags
 - UX-DR67: Project detail: título, descripción, gallery screenshots con ImageViewer, tech tags, links externos, back button
 - UX-DR68: Project filtering: botones por tecnología + "All", resultados real-time, count, estado "no results"
-- UX-DR69: Experience timeline: empresa, cargo, fecha, descripción, línea visual, responsive mobile
+- UX-DR69: Experience: lista vertical de cards con empresa (bold, izquierda), rango de fechas (derecha), badge de rol en color teal/primario, lista de responsabilidades con bullets. Layout tipo lista de cards (patrón actual), no timeline con línea visual decorativa. Responsive mobile como single-column.
 - UX-DR70: Blog listing: cards con título, fecha, read time, excerpt, cover image, tags
 - UX-DR71: Blog post: título h1, metadata, cover image, rich text, related posts, share buttons (LinkedIn, Twitter, copy URL)
 - UX-DR72: Contact: formulario + info de contacto (email, LinkedIn), tono profesional
@@ -636,7 +636,9 @@ So that I can clone the repository, configure my own Firebase project, and run t
 
 ## Epic 2: Sitio Público del Portfolio
 
-Visitantes pueden explorar un portfolio profesional, rápido, bilingüe y accesible — con Home, proyectos con filtro y detalle, experiencia en timeline, contacto, redes sociales, SEO completo y dark/light mode.
+Visitantes pueden explorar un portfolio profesional, rápido, bilingüe y accesible — con Home, proyectos con filtro y detalle, experiencia, contacto, redes sociales, SEO completo y dark/light mode.
+
+> **Fidelidad Visual:** Todas las stories de este epic deben replicar la estructura visual y el "look & feel" del sitio público Flutter actual. La sección "Referencia Visual del Sitio Público Actual" del UX Design Specification y los screenshots en `_bmad-output/planning-artifacts/visual-reference/` son la fuente de verdad visual. Se permiten mejoras en animaciones, transiciones y micro-interacciones CSS/HTML, pero no cambios en la estructura de secciones, composición de componentes ni disposición de elementos. Los UX-DRs referenciados en las stories de este epic describen el diseño actual, no una propuesta nueva. La página de detalle de proyecto `/projects/[slug]` es una mejora intencional (no existe en el sitio actual) para mejor SEO.
 
 ### Story 2.1: Header, Footer y Navegación Principal
 
@@ -649,7 +651,7 @@ So that I can navigate the portfolio intuitively, switch between dark/light mode
 **Given** cualquier página pública del portfolio
 **When** la página carga
 **Then** el Header se muestra con: logo a la izquierda, menú de navegación horizontal con 5 items (Home, Projects, Experience, Blog, Contact), ThemeToggle y LocaleToggle a la derecha
-**And** el Header es sticky en desktop y absolute en mobile (UX-DR25)
+**And** el Header es pinned en top (visible siempre) replicando el comportamiento del sitio actual (UX-DR25)
 **And** el item de navegación activo muestra underline con gradient color (UX-DR48)
 
 **Given** el Header visible en viewport < 450px (mobile)
@@ -703,7 +705,7 @@ So that I can evaluate his competence in seconds with a clear, professional firs
 
 **Given** la Home page cargada
 **When** hago scroll a la sección Technologies
-**Then** se muestra un grid visual con iconos de tecnologías, nombres y categorías agrupadas (Frontend, Backend, etc.) (UX-DR65)
+**Then** se muestra la sección "Knowledge Of" con tecnologías en fila horizontal centrada, cada una con ícono/imagen + nombre debajo, replicando el layout del sitio actual (UX-DR65)
 **And** los datos vienen de la colección Technologies de Firestore (build-time via Admin SDK)
 **And** el grid es responsive: ajusta columnas según breakpoint (UX-DR5)
 
@@ -735,8 +737,8 @@ So that I can get a complete overview of Christopher's professional profile with
 
 **Given** la Home page cargada
 **When** hago scroll a la sección Experience
-**Then** se muestra la experiencia laboral en formato timeline con: empresa, cargo, rango de fechas, descripción (FR5, UX-DR69)
-**And** la línea visual del timeline se adapta en mobile a layout single-column
+**Then** se muestra la experiencia laboral como lista vertical de cards con: empresa (bold), badge de rol en teal, rango de fechas, responsabilidades con bullets — replicando el layout del sitio actual (FR5, UX-DR69)
+**And** en mobile se adapta a layout single-column
 **And** los datos vienen de la colección Experiences de Firestore en el idioma seleccionado (FR13)
 
 **Given** la Home page cargada
@@ -1153,6 +1155,8 @@ So that I can showcase my work with professional descriptions, screenshots, and 
 ## Epic 4: Sistema de Blog
 
 Christopher puede escribir y publicar artículos técnicos con editor rico. Visitantes pueden leer artículos con formato profesional, código destacado, imágenes embebidas y compartirlos en redes sociales.
+
+> **Diseño del Blog:** Las stories públicas del blog (4.1 Blog Listing, 4.2 Blog Post) son features nuevas que no existen en el sitio actual. Se diseñan desde cero siguiendo la dirección "Technical Craft" del UX spec, pero deben ser visualmente consistentes con la estética del sitio público existente: mismos colores de marca, Poppins, dark mode como default, estilo de cards consistente con las cards de proyectos existentes. Las stories de admin del blog (4.3, 4.4) siguen el diseño del admin rediseñado (Epic 3).
 
 ### Story 4.1: Blog Listing — Página Pública de Artículos
 

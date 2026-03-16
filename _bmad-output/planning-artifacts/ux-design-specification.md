@@ -174,17 +174,19 @@ Portfolio ChrisBP tiene dos experiencias core fundamentalmente distintas:
 
 ### Transferable UX Patterns
 
-**Navegación:**
-- **Sticky header con scroll-aware behavior** (Stripe) — Header se compacta o cambia de estilo al hacer scroll, manteniendo navegación accesible sin robar espacio
+**Navegación (Admin — rediseño):**
 - **Sidebar navigation para admin** (Linear) — Menú lateral persistente con secciones colapsables, mostrando la sección activa claramente
 
-**Interacción:**
+**Navegación (Sitio público — mantener patrón actual):**
+- **Header con menú horizontal y FABs flotantes** — El sitio actual usa un header pinned con logo ChrisBP (mascota con gorra) a la izquierda + menú horizontal 3 items (Home, Projects, Contact) en desktop, menú animado slide-down en mobile con X para cerrar, y FABs flotantes separados abajo-derecha para tema (sol/luna) e idioma (bandera). Mantener este patrón.
+
+**Interacción (Admin):**
 - **Optimistic updates en CRUD** (Linear) — Al guardar un proyecto, la UI se actualiza inmediatamente mientras la operación completa en background. Si falla, se revierte con notificación.
 - **Inline editing con preview** (Notion) — Los campos del blog se editan directamente con formato visible, no en un textarea plano separado del resultado final.
 
-**Visual:**
-- **Gradientes sutiles como identidad** (Stripe) — Usar los colores de marca (#48A1CD/#108385) como gradientes sutiles en headers, borders y acentos, no como fondos sólidos agresivos.
-- **Cards con hover elevation** — Proyectos y blog posts como cards con elevación sutil en hover, invitando a hacer click.
+**Visual (consistente en todo el proyecto):**
+- **Gradientes de marca como identidad** — Los colores (#48A1CD/#108385) como gradientes en títulos (efecto shader "I code and create content"), chips de tecnología con borde gradiente, bordes de avatar y acentos — patrón ya establecido en el sitio actual.
+- **Cards con hover elevation** — Mejorar las cards de proyectos existentes con hover elevation sutil (mejora CSS sobre el diseño actual, no cambio de estructura).
 
 ### Anti-Patterns to Avoid
 
@@ -196,17 +198,31 @@ Portfolio ChrisBP tiene dos experiencias core fundamentalmente distintas:
 
 ### Design Inspiration Strategy
 
-**Adoptar directamente:**
-- Sticky header scroll-aware (Stripe) — soporta navegación eficiente en sitio público
+**Adoptar directamente (Admin y Blog):**
 - Sidebar admin con estados activos (Linear) — reemplaza el admin drawer oculto actual
-- Cards con hover states para proyectos y blog (patrón universal)
-- Feedback visual inmediato en operaciones CRUD (Linear)
+- Feedback visual inmediato en operaciones CRUD (Linear) — toasts, progress bars, optimistic updates
+- Editor de blog inspirado en Notion pero simplificado — toolbar visible compacta con las acciones necesarias (headings, bold, code, imagen, link)
 
-**Adaptar al contexto:**
-- Editor de blog inspirado en Notion pero simplificado — sin slash commands ni drag & drop, usar toolbar visible compacta con las acciones necesarias (headings, bold, code, imagen, link)
-- Gradientes de marca sutiles — adaptar el patrón Stripe usando #48A1CD/#108385 como acentos, no como elemento dominante
+**Mantener del sitio actual (Sitio público):**
+- Header pinned con logo ChrisBP (mascota) + menú horizontal 3 items + FABs flotantes (sol/luna para tema, bandera para idioma)
+- Banner gradiente "Welcome to my Portfolio" en top
+- Avatar/mascota circular con borde gradiente en sección About
+- Heading "I code and create content" con "content" en gradiente (ShaderTextEffect → CSS gradient text)
+- Sección "KNOWLEDGE OF" con 4 tecnologías en fila horizontal con iconos + nombres
+- Cards de proyecto con screenshots múltiples de dispositivos + nombre + descripción + botón "See All"
+- Experience como lista de cards (empresa bold, badge "Flutter Developer" en teal, fecha derecha, bullets de responsabilidades)
+- Footer con "Contact", iconos sociales (TikTok, GitHub, LinkedIn), copyright
+- Image viewer: preview fullscreen con "X Close", flechas < > laterales, overlay oscuro
+
+**Mejorar sobre el diseño actual (Sitio público — mejoras CSS/HTML):**
+- Hover states en cards (elevación sutil — mejora que no existía en Flutter Web canvas)
+- Transiciones de página fluidas (View Transitions API)
+- Lazy loading nativo de imágenes
+- Micro-interacciones en botones y links
+- Página de detalle por proyecto `/projects/[slug]` (mejora sobre cards expandibles actuales — mejor para SEO)
 
 **Evitar:**
+- Cambiar la estructura visual del sitio público por patrones de Stripe, Linear u otros
 - Sobre-animación que compita con el contenido
 - Admin con densidad tipo Linear completo (Christopher no es un usuario diario, necesita más espacio y claridad)
 - Editor tipo Notion completo (excesivo para blog posts técnicos)
@@ -392,41 +408,182 @@ El componente de imagen del admin muestra el estado actual (nueva, subida, por r
 - **Reducción de movimiento**: `prefers-reduced-motion: reduce` desactiva animaciones no esenciales
 - **High contrast mode**: Soporte nativo con tokens semánticos que respetan forced-colors
 
+## Referencia Visual del Sitio Público Actual (Flutter Web)
+
+### Principio Rector
+
+El sitio público del portfolio en su versión Flutter Web tiene un diseño visual que funciona bien y que Christopher quiere conservar. **La migración a Astro debe replicar fielmente la estructura visual, el layout de secciones, la composición de componentes y la estética general del sitio público actual.** Se permiten mejoras en animaciones, transiciones y micro-interacciones aprovechando las capacidades nativas de HTML/CSS/JS, pero la estructura visual, la disposición de elementos y el "look & feel" general deben mantenerse.
+
+### Alcance de Esta Referencia
+
+- **Aplica a:** Todo el sitio público visible por visitantes (Home, Projects, Contact, Header, Footer)
+- **NO aplica a:** Panel de administración (rediseño completo) ni Blog (feature nueva)
+
+### Screenshots de Referencia
+
+Los screenshots del sitio actual se encuentran en `_bmad-output/planning-artifacts/visual-reference/` y son la fuente de verdad visual principal. Los agentes de IA DEBEN consultar estos screenshots antes de implementar cualquier componente del sitio público.
+
+| Screenshot | Contenido |
+|---|---|
+| `01-desktop-home-top.png` | Desktop: Banner gradiente, header (logo + menú 3 items), avatar/mascota, "I code and create content", about, Knowledge Of, inicio Projects |
+| `02-desktop-home-projects-experience.png` | Desktop: Projects cards (3 en grid), inicio Experience |
+| `03-desktop-home-experience-footer.png` | Desktop: Experience completo (3 cards), Contact/Footer con socials |
+| `04-desktop-projects-page.png` | Desktop: Página /projects con filtro dropdown, cards en grid 2 cols con descripción, tecnologías, screenshots |
+| `05-desktop-contact-page.png` | Desktop: Formulario contacto (nombre, email, teléfono con country picker, mensaje, send through), Footer |
+| `06-mobile-home-top.png` | Mobile: Banner, hamburger, avatar, about, Knowledge Of |
+| `07-mobile-home-projects.png` | Mobile: Projects cards stack vertical, inicio Experience |
+| `08-mobile-home-experience-footer.png` | Mobile: Experience cards, Footer |
+| `09-mobile-menu-open.png` | Mobile: Menú abierto — logo + X close, items centrados (Home, Projects, Contact) |
+| `10-mobile-projects-page.png` | Mobile: Página /projects con filtro y cards |
+| `11-mobile-contact-page.png` | Mobile: Formulario contacto |
+| `12-mobile-light-mode.png` | Mobile: Home en light mode — fondo claro, misma estructura |
+| `13-image-viewer-preview.png` | Image viewer: preview fullscreen con "X Close", flechas < > laterales, overlay oscuro |
+
+### Estructura Visual Actual — Home Page
+
+**Layout general:** Scroll vertical continuo con secciones full-width. Fondo dark como tema default. Contenido centrado con max-width ~900px.
+
+**Banner superior (InitialBanner):**
+- Barra horizontal full-width con gradiente de marca (#48A1CD → #108385)
+- Texto "Welcome to my Portfolio" centrado en blanco
+- Visible en todas las páginas
+
+**Header (HeaderComponent):**
+- Logo ChrisBP a la izquierda — mascota con gorra de dinosaurio y símbolo de código `</>`
+- Menú horizontal desktop con 3 items: Home, Projects, Contact — el item activo tiene underline en color primario
+- En mobile: ícono hamburger que abre menú animado slide-down con logo + X close + items centrados verticalmente
+- El header es pinned (permanece en top), NO es sticky scroll-aware tipo Stripe
+- Los controles de tema e idioma NO están en el header — son FABs flotantes separados
+
+**FABs Flotantes (abajo-derecha):**
+- FAB de tema: ícono de sol (en dark mode, click cambia a light) / ícono de luna (en light mode, click cambia a dark)
+- FAB de idioma: bandera del idioma activo (bandera de España para ES, bandera de USA/UK para EN)
+- Posición fija abajo-derecha, siempre visibles
+
+**About Me (AboutMeComponent):**
+- Avatar/mascota ChrisBP circular grande centrado (NO es foto personal — es el logo con gorra)
+- Heading "I code and create content" — la palabra "content" en color gradiente (#48A1CD → #108385)
+- Párrafo de descripción personal centrado debajo
+- Dos botones centrados: "Get in Touch" (PrimaryButton con borde) y "Download Resume" (SecondaryButton con borde)
+
+**Knowledge Of (TechnologiesComponent):**
+- Título "KNOWLEDGE OF" en bold, centrado
+- 4 tecnologías en fila horizontal centrada: Google Gemini, Flutter, Dart, Firebase
+- Cada una: ícono/imagen + nombre debajo
+- Layout compacto horizontal, NO es un grid categorizado
+
+**Projects Destacados (ProjectsComponent):**
+- Título "Projects" en color gradiente
+- 3 cards de proyecto con screenshots múltiples de dispositivos (phones, tablets mostrando la app)
+- Cada card: imágenes arriba, nombre del proyecto en bold, descripción breve debajo
+- Botón "See All" centrado debajo de los 3 proyectos
+- En desktop: grid de cards. En mobile: stack vertical
+
+**Experience (ExperienceComponent):**
+- Título "EXPERIENCE" en bold, centrado
+- Lista vertical de cards de experiencia (NO timeline con línea visual)
+- Cada card: nombre de empresa en bold (izquierda), rango de fechas (derecha), badge "Flutter Developer" en color teal/primario debajo del nombre, lista de responsabilidades con bullets
+- Separadores entre cards
+
+**Footer (FooterComponent):**
+- Título "Contact" en bold centrado
+- 3 íconos de redes sociales centrados: TikTok, GitHub, LinkedIn
+- Copyright "@2024 Christopher Bobadilla"
+- Sin link oculto de admin (se reemplaza por ruta `/admin` explícita en migración)
+
+### Estructura Visual Actual — Projects Page (/projects)
+
+- Banner gradiente + Header (igual que home)
+- Texto introductorio: descripción de que ha trabajado en proyectos personales y profesionales
+- Filtro: "Filter by:" con dropdown "All Projects" (no botones de chip — es un dropdown select)
+- Cards de proyecto en grid 2 columnas (desktop), 1 columna (mobile)
+- Cada card expandida muestra: nombre, descripción completa, sección "Technologies" con chips (Flutter, Dart, Firebase con íconos), sección "Screenshots" con imágenes, link "Website" si aplica
+- NO hay página de detalle separada en el diseño actual — las cards muestran toda la info
+- **Mejora planificada:** En la migración se AGREGARÁ página de detalle `/projects/[slug]` para mejor SEO
+
+### Estructura Visual Actual — Contact Page
+
+- Banner gradiente + Header
+- Título "Contact" + descripción invitando a contactar
+- Formulario con fondo surface elevado (card): nombre, email, teléfono (con country picker + código de país), mensaje (textarea), "Choose how to contact" con dropdown (email/WhatsApp), botón "Send Message"
+- Footer debajo
+
+### Estructura Visual Actual — Image Viewer
+
+- Overlay fullscreen con fondo oscuro semi-transparente
+- Imagen centrada y escalada
+- Botón "X Close" arriba-derecha
+- Flechas de navegación < > a los lados para recorrer screenshots
+- Se activa al hacer click en una screenshot de proyecto
+
+### Elementos Visuales Clave a Preservar
+
+1. **Banner gradiente "Welcome to my Portfolio"** — Barra horizontal full-width en top con gradiente #48A1CD → #108385 presente en todas las páginas
+2. **Logo/mascota ChrisBP** — El logo con gorra de dinosaurio y código `</>`, no un texto simple
+3. **Heading con gradiente "I code and create content"** — Efecto ShaderText donde "content" usa gradiente de marca. Replicar con CSS `background-clip: text`
+4. **FABs flotantes separados del header** — Sol/luna (tema) y bandera (idioma) como botones flotantes abajo-derecha, no integrados en el header
+5. **Knowledge Of en fila horizontal** — 4 tecnologías con ícono + nombre en fila, no grid categorizado
+6. **Cards de proyecto con screenshots de dispositivos** — Imágenes mostrando la app en múltiples dispositivos
+7. **Experience como lista de cards con badge teal** — No timeline con línea visual decorativa
+8. **Menú de 3 items** — Home, Projects, Contact. Blog se agregará como item nuevo en la migración
+9. **Dark mode como default** — El sitio abre en dark mode
+10. **Fuente Poppins** — Usada en todo el sitio
+11. **Max-width ~900px** — Contenido principal centrado
+12. **Dropdown de filtro en Projects** — Es un `<select>` dropdown, no botones/chips
+
+### Mejoras Permitidas Sobre el Diseño Actual
+
+- Página de detalle por proyecto `/projects/[slug]` (mejora intencional para SEO — no existía en Flutter)
+- Blog como sección nueva en el menú (4 items: Home, Projects, Blog, Contact) y páginas `/blog`, `/blog/[slug]`
+- Animaciones CSS nativas (fade-in, transitions) donde Flutter usa AnimationController
+- Transiciones de página más fluidas aprovechando View Transitions API
+- Lazy loading nativo de imágenes
+- HTML semántico que mejora accesibilidad sin cambiar apariencia
+- Micro-interacciones en hover states (cards, botones)
+- Responsive mejorado si hay oportunidades que no existían en Flutter Web
+
 ## Design Direction Decision
 
-### Design Directions Explored
+### Alcance de las Direcciones de Diseño
 
-Dado que este es un proyecto de migración con identidad visual existente, la exploración de direcciones se enfoca en cómo adaptar la identidad ChrisBP al nuevo stack, no en reinventar la marca:
+**Importante:** Esta sección de dirección de diseño aplica exclusivamente al **Panel de Administración** y al **Sistema de Blog** (features nuevas o rediseñadas). El **sitio público** conserva el diseño visual del portfolio Flutter actual — ver sección "Referencia Visual del Sitio Público Actual" para la guía visual del sitio público.
 
-**Dirección A: "Minimal Professional"** — Espaciado generoso, contenido prominente, mínima decoración. Dark mode con acentos de gradiente solo en elementos interactivos. Cards sin borde, separadas por espacio.
+### Design Directions Explored (Admin y Blog)
 
-**Dirección B: "Technical Craft"** — Elementos sutiles que sugieren código/ingeniería: monospaced font en subtítulos, grid lines sutiles como fondo, cards con bordes definidos y hover states con gradiente. Dark mode como principal con light mode como alternativa limpia.
+La exploración de direcciones se enfoca en el panel de administración (que se rediseña completamente) y las páginas públicas del blog (feature nueva que no existe en el sitio actual):
 
-**Dirección C: "Dynamic Storytelling"** — Secciones con transiciones scroll-based, imágenes prominentes, hero section con animación sutil de gradiente. Más visual, menos espaciado vacío. Riesgo: puede sentirse como template.
+**Dirección A: "Minimal Professional"** — Espaciado generoso, contenido prominente, mínima decoración. Cards sin borde, separadas por espacio.
 
-### Chosen Direction
+**Dirección B: "Technical Craft"** — Elementos sutiles que sugieren código/ingeniería: monospaced font en subtítulos, cards con bordes definidos y hover states con gradiente. Dark mode como principal con light mode como alternativa limpia.
+
+**Dirección C: "Dynamic Storytelling"** — Secciones con transiciones scroll-based, imágenes prominentes. Más visual, menos espaciado vacío. Riesgo: puede sentirse como template.
+
+### Chosen Direction (Admin y Blog)
 
 **Dirección B: "Technical Craft"** con elementos de la Dirección A.
 
-La combinación toma lo mejor de ambas: el espaciado generoso y la claridad de "Minimal Professional" con los detalles de craft de "Technical Craft" que comunican competencia técnica sin decirlo explícitamente.
+La combinación toma lo mejor de ambas: el espaciado generoso y la claridad de "Minimal Professional" con los detalles de craft de "Technical Craft" que comunican competencia técnica.
 
 ### Design Rationale
 
-1. **Comunica competencia sin palabras** — Detalles como monospaced font en metadata, grid lines sutiles, y hover states precisos dicen "este desarrollador cuida los detalles" antes de que Sarah lea una sola línea.
-2. **Dark mode como statement** — El dark mode por defecto (continuando la tradición del portfolio actual) dice "este es un sitio de un developer", no un sitio corporativo genérico.
+1. **Admin profesional** — El panel de administración reemplaza el drawer oculto actual con una interfaz completa tipo Linear: sidebar con navegación clara, breadcrumbs, feedback visual en cada operación.
+2. **Blog como extensión visual** — Las páginas públicas del blog (listing y artículo) deben ser visualmente consistentes con el sitio público existente (mismos colores, fuente, dark mode) pero con layouts diseñados desde cero ya que no existe precedente.
 3. **Espaciado generoso** — Resiste la tentación de llenar cada pixel. El espacio vacío comunica confianza y profesionalismo.
-4. **Gradientes como acento, no como protagonista** — El gradiente #48A1CD → #108385 aparece en borders de cards en hover, línea de header, y botones CTA. Nunca como fondo de sección completa.
+4. **Gradientes como acento, no como protagonista** — El gradiente #48A1CD → #108385 aparece en borders, botones CTA y acentos. Nunca como fondo de sección completa.
 
 ### Implementation Approach
 
-**Sitio público:**
-- Hero section: Nombre + Rol + Avatar con gradiente border + CTA sutil
-- Secciones: Separadas por espacio (96px), con títulos h2 usando el heading-1 token
-- Cards de proyectos: Grid responsive, borde sutil, hover con gradiente border y elevación
-- Blog listing: Cards similares a proyectos pero con metadata (fecha, tiempo de lectura, tags)
-- Footer: Links sociales, contact info, copyright. Limpio, sin exceso.
+**Sitio público (replicar diseño Flutter actual):**
+- Seguir la sección "Referencia Visual del Sitio Público Actual" y los screenshots en `visual-reference/` como fuente de verdad
+- Mejoras permitidas: animaciones CSS, transiciones de página, lazy loading nativo, micro-interacciones hover, página de detalle de proyecto
+- No cambiar: estructura de secciones, composición de cards, layout general, disposición de elementos
 
-**Admin:**
+**Blog público (feature nueva, consistente con sitio existente):**
+- Blog listing: Cards con metadata (fecha, tiempo de lectura, tags), visualmente consistentes con el estilo de cards de proyectos del sitio actual
+- Blog post: Tipografía Poppins, mismos colores y dark mode del sitio, layout de lectura con max-width para legibilidad
+- OpenGraph pulido para compartir en LinkedIn
+
+**Admin (rediseño completo — dirección "Technical Craft"):**
 - Sidebar: Fondo surface, 250px, menú con iconos + labels, sección activa con background primary/10%
 - Content area: Fondo background, headers con breadcrumb, tablas/listas con bordes sutiles
 - Formularios: Cards en surface con campos organizados por secciones, campos bilingües lado a lado con labels de color (azul ES, verde EN)
@@ -615,7 +772,7 @@ Accessibility: Role button, aria-label, keyboard activatable
 **Fase 2 — Sitio Público:**
 - Card (project, blog, technology, experience variants)
 - ProjectFilter, ImageViewer, ContactForm
-- Header (sticky, scroll-aware), Footer
+- Header (pinned, replicar diseño actual), Footer
 
 **Fase 3 — Admin:**
 - BilingualField, ImageUploader, Input variants
