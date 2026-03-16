@@ -525,7 +525,7 @@ Los screenshots del sitio actual se encuentran en `_bmad-output/planning-artifac
 5. **Knowledge Of en fila horizontal** — 4 tecnologías con ícono + nombre en fila, no grid categorizado
 6. **Cards de proyecto con screenshots de dispositivos** — Imágenes mostrando la app en múltiples dispositivos
 7. **Experience como lista de cards con badge teal** — No timeline con línea visual decorativa
-8. **Menú de 3 items** — Home, Projects, Contact. Blog se agregará como item nuevo en la migración
+8. **Menú de 3 items actualmente** — Home, Projects, Contact. La migración agrega Experience y Blog como items nuevos, resultando en 5 items: Home, Projects, Experience, Blog, Contact (UX-DR48)
 9. **Dark mode como default** — El sitio abre en dark mode
 10. **Fuente Poppins** — Usada en todo el sitio
 11. **Max-width ~900px** — Contenido principal centrado

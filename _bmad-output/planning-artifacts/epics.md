@@ -222,7 +222,7 @@ This document provides the complete epic and story breakdown for portfolio, deco
 - UX-DR24: ContactForm (Svelte 5 island): name/email/message, estados idle/validating/sending/sent/error
 
 **Layout & Estructura (UX-DR25 — UX-DR27):**
-- UX-DR25: Header pinned en top con logo ChrisBP (mascota) a la izquierda + menú horizontal 3 items (Home, Projects, Contact) desktop / menú animado slide-down mobile con X close. ThemeToggle (sol/luna) y LocaleToggle (bandera) como FABs flotantes separados abajo-derecha, no integrados en el header. Blog se agrega como 4to item de menú en la migración.
+- UX-DR25: Header pinned en top con logo ChrisBP (mascota) a la izquierda + menú horizontal 5 items en la migración (Home, Projects, Experience, Blog, Contact) desktop / menú animado slide-down mobile con X close. ThemeToggle (sol/luna) y LocaleToggle (bandera) como FABs flotantes separados abajo-derecha, no integrados en el header. Nota: el sitio actual tiene 3 items (Home, Projects, Contact) — la migración agrega Experience y Blog como items de menú nuevos.
 - UX-DR26: Footer con nav links, social icons (LinkedIn, GitHub, email), copyright, grid responsivo
 - UX-DR27: BackToTop button flotante visible >50vh scroll, smooth scroll to top
 
@@ -443,8 +443,8 @@ Christopher puede gestionar todo el contenido de su portfolio (proyectos, tecnol
 Christopher puede escribir y publicar artículos técnicos con editor rico. Visitantes pueden leer artículos con formato profesional, código destacado, imágenes embebidas y compartirlos en redes sociales.
 **FRs cubiertos:** FR6, FR7, FR31, FR32, FR33, FR34, FR35, FR36, FR37, FR43
 
-### Epic 5: Calidad, Testing y Pipeline de Deployment
-El repositorio mantiene calidad profesional verificable con tests automatizados, CI/CD pipeline completo, Lighthouse CI como quality gate, y deployment confiable a Firebase Hosting. El proyecto queda open source ready.
+### Epic 5: Verificación de Calidad Profesional y Deployment
+Revisores técnicos pueden verificar la calidad profesional del código (tests >80%, TypeScript strict, Lighthouse >95), y desarrolladores pueden desplegar con confianza a producción mediante un pipeline automatizado que bloquea deploys de baja calidad.
 **FRs cubiertos:** NFRs primariamente (NFR20-NFR25, NFR29)
 
 ---
@@ -650,8 +650,9 @@ So that I can navigate the portfolio intuitively, switch between dark/light mode
 
 **Given** cualquier página pública del portfolio
 **When** la página carga
-**Then** el Header se muestra con: logo a la izquierda, menú de navegación horizontal con 5 items (Home, Projects, Experience, Blog, Contact), ThemeToggle y LocaleToggle a la derecha
+**Then** el Header se muestra con: logo a la izquierda, menú de navegación horizontal con 5 items (Home, Projects, Experience, Blog, Contact) — sin controles de tema ni idioma en el header
 **And** el Header es pinned en top (visible siempre) replicando el comportamiento del sitio actual (UX-DR25)
+**And** ThemeToggle (sol/luna) y LocaleToggle (bandera) se muestran como FABs flotantes en posición fija abajo-derecha, separados del header (UX-DR25)
 **And** el item de navegación activo muestra underline con gradient color (UX-DR48)
 
 **Given** el Header visible en viewport < 450px (mobile)
@@ -958,47 +959,7 @@ So that I can manage content efficiently even after months without using the pan
 **Then** se muestra un Toast de error (rojo, X icon, persiste hasta dismiss) con mensaje user-friendly y botón retry opcional (UX-DR23, UX-DR42)
 **And** múltiples toasts se apilan verticalmente (máximo 3 visibles) con aria-live para screen readers (UX-DR23, UX-DR56)
 
-### Story 3.3: ImageService — Gestión Centralizada de Assets
-
-As an admin (Christopher),
-I want a reliable image management system that handles uploads, replacements, and deletions,
-So that I never have orphaned files in Storage and image operations are consistent and predictable.
-
-**Acceptance Criteria:**
-
-**Given** el módulo ImageService en `src/lib/services/image-service.ts`
-**When** reviso la API pública
-**Then** expone los métodos: `upload(file, path): Promise<StoredImage>`, `replace(old, file, newPath): Promise<StoredImage>`, `delete(image): Promise<void>`, `deleteByPrefix(pathPrefix): Promise<void>`
-**And** `StoredImage` tiene la estructura `{ url: string, storagePath: string }`
-
-**Given** un archivo de imagen seleccionado
-**When** llamo a `upload(file, path)`
-**Then** el archivo se sube a Firebase Storage en la ruta especificada en formato .webp
-**And** retorna un `StoredImage` con la URL pública de descarga y el storagePath para eliminación futura
-**And** la operación completa en < 3s para archivos de hasta 5MB (NFR7)
-
-**Given** una imagen existente (StoredImage) y un nuevo archivo
-**When** llamo a `replace(oldImage, newFile, newPath)`
-**Then** el orden de operaciones es: 1) upload nuevo → 2) actualización del caller (Firestore) → 3) delete viejo
-**And** si el delete del viejo falla, el nuevo ya está guardado (pérdida menor aceptable vs corrupción)
-**And** no quedan assets huérfanos en Storage (FR41)
-
-**Given** una imagen existente o un prefix de Storage
-**When** llamo a `delete(image)` o `deleteByPrefix(pathPrefix)`
-**Then** los archivos se eliminan de Firebase Storage
-**And** `deleteByPrefix` elimina todos los archivos bajo el prefijo (usado al eliminar entidades completas)
-
-**Given** el ImageSlot como estado de UI
-**When** reviso los tipos
-**Then** es un discriminated union con variantes: `{ type: 'empty' }`, `{ type: 'existing', image: StoredImage }`, `{ type: 'new', file: File, preview: string }`, `{ type: 'replaced', old: StoredImage, file: File, preview: string }`, `{ type: 'removed', old: StoredImage }`
-**And** los componentes de formulario usan ImageSlot para rastrear el estado de cada imagen
-
-**Given** cualquier operación de imagen
-**When** ocurre un error de red o permiso
-**Then** el error se captura y se muestra mensaje user-friendly (UX-DR45)
-**And** se ofrece opción de retry
-
-### Story 3.4: CRUD de Tecnologías (Admin)
+### Story 3.3: CRUD de Tecnologías (Admin) — incluye ImageService
 
 As an admin (Christopher),
 I want to create, edit, delete, and list technologies,
@@ -1047,7 +1008,20 @@ So that I can keep my technology skills up to date in the portfolio.
 **And** cero assets huérfanos quedan en Storage (FR41)
 **And** se muestra toast de success y la lista se actualiza
 
-### Story 3.5: CRUD de Experiencias (Admin)
+**Prerequisito de implementación — ImageService (FR38-FR41):**
+
+**Given** la necesidad de gestión de imágenes para esta y futuras stories CRUD
+**When** se implementa esta story
+**Then** se crea el módulo `src/lib/services/image-service.ts` con API: `upload(file, path): Promise<StoredImage>`, `replace(old, file, newPath): Promise<StoredImage>`, `delete(image): Promise<void>`, `deleteByPrefix(pathPrefix): Promise<void>`
+**And** `StoredImage` tiene la estructura `{ url: string, storagePath: string }`
+**And** upload sube a Firebase Storage en formato .webp y retorna StoredImage con URL y storagePath
+**And** replace ejecuta en orden seguro: 1) upload nuevo → 2) update Firestore → 3) delete viejo
+**And** delete y deleteByPrefix eliminan archivos de Storage (deleteByPrefix para eliminar entidades completas)
+**And** `ImageSlot` es un discriminated union con variantes: empty, existing, new, replaced, removed — usado por componentes de formulario
+**And** errores de red/permiso se capturan y muestran mensaje user-friendly con retry (UX-DR45)
+**And** la operación completa en < 3s para archivos hasta 5MB (NFR7)
+
+### Story 3.4: CRUD de Experiencias (Admin)
 
 As an admin (Christopher),
 I want to create, edit, delete, and list work experiences,
@@ -1091,7 +1065,7 @@ So that I can keep my professional timeline current and accurate in both languag
 **And** toast de success y lista actualizada
 **And** no hay assets de Storage asociados a experiencias (no requiere limpieza de Storage)
 
-### Story 3.6: CRUD de Proyectos (Admin)
+### Story 3.5: CRUD de Proyectos (Admin)
 
 As an admin (Christopher),
 I want to create, edit, delete, and list projects with full bilingual content and image management,
@@ -1332,9 +1306,9 @@ So that I can create professional technical content with a comfortable editing e
 
 ---
 
-## Epic 5: Calidad, Testing y Pipeline de Deployment
+## Epic 5: Verificación de Calidad Profesional y Deployment
 
-El repositorio mantiene calidad profesional verificable con tests automatizados, CI/CD pipeline completo, Lighthouse CI como quality gate, y deployment confiable a Firebase Hosting. El proyecto queda open source ready.
+Revisores técnicos pueden verificar la calidad profesional del código (tests >80%, TypeScript strict, Lighthouse >95), y desarrolladores pueden desplegar con confianza a producción mediante un pipeline automatizado que bloquea deploys de baja calidad.
 
 ### Story 5.1: Configuración de Testing — Vitest y Playwright
 
