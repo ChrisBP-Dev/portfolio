@@ -25,10 +25,10 @@ So that every push to main is validated for lint, types, tests and performance.
   - [ ] 1.5 Verificar sintaxis YAML del workflow (push y revisar Actions tab, o usar linter local)
 
 - [ ] Task 2: Configurar Lighthouse CI (AC: #2)
-  - [ ] 2.1 Instalar `@lhci/cli` como devDependency: `pnpm add -D @lhci/cli`
-  - [ ] 2.2 Crear `lighthouserc.js` en raíz del proyecto (ver Dev Notes para config exacta)
+  - [ ] 2.1 Instalar `@lhci/cli` como devDependency: `pnpm add -D @lhci/cli@0.15.1`
+  - [ ] 2.2 Crear `lighthouserc.cjs` en raíz del proyecto (ver Dev Notes para config exacta). Extensión `.cjs` requerida porque `package.json` tiene `"type": "module"` (ESM) y LHCI usa `require()` internamente
   - [ ] 2.3 Agregar `.lighthouseci/` a `.gitignore`
-  - [ ] 2.4 Verificar localmente: `pnpm build && pnpm exec lhci autorun` — las 4 categorías deben pasar >0.95
+  - [ ] 2.4 Verificar localmente: `pnpm build && pnpm exec lhci autorun` — las 4 categorías deben pasar >0.95. Si falla con error de ESM/CommonJS, confirmar que el archivo se llama `lighthouserc.cjs` (no `.js`)
   - [ ] 2.5 Si alguna categoría falla <0.95, corregir el HTML del skeleton (meta description, lang attribute, heading hierarchy, viewport — lo que falte)
 
 - [ ] Task 3: Documentar CI/CD en README (AC: implícito)
@@ -98,13 +98,13 @@ jobs:
         run: pnpm type-check
 
       # Tests with Firebase emulators
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '21'
 
       - name: Cache Firebase emulators
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/firebase/emulators
           key: firebase-emulators-${{ runner.os }}
@@ -139,14 +139,16 @@ jobs:
 - **pnpm/action-setup ANTES de setup-node:** Requerido — `setup-node` necesita el binario `pnpm` para localizar el store y configurar cache
 - **`node-version-file: '.nvmrc'`** en lugar de `node-version: 22` — usa la misma versión que desarrollo local (22.12.0)
 - **`--frozen-lockfile`** — Falla si `pnpm-lock.yaml` está desactualizado, previene cambios accidentales en CI
-- **`actions/setup-java@v4` con Java 21:** firebase-tools 15.10.1 requiere Java 21+ (aprendido en Story 1-2)
-- **Firebase emulators cache:** Los JARs se descargan a `~/.cache/firebase/emulators/` en el primer run. El cache action evita re-descargar en runs posteriores
+- **`actions/setup-java@v5` con Java 21:** firebase-tools 15.10.1 requiere Java 21+ (aprendido en Story 1-2). v5 usa Node.js 24 runtime (v4 deprecado)
+- **Firebase emulators cache (`actions/cache@v5`):** Los JARs se descargan a `~/.cache/firebase/emulators/` en el primer run. El cache action evita re-descargar en runs posteriores. v5 incluye parche de seguridad (Dependabot advisory #33)
 - **`firebase emulators:exec`** arranca emuladores → ejecuta `pnpm test` → apaga emuladores automáticamente. Más limpio que start/stop manual
 - **Env vars de Admin SDK comentadas:** Se descomentarán en Story 1.10 cuando el build necesite queries a Firestore
 - **`channelId: live`** — Despliega a producción. Sin este param, crearía un preview channel
 - **`FIREBASE_SERVICE_ACCOUNT`** — Secret con el JSON del service account (ver sección "GitHub Secrets")
 
-### Configuración de `lighthouserc.js`
+### Configuración de `lighthouserc.cjs`
+
+**Importante:** Extensión `.cjs` (no `.js`) porque `package.json` tiene `"type": "module"`. LHCI carga la config con `require()` (CommonJS). Un archivo `.js` con `module.exports` fallaría con `ReferenceError: module is not defined in ES module scope`.
 
 ```javascript
 module.exports = {
@@ -230,14 +232,14 @@ portfolio/
 ├── .github/
 │   └── workflows/
 │       └── ci.yml              # NUEVO — CI/CD pipeline (push + workflow_dispatch)
-├── lighthouserc.js              # NUEVO — configuración Lighthouse CI assertions
+├── lighthouserc.cjs             # NUEVO — configuración Lighthouse CI assertions (.cjs por ESM)
 ├── .gitignore                   # MODIFICADO — agregar .lighthouseci/
 ├── package.json                 # MODIFICADO — agregar @lhci/cli en devDependencies
 └── README.md                    # MODIFICADO — agregar sección CI/CD
 ```
 
 - `.github/workflows/` es un **nuevo directorio** — GitHub Actions detecta workflows automáticamente
-- `lighthouserc.js` en raíz del proyecto — LHCI busca config en raíz por defecto
+- `lighthouserc.cjs` en raíz del proyecto — LHCI busca config en raíz por defecto. Extensión `.cjs` porque el proyecto es ESM (`"type": "module"`)
 - La arquitectura define `.github/workflows/ci.yml` y `.github/workflows/rebuild.yml` como archivos separados. Se consolida en uno solo con triggers duales para evitar duplicación
 
 ### References
@@ -248,7 +250,7 @@ portfolio/
 - [Source: _bmad-output/planning-artifacts/prd.md — KPIs: Lighthouse Performance/SEO/Accessibility/Best Practices >95]
 - [Source: _bmad-output/planning-artifacts/ux-design-specification.md — Automated Testing (Lighthouse CI, axe-core)]
 - [Source: _bmad-output/implementation-artifacts/1-2-infraestructura-de-testing-local.md — firebase-tools requires Java 21+, Vitest passWithNoTests, scripts existentes]
-- [Source: Web research — actions/checkout@v6, actions/setup-node@v6, pnpm/action-setup@v4, actions/setup-java@v4, actions/cache@v4, FirebaseExtended/action-hosting-deploy@v0, @lhci/cli@0.15.1]
+- [Source: Web research — actions/checkout@v6, actions/setup-node@v6, pnpm/action-setup@v4, actions/setup-java@v5, actions/cache@v5, FirebaseExtended/action-hosting-deploy@v0, @lhci/cli@0.15.1]
 
 ## Dev Agent Record
 
