@@ -3,6 +3,9 @@ module.exports = {
     collect: {
       staticDistDir: './dist',
       numberOfRuns: 1,
+      settings: {
+        preset: 'desktop',
+      },
     },
     assert: {
       assertions: {
