@@ -1,0 +1,9 @@
+_flutter-archive/
+_bmad/
+_bmad-output/
+.claude/
+docs/
+node_modules/
+dist/
+.astro/
+pnpm-lock.yaml

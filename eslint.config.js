@@ -10,13 +10,6 @@ export default [
   ...astro.configs.recommended,
   ...svelte.configs['flat/recommended'],
   {
-    ignores: [
-      'dist/',
-      'node_modules/',
-      '_flutter-archive/',
-      '_bmad/',
-      '_bmad-output/',
-      '.astro/',
-    ],
+    ignores: ['dist/', 'node_modules/', '_flutter-archive/', '_bmad/', '_bmad-output/', '.astro/'],
   },
 ];

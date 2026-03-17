@@ -1,6 +1,6 @@
 # Story 1.1: Inicialización del Proyecto y Tooling
 
-Status: review
+Status: done
 
 ## Story
 
@@ -281,6 +281,27 @@ Claude Opus 4.6 (1M context)
 ### Change Log
 
 - 2026-03-17: Implementación completa de Story 1.1 — archivado Flutter, scaffold Astro 6, tooling configurado
+- 2026-03-17: Code review (3 capas: Blind Hunter, Edge Case Hunter, Acceptance Auditor). 8 ACs pasan. Correcciones aplicadas:
+  - F1: Eliminado SPA rewrite de `firebase.json` (incompatible con `output: 'static'`), reemplazado con cache headers para assets estáticos
+  - F2: Movido `firebase-admin` de dependencies a devDependencies (solo se usa en build time)
+  - F3: Eliminado `pnpm-workspace.yaml` corrupto (contenía keys de un solo carácter por bug de serialización)
+  - F4: Agregado `import '../styles/global.css'` en `index.astro` (Tailwind no tenía efecto sin este import)
+  - F5: Creado `.prettierignore` para excluir `_flutter-archive/`, `_bmad/`, `_bmad-output/`, `.claude/`, `docs/`
+  - F6: Movido `typescript` de dependencies a devDependencies (spec decía `pnpm add -D`)
+  - F7: Cambiado `.nvmrc` de `22` a `22.12.0` para coincidir con `engines` de package.json
+  - F8: Ejecutado `pnpm format` para normalizar formato en `svelte.config.js`, `eslint.config.js`, `global.css`
+
+### Deferred Items (revisar en stories futuras)
+
+- **PUBLIC_ADMIN_UID expuesto client-side** — El prefijo `PUBLIC_` en Astro lo incluye en bundles del browser. Firebase UIDs no son secretos per se (la seguridad real está en Firestore Rules), pero es un punto de defensa en profundidad. → **Revisar en Story 1.10** al configurar Firebase client/admin SDK.
+- **Sin validación de variables de entorno** — 15 env vars documentadas en `.env.example` pero nada las valida en build/runtime. Un `PUBLIC_FIREBASE_API_KEY` faltante produce `undefined` silenciosamente. → **Revisar en Story 1.4** (Zod schemas) o **Story 1.10** (Firebase config).
+- **Sin meta robots/canonical en index page** — No hay `<meta name="robots">` ni `<link rel="canonical">`. Potencial issue de SEO con contenido duplicado entre dominio Firebase y custom domain. → **Revisar en Story 5.1** (Meta tags y OpenGraph).
+- **Directorio `assets/logo/` legacy en raíz** — Existe desde el Flutter original. Los logos ya fueron copiados a `src/assets/logo/`. No causa problemas pero es ruido. → **Limpiar en retrospectiva de Epic 1** o durante cualquier story.
+
+### Spec Amendments (correcciones a la spec original)
+
+- **`firebase.json`** — La spec proporcionaba SPA rewrite (`"source": "**", "destination": "/index.html"`) que es incompatible con `output: 'static'`. Se reemplazó con cache headers. Stories futuras que referencien firebase.json deben usar la versión corregida.
+- **`firebase-admin` como dependency** — La spec decía `pnpm add firebase firebase-admin sanitize-html` sin `-D`. Para un sitio estático, firebase-admin solo se usa en build time y debe ser devDependency. Corregido en implementación.
 
 ### File List
 
@@ -292,9 +313,10 @@ Claude Opus 4.6 (1M context)
 - `svelte.config.js` — config Svelte (generado por astro add svelte)
 - `eslint.config.js` — ESLint flat config con plugins Astro/Svelte/TS
 - `.prettierrc` — configuración Prettier
-- `.nvmrc` — Node.js 22
+- `.prettierignore` — exclusiones para formatter (archive, bmad, claude, docs)
+- `.nvmrc` — Node.js 22.12.0
 - `.env.example` — documentación de variables de entorno
-- `src/pages/index.astro` — página principal placeholder
+- `src/pages/index.astro` — página principal placeholder (importa global.css)
 - `src/styles/global.css` — Tailwind CSS 4 import
 - `src/assets/logo/cbp-short-logo-dark.png` — logo corto (copiado)
 - `src/assets/logo/cbp-large-logo-dark.png` — logo largo (copiado)
@@ -308,5 +330,8 @@ Claude Opus 4.6 (1M context)
 - `_flutter-archive/` — código Flutter archivado (12 directorios, 11 archivos)
 
 **Modificados:**
-- `firebase.json` — hosting.public cambiado a "dist/", sección flutter.platforms eliminada
+- `firebase.json` — hosting.public cambiado a "dist/", sección flutter.platforms eliminada, SPA rewrite removido, cache headers agregados
 - `.gitignore` — reescrito para proyecto Astro
+
+**Eliminados (post code review):**
+- `pnpm-workspace.yaml` — contenido corrupto, innecesario para single-package project
