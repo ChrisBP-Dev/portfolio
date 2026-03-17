@@ -1,6 +1,6 @@
 # Story 1.2: Infraestructura de Testing Local
 
-Status: review
+Status: done
 
 ## Story
 
@@ -407,6 +407,7 @@ Claude Opus 4.6 (1M context)
 ### Change Log
 
 - 2026-03-17: Implementación completa de Story 1.2 — infraestructura de testing local
+- 2026-03-17: Code review pasado (0 patch, 3 defer para stories futuras: security rules → Epic 3, .firebaserc → Story 1.10, firebase-admin placement → Story 1.10)
 
 ### File List
 
