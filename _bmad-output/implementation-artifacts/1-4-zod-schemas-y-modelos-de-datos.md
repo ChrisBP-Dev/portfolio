@@ -1,6 +1,6 @@
 # Story 1.4: Zod Schemas y Modelos de Datos
 
-Status: review
+Status: done
 
 ## Story
 
@@ -441,6 +441,31 @@ Claude Opus 4.6 (1M context)
 - ATDD tests pre-existentes tenían `expect` sin usar (imports comentados) — resuelto al activar tests
 - Variables `_project`, `_tech`, `_exp`, `_post` en test AC#6 causaban lint error — resuelto con assertions
 
+### Code Review Record
+
+**Reviewer:** Claude Opus 4.6 (1M context) — 3-layer adversarial review
+**Layers:** Blind Hunter, Edge Case Hunter, Acceptance Auditor
+**Date:** 2026-03-17
+
+**Findings triage (total 19 raw → 10 actionable):**
+
+| ID | Categoría | Título | Resolución |
+|---|---|---|---|
+| IG-1 | intent_gap | `localizedStringArray` permite strings vacíos en items | **Patch aplicado** — `z.string().min(1)` en items |
+| IG-2 | intent_gap | Sin validación `endDate >= startDate` | **Patch aplicado** — `.refine()` en experienceSchema |
+| IG-3 | intent_gap | Sin validación `updatedAt >= createdAt` | **Patch aplicado** — `.refine()` en blogPostSchema |
+| IG-4 | intent_gap | `technologies` items aceptan strings vacíos | **Patch aplicado** — `z.string().min(1)` en items |
+| IG-5 | intent_gap | Slugs sin formato URL-safe | **Patch aplicado** — regex `/^[a-z0-9]+(?:-[a-z0-9]+)*$/` |
+| BS-1 | bad_spec | AC #4 ambiguo sobre `companyName` Localized | **Nota:** AC dice "as Localized" pero implementación exacta dice "no localizado — nombres de empresas son universales". Código correcto per spec detallado. AC debería enmendarse. |
+| P-1 | patch | `LocalizedStringArray` tipo sin verificar en AC#6 | **Patch aplicado** — assertion añadida en UNIT-026 |
+| D-1 | defer | Schemas sin `.strict()` | **No aplicado** — rompería integración Firestore en stories 2.1+ |
+| D-2 | defer | Tests sin inputs de tipo incorrecto | **Patch aplicado** — UNIT-041 (null, undefined, number) |
+| D-3 | defer | `localizedStringArray` sin test de rechazo no-array | **Patch aplicado** — UNIT-034 |
+
+**Rejected as noise (9):** empty-string IDs (spec prescribes no min(1)), ImageSlot no consumers (for stories 3.3+), no barrel export (spec prohibits), z.url() inconsistency (stylistic), blog content min(1) (sanitization is different layer), localeSchema unused by schemas (design choice), z.url() returns URL object (false positive — verified string), storedImageSchema string assumption (based on false positive), factory explicit undefined (valid Zod pattern).
+
+**Result:** 9/10 actionable patches applied. 1 deferred (D-1 strict mode). 9 tests añadidos (32 → 41).
+
 ### Completion Notes List
 
 - ✅ Task 1: Zod 4.3.6 instalado, smoke test confirma `z.url()` → `string`
@@ -450,27 +475,29 @@ Claude Opus 4.6 (1M context)
 - ✅ Task 5: Factories migradas de interfaces manuales a tipos Zod. `types.ts` eliminado. Campos actualizados al architecture spec
 - ✅ Task 6: 26 schema unit tests + 6 factory tests = 32 tests totales, todos pasan
 - ✅ Task 7: lint 0 errores, type-check 0 errores, 32/32 tests pasan
+- ✅ Code Review: 3-layer adversarial review — 9 patches aplicados, 9 tests añadidos (32 → 41), lint/type-check/tests clean
 
 ### Change Log
 
 - 2026-03-17: Implementación completa de Story 1.4 — Zod schemas como source of truth para todos los modelos de datos
+- 2026-03-17: Code review — 9 patches aplicados (5 intent gaps, 1 patch, 2 defers corregidos, 1 bad_spec documentado)
 
 ### File List
 
 - package.json — MODIFICADO (añadido zod@^4.0.0)
 - pnpm-lock.yaml — MODIFICADO (actualizado con zod)
 - src/lib/schemas/.gitkeep — ELIMINADO
-- src/lib/schemas/shared-schemas.ts — NUEVO
-- src/lib/schemas/project-schema.ts — NUEVO
+- src/lib/schemas/shared-schemas.ts — NUEVO (code review: min(1) en localizedStringArray items)
+- src/lib/schemas/project-schema.ts — NUEVO (code review: min(1) en technologies, regex en slug)
 - src/lib/schemas/technology-schema.ts — NUEVO
-- src/lib/schemas/experience-schema.ts — NUEVO
-- src/lib/schemas/blog-post-schema.ts — NUEVO
+- src/lib/schemas/experience-schema.ts — NUEVO (code review: refine endDate >= startDate)
+- src/lib/schemas/blog-post-schema.ts — NUEVO (code review: refine updatedAt >= createdAt, regex en slug)
 - src/lib/schemas/image-slot.ts — NUEVO
-- src/lib/schemas/__tests__/schemas.test.ts — MODIFICADO (activados 26 tests ATDD)
+- src/lib/schemas/__tests__/schemas.test.ts — MODIFICADO (26 ATDD + 9 code review = 35 schema tests)
 - src/test/factories/types.ts — ELIMINADO
 - src/test/factories/index.ts — MODIFICADO (removidos re-exports de tipos)
 - src/test/factories/project.ts — MODIFICADO (campos actualizados a architecture spec)
 - src/test/factories/technology.ts — MODIFICADO (campos actualizados)
 - src/test/factories/experience.ts — MODIFICADO (campos actualizados)
 - src/test/factories/blog-post.ts — MODIFICADO (campos actualizados)
-- src/test/factories/__tests__/factories.test.ts — MODIFICADO (activados 6 tests ATDD)
+- src/test/factories/__tests__/factories.test.ts — MODIFICADO (6 factory tests ATDD)
