@@ -41,7 +41,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ~/.cache/firebase/emulators
-          key: firebase-emulators-${{ runner.os }}
+          key: firebase-emulators-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Run tests with emulators
         run: pnpm exec firebase emulators:exec --only auth,firestore,storage "pnpm test"

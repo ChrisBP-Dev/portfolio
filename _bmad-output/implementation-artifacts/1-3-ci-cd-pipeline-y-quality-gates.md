@@ -1,6 +1,6 @@
 # Story 1.3: CI/CD Pipeline y Quality Gates
 
-Status: review
+Status: done
 
 ## Story
 
@@ -276,6 +276,18 @@ Claude Opus 4.6 (1M context)
 
 - 2026-03-17: Implementación completa de Story 1.3 — CI/CD pipeline, Lighthouse CI, documentación README
 - 2026-03-17: Fix Lighthouse CI en CI — agregado `preset: 'desktop'` para evitar falsos negativos por CPU throttling en runners
+- 2026-03-17: Code review (3 layers: Blind Hunter, Edge Case Hunter, Acceptance Auditor) — 3 patches aplicados, 2 defers documentados, 12 rejected
+
+### Code Review Patches Applied
+
+1. **Cache key de Firebase emulators con versionado** — `ci.yml`: cambiado `firebase-emulators-${{ runner.os }}` a `firebase-emulators-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}` para invalidar cache cuando cambian dependencias
+2. **ESLint ignore narrowed** — `eslint.config.js`: cambiado `*.cjs` a `lighthouserc.cjs` para no excluir futuros archivos `.cjs` del linting
+3. **README acentos corregidos** — `README.md`: corregidos "Descripcion" → "Descripción", "configuracion" → "configuración", "produccion" → "producción", "Verificacion" → "Verificación"
+
+### Code Review Deferred Items
+
+1. **Sin trigger de PR para validación pre-merge** — El workflow solo corre en push a main. No hay validación pre-merge via pull_request trigger. Fuera del scope de esta story (AC solo especifica push a main). Considerar en futuras stories.
+2. **`<h1>Astro</h1>` texto default en body** — El heading visible sigue con texto del scaffold de Astro mientras title/meta fueron actualizados. Será reemplazado por feature stories en Epic 2+.
 
 ### File List
 

@@ -17,12 +17,12 @@ pnpm exec playwright install  # browsers para E2E
 
 ## Scripts
 
-| Script | Descripcion |
+| Script | Descripción |
 |--------|-------------|
 | `pnpm dev` | Servidor de desarrollo (Astro) |
-| `pnpm build` | Build de produccion |
+| `pnpm build` | Build de producción |
 | `pnpm preview` | Preview del build en localhost:4321 |
-| `pnpm type-check` | Verificacion de tipos TypeScript |
+| `pnpm type-check` | Verificación de tipos TypeScript |
 | `pnpm lint` | Linting con ESLint |
 | `pnpm format` | Formateo con Prettier |
 | `pnpm test` | Tests unitarios (Vitest) |
@@ -99,7 +99,7 @@ Si cualquier step falla, el pipeline se detiene y el deploy no ocurre.
 
 ### Lighthouse CI
 
-Lighthouse CI valida >95 en Performance, Accessibility, Best Practices y SEO. La configuracion esta en `lighthouserc.cjs`.
+Lighthouse CI valida >95 en Performance, Accessibility, Best Practices y SEO. La configuración está en `lighthouserc.cjs`.
 
 Verificar localmente:
 
@@ -109,7 +109,7 @@ pnpm build && pnpm exec lhci autorun
 
 ### GitHub Secrets requeridos
 
-| Secret | Descripcion |
+| Secret | Descripción |
 |--------|-------------|
 | `FIREBASE_SERVICE_ACCOUNT` | Service account JSON para deploy a Firebase Hosting |
 
