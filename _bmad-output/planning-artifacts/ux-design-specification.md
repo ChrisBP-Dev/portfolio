@@ -71,8 +71,8 @@ Portfolio ChrisBP tiene dos experiencias core fundamentalmente distintas:
 - **Web responsive**: Desktop (Sarah desde LinkedIn, Christopher en admin) y móvil (Sarah desde dispositivos)
 - **Input**: Mouse/keyboard primario, touch secundario
 - **Offline**: No requerido
-- **Rendering**: SSR híbrido para sitio público (contenido dinámico desde Firebase sin rebuilds), SPA interactiva con Svelte 5 islands para admin
-- **Hosting**: Edge computing (Cloudflare Pages/Vercel) para latencia mínima global
+- **Rendering**: SSG (Static Site Generation) para sitio público — HTML estático generado en build time con Admin SDK, rebuild manual para reflejar cambios. SPA interactiva con Svelte 5 islands para admin
+- **Hosting**: Firebase Hosting con CDN global — HTML estático servido desde edge, latencia mínima, sin server runtime
 - **Breakpoints**: Mobile (<450px), Tablet (450-900px), Desktop (>900px)
 
 ### Effortless Interactions
@@ -324,7 +324,7 @@ El componente de imagen del admin muestra el estado actual (nueva, subida, por r
 1. **Initiation:** Navega a `/admin`. Login con email/password. Dashboard muestra las 4 secciones con contadores: Projects (N), Technologies (N), Experiences (N), Blog (N).
 2. **Interaction:** Click en sección → lista de entidades. Click en "Crear nuevo" → formulario con campos organizados por secciones. Campos bilingües lado a lado. Upload de imágenes con drag & drop y preview.
 3. **Feedback:** Toast de confirmación al guardar ("Proyecto guardado exitosamente"). Indicador de progreso en upload de imágenes. Confirmación antes de eliminar ("¿Eliminar 'Nombre'? Se eliminarán también N imágenes de Storage.").
-4. **Completion:** Christopher ve los cambios reflejados inmediatamente en el sitio público (SSR, no requiere rebuild). Sale del admin con confianza de que todo está limpio.
+4. **Completion:** Christopher dispara un rebuild (`gh workflow dispatch`) y en ~2-3 minutos los cambios se reflejan en el sitio público (SSG). Sale del admin con confianza de que todo está limpio.
 
 ## Visual Design Foundation
 

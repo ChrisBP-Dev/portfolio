@@ -68,7 +68,7 @@ El alcance incluye: sitio público con SEO nativo y HTML semántico, panel de ad
 | **Complejidad** | Baja (sin regulaciones ni compliance — la complejidad está en la calidad de ejecución) |
 | **Contexto** | Brownfield — migración de sistema Flutter Web en producción con Firebase existente |
 | **Stack Objetivo** | Astro 5 + TypeScript strict + Tailwind CSS 4 + Svelte 5 (islands) + Firebase |
-| **Hosting Objetivo** | Cloudflare Pages (primario) o Vercel |
+| **Hosting Objetivo** | Firebase Hosting (infraestructura existente, Spark plan gratuito) |
 | **Timeline** | Lanzamiento objetivo: 2026-03-16 |
 
 ## Success Criteria
@@ -177,7 +177,7 @@ El objetivo de negocio es singular: **fortalecer la presencia profesional para o
 
 **Climax:** El sitio levanta en local con datos de ejemplo. Diego empieza a personalizar: cambia sus datos, sube sus proyectos vía el admin, modifica colores con variables de Tailwind. En una tarde tiene su portfolio funcionando con su propia información.
 
-**Resolution:** Diego despliega en Cloudflare Pages, tiene su portfolio profesional listo. Agradece a Christopher en LinkedIn y le da una estrella al repo.
+**Resolution:** Diego despliega en Firebase Hosting, tiene su portfolio profesional listo. Agradece a Christopher en LinkedIn y le da una estrella al repo.
 
 **Capabilities reveladas:** README completo, `.env.example` documentado, setup reproducible, cero credenciales hardcodeadas, datos de ejemplo funcionales, personalización accesible.
 
@@ -211,9 +211,9 @@ Portfolio web profesional con arquitectura híbrida: sitio público server-rende
 ### Technical Architecture Considerations
 
 **Rendering Strategy:**
-- **Sitio público — SSR híbrido**: Páginas que muestran datos de Firestore (Projects, Technologies, Experiences, Blog) se renderizan en servidor en cada request, consultando Firebase en tiempo real. Páginas puramente estáticas (Home shell, Contact) pueden ser SSG
-- **Panel admin — SPA con Svelte 5**: Islands interactivas con hidratación completa para formularios CRUD, editor de blog, gestión de imágenes
-- **Resultado**: Cambios en admin → guardados en Firestore → reflejados inmediatamente en la siguiente visita al sitio público. Cero deploys manuales para actualizar contenido
+- **Sitio público — SSG (Static Site Generation)**: Todas las páginas públicas se generan como HTML estático en build time usando Firebase Admin SDK para consultar Firestore. Servidas desde Firebase Hosting CDN con latencia mínima global
+- **Panel admin — SPA con Svelte 5**: Islands interactivas con hidratación completa para formularios CRUD, editor de blog, gestión de imágenes. CRUD directo a Firestore via client SDK
+- **Actualización de contenido**: Cambios en admin → guardados en Firestore → rebuild manual via `gh workflow dispatch` (~2-3 min) → sitio público actualizado. Sin server runtime necesario
 
 **Browser Support:**
 - Navegadores modernos: Chrome, Firefox, Safari, Edge (últimas 2 versiones)
@@ -239,9 +239,9 @@ Targets de performance y criterios de accesibilidad completos en la sección **N
 
 ### Implementation Considerations
 
-- **Hosting con SSR**: Cloudflare Pages con Workers o Vercel con Serverless Functions para soportar SSR
-- **Firebase SDK**: Client-side para admin (CRUD), Server-side (Admin SDK) para queries SSR en el sitio público
-- **Caching**: Cache en edge para páginas SSR con invalidación por tiempo (stale-while-revalidate) para balance entre frescura y performance
+- **Hosting SSG**: Firebase Hosting con CDN global — HTML estático servido desde edge, sin server runtime necesario
+- **Firebase SDK**: Client-side para admin (CRUD directo a Firestore), Admin SDK para queries en build time (SSG data fetch)
+- **Caching**: CDN de Firebase Hosting automático para archivos estáticos. Rebuild manual para reflejar cambios de contenido
 - **Imágenes**: Optimización automática con Astro Image (WebP/AVIF), lazy loading, srcset responsive
 - **Fonts**: Google Fonts (Poppins) con font-display swap y preload
 
@@ -450,4 +450,4 @@ Targets de performance y criterios de accesibilidad completos en la sección **N
 | **NFR26:** Firebase Auth funcional y estable | Login/logout sin errores, sesión persistente entre recargas |
 | **NFR27:** Firestore queries eficientes | Queries indexadas, sin full collection scans innecesarios |
 | **NFR28:** Firebase Storage operaciones confiables | Upload/delete completan exitosamente con retry en caso de error de red |
-| **NFR29:** Hosting con SSR estable | Cloudflare Workers o Vercel Functions responden consistentemente |
+| **NFR29:** Hosting SSG estable | Firebase Hosting CDN responde consistentemente con HTML estático |

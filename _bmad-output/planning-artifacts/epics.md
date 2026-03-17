@@ -282,23 +282,33 @@ So that I have a working development environment ready for feature implementatio
 **And** project structure follows architecture: `src/pages/`, `src/components/` (by domain), `src/layouts/`, `src/lib/`, `src/styles/`
 **And** `astro.config.mjs` configures `output: 'static'`, Svelte 5 integration, Tailwind CSS 4 integration
 
-### Story 1.2: Infraestructura de Testing y CI/CD Pipeline
+### Story 1.2a: Infraestructura de Testing Local
 
 As a developer,
-I want Firebase emulators, test frameworks, data factories and a CI pipeline operational,
+I want Firebase emulators, test frameworks and data factories operational locally,
 So that every feature I build from this point forward can be developed with tests from day one.
 
 **Acceptance Criteria:**
 
 **Given** Firebase Emulator Suite is configured **When** I run `pnpm test:emulators` **Then** Auth, Firestore and Storage emulators start on dedicated ports without errors
+**And** `firebase.json` configures emulator ports for Auth, Firestore, Storage
 **And** Vitest is configured — `pnpm test` executes with `getViteConfig()` from Astro and reports zero tests (no failures)
 **And** Playwright is configured — `pnpm test:e2e` initializes against the dev server without errors
 **And** test data factory module exists in `src/test/factories/` — `createProject()`, `createTechnology()`, `createExperience()`, `createBlogPost()` each returns a valid object passing its Zod schema
-**And** GitHub Actions workflow runs on push to main: `pnpm install` → `pnpm lint` → `pnpm type-check` → `pnpm test` → `pnpm build`
+**And** README documents how to run emulators and tests locally
+
+### Story 1.2b: CI/CD Pipeline y Quality Gates
+
+As a developer,
+I want a CI pipeline with automated quality gates,
+So that every push to main is validated for lint, types, tests and performance.
+
+**Acceptance Criteria:**
+
+**Given** GitHub Actions workflow exists **When** code is pushed to main **Then** pipeline runs: `pnpm install` → `pnpm lint` → `pnpm type-check` → `pnpm test` → `pnpm build`
 **And** Lighthouse CI is configured in the pipeline as quality gate (>95 in 4 categories)
 **And** Firebase emulators are cached in CI for faster execution
-**And** `firebase.json` configures emulator ports for Auth, Firestore, Storage
-**And** README documents how to run emulators and tests locally
+**And** pipeline failure blocks deployment
 
 ### Story 1.3: Zod Schemas y Modelos de Datos
 
@@ -496,11 +506,12 @@ So that I can deeply evaluate Christopher's work quality.
 **Acceptance Criteria:**
 
 **Given** I navigate to `/projects/[slug]` **When** page loads **Then** full project: name, complete description, features list, technology chips, main image, screenshots gallery, external links (website, source code)
-**And** clicking a screenshot opens ImageViewer (Story 2.6)
+**And** clicking a screenshot opens ImageViewer (Story 2.6 — implementar antes o simultáneamente)
 **And** `websiteUrl` or `sourceCodeUrl` display with appropriate labels when present
 **And** `/en/projects/[slug]` shows English version
 **And** page generated at build time via `getStaticPaths()` from Firestore data
 **(FR3, FR46 partial, UX-DR28)**
+**Dependency note:** Story 2.6 (ImageViewer) debe implementarse antes o en paralelo con esta story.
 
 ### Story 2.6: Image Viewer
 
@@ -711,6 +722,7 @@ So that I can publish technical articles about my work.
 **And** saving stores to Firestore with `createdAt` timestamp, uploads cover image + embedded images via ImageService, toast confirmation
 **And** slug is validated as URL-friendly (lowercase, hyphens, no spaces or special chars)
 **(FR31, FR36, UX-DR15)**
+**Implementation note:** Esta story combina CRUD base + integración TipTap. Si TipTap resulta complejo, considerar implementar primero la lista + formulario básico con textarea, y agregar TipTap como step siguiente dentro de la misma story.
 
 ### Story 4.2: Blog — Image Insertion in Content
 
