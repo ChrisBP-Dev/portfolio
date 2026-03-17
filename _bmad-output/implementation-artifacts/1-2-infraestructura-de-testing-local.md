@@ -24,22 +24,25 @@ So that every feature I build from this point forward can be developed with test
   - [ ] 1.2 Crear `firestore.rules` en la raíz con reglas permisivas para emuladores (ver Dev Notes)
   - [ ] 1.3 Crear `storage.rules` en la raíz con reglas permisivas para emuladores (ver Dev Notes)
   - [ ] 1.4 Agregar configuración de emuladores en `firebase.json` (ver Dev Notes para config exacta)
-  - [ ] 1.5 Agregar script `"emulators"` en `package.json`: `"firebase emulators:start --only auth,firestore,storage"`
-  - [ ] 1.6 Verificar que `pnpm emulators` levanta Auth (9099), Firestore (8080), Storage (9199) y UI (4000)
-  - [ ] 1.7 Agregar `emulator-data/` a `.gitignore`
+  - [ ] 1.5 Agregar script `"emulators"` en `package.json`: `"firebase emulators:start --only auth,firestore,storage"` (Nota: los epics usan `test:emulators` pero se usa `emulators` porque no es un test — es infraestructura. `--only` excluye Hosting porque usamos `pnpm preview` de Astro para servir)
+  - [ ] 1.6 Verificar Java disponible: `java -version` debe reportar 11+ (prerequisito de Firebase Emulators — sin Java los emuladores fallan silenciosamente)
+  - [ ] 1.7 Verificar que `pnpm emulators` levanta los 3 emuladores (output esperado: `✔  All emulators ready!` con Auth en 127.0.0.1:9099, Firestore en 127.0.0.1:8080, Storage en 127.0.0.1:9199, UI en 127.0.0.1:4000)
+  - [ ] 1.8 Agregar `emulator-data/` a `.gitignore`
 
 - [ ] Task 2: Configurar Vitest con Astro (AC: #3)
-  - [ ] 2.1 Crear `vitest.config.ts` usando `getViteConfig()` de Astro (ver Dev Notes para config exacta)
-  - [ ] 2.2 Agregar script `"test"` en `package.json`: `"vitest run"`
-  - [ ] 2.3 Agregar script `"test:watch"` en `package.json`: `"vitest"`
-  - [ ] 2.4 Agregar script `"test:coverage"` en `package.json`: `"vitest run --coverage"`
-  - [ ] 2.5 Verificar que `pnpm test` ejecuta sin errores y reporta zero tests
+  - [ ] 2.1 Instalar `@vitest/coverage-v8` como devDependency: `pnpm add -D @vitest/coverage-v8` (Vitest 4 requiere el provider de coverage como paquete separado)
+  - [ ] 2.2 Crear `vitest.config.ts` usando `getViteConfig()` de Astro (ver Dev Notes para config exacta)
+  - [ ] 2.3 Agregar script `"test"` en `package.json`: `"vitest run"`
+  - [ ] 2.4 Agregar script `"test:watch"` en `package.json`: `"vitest"`
+  - [ ] 2.5 Agregar script `"test:coverage"` en `package.json`: `"vitest run --coverage"`
+  - [ ] 2.6 Verificar que `pnpm test` ejecuta sin errores y reporta zero tests (output esperado: `No test files found` o similar, exit code 0)
 
 - [ ] Task 3: Configurar Playwright (AC: #4)
   - [ ] 3.1 Crear `playwright.config.ts` con webServer apuntando a `pnpm preview` en port 4321 (ver Dev Notes)
-  - [ ] 3.2 Agregar script `"test:e2e"` en `package.json`: `"playwright test"`
-  - [ ] 3.3 Agregar `test-results/`, `playwright-report/` a `.gitignore`
-  - [ ] 3.4 Ejecutar `pnpm build` y luego verificar que `pnpm test:e2e` inicializa sin errores (zero tests, no failures)
+  - [ ] 3.2 Instalar browsers de Playwright: `pnpm exec playwright install` (descarga binarios de Chromium, Firefox, WebKit — sin esto, test:e2e falla con "Executable doesn't exist")
+  - [ ] 3.3 Agregar script `"test:e2e"` en `package.json`: `"playwright test"`
+  - [ ] 3.4 Agregar `test-results/`, `playwright-report/` a `.gitignore`
+  - [ ] 3.5 Ejecutar `pnpm build && pnpm test:e2e` y verificar que inicializa sin errores (output esperado: `no tests found` o `0 passed`, exit code 0)
 
 - [ ] Task 4: Crear test data factories (AC: #5)
   - [ ] 4.1 Crear directorio `src/test/factories/`
@@ -49,7 +52,7 @@ So that every feature I build from this point forward can be developed with test
   - [ ] 4.5 Crear `src/test/factories/experience.ts` con `createExperience(overrides?)` que retorna un objeto `Experience` tipado
   - [ ] 4.6 Crear `src/test/factories/blog-post.ts` con `createBlogPost(overrides?)` que retorna un objeto `BlogPost` tipado
   - [ ] 4.7 Crear `src/test/factories/__tests__/factories.test.ts` — un test básico que verifica que cada factory retorna un objeto con las propiedades esperadas
-  - [ ] 4.8 Verificar que `pnpm test` ahora ejecuta el test de factories exitosamente
+  - [ ] 4.8 Verificar que `pnpm test` ejecuta el test de factories exitosamente (output esperado: `1 passed` o similar, exit code 0)
 
 - [ ] Task 5: Documentar en README (AC: #6)
   - [ ] 5.1 Crear `README.md` en la raíz del proyecto con secciones: Setup, Scripts, Emuladores, Tests
@@ -63,6 +66,17 @@ So that every feature I build from this point forward can be developed with test
 Esta story establece la **infraestructura de testing** que todas las stories subsiguientes usarán. Las dependencias core (`vitest`, `playwright`, `@playwright/test`) ya fueron instaladas en Story 1.1. Esta story crea las configuraciones, las rules files para emuladores, y las test data factories.
 
 **Dependencia de Story 1.4 (Zod schemas):** Las factories en esta story usan **TypeScript interfaces** para definir la forma de los datos. Cuando Story 1.4 cree los Zod schemas reales, las factories serán actualizadas para importar y validar contra ellos. Por ahora, las interfaces definen el contrato de datos basado en el modelo de Firestore documentado en la arquitectura.
+
+### Inteligencia de Story 1-1
+
+Estado actual del proyecto tras Story 1-1 (confirmado por git y code review):
+- **Versiones instaladas:** Vitest **4.1.0**, Playwright **1.58.2**, Firebase **12.10.0**, Firebase Admin **13.7.0** (en devDependencies), Astro **6.0.5**, Svelte **5.53.12**, Tailwind CSS **4.2.1**
+- **Config de Astro:** archivo es `astro.config.ts` (TypeScript, NO `.mjs`)
+- **`.prettierignore`** ya excluye `_flutter-archive`, `_bmad`, `.claude`, `docs` — no duplicar
+- **`firebase.json` actual** solo tiene `hosting` config (sin emulators, sin rules refs)
+- **`.gitignore` actual** no incluye `emulator-data/`, `test-results/`, ni `playwright-report/` — se deben agregar
+- **`tests/e2e/.gitkeep`** ya existe de Story 1-1
+- **Scripts existentes** en `package.json`: `dev`, `build`, `preview`, `type-check`, `lint`, `format` — NO modificar estos
 
 ### Prerequisito: Java JDK
 
@@ -175,7 +189,7 @@ export default getViteConfig({
 ```
 
 **Notas sobre Vitest 4 con Astro 6:**
-- `getViteConfig()` carga automáticamente el `astro.config.mjs` y sus plugins de Vite (Svelte, Tailwind). **NO** agregar `@sveltejs/vite-plugin-svelte` manualmente — ya viene incluido
+- `getViteConfig()` carga automáticamente el `astro.config.ts` y sus plugins de Vite (Svelte, Tailwind). **NO** agregar `@sveltejs/vite-plugin-svelte` manualmente — ya viene incluido
 - Vitest 4 requiere Vite >= 6.0.0 — Astro 6 usa Vite 7.3.1, compatible
 - Vitest 4 eliminó `poolOptions` — las opciones van directamente en `test:`
 - Vitest 4 solo excluye `node_modules` y `.git` por defecto. Agregar exclusiones explícitas para `_flutter-archive`, `_bmad`, etc.
@@ -313,9 +327,10 @@ Cada factory debe:
 # Firebase Emulators
 emulator-data/
 
-# Playwright
+# Testing
 test-results/
 playwright-report/
+coverage/
 ```
 
 ### Qué NO Hacer en Esta Story
@@ -355,7 +370,7 @@ portfolio/
                 └── factories.test.ts  # NUEVO — tests de factories
 ```
 
-- `src/test/` es un nuevo directorio para utilidades de test compartidas (factories, helpers)
+- `src/test/` es un **nuevo directorio** para utilidades de test compartidas (factories, helpers). No aparece en la estructura de la arquitectura — es complementario al patrón `__tests__/` co-ubicado. La arquitectura define `__tests__/` dentro de cada módulo para tests unitarios específicos; `src/test/` es para utilidades compartidas entre múltiples tests
 - Tests unitarios co-ubicados en `__tests__/` dentro de cada módulo (patrón de la arquitectura)
 - Tests E2E en `tests/e2e/` en raíz (ya existe de Story 1.1)
 
