@@ -263,6 +263,7 @@ Claude Opus 4.6 (1M context)
 - Lighthouse CI local: todas las 4 categorías pasaron >0.95 (reporte en temporary-public-storage)
 - ESLint falló inicialmente en `lighthouserc.cjs` por `module is not defined` — resuelto agregando `*.cjs` a ignores de ESLint
 - HTML skeleton requirió agregar `<meta name="description">` y actualizar `<title>` para SEO
+- Lighthouse CI falló en CI con performance 0.90 (TBT 410ms) — CPU throttling 4x de mobile compuesto con runner lento. Resuelto con `preset: 'desktop'` en settings
 
 ### Completion Notes List
 
@@ -274,6 +275,7 @@ Claude Opus 4.6 (1M context)
 ### Change Log
 
 - 2026-03-17: Implementación completa de Story 1.3 — CI/CD pipeline, Lighthouse CI, documentación README
+- 2026-03-17: Fix Lighthouse CI en CI — agregado `preset: 'desktop'` para evitar falsos negativos por CPU throttling en runners
 
 ### File List
 
