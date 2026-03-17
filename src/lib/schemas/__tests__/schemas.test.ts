@@ -6,7 +6,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { localeSchema, localizedString, localizedStringArray, storedImageSchema } from '../shared-schemas';
-import type { Locale, LocalizedString, StoredImage } from '../shared-schemas';
+import type { Locale, LocalizedString, LocalizedStringArray, StoredImage } from '../shared-schemas';
 import { projectSchema } from '../project-schema';
 import type { Project } from '../project-schema';
 import { technologySchema } from '../technology-schema';
@@ -359,6 +359,9 @@ describe('Tipos derivados z.infer<>', () => {
     const locStr: LocalizedString = localizedString.parse({ es: 'Hola', en: 'Hello' });
     expect(locStr.es).toBe('Hola');
 
+    const locArr: LocalizedStringArray = localizedStringArray.parse({ es: ['a'], en: ['b'] });
+    expect(locArr.es).toEqual(['a']);
+
     const img: StoredImage = storedImageSchema.parse({
       url: 'https://example.com/img.webp',
       storagePath: 'path/img.webp',
@@ -408,5 +411,128 @@ describe('Tipos derivados z.infer<>', () => {
       updatedAt: new Date(),
     });
     expect(post.status).toBe('draft');
+  });
+});
+
+// ============================================================
+// Code Review: Edge case hardening
+// ============================================================
+
+describe('localizedStringArray — edge cases', () => {
+  it('[P1] 1.4-UNIT-033: rechaza strings vacíos dentro de arrays', () => {
+    expect(() => localizedStringArray.parse({ es: ['Feature', ''], en: ['Feature', ''] })).toThrow();
+    expect(() => localizedStringArray.parse({ es: [''], en: ['valid'] })).toThrow();
+  });
+
+  it('[P1] 1.4-UNIT-034: rechaza valores no-array', () => {
+    expect(() => localizedStringArray.parse({ es: 'not-array', en: 'not-array' })).toThrow();
+    expect(() => localizedStringArray.parse({ es: 42, en: 42 })).toThrow();
+  });
+});
+
+describe('projectSchema — edge cases', () => {
+  it('[P1] 1.4-UNIT-035: rechaza technology con string vacío', () => {
+    const withEmptyTech = {
+      id: 'p1',
+      companyName: { es: 'E', en: 'C' },
+      shortDescription: { es: 'D', en: 'D' },
+      features: { es: [], en: [] },
+      mainImage: { url: 'https://example.com/i.webp', storagePath: 'p/i.webp' },
+      screenshots: [],
+      technologies: ['astro', ''],
+      slug: 'test',
+    };
+    expect(() => projectSchema.parse(withEmptyTech)).toThrow();
+  });
+
+  it('[P1] 1.4-UNIT-036: rechaza slug con formato inválido', () => {
+    const base = {
+      id: 'p1',
+      companyName: { es: 'E', en: 'C' },
+      shortDescription: { es: 'D', en: 'D' },
+      features: { es: [], en: [] },
+      mainImage: { url: 'https://example.com/i.webp', storagePath: 'p/i.webp' },
+      screenshots: [],
+      technologies: [],
+    };
+    expect(() => projectSchema.parse({ ...base, slug: 'UPPERCASE' })).toThrow();
+    expect(() => projectSchema.parse({ ...base, slug: 'has spaces' })).toThrow();
+    expect(() => projectSchema.parse({ ...base, slug: 'special!' })).toThrow();
+    expect(() => projectSchema.parse({ ...base, slug: 'valid-slug' })).not.toThrow();
+    expect(() => projectSchema.parse({ ...base, slug: 'test123' })).not.toThrow();
+  });
+});
+
+describe('blogPostSchema — edge cases', () => {
+  it('[P1] 1.4-UNIT-037: rechaza slug con formato inválido', () => {
+    const base = {
+      id: 'b1',
+      title: { es: 'T', en: 'T' },
+      content: { es: 'C', en: 'C' },
+      coverImage: { url: 'https://example.com/c.webp', storagePath: 'b/c.webp' },
+      images: [],
+      status: 'published' as const,
+      createdAt: new Date('2026-03-10'),
+      updatedAt: new Date('2026-03-14'),
+    };
+    expect(() => blogPostSchema.parse({ ...base, slug: 'UPPER' })).toThrow();
+    expect(() => blogPostSchema.parse({ ...base, slug: 'has spaces' })).toThrow();
+    expect(() => blogPostSchema.parse({ ...base, slug: 'valid-slug' })).not.toThrow();
+  });
+
+  it('[P1] 1.4-UNIT-038: rechaza updatedAt < createdAt', () => {
+    const badDates = {
+      id: 'b1',
+      title: { es: 'T', en: 'T' },
+      content: { es: 'C', en: 'C' },
+      slug: 'test',
+      coverImage: { url: 'https://example.com/c.webp', storagePath: 'b/c.webp' },
+      images: [],
+      status: 'published' as const,
+      createdAt: new Date('2026-03-14'),
+      updatedAt: new Date('2026-03-10'),
+    };
+    expect(() => blogPostSchema.parse(badDates)).toThrow();
+  });
+});
+
+describe('experienceSchema — edge cases', () => {
+  it('[P1] 1.4-UNIT-039: rechaza endDate < startDate', () => {
+    const badDates = {
+      id: 'e1',
+      companyName: 'Empresa',
+      jobName: { es: 'Dev', en: 'Dev' },
+      responsibilities: { es: [], en: [] },
+      startDate: new Date('2025-01-01'),
+      endDate: new Date('2020-01-01'),
+    };
+    expect(() => experienceSchema.parse(badDates)).toThrow();
+  });
+
+  it('[P1] 1.4-UNIT-040: acepta endDate igual a startDate', () => {
+    const sameDate = {
+      id: 'e1',
+      companyName: 'Empresa',
+      jobName: { es: 'Dev', en: 'Dev' },
+      responsibilities: { es: [], en: [] },
+      startDate: new Date('2025-01-01'),
+      endDate: new Date('2025-01-01'),
+    };
+    expect(() => experienceSchema.parse(sameDate)).not.toThrow();
+  });
+});
+
+describe('Schema type safety — wrong-type inputs', () => {
+  it('[P2] 1.4-UNIT-041: schemas rechazan null, undefined, y tipos incorrectos', () => {
+    expect(() => localeSchema.parse(null)).toThrow();
+    expect(() => localeSchema.parse(undefined)).toThrow();
+    expect(() => localeSchema.parse(42)).toThrow();
+
+    expect(() => localizedString.parse(null)).toThrow();
+    expect(() => localizedString.parse('string')).toThrow();
+    expect(() => localizedString.parse(42)).toThrow();
+
+    expect(() => storedImageSchema.parse(null)).toThrow();
+    expect(() => storedImageSchema.parse('string')).toThrow();
   });
 });

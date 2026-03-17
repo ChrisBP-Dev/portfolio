@@ -8,8 +8,8 @@ export const localizedString = z.object({
 });
 
 export const localizedStringArray = z.object({
-  es: z.array(z.string()),
-  en: z.array(z.string()),
+  es: z.array(z.string().min(1)),
+  en: z.array(z.string().min(1)),
 });
 
 export const storedImageSchema = z.object({

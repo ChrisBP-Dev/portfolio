@@ -10,8 +10,8 @@ export const projectSchema = z.object({
   screenshots: z.array(storedImageSchema),
   websiteUrl: z.url().optional(),
   sourceCodeUrl: z.url().optional(),
-  technologies: z.array(z.string()),
-  slug: z.string().min(1),
+  technologies: z.array(z.string().min(1)),
+  slug: z.string().min(1).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
 });
 
 export type Project = z.infer<typeof projectSchema>;
