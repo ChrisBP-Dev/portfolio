@@ -1,32 +1,19 @@
-import type { BlogPost } from './types';
+import type { BlogPost } from '../../lib/schemas/blog-post-schema';
 
 export function createBlogPost(overrides?: Partial<BlogPost>): BlogPost {
-  const now = new Date();
   return {
     id: crypto.randomUUID(),
-    title: {
-      es: 'Mi primer artículo sobre desarrollo web',
-      en: 'My first article about web development',
-    },
-    slug: 'mi-primer-articulo',
-    content: {
-      es: 'Contenido del artículo en español con detalles técnicos.',
-      en: 'Article content in English with technical details.',
-    },
-    excerpt: {
-      es: 'Un resumen breve del artículo.',
-      en: 'A brief summary of the article.',
-    },
+    title: { es: 'Post de ejemplo', en: 'Example post' },
+    content: { es: '<p>Contenido del blog</p>', en: '<p>Blog content</p>' },
+    slug: 'post-de-ejemplo',
     coverImage: {
       url: 'https://example.com/images/blog-cover.webp',
-      path: 'blog/mi-primer-articulo/cover.webp',
-      alt: { es: 'Portada del artículo', en: 'Article cover' },
+      storagePath: 'blog/post-de-ejemplo/cover.webp',
     },
-    tags: ['web', 'desarrollo', 'tutorial'],
-    published: true,
-    publishedAt: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000),
-    createdAt: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000),
-    updatedAt: now,
+    images: [],
+    status: 'published',
+    createdAt: new Date('2026-03-10'),
+    updatedAt: new Date('2026-03-14'),
     ...overrides,
   };
 }

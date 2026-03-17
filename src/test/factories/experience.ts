@@ -1,20 +1,16 @@
-import type { Experience } from './types';
+import type { Experience } from '../../lib/schemas/experience-schema';
 
 export function createExperience(overrides?: Partial<Experience>): Experience {
-  const now = new Date();
   return {
     id: crypto.randomUUID(),
-    company: { es: 'Empresa Tech', en: 'Tech Company' },
-    position: { es: 'Desarrollador Full Stack', en: 'Full Stack Developer' },
-    description: {
-      es: 'Desarrollo de aplicaciones web con tecnologías modernas.',
-      en: 'Web application development with modern technologies.',
+    companyName: 'Empresa Demo',
+    jobName: { es: 'Desarrollador Full Stack', en: 'Full Stack Developer' },
+    responsibilities: {
+      es: ['Desarrollar features', 'Code review'],
+      en: ['Develop features', 'Code review'],
     },
-    startDate: new Date(now.getFullYear() - 2, 0, 15),
+    startDate: new Date('2024-01-15'),
     endDate: null,
-    current: true,
-    technologies: ['typescript', 'svelte', 'firebase'],
-    order: 0,
     ...overrides,
   };
 }

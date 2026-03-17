@@ -1,6 +1,6 @@
 # Story 1.4: Zod Schemas y Modelos de Datos
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -20,43 +20,43 @@ So that all data flowing through the app is validated consistently at build time
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Instalar Zod 4 (AC: todos)
-  - [ ] 1.1 `pnpm add zod@^4.0.0` — versión estable actual: 4.3.6
-  - [ ] 1.2 Verificar que `pnpm type-check` y `pnpm lint` pasan post-instalación
-  - [ ] 1.3 Smoke test de `z.url()`: ejecutar `pnpm exec tsx -e "import { z } from 'zod'; const s = z.url(); type T = z.infer<typeof s>; const r: T = s.parse('https://a.com'); console.log(typeof r)"` — debe imprimir `string`. Si imprime `object` (tipo `URL`), usar `z.string().url()` en lugar de `z.url()` en todos los schemas
+- [x] Task 1: Instalar Zod 4 (AC: todos)
+  - [x] 1.1 `pnpm add zod@^4.0.0` — versión estable actual: 4.3.6
+  - [x] 1.2 Verificar que `pnpm type-check` y `pnpm lint` pasan post-instalación
+  - [x] 1.3 Smoke test de `z.url()`: ejecutar `pnpm exec tsx -e "import { z } from 'zod'; const s = z.url(); type T = z.infer<typeof s>; const r: T = s.parse('https://a.com'); console.log(typeof r)"` — debe imprimir `string`. Si imprime `object` (tipo `URL`), usar `z.string().url()` en lugar de `z.url()` en todos los schemas
 
-- [ ] Task 2: Crear shared schemas (AC: #1, #6)
-  - [ ] 2.1 Crear `src/lib/schemas/shared-schemas.ts` con: `localeSchema`, `localizedString`, `localizedStringArray`, `storedImageSchema`
-  - [ ] 2.2 Exportar tipos derivados: `Locale`, `LocalizedString`, `LocalizedStringArray`, `StoredImage`
+- [x] Task 2: Crear shared schemas (AC: #1, #6)
+  - [x] 2.1 Crear `src/lib/schemas/shared-schemas.ts` con: `localeSchema`, `localizedString`, `localizedStringArray`, `storedImageSchema`
+  - [x] 2.2 Exportar tipos derivados: `Locale`, `LocalizedString`, `LocalizedStringArray`, `StoredImage`
 
-- [ ] Task 3: Crear entity schemas (AC: #2, #3, #4, #5, #6)
-  - [ ] 3.1 Crear `src/lib/schemas/project-schema.ts` con `projectSchema` y tipo `Project`
-  - [ ] 3.2 Crear `src/lib/schemas/technology-schema.ts` con `technologySchema` y tipo `Technology`
-  - [ ] 3.3 Crear `src/lib/schemas/experience-schema.ts` con `experienceSchema` y tipo `Experience`
-  - [ ] 3.4 Crear `src/lib/schemas/blog-post-schema.ts` con `blogPostSchema` y tipo `BlogPost`
+- [x] Task 3: Crear entity schemas (AC: #2, #3, #4, #5, #6)
+  - [x] 3.1 Crear `src/lib/schemas/project-schema.ts` con `projectSchema` y tipo `Project`
+  - [x] 3.2 Crear `src/lib/schemas/technology-schema.ts` con `technologySchema` y tipo `Technology`
+  - [x] 3.3 Crear `src/lib/schemas/experience-schema.ts` con `experienceSchema` y tipo `Experience`
+  - [x] 3.4 Crear `src/lib/schemas/blog-post-schema.ts` con `blogPostSchema` y tipo `BlogPost`
 
-- [ ] Task 4: Crear ImageSlot type (AC: implícito — requerido por stories 3.3+)
-  - [ ] 4.1 Crear `src/lib/schemas/image-slot.ts` con discriminated union `ImageSlot`
+- [x] Task 4: Crear ImageSlot type (AC: implícito — requerido por stories 3.3+)
+  - [x] 4.1 Crear `src/lib/schemas/image-slot.ts` con discriminated union `ImageSlot`
 
-- [ ] Task 5: Actualizar test data factories (AC: implícito — factories deben validar contra schemas)
-  - [ ] 5.1 Eliminar `src/test/factories/types.ts` — reemplazado por tipos derivados de Zod
-  - [ ] 5.2 Actualizar `src/test/factories/index.ts` para importar tipos desde schemas
-  - [ ] 5.3 Reescribir `src/test/factories/project.ts` con campos del architecture spec
-  - [ ] 5.4 Reescribir `src/test/factories/technology.ts` con campos del architecture spec
-  - [ ] 5.5 Reescribir `src/test/factories/experience.ts` con campos del architecture spec
-  - [ ] 5.6 Reescribir `src/test/factories/blog-post.ts` con campos del architecture spec
-  - [ ] 5.7 Actualizar `src/test/factories/__tests__/factories.test.ts` para validar con Zod schemas
+- [x] Task 5: Actualizar test data factories (AC: implícito — factories deben validar contra schemas)
+  - [x] 5.1 Eliminar `src/test/factories/types.ts` — reemplazado por tipos derivados de Zod
+  - [x] 5.2 Actualizar `src/test/factories/index.ts` para importar tipos desde schemas
+  - [x] 5.3 Reescribir `src/test/factories/project.ts` con campos del architecture spec
+  - [x] 5.4 Reescribir `src/test/factories/technology.ts` con campos del architecture spec
+  - [x] 5.5 Reescribir `src/test/factories/experience.ts` con campos del architecture spec
+  - [x] 5.6 Reescribir `src/test/factories/blog-post.ts` con campos del architecture spec
+  - [x] 5.7 Actualizar `src/test/factories/__tests__/factories.test.ts` para validar con Zod schemas
 
-- [ ] Task 6: Unit tests de schemas (AC: #1-#6)
-  - [ ] 6.1 Crear `src/lib/schemas/__tests__/schemas.test.ts`
-  - [ ] 6.2 Tests de `shared-schemas`: validación correcta e incorrecta de cada schema
-  - [ ] 6.3 Tests de cada entity schema: datos válidos pasan, datos inválidos fallan con errores claros
-  - [ ] 6.4 Tests de type inference: verificar que `z.infer<>` produce tipos correctos (compilación)
+- [x] Task 6: Unit tests de schemas (AC: #1-#6)
+  - [x] 6.1 Crear `src/lib/schemas/__tests__/schemas.test.ts`
+  - [x] 6.2 Tests de `shared-schemas`: validación correcta e incorrecta de cada schema
+  - [x] 6.3 Tests de cada entity schema: datos válidos pasan, datos inválidos fallan con errores claros
+  - [x] 6.4 Tests de type inference: verificar que `z.infer<>` produce tipos correctos (compilación)
 
-- [ ] Task 7: Validaciones finales
-  - [ ] 7.1 `pnpm lint` — 0 errores
-  - [ ] 7.2 `pnpm type-check` — 0 errores
-  - [ ] 7.3 `pnpm test` — todos los tests pasan (schema tests + factory tests actualizados)
+- [x] Task 7: Validaciones finales
+  - [x] 7.1 `pnpm lint` — 0 errores
+  - [x] 7.2 `pnpm type-check` — 0 errores
+  - [x] 7.3 `pnpm test` — todos los tests pasan (schema tests + factory tests actualizados)
 
 ## Dev Notes
 
@@ -433,10 +433,44 @@ portfolio/
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.6 (1M context)
 
 ### Debug Log References
 
+- Zod 4.3.6 instalado — `z.url()` confirmado como `string` (no `URL`)
+- ATDD tests pre-existentes tenían `expect` sin usar (imports comentados) — resuelto al activar tests
+- Variables `_project`, `_tech`, `_exp`, `_post` en test AC#6 causaban lint error — resuelto con assertions
+
 ### Completion Notes List
 
+- ✅ Task 1: Zod 4.3.6 instalado, smoke test confirma `z.url()` → `string`
+- ✅ Task 2: Shared schemas creados (localeSchema, localizedString, localizedStringArray, storedImageSchema) con tipos derivados
+- ✅ Task 3: Entity schemas creados (projectSchema, technologySchema, experienceSchema, blogPostSchema) con tipos z.infer<>
+- ✅ Task 4: ImageSlot discriminated union type creado (type puro, no Zod schema)
+- ✅ Task 5: Factories migradas de interfaces manuales a tipos Zod. `types.ts` eliminado. Campos actualizados al architecture spec
+- ✅ Task 6: 26 schema unit tests + 6 factory tests = 32 tests totales, todos pasan
+- ✅ Task 7: lint 0 errores, type-check 0 errores, 32/32 tests pasan
+
+### Change Log
+
+- 2026-03-17: Implementación completa de Story 1.4 — Zod schemas como source of truth para todos los modelos de datos
+
 ### File List
+
+- package.json — MODIFICADO (añadido zod@^4.0.0)
+- pnpm-lock.yaml — MODIFICADO (actualizado con zod)
+- src/lib/schemas/.gitkeep — ELIMINADO
+- src/lib/schemas/shared-schemas.ts — NUEVO
+- src/lib/schemas/project-schema.ts — NUEVO
+- src/lib/schemas/technology-schema.ts — NUEVO
+- src/lib/schemas/experience-schema.ts — NUEVO
+- src/lib/schemas/blog-post-schema.ts — NUEVO
+- src/lib/schemas/image-slot.ts — NUEVO
+- src/lib/schemas/__tests__/schemas.test.ts — MODIFICADO (activados 26 tests ATDD)
+- src/test/factories/types.ts — ELIMINADO
+- src/test/factories/index.ts — MODIFICADO (removidos re-exports de tipos)
+- src/test/factories/project.ts — MODIFICADO (campos actualizados a architecture spec)
+- src/test/factories/technology.ts — MODIFICADO (campos actualizados)
+- src/test/factories/experience.ts — MODIFICADO (campos actualizados)
+- src/test/factories/blog-post.ts — MODIFICADO (campos actualizados)
+- src/test/factories/__tests__/factories.test.ts — MODIFICADO (activados 6 tests ATDD)

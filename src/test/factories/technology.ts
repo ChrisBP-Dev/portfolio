@@ -1,12 +1,14 @@
-import type { Technology } from './types';
+import type { Technology } from '../../lib/schemas/technology-schema';
 
 export function createTechnology(overrides?: Partial<Technology>): Technology {
   return {
     id: crypto.randomUUID(),
     name: 'Astro',
-    icon: 'astro-icon',
-    category: 'framework',
-    order: 0,
+    image: {
+      url: 'https://example.com/images/astro-logo.webp',
+      storagePath: 'technologies/astro/logo.webp',
+    },
+    experienceYears: 3,
     ...overrides,
   };
 }
