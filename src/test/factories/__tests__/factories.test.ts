@@ -1,111 +1,149 @@
+/**
+ * ATDD Unit Tests — Story 1.4: Factory Validation con Zod Schemas
+ *
+ * TDD RED PHASE: Todos los tests usan it.skip() porque los schemas
+ * y las factories actualizadas no están implementados aún.
+ * Remover .skip() después de implementar schemas y actualizar factories.
+ *
+ * Cobertura: Factories producen datos válidos contra Zod schemas (AC implícito)
+ */
 import { describe, expect, it } from 'vitest';
-import { createProject, createTechnology, createExperience, createBlogPost } from '../index';
 
-describe('Test Data Factories', () => {
+// Estos imports fallarán hasta que schemas y factories se implementen
+// import { projectSchema } from '../../../lib/schemas/project-schema';
+// import { technologySchema } from '../../../lib/schemas/technology-schema';
+// import { experienceSchema } from '../../../lib/schemas/experience-schema';
+// import { blogPostSchema } from '../../../lib/schemas/blog-post-schema';
+// import { createProject, createTechnology, createExperience, createBlogPost } from '../index';
+
+// ============================================================
+// Factory → Schema Validation (P0)
+// ============================================================
+
+describe('Factory → Schema Validation', () => {
   describe('createProject', () => {
-    it('returns a valid Project with all required fields', () => {
-      const project = createProject();
-
-      expect(project.id).toBeDefined();
-      expect(project.title.es).toBeDefined();
-      expect(project.title.en).toBeDefined();
-      expect(project.description.es).toBeDefined();
-      expect(project.description.en).toBeDefined();
-      expect(project.shortDescription.es).toBeDefined();
-      expect(project.shortDescription.en).toBeDefined();
-      expect(Array.isArray(project.technologies)).toBe(true);
-      expect(Array.isArray(project.imageSlots)).toBe(true);
-      expect(project.links).toBeDefined();
-      expect(typeof project.featured).toBe('boolean');
-      expect(typeof project.order).toBe('number');
-      expect(project.createdAt).toBeInstanceOf(Date);
-      expect(project.updatedAt).toBeInstanceOf(Date);
-    });
-
-    it('accepts overrides', () => {
-      const project = createProject({ featured: true, order: 5 });
-
-      expect(project.featured).toBe(true);
-      expect(project.order).toBe(5);
-    });
-
-    it('generates unique IDs', () => {
-      const a = createProject();
-      const b = createProject();
-
-      expect(a.id).not.toBe(b.id);
+    it.skip('[P0] 1.4-UNIT-027: createProject() pasa projectSchema.parse()', () => {
+      // import { projectSchema } from '../../../lib/schemas/project-schema';
+      // import { createProject } from '../index';
+      //
+      // const project = createProject();
+      // expect(() => projectSchema.parse(project)).not.toThrow();
+      //
+      // const parsed = projectSchema.parse(project);
+      // expect(parsed.id).toBeDefined();
+      // expect(parsed.companyName.es).toBeDefined();
+      // expect(parsed.companyName.en).toBeDefined();
+      // expect(parsed.slug).toBeDefined();
     });
   });
 
   describe('createTechnology', () => {
-    it('returns a valid Technology with all required fields', () => {
-      const tech = createTechnology();
-
-      expect(tech.id).toBeDefined();
-      expect(typeof tech.name).toBe('string');
-      expect(typeof tech.icon).toBe('string');
-      expect(typeof tech.category).toBe('string');
-      expect(typeof tech.order).toBe('number');
-    });
-
-    it('accepts overrides', () => {
-      const tech = createTechnology({ name: 'Svelte', category: 'ui' });
-
-      expect(tech.name).toBe('Svelte');
-      expect(tech.category).toBe('ui');
+    it.skip('[P0] 1.4-UNIT-028: createTechnology() pasa technologySchema.parse()', () => {
+      // import { technologySchema } from '../../../lib/schemas/technology-schema';
+      // import { createTechnology } from '../index';
+      //
+      // const tech = createTechnology();
+      // expect(() => technologySchema.parse(tech)).not.toThrow();
+      //
+      // const parsed = technologySchema.parse(tech);
+      // expect(parsed.name).toBeDefined();
+      // expect(parsed.experienceYears).toBeGreaterThanOrEqual(0);
+      // expect(Number.isInteger(parsed.experienceYears)).toBe(true);
     });
   });
 
   describe('createExperience', () => {
-    it('returns a valid Experience with all required fields', () => {
-      const exp = createExperience();
-
-      expect(exp.id).toBeDefined();
-      expect(exp.company.es).toBeDefined();
-      expect(exp.company.en).toBeDefined();
-      expect(exp.position.es).toBeDefined();
-      expect(exp.position.en).toBeDefined();
-      expect(exp.description.es).toBeDefined();
-      expect(exp.description.en).toBeDefined();
-      expect(exp.startDate).toBeInstanceOf(Date);
-      expect(typeof exp.current).toBe('boolean');
-      expect(Array.isArray(exp.technologies)).toBe(true);
-      expect(typeof exp.order).toBe('number');
-    });
-
-    it('accepts overrides', () => {
-      const endDate = new Date(2025, 6, 1);
-      const exp = createExperience({ current: false, endDate });
-
-      expect(exp.current).toBe(false);
-      expect(exp.endDate).toBe(endDate);
+    it.skip('[P0] 1.4-UNIT-029: createExperience() pasa experienceSchema.parse()', () => {
+      // import { experienceSchema } from '../../../lib/schemas/experience-schema';
+      // import { createExperience } from '../index';
+      //
+      // const exp = createExperience();
+      // expect(() => experienceSchema.parse(exp)).not.toThrow();
+      //
+      // const parsed = experienceSchema.parse(exp);
+      // expect(parsed.companyName).toBeDefined();
+      // expect(parsed.jobName.es).toBeDefined();
+      // expect(parsed.startDate).toBeInstanceOf(Date);
+      // expect(parsed.endDate).toBeNull(); // default = empleo actual
     });
   });
 
   describe('createBlogPost', () => {
-    it('returns a valid BlogPost with all required fields', () => {
-      const post = createBlogPost();
-
-      expect(post.id).toBeDefined();
-      expect(post.title.es).toBeDefined();
-      expect(post.title.en).toBeDefined();
-      expect(typeof post.slug).toBe('string');
-      expect(post.content.es).toBeDefined();
-      expect(post.content.en).toBeDefined();
-      expect(post.excerpt.es).toBeDefined();
-      expect(post.excerpt.en).toBeDefined();
-      expect(Array.isArray(post.tags)).toBe(true);
-      expect(typeof post.published).toBe('boolean');
-      expect(post.createdAt).toBeInstanceOf(Date);
-      expect(post.updatedAt).toBeInstanceOf(Date);
+    it.skip('[P0] 1.4-UNIT-030: createBlogPost() pasa blogPostSchema.parse()', () => {
+      // import { blogPostSchema } from '../../../lib/schemas/blog-post-schema';
+      // import { createBlogPost } from '../index';
+      //
+      // const post = createBlogPost();
+      // expect(() => blogPostSchema.parse(post)).not.toThrow();
+      //
+      // const parsed = blogPostSchema.parse(post);
+      // expect(parsed.title.es).toBeDefined();
+      // expect(parsed.slug).toBeDefined();
+      // expect(parsed.status).toBe('published');
+      // expect(parsed.createdAt).toBeInstanceOf(Date);
+      // expect(parsed.updatedAt).toBeInstanceOf(Date);
     });
+  });
+});
 
-    it('accepts overrides', () => {
-      const post = createBlogPost({ published: false, publishedAt: null, tags: ['astro'] });
+// ============================================================
+// Factory Overrides (P2)
+// ============================================================
 
-      expect(post.published).toBe(false);
-      expect(post.publishedAt).toBeNull();
-      expect(post.tags).toEqual(['astro']);
-    });
+describe('Factory Overrides', () => {
+  it.skip('[P2] 1.4-UNIT-031: cada factory acepta y aplica overrides', () => {
+    // import { projectSchema } from '../../../lib/schemas/project-schema';
+    // import { technologySchema } from '../../../lib/schemas/technology-schema';
+    // import { experienceSchema } from '../../../lib/schemas/experience-schema';
+    // import { blogPostSchema } from '../../../lib/schemas/blog-post-schema';
+    // import { createProject, createTechnology, createExperience, createBlogPost } from '../index';
+    //
+    // // Project overrides
+    // const project = createProject({ slug: 'custom-slug' });
+    // expect(project.slug).toBe('custom-slug');
+    // expect(() => projectSchema.parse(project)).not.toThrow();
+    //
+    // // Technology overrides
+    // const tech = createTechnology({ name: 'Svelte', experienceYears: 5 });
+    // expect(tech.name).toBe('Svelte');
+    // expect(tech.experienceYears).toBe(5);
+    // expect(() => technologySchema.parse(tech)).not.toThrow();
+    //
+    // // Experience overrides
+    // const endDate = new Date('2025-06-01');
+    // const exp = createExperience({ endDate });
+    // expect(exp.endDate).toBe(endDate);
+    // expect(() => experienceSchema.parse(exp)).not.toThrow();
+    //
+    // // BlogPost overrides
+    // const post = createBlogPost({ status: 'draft' });
+    // expect(post.status).toBe('draft');
+    // expect(() => blogPostSchema.parse(post)).not.toThrow();
+  });
+});
+
+// ============================================================
+// Factory Unique IDs (P2)
+// ============================================================
+
+describe('Factory Unique IDs', () => {
+  it.skip('[P2] 1.4-UNIT-032: cada factory genera IDs únicos', () => {
+    // import { createProject, createTechnology, createExperience, createBlogPost } from '../index';
+    //
+    // const projectA = createProject();
+    // const projectB = createProject();
+    // expect(projectA.id).not.toBe(projectB.id);
+    //
+    // const techA = createTechnology();
+    // const techB = createTechnology();
+    // expect(techA.id).not.toBe(techB.id);
+    //
+    // const expA = createExperience();
+    // const expB = createExperience();
+    // expect(expA.id).not.toBe(expB.id);
+    //
+    // const postA = createBlogPost();
+    // const postB = createBlogPost();
+    // expect(postA.id).not.toBe(postB.id);
   });
 });
