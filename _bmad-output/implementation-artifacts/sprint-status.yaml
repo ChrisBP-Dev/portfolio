@@ -46,7 +46,7 @@ development_status:
   # Epic 1: Fundación — Proyecto, Design System, Infraestructura de Calidad
   epic-1: in-progress
   1-1-inicializacion-del-proyecto-y-tooling: done
-  1-2-infraestructura-de-testing-local: ready-for-dev
+  1-2-infraestructura-de-testing-local: review
   1-3-ci-cd-pipeline-y-quality-gates: backlog
   1-4-zod-schemas-y-modelos-de-datos: backlog
   1-5-design-tokens-y-sistema-de-temas: backlog

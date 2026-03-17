@@ -1,65 +1,86 @@
-# Chris BP's Portfolio 2024
+# Portfolio — ChrisBP
 
-Welcome to my professional portfolio web app for 2024. This project showcases my skills and projects as a Flutter developer, and it is built using Flutter. The portfolio is fully functional on the web and utilizes the latest versions of Flutter and Dart.
+Portfolio personal construido con Astro 6, Svelte 5, Tailwind CSS 4 y Firebase.
 
-## Table of Contents
-- [Introduction](#introduction)
-- [Features](#features)
-- [Screenshots](#screenshots)
-- [Technologies Used](#technologies-used)
-- [Setup](#setup)
-- [Contact](#contact)
+## Prerequisitos
 
-## Introduction
-This portfolio is designed to highlight my work and skills in software development. It includes various sections such as my projects, skills, and contact information. The goal of this portfolio is to provide potential employers with a comprehensive overview of my capabilities and experience.
-
-## Features
-- **Responsive Design**: Works seamlessly on different screen sizes.
-- **Interactive UI**: Engaging user interface built with Flutter.
-- **Project Showcase**: Detailed descriptions and links to my projects.
-- **Contact Form**: Easy way to get in touch with me **(not implemented yet)**.
-
-## Screenshots
-![Home Page](path/to/homepage_screenshot.png)
-*Home Page*
-
-![Projects Page](path/to/projects_screenshot.png)
-*Projects Page*
-
-![Contact Page](path/to/contact_screenshot.png)
-*Contact Page*
-
-## Technologies Used
-- **Flutter**: For building the UI and handling the web functionality.
-- **Dart**: The programming language used with Flutter.
-- **HTML/CSS**: For additional styling when starting.
-- **FIREBASE** Used as a backend.
+- **Node.js** 22.12.0+
+- **pnpm** 10+
+- **Java JDK** 21+ (requerido por Firebase Emulator Suite)
 
 ## Setup
-To run this project locally, follow these steps:
 
-1. Clone the repository:
-    ```bash
-    git clone https://github.com/yourusername/portfolio.git
-    ```
-2. Navigate to the project directory:
-    ```bash
-    cd portfolio
-    ```
-3. Install the dependencies:
-    ```bash
-    flutter pub get
-    ```
-4. Run the project:
-    ```bash
-    flutter run -d chrome
-    ```
+```bash
+pnpm install
+pnpm exec playwright install  # browsers para E2E
+```
 
-## Contact
-Feel free to reach out to me for any inquiries or opportunities:
+## Scripts
 
-- **Email**: criszx17dev@icloud.com
-- **LinkedIn**: [Christopher Bobadilla Plasencia](https://www.linkedin.com/in/christopherbobadillaplasencia)
-- **GitHub**: [github.com/yourusername](https://github.com/ChrisBP-Dev)
+| Script | Descripcion |
+|--------|-------------|
+| `pnpm dev` | Servidor de desarrollo (Astro) |
+| `pnpm build` | Build de produccion |
+| `pnpm preview` | Preview del build en localhost:4321 |
+| `pnpm type-check` | Verificacion de tipos TypeScript |
+| `pnpm lint` | Linting con ESLint |
+| `pnpm format` | Formateo con Prettier |
+| `pnpm test` | Tests unitarios (Vitest) |
+| `pnpm test:watch` | Tests en modo watch |
+| `pnpm test:coverage` | Tests con reporte de cobertura |
+| `pnpm test:e2e` | Tests end-to-end (Playwright) |
+| `pnpm emulators` | Firebase Emulator Suite |
 
-Thank you for visiting my portfolio!
+## Emuladores Firebase
+
+Firebase Emulator Suite provee Auth, Firestore y Storage localmente para desarrollo y testing.
+
+### Iniciar emuladores
+
+```bash
+pnpm emulators
+```
+
+### Puertos
+
+| Servicio | Puerto |
+|----------|--------|
+| Auth | 127.0.0.1:9099 |
+| Firestore | 127.0.0.1:8080 |
+| Storage | 127.0.0.1:9199 |
+| Emulator UI | 127.0.0.1:4000 |
+
+> **Nota:** Los emuladores usan `127.0.0.1` explicitamente porque Node 22 resuelve `localhost` a IPv6 `::1`, lo que causa timeouts.
+
+## Tests
+
+### Tests unitarios
+
+```bash
+pnpm test              # ejecutar una vez
+pnpm test:watch        # modo watch
+pnpm test:coverage     # con cobertura
+```
+
+Los tests unitarios usan Vitest con `getViteConfig()` de Astro. Los archivos de test se ubican en `src/**/__tests__/` con sufijo `.test.ts`.
+
+### Tests E2E
+
+```bash
+pnpm build && pnpm test:e2e
+```
+
+Los tests E2E usan Playwright y requieren un build previo. Se ubican en `tests/e2e/`.
+
+### Test Data Factories
+
+Factories disponibles en `src/test/factories/` para generar datos de test:
+
+```typescript
+import { createProject, createTechnology, createExperience, createBlogPost } from '../test/factories';
+
+const project = createProject({ featured: true });
+const tech = createTechnology({ name: 'Svelte' });
+```
+
+Cada factory acepta un objeto `overrides` parcial para personalizar campos.

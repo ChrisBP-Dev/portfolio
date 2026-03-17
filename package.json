@@ -11,7 +11,12 @@
     "preview": "astro preview",
     "type-check": "astro check",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test --pass-with-no-tests",
+    "emulators": "firebase emulators:start --only auth,firestore,storage"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -33,10 +38,12 @@
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.58.2",
     "@tailwindcss/vite": "^4.2.1",
+    "@vitest/coverage-v8": "^4.1.0",
     "eslint": "^10.0.3",
     "eslint-plugin-astro": "^1.6.0",
     "eslint-plugin-svelte": "^3.15.2",
     "firebase-admin": "^13.7.0",
+    "firebase-tools": "^15.10.1",
     "playwright": "^1.58.2",
     "prettier": "^3.8.1",
     "prettier-plugin-astro": "^0.14.1",

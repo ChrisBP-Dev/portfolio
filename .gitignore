@@ -24,5 +24,14 @@ Thumbs.db
 # Astro
 .astro/
 
+# Firebase Emulators
+emulator-data/
+*-debug.log
+
+# Testing
+test-results/
+playwright-report/
+coverage/
+
 # Logs
 *.log
