@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+@theme {
+  /* Se configurarán design tokens completos en Story 1.5 */
+  /* Por ahora, solo verificar que Tailwind funciona */
+}

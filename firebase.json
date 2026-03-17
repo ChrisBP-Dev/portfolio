@@ -1,45 +1,6 @@
 {
-  "flutter": {
-    "platforms": {
-      "android": {
-        "default": {
-          "projectId": "portfolio-chrisbp",
-          "appId": "1:267758672045:android:6a897cbd687564dc3dce24",
-          "fileOutput": "android/app/google-services.json"
-        }
-      },
-      "ios": {
-        "default": {
-          "projectId": "portfolio-chrisbp",
-          "appId": "1:267758672045:ios:0799212b1d782d823dce24",
-          "uploadDebugSymbols": false,
-          "fileOutput": "ios/Runner/GoogleService-Info.plist"
-        }
-      },
-      "macos": {
-        "default": {
-          "projectId": "portfolio-chrisbp",
-          "appId": "1:267758672045:ios:0799212b1d782d823dce24",
-          "uploadDebugSymbols": false,
-          "fileOutput": "macos/Runner/GoogleService-Info.plist"
-        }
-      },
-      "dart": {
-        "lib/firebase_options.dart": {
-          "projectId": "portfolio-chrisbp",
-          "configurations": {
-            "android": "1:267758672045:android:6a897cbd687564dc3dce24",
-            "ios": "1:267758672045:ios:0799212b1d782d823dce24",
-            "macos": "1:267758672045:ios:0799212b1d782d823dce24",
-            "web": "1:267758672045:web:4bb333fcbd92450d3dce24",
-            "windows": "1:267758672045:web:d6258140e57d7fc03dce24"
-          }
-        }
-      }
-    }
-  },
   "hosting": {
-    "public": "build/web/",
+    "public": "dist/",
     "ignore": [
       "firebase.json",
       "**/.*",

@@ -1,6 +1,6 @@
 # Story 1.1: Inicialización del Proyecto y Tooling
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -21,53 +21,53 @@ So that I have a working development environment ready for feature implementatio
 
 ## Tasks / Subtasks
 
-- [ ] Task 0: Archivar código Flutter y preparar repo (prerequisito)
-  - [ ] 0.1 Crear directorio `_flutter-archive/` en la raíz
-  - [ ] 0.2 Mover directorios Flutter: `lib/`, `test/`, `web/`, `android/`, `ios/`, `macos/`, `linux/`, `windows/`, `.dart_tool/`, `.idea/`, `build/`, `.firebase/`
-  - [ ] 0.3 Mover archivos Flutter: `pubspec.yaml`, `pubspec.lock`, `analysis_options.yaml`, `l10n.yaml`, `flutter_native_splash.yaml`, `portfolio.iml`, `flutter_*.log`, `.metadata`, `.flutter-plugins`, `.flutter-plugins-dependencies`
-  - [ ] 0.4 PRESERVAR en raíz: `.firebaserc`, `firebase.json`, `assets/logo/`, `docs/`, `design-artifacts/`, `_bmad-output/`, `_bmad/`, `.claude/`, `.gitignore`, `README.md`
-  - [ ] 0.5 Actualizar `firebase.json`: cambiar `hosting.public` de `"build/web/"` a `"dist/"` y eliminar la sección `flutter.platforms` (ya no aplica)
-  - [ ] 0.6 Verificar que `.firebaserc` sigue apuntando a `portfolio-chrisbp`
-- [ ] Task 1: Scaffold Astro project (AC: #1, #8)
-  - [ ] 1.1 Run `pnpm create astro@latest` with `--template minimal`
-  - [ ] 1.2 Configure `astro.config.mjs` (ver sección Dev Notes para config exacta)
-  - [ ] 1.3 Add Svelte 5 integration: `pnpm astro add svelte`
-  - [ ] 1.4 Add Tailwind CSS 4 integration: `pnpm add -D tailwindcss @tailwindcss/vite` and configure in astro config
-  - [ ] 1.5 Create `.nvmrc` with `22` to enforce Node.js version
-  - [ ] 1.6 Verify `pnpm dev` starts without errors
-- [ ] Task 2: Configure TypeScript strict mode (AC: #2)
-  - [ ] 2.1 Set `tsconfig.json` to extend Astro's `strictest` template
-  - [ ] 2.2 Install `@astrojs/check` and `typescript`: `pnpm add -D @astrojs/check typescript`
-  - [ ] 2.3 Add `type-check` script to `package.json`: `"type-check": "astro check"`
-  - [ ] 2.4 Verify `pnpm type-check` reports zero errors
-- [ ] Task 3: Configure ESLint + Prettier (AC: #3)
-  - [ ] 3.1 Install ESLint with Astro and Svelte plugins
-  - [ ] 3.2 Install Prettier with Astro and Svelte plugins
-  - [ ] 3.3 Create `eslint.config.js` (flat config — estándar 2026) with Astro + Svelte + TypeScript rules
-  - [ ] 3.4 Create `.prettierrc` (ver sección Dev Notes para valores)
-  - [ ] 3.5 Add scripts: `"lint": "eslint ."` y `"format": "prettier --write ."`
-  - [ ] 3.6 Verify `pnpm lint` reports zero warnings
-- [ ] Task 4: Install dependencies (AC: #4)
-  - [ ] 4.1 Run `pnpm add firebase firebase-admin sanitize-html`
-  - [ ] 4.2 Run `pnpm add -D vitest playwright @playwright/test` (solo instalar — config es Story 1.2)
-  - [ ] 4.3 Verify all appear in `package.json`
-- [ ] Task 5: Create environment variable documentation (AC: #5)
-  - [ ] 5.1 Create `.env.example` with all required variables documented (ver sección Dev Notes)
-  - [ ] 5.2 Include `PUBLIC_FIREBASE_API_KEY`, `PUBLIC_FIREBASE_AUTH_DOMAIN`, `PUBLIC_FIREBASE_PROJECT_ID`, `PUBLIC_FIREBASE_STORAGE_BUCKET`, `PUBLIC_FIREBASE_MESSAGING_SENDER_ID`, `PUBLIC_FIREBASE_APP_ID`, `PUBLIC_ADMIN_UID`
-  - [ ] 5.3 Include `FIREBASE_ADMIN_*` variables (service account config for build time)
-- [ ] Task 6: Configure `.gitignore` (AC: #6)
-  - [ ] 6.1 Reescribir `.gitignore` para Astro: `.env`, `node_modules/`, `dist/`, `*.pem`, service account JSON files, `.DS_Store`
-  - [ ] 6.2 Keep committed: `.env.example`, config files, lock file, `_flutter-archive/`
-- [ ] Task 7: Create project directory structure (AC: #7)
-  - [ ] 7.1 Create `src/pages/` (Astro generates this)
-  - [ ] 7.2 Create `src/components/common/`, `src/components/layout/`, `src/components/home/`, `src/components/projects/`, `src/components/blog/`, `src/components/contact/`, `src/components/admin/`
-  - [ ] 7.3 Create `src/layouts/`
-  - [ ] 7.4 Create `src/lib/firebase/`, `src/lib/schemas/`, `src/lib/types/`, `src/lib/i18n/`, `src/lib/utils/`, `src/lib/scripts/`
-  - [ ] 7.5 Create `src/styles/` with `global.css`
-  - [ ] 7.6 Create `src/assets/logo/` and copy existing logos from `_flutter-archive/assets/logo/` (`cbp-short-logo-dark.png`, `cbp-large-logo-dark.png`)
-  - [ ] 7.7 Create `public/` with placeholder `favicon.svg` and `robots.txt` (Allow all, Disallow /admin)
-  - [ ] 7.8 Create `tests/e2e/`
-  - [ ] 7.9 Add `.gitkeep` files to empty directories so structure is committed
+- [x] Task 0: Archivar código Flutter y preparar repo (prerequisito)
+  - [x] 0.1 Crear directorio `_flutter-archive/` en la raíz
+  - [x] 0.2 Mover directorios Flutter: `lib/`, `test/`, `web/`, `android/`, `ios/`, `macos/`, `linux/`, `windows/`, `.dart_tool/`, `.idea/`, `build/`, `.firebase/`
+  - [x] 0.3 Mover archivos Flutter: `pubspec.yaml`, `pubspec.lock`, `analysis_options.yaml`, `l10n.yaml`, `flutter_native_splash.yaml`, `portfolio.iml`, `flutter_*.log`, `.metadata`, `.flutter-plugins`, `.flutter-plugins-dependencies`
+  - [x] 0.4 PRESERVAR en raíz: `.firebaserc`, `firebase.json`, `assets/logo/`, `docs/`, `design-artifacts/`, `_bmad-output/`, `_bmad/`, `.claude/`, `.gitignore`, `README.md`
+  - [x] 0.5 Actualizar `firebase.json`: cambiar `hosting.public` de `"build/web/"` a `"dist/"` y eliminar la sección `flutter.platforms` (ya no aplica)
+  - [x] 0.6 Verificar que `.firebaserc` sigue apuntando a `portfolio-chrisbp`
+- [x] Task 1: Scaffold Astro project (AC: #1, #8)
+  - [x] 1.1 Run `pnpm create astro@latest` with `--template minimal`
+  - [x] 1.2 Configure `astro.config.mjs` (ver sección Dev Notes para config exacta)
+  - [x] 1.3 Add Svelte 5 integration: `pnpm astro add svelte`
+  - [x] 1.4 Add Tailwind CSS 4 integration: `pnpm add -D tailwindcss @tailwindcss/vite` and configure in astro config
+  - [x] 1.5 Create `.nvmrc` with `22` to enforce Node.js version
+  - [x] 1.6 Verify `pnpm dev` starts without errors
+- [x] Task 2: Configure TypeScript strict mode (AC: #2)
+  - [x] 2.1 Set `tsconfig.json` to extend Astro's `strictest` template
+  - [x] 2.2 Install `@astrojs/check` and `typescript`: `pnpm add -D @astrojs/check typescript`
+  - [x] 2.3 Add `type-check` script to `package.json`: `"type-check": "astro check"`
+  - [x] 2.4 Verify `pnpm type-check` reports zero errors
+- [x] Task 3: Configure ESLint + Prettier (AC: #3)
+  - [x] 3.1 Install ESLint with Astro and Svelte plugins
+  - [x] 3.2 Install Prettier with Astro and Svelte plugins
+  - [x] 3.3 Create `eslint.config.js` (flat config — estándar 2026) with Astro + Svelte + TypeScript rules
+  - [x] 3.4 Create `.prettierrc` (ver sección Dev Notes para valores)
+  - [x] 3.5 Add scripts: `"lint": "eslint ."` y `"format": "prettier --write ."`
+  - [x] 3.6 Verify `pnpm lint` reports zero warnings
+- [x] Task 4: Install dependencies (AC: #4)
+  - [x] 4.1 Run `pnpm add firebase firebase-admin sanitize-html`
+  - [x] 4.2 Run `pnpm add -D vitest playwright @playwright/test` (solo instalar — config es Story 1.2)
+  - [x] 4.3 Verify all appear in `package.json`
+- [x] Task 5: Create environment variable documentation (AC: #5)
+  - [x] 5.1 Create `.env.example` with all required variables documented (ver sección Dev Notes)
+  - [x] 5.2 Include `PUBLIC_FIREBASE_API_KEY`, `PUBLIC_FIREBASE_AUTH_DOMAIN`, `PUBLIC_FIREBASE_PROJECT_ID`, `PUBLIC_FIREBASE_STORAGE_BUCKET`, `PUBLIC_FIREBASE_MESSAGING_SENDER_ID`, `PUBLIC_FIREBASE_APP_ID`, `PUBLIC_ADMIN_UID`
+  - [x] 5.3 Include `FIREBASE_ADMIN_*` variables (service account config for build time)
+- [x] Task 6: Configure `.gitignore` (AC: #6)
+  - [x] 6.1 Reescribir `.gitignore` para Astro: `.env`, `node_modules/`, `dist/`, `*.pem`, service account JSON files, `.DS_Store`
+  - [x] 6.2 Keep committed: `.env.example`, config files, lock file, `_flutter-archive/`
+- [x] Task 7: Create project directory structure (AC: #7)
+  - [x] 7.1 Create `src/pages/` (Astro generates this)
+  - [x] 7.2 Create `src/components/common/`, `src/components/layout/`, `src/components/home/`, `src/components/projects/`, `src/components/blog/`, `src/components/contact/`, `src/components/admin/`
+  - [x] 7.3 Create `src/layouts/`
+  - [x] 7.4 Create `src/lib/firebase/`, `src/lib/schemas/`, `src/lib/types/`, `src/lib/i18n/`, `src/lib/utils/`, `src/lib/scripts/`
+  - [x] 7.5 Create `src/styles/` with `global.css`
+  - [x] 7.6 Create `src/assets/logo/` and copy existing logos from `_flutter-archive/assets/logo/` (`cbp-short-logo-dark.png`, `cbp-large-logo-dark.png`)
+  - [x] 7.7 Create `public/` with placeholder `favicon.svg` and `robots.txt` (Allow all, Disallow /admin)
+  - [x] 7.8 Create `tests/e2e/`
+  - [x] 7.9 Add `.gitkeep` files to empty directories so structure is committed
 
 ## Dev Notes
 
@@ -258,10 +258,55 @@ FIREBASE_ADMIN_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nyour-key\n-----END PRIV
 
 ### Agent Model Used
 
-(pending)
+Claude Opus 4.6 (1M context)
 
 ### Debug Log References
 
+- type-check fallaba con OOM al analizar `_flutter-archive/build/web/flutter.js` — resuelto excluyendo `_flutter-archive`, `_bmad`, `_bmad-output`, `node_modules` en tsconfig.json
+- `pnpm create astro@latest ./` no funciona con directorio no vacío — resuelto scaffoldeando en `/tmp` y copiando archivos
+- `@eslint/js` no venía como dependencia de `eslint` v10 — instalado explícitamente
+- `tseslint.config()` firma deprecada en typescript-eslint v8 — migrado a array export directo
+
 ### Completion Notes List
 
+- **Task 0:** Código Flutter archivado en `_flutter-archive/`. firebase.json actualizado con `public: "dist/"` y sección `flutter.platforms` eliminada. `.firebaserc` verificado apuntando a `portfolio-chrisbp`.
+- **Task 1:** Proyecto Astro 6.0.5 scaffoldeado con template minimal. Config: `output: 'static'`, Svelte 5 (v5.53.12), Tailwind CSS 4 (v4.2.1 via @tailwindcss/vite). `.nvmrc` con Node 22. `pnpm dev` arranca correctamente.
+- **Task 2:** TypeScript en modo `strictest` de Astro. `@astrojs/check` instalado. `pnpm type-check` reporta 0 errores.
+- **Task 3:** ESLint 10 con flat config (`eslint.config.js`), plugins para Astro, Svelte y TypeScript. Prettier con plugins Astro y Svelte. `pnpm lint` reporta 0 warnings.
+- **Task 4:** Dependencias instaladas — firebase 12.10.0, firebase-admin 13.7.0, sanitize-html 2.17.1, vitest 4.1.0, playwright 1.58.2.
+- **Task 5:** `.env.example` creado con todas las variables PUBLIC_FIREBASE_* y FIREBASE_ADMIN_*.
+- **Task 6:** `.gitignore` reescrito para Astro: excluye `.env`, `node_modules/`, `dist/`, `*.pem`, service accounts, `.DS_Store`.
+- **Task 7:** Estructura de directorios creada siguiendo arquitectura: components por dominio, lib con subdirectorios, styles, assets, layouts, tests/e2e. `.gitkeep` en directorios vacíos. Logos copiados a `src/assets/logo/`.
+
+### Change Log
+
+- 2026-03-17: Implementación completa de Story 1.1 — archivado Flutter, scaffold Astro 6, tooling configurado
+
 ### File List
+
+**Nuevos:**
+- `package.json` — configuración npm con scripts y dependencias
+- `pnpm-lock.yaml` — lockfile
+- `astro.config.mjs` — config Astro: static output, Svelte 5, Tailwind CSS 4
+- `tsconfig.json` — TypeScript strictest mode
+- `svelte.config.js` — config Svelte (generado por astro add svelte)
+- `eslint.config.js` — ESLint flat config con plugins Astro/Svelte/TS
+- `.prettierrc` — configuración Prettier
+- `.nvmrc` — Node.js 22
+- `.env.example` — documentación de variables de entorno
+- `src/pages/index.astro` — página principal placeholder
+- `src/styles/global.css` — Tailwind CSS 4 import
+- `src/assets/logo/cbp-short-logo-dark.png` — logo corto (copiado)
+- `src/assets/logo/cbp-large-logo-dark.png` — logo largo (copiado)
+- `public/favicon.svg` — placeholder favicon
+- `public/favicon.ico` — placeholder favicon
+- `public/robots.txt` — Allow all, Disallow /admin
+- `tests/e2e/.gitkeep`
+- `src/components/{common,layout,home,projects,blog,contact,admin}/.gitkeep`
+- `src/layouts/.gitkeep`
+- `src/lib/{firebase,schemas,types,i18n,utils,scripts}/.gitkeep`
+- `_flutter-archive/` — código Flutter archivado (12 directorios, 11 archivos)
+
+**Modificados:**
+- `firebase.json` — hosting.public cambiado a "dist/", sección flutter.platforms eliminada
+- `.gitignore` — reescrito para proyecto Astro
