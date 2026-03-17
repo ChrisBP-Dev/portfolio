@@ -49,7 +49,7 @@ development_status:
   epic-1: in-progress
   1-1-inicializacion-del-proyecto-y-tooling: done
   1-2-infraestructura-de-testing-local: done
-  1-3-ci-cd-pipeline-y-quality-gates: review
+  1-3-ci-cd-pipeline-y-quality-gates: done
   1-4-zod-schemas-y-modelos-de-datos: backlog
   1-5-design-tokens-y-sistema-de-temas: backlog
   1-6-componentes-ui-base: backlog

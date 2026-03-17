@@ -268,7 +268,7 @@ Claude Opus 4.6 (1M context)
 ### Completion Notes List
 
 - Task 1: Creado `.github/workflows/ci.yml` con pipeline completo — checkout, pnpm, node (con cache desde .nvmrc), install --frozen-lockfile, lint, type-check, Java 21, Firebase emulators cache, tests con emuladores, build, Lighthouse CI, deploy a Firebase Hosting. Triggers: push a main + workflow_dispatch. YAML validado con yaml-lint.
-- Task 2: Instalado `@lhci/cli@0.15.1`, creado `lighthouserc.cjs` con assertions >0.95 en 4 categorías, agregado `.lighthouseci/` a `.gitignore`. Verificado localmente con `pnpm build && pnpm exec lhci autorun` — todas las categorías pasan. Corregido HTML: agregado `<meta name="description">` y title descriptivo. Agregado `*.cjs` a ESLint ignores para evitar error de `module is not defined` en archivos CommonJS.
+- Task 2: Instalado `@lhci/cli@0.15.1`, creado `lighthouserc.cjs` con assertions >0.95 en 4 categorías, agregado `.lighthouseci/` a `.gitignore`. Verificado localmente con `pnpm build && pnpm exec lhci autorun` — todas las categorías pasan. Corregido HTML: agregado `<meta name="description">` y title descriptivo. Agregado `lighthouserc.cjs` a ESLint ignores para evitar error de `module is not defined` en archivos CommonJS.
 - Task 3: Agregada sección "CI/CD" al README con descripción del pipeline, Lighthouse CI, GitHub Secrets requeridos (`FIREBASE_SERVICE_ACCOUNT` con setup paso a paso), y cómo disparar rebuild manual (GitHub UI + CLI).
 - Validaciones finales: lint (0 errors), type-check (0 errors), tests (9/9 passed), Lighthouse CI (4/4 categorías >0.95)
 
@@ -296,6 +296,6 @@ Claude Opus 4.6 (1M context)
 - `.gitignore` — MODIFICADO: agregado `.lighthouseci/`
 - `package.json` — MODIFICADO: agregado `@lhci/cli@0.15.1` en devDependencies
 - `pnpm-lock.yaml` — MODIFICADO: actualizado con dependencias de @lhci/cli
-- `eslint.config.js` — MODIFICADO: agregado `*.cjs` a ignores
+- `eslint.config.js` — MODIFICADO: agregado `lighthouserc.cjs` a ignores
 - `src/pages/index.astro` — MODIFICADO: agregado meta description y title descriptivo
 - `README.md` — MODIFICADO: agregada sección CI/CD con pipeline, Lighthouse CI, secrets y rebuild manual
