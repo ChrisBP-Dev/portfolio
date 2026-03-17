@@ -1,6 +1,6 @@
 # Story 1.3: CI/CD Pipeline y Quality Gates
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -17,24 +17,24 @@ So that every push to main is validated for lint, types, tests and performance.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Crear GitHub Actions workflow (AC: #1, #3, #4)
-  - [ ] 1.1 Crear directorio `.github/workflows/` si no existe
-  - [ ] 1.2 Crear `.github/workflows/ci.yml` con pipeline completo (ver Dev Notes para YAML exacto)
-  - [ ] 1.3 Triggers: `push` a `main` + `workflow_dispatch` (rebuild manual post-content update)
-  - [ ] 1.4 Steps: checkout → pnpm setup → node setup (con cache) → install → lint → type-check → Java 21 → Firebase emulators cache → test con emuladores → build → Lighthouse CI → deploy Firebase Hosting
-  - [ ] 1.5 Verificar sintaxis YAML del workflow (push y revisar Actions tab, o usar linter local)
+- [x] Task 1: Crear GitHub Actions workflow (AC: #1, #3, #4)
+  - [x] 1.1 Crear directorio `.github/workflows/` si no existe
+  - [x] 1.2 Crear `.github/workflows/ci.yml` con pipeline completo (ver Dev Notes para YAML exacto)
+  - [x] 1.3 Triggers: `push` a `main` + `workflow_dispatch` (rebuild manual post-content update)
+  - [x] 1.4 Steps: checkout → pnpm setup → node setup (con cache) → install → lint → type-check → Java 21 → Firebase emulators cache → test con emuladores → build → Lighthouse CI → deploy Firebase Hosting
+  - [x] 1.5 Verificar sintaxis YAML del workflow (push y revisar Actions tab, o usar linter local)
 
-- [ ] Task 2: Configurar Lighthouse CI (AC: #2)
-  - [ ] 2.1 Instalar `@lhci/cli` como devDependency: `pnpm add -D @lhci/cli@0.15.1`
-  - [ ] 2.2 Crear `lighthouserc.cjs` en raíz del proyecto (ver Dev Notes para config exacta). Extensión `.cjs` requerida porque `package.json` tiene `"type": "module"` (ESM) y LHCI usa `require()` internamente
-  - [ ] 2.3 Agregar `.lighthouseci/` a `.gitignore`
-  - [ ] 2.4 Verificar localmente: `pnpm build && pnpm exec lhci autorun` — las 4 categorías deben pasar >0.95. Si falla con error de ESM/CommonJS, confirmar que el archivo se llama `lighthouserc.cjs` (no `.js`)
-  - [ ] 2.5 Si alguna categoría falla <0.95, corregir el HTML del skeleton (meta description, lang attribute, heading hierarchy, viewport — lo que falte)
+- [x] Task 2: Configurar Lighthouse CI (AC: #2)
+  - [x] 2.1 Instalar `@lhci/cli` como devDependency: `pnpm add -D @lhci/cli@0.15.1`
+  - [x] 2.2 Crear `lighthouserc.cjs` en raíz del proyecto (ver Dev Notes para config exacta). Extensión `.cjs` requerida porque `package.json` tiene `"type": "module"` (ESM) y LHCI usa `require()` internamente
+  - [x] 2.3 Agregar `.lighthouseci/` a `.gitignore`
+  - [x] 2.4 Verificar localmente: `pnpm build && pnpm exec lhci autorun` — las 4 categorías deben pasar >0.95. Si falla con error de ESM/CommonJS, confirmar que el archivo se llama `lighthouserc.cjs` (no `.js`)
+  - [x] 2.5 Si alguna categoría falla <0.95, corregir el HTML del skeleton (meta description, lang attribute, heading hierarchy, viewport — lo que falte)
 
-- [ ] Task 3: Documentar CI/CD en README (AC: implícito)
-  - [ ] 3.1 Agregar sección "CI/CD" al README existente con descripción del pipeline
-  - [ ] 3.2 Documentar GitHub Secrets requeridos (`FIREBASE_SERVICE_ACCOUNT`)
-  - [ ] 3.3 Documentar cómo disparar rebuild manual (`gh workflow run ci.yml` o GitHub UI → Actions → Run workflow)
+- [x] Task 3: Documentar CI/CD en README (AC: implícito)
+  - [x] 3.1 Agregar sección "CI/CD" al README existente con descripción del pipeline
+  - [x] 3.2 Documentar GitHub Secrets requeridos (`FIREBASE_SERVICE_ACCOUNT`)
+  - [x] 3.3 Documentar cómo disparar rebuild manual (`gh workflow run ci.yml` o GitHub UI → Actions → Run workflow)
 
 ## Dev Notes
 
@@ -256,10 +256,32 @@ portfolio/
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.6 (1M context)
 
 ### Debug Log References
 
+- Lighthouse CI local: todas las 4 categorías pasaron >0.95 (reporte en temporary-public-storage)
+- ESLint falló inicialmente en `lighthouserc.cjs` por `module is not defined` — resuelto agregando `*.cjs` a ignores de ESLint
+- HTML skeleton requirió agregar `<meta name="description">` y actualizar `<title>` para SEO
+
 ### Completion Notes List
 
+- Task 1: Creado `.github/workflows/ci.yml` con pipeline completo — checkout, pnpm, node (con cache desde .nvmrc), install --frozen-lockfile, lint, type-check, Java 21, Firebase emulators cache, tests con emuladores, build, Lighthouse CI, deploy a Firebase Hosting. Triggers: push a main + workflow_dispatch. YAML validado con yaml-lint.
+- Task 2: Instalado `@lhci/cli@0.15.1`, creado `lighthouserc.cjs` con assertions >0.95 en 4 categorías, agregado `.lighthouseci/` a `.gitignore`. Verificado localmente con `pnpm build && pnpm exec lhci autorun` — todas las categorías pasan. Corregido HTML: agregado `<meta name="description">` y title descriptivo. Agregado `*.cjs` a ESLint ignores para evitar error de `module is not defined` en archivos CommonJS.
+- Task 3: Agregada sección "CI/CD" al README con descripción del pipeline, Lighthouse CI, GitHub Secrets requeridos (`FIREBASE_SERVICE_ACCOUNT` con setup paso a paso), y cómo disparar rebuild manual (GitHub UI + CLI).
+- Validaciones finales: lint (0 errors), type-check (0 errors), tests (9/9 passed), Lighthouse CI (4/4 categorías >0.95)
+
+### Change Log
+
+- 2026-03-17: Implementación completa de Story 1.3 — CI/CD pipeline, Lighthouse CI, documentación README
+
 ### File List
+
+- `.github/workflows/ci.yml` — NUEVO: CI/CD pipeline con GitHub Actions
+- `lighthouserc.cjs` — NUEVO: configuración Lighthouse CI (assertions >0.95 en 4 categorías)
+- `.gitignore` — MODIFICADO: agregado `.lighthouseci/`
+- `package.json` — MODIFICADO: agregado `@lhci/cli@0.15.1` en devDependencies
+- `pnpm-lock.yaml` — MODIFICADO: actualizado con dependencias de @lhci/cli
+- `eslint.config.js` — MODIFICADO: agregado `*.cjs` a ignores
+- `src/pages/index.astro` — MODIFICADO: agregado meta description y title descriptivo
+- `README.md` — MODIFICADO: agregada sección CI/CD con pipeline, Lighthouse CI, secrets y rebuild manual

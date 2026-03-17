@@ -84,3 +84,49 @@ const tech = createTechnology({ name: 'Svelte' });
 ```
 
 Cada factory acepta un objeto `overrides` parcial para personalizar campos.
+
+## CI/CD
+
+GitHub Actions ejecuta el pipeline en cada push a `main` y via `workflow_dispatch` (rebuild manual).
+
+### Pipeline
+
+```
+install → lint → type-check → test (con emuladores) → build → Lighthouse CI → deploy
+```
+
+Si cualquier step falla, el pipeline se detiene y el deploy no ocurre.
+
+### Lighthouse CI
+
+Lighthouse CI valida >95 en Performance, Accessibility, Best Practices y SEO. La configuracion esta en `lighthouserc.cjs`.
+
+Verificar localmente:
+
+```bash
+pnpm build && pnpm exec lhci autorun
+```
+
+### GitHub Secrets requeridos
+
+| Secret | Descripcion |
+|--------|-------------|
+| `FIREBASE_SERVICE_ACCOUNT` | Service account JSON para deploy a Firebase Hosting |
+
+**Setup:**
+
+1. Firebase Console → proyecto `portfolio-chrisbp` → Project Settings → Service accounts
+2. "Generate new private key" → descargar JSON
+3. GitHub repo → Settings → Secrets and variables → Actions → New repository secret
+4. Name: `FIREBASE_SERVICE_ACCOUNT`, Value: contenido del JSON
+5. Eliminar el JSON del disco local
+
+### Rebuild manual
+
+Desde GitHub UI: Actions → "CI/CD Pipeline" → "Run workflow"
+
+Desde CLI:
+
+```bash
+gh workflow run ci.yml
+```
