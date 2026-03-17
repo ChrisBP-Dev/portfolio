@@ -282,7 +282,7 @@ So that I have a working development environment ready for feature implementatio
 **And** project structure follows architecture: `src/pages/`, `src/components/` (by domain), `src/layouts/`, `src/lib/`, `src/styles/`
 **And** `astro.config.mjs` configures `output: 'static'`, Svelte 5 integration, Tailwind CSS 4 integration
 
-### Story 1.2a: Infraestructura de Testing Local
+### Story 1.2: Infraestructura de Testing Local
 
 As a developer,
 I want Firebase emulators, test frameworks and data factories operational locally,
@@ -297,7 +297,7 @@ So that every feature I build from this point forward can be developed with test
 **And** test data factory module exists in `src/test/factories/` — `createProject()`, `createTechnology()`, `createExperience()`, `createBlogPost()` each returns a valid object passing its Zod schema
 **And** README documents how to run emulators and tests locally
 
-### Story 1.2b: CI/CD Pipeline y Quality Gates
+### Story 1.3: CI/CD Pipeline y Quality Gates
 
 As a developer,
 I want a CI pipeline with automated quality gates,
@@ -310,7 +310,7 @@ So that every push to main is validated for lint, types, tests and performance.
 **And** Firebase emulators are cached in CI for faster execution
 **And** pipeline failure blocks deployment
 
-### Story 1.3: Zod Schemas y Modelos de Datos
+### Story 1.4: Zod Schemas y Modelos de Datos
 
 As a developer,
 I want type-safe data models validated by Zod schemas,
@@ -326,7 +326,7 @@ So that all data flowing through the app is validated consistently at build time
 **And** TypeScript types derived via `z.infer<>` (Project, Technology, Experience, BlogPost, StoredImage, Locale)
 **And** schemas live in `src/lib/schemas/` with kebab-case naming
 
-### Story 1.4: Design Tokens y Sistema de Temas
+### Story 1.5: Design Tokens y Sistema de Temas
 
 As a visitor,
 I want a visually consistent site with professional dark and light themes,
@@ -344,7 +344,7 @@ So that the portfolio looks polished and my theme preference is respected.
 **And** dark mode is default theme
 **And** text/background contrast meets WCAG AA (>4.5:1 normal, >3:1 large)
 
-### Story 1.5: Componentes UI Base
+### Story 1.6: Componentes UI Base
 
 As a developer,
 I want a set of reusable UI components following the design system,
@@ -361,7 +361,7 @@ So that all features are built with visual consistency from the start.
 **And** all components have 2px solid primary focus indicators in both themes
 **And** components use Astro (.astro) format — zero JS to browser
 
-### Story 1.6: Layouts, Header, Footer y Banner
+### Story 1.7: Layouts, Header, Footer y Banner
 
 As a visitor,
 I want professional navigation with consistent header, footer and brand banner,
@@ -380,7 +380,7 @@ So that I can navigate the portfolio intuitively on any device.
 **And** `aria-current="page"` on active nav, `aria-expanded` + `aria-label` on hamburger
 **(UX-DR21, UX-DR22, UX-DR23, UX-DR37, UX-DR38)**
 
-### Story 1.7: i18n Foundation y LocaleToggle
+### Story 1.8: i18n Foundation y LocaleToggle
 
 As a visitor,
 I want to switch the site language between Spanish and English,
@@ -397,7 +397,7 @@ So that I can read content in my preferred language.
 **And** `aria-label` ("Cambiar a inglés" / "Switch to Spanish")
 **(FR10 fulfilled)**
 
-### Story 1.8: ThemeToggle y Persistencia de Tema
+### Story 1.9: ThemeToggle y Persistencia de Tema
 
 As a visitor,
 I want to toggle between dark and light themes with my preference remembered,
@@ -415,7 +415,7 @@ So that I can browse in my preferred visual mode across sessions.
 **And** `aria-label` ("Cambiar a modo claro" / "Switch to light mode")
 **(FR11, FR12 fulfilled)**
 
-### Story 1.9: Firebase Client & Admin SDK Configuration
+### Story 1.10: Firebase Client & Admin SDK Configuration
 
 As a developer,
 I want Firebase SDKs properly initialized and typed,

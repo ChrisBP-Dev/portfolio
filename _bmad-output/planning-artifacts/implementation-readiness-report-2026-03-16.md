@@ -190,9 +190,9 @@ El PRD esta completo y bien estructurado con:
 | FR7 | Articulo blog individual | Epic 4 | 4.5 | Covered |
 | FR8 | Formulario contacto | Epic 2 | 2.7 | Covered |
 | FR9 | Links redes sociales | Epic 2 | 2.7 | Covered |
-| FR10 | Toggle idioma ES/EN | Epic 1 | 1.7 | Covered |
-| FR11 | Toggle tema Dark/Light | Epic 1 | 1.8 | Covered |
-| FR12 | Persistencia tema | Epic 1 | 1.8 | Covered |
+| FR10 | Toggle idioma ES/EN | Epic 1 | 1.8 | Covered |
+| FR11 | Toggle tema Dark/Light | Epic 1 | 1.9 | Covered |
+| FR12 | Persistencia tema | Epic 1 | 1.9 | Covered |
 | FR13 | Contenido en idioma seleccionado | Epic 2 | 2.2, 2.3, 2.4, 2.5, 2.7, 2.8 | Covered |
 | FR14 | hreflang tags | Epic 2+5 | 2.8, 5.1 | Covered |
 | FR15 | Ruta `/admin` | Epic 3 | 3.1 | Covered |
@@ -327,7 +327,7 @@ Documento exhaustivo que incluye:
 | Epic 1 solo | Correcto | Se sostiene solo — setup, design system, toggles, layouts |
 | Epic 2 usa Epic 1 | Correcto | Usa layouts, design tokens, i18n foundation, Firebase SDK |
 | Epic 3 usa Epic 1 | Correcto | Usa Firebase SDK, design tokens, componentes UI base |
-| Epic 4 usa Epic 1+3 | Correcto | Usa ImageService (3.3), AdminSidebar (3.2), Firebase SDK (1.9). Dependencia secuencial valida |
+| Epic 4 usa Epic 1+3 | Correcto | Usa ImageService (3.3), AdminSidebar (3.2), Firebase SDK (1.10). Dependencia secuencial valida |
 | Epic 5 usa Epic 1-4 | Correcto | Requiere contenido existente para SEO, performance audit, y accesibilidad. Dependencia secuencial valida |
 | Forward deps | **Ninguna** | Ningun epic requiere un epic posterior para funcionar |
 
@@ -338,15 +338,15 @@ Documento exhaustivo que incluye:
 | Story | Evaluacion | Veredicto |
 |-------|-----------|-----------|
 | 1.1 Inicializacion Proyecto | Astro 6 + TypeScript + ESLint + Prettier + estructura + .env.example | **OK** — Apropiado |
-| 1.2a Infraestructura Testing Local | Firebase Emulators + Vitest + Playwright + factories | **OK** — CORREGIDO (dividida desde 1.2 original) |
-| 1.2b CI/CD Pipeline y Quality Gates | GitHub Actions + Lighthouse CI | **OK** — CORREGIDO (dividida desde 1.2 original) |
-| 1.3 Zod Schemas | 6 schemas + tipos derivados | **OK** — Coherente |
-| 1.4 Design Tokens | Colores + tipografia + spacing + breakpoints | **OK** |
-| 1.5 Componentes UI Base | Container + Section + Button + Card + Badge + Input | **OK** — Son componentes simples sin logica |
-| 1.6 Layouts, Header, Footer, Banner | 4 componentes pero con responsive + a11y | **BORDERLINE** — Grande pero coherente tematicamente |
-| 1.7 i18n Foundation | i18n config + traducciones + LocaleToggle | **OK** |
-| 1.8 ThemeToggle | Toggle + persistencia + prefers-color-scheme | **OK** |
-| 1.9 Firebase SDK Config | Client + Admin SDK + collection helpers + emulator detection | **OK** |
+| 1.2 Infraestructura Testing Local | Firebase Emulators + Vitest + Playwright + factories | **OK** — CORREGIDO (dividida desde 1.2 original) |
+| 1.3 CI/CD Pipeline y Quality Gates | GitHub Actions + Lighthouse CI | **OK** — CORREGIDO (dividida desde 1.2 original) |
+| 1.4 Zod Schemas | 6 schemas + tipos derivados | **OK** — Coherente |
+| 1.5 Design Tokens | Colores + tipografia + spacing + breakpoints | **OK** |
+| 1.6 Componentes UI Base | Container + Section + Button + Card + Badge + Input | **OK** — Son componentes simples sin logica |
+| 1.7 Layouts, Header, Footer, Banner | 4 componentes pero con responsive + a11y | **BORDERLINE** — Grande pero coherente tematicamente |
+| 1.8 i18n Foundation | i18n config + traducciones + LocaleToggle | **OK** |
+| 1.9 ThemeToggle | Toggle + persistencia + prefers-color-scheme | **OK** |
+| 1.10 Firebase SDK Config | Client + Admin SDK + collection helpers + emulator detection | **OK** |
 | 2.1 Data Migration Script | Script de migracion Firestore | **OK** |
 | 2.2-2.8 Sitio Publico | Cada story es una pagina/seccion | **OK** — Bien dimensionadas |
 | 3.1 Auth + Proteccion Rutas | Login + logout + redirect + Security Rules | **OK** |
@@ -383,7 +383,7 @@ Documento exhaustivo que incluye:
 
 | Epic | Dependencias Internas | Estado |
 |------|----------------------|--------|
-| Epic 1 | 1.1 → 1.2a → 1.2b → 1.3 (secuencial logico), 1.4-1.8 usan tokens de 1.4 | **OK** — Secuencia logica |
+| Epic 1 | 1.1 → 1.2 → 1.3 → 1.4 (secuencial logico), 1.5-1.9 usan tokens de 1.5 | **OK** — Secuencia logica |
 | Epic 2 | 2.1 (migration) primero, luego 2.2-2.7 (parallelizable parcialmente), 2.6 antes de 2.5 (dependency note agregada) | **OK** — CORREGIDO, dependency note agregada en story |
 | Epic 3 | 3.1 (auth) primero, 3.2 (dashboard/sidebar), 3.3 (ImageService) antes de 3.4-3.7 (CRUDs), 3.8 (feedback) transversal | **OK** — Secuencia logica |
 | Epic 4 | 4.1 (CRUD + editor) primero, 4.2 (images en editor) despues, 4.3 (edit/delete), 4.4-4.5 (publico) al final | **OK** |
@@ -398,7 +398,7 @@ Documento exhaustivo que incluye:
 #### E. Brownfield Indicators
 
 - Story 2.1 (Data Migration Script) maneja migracion de datos Firestore Flutter → nuevo schema
-- Firebase como infraestructura existente referenciada en Story 1.9
+- Firebase como infraestructura existente referenciada en Story 1.10
 - **CORRECTO** — Indicadores brownfield presentes y apropiados
 
 ### Testing Integration Check
@@ -424,8 +424,8 @@ Ninguno.
 **QUALITY-1: Story 1.2 oversized — CORREGIDO**
 
 Story 1.2 original combinaba 6 concerns. Dividida en:
-- **Story 1.2a:** Firebase Emulators + Vitest + Playwright + data factories (testing local)
-- **Story 1.2b:** GitHub Actions CI pipeline + Lighthouse CI gate (CI/CD)
+- **Story 1.2:** Firebase Emulators + Vitest + Playwright + data factories (testing local)
+- **Story 1.3:** GitHub Actions CI pipeline + Lighthouse CI gate (CI/CD)
 
 #### Menores — CORREGIDOS / DOCUMENTADOS
 
@@ -490,7 +490,7 @@ La planificacion del proyecto portfolio esta completa y lista para implementacio
 
 #### En Epics (`epics.md`)
 
-8. **Story 1.2 dividida** en Story 1.2a (testing local) y Story 1.2b (CI/CD pipeline)
+8. **Story 1.2 dividida** en Story 1.2 (testing local) y Story 1.3 (CI/CD pipeline), stories posteriores renumeradas
 9. **Story 2.5** — dependency note agregada: "Story 2.6 debe implementarse antes o en paralelo"
 10. **Story 4.1** — implementation note agregada: considerar CRUD basico primero si TipTap es complejo
 
@@ -508,7 +508,7 @@ La planificacion del proyecto portfolio esta completa y lista para implementacio
 
 1. **Comenzar implementacion por Epic 1, Story 1.1:** Inicializacion del proyecto con Astro 6 + TypeScript + Svelte 5 + Tailwind CSS 4
 2. **Crear story files individuales** usando el skill `bmad-create-story` para cada story antes de implementar
-3. **Seguir el orden:** Epic 1 (1.1 → 1.2a → 1.2b → 1.3 → 1.4 → 1.5 → 1.6 → 1.7 → 1.8 → 1.9) → Epic 2 → Epic 3 → Epic 4 → Epic 5
+3. **Seguir el orden:** Epic 1 (1.1 → 1.2 → 1.3 → 1.4 → 1.5 → 1.6 → 1.7 → 1.8 → 1.9 → 1.10) → Epic 2 → Epic 3 → Epic 4 → Epic 5
 
 ### Final Note
 
@@ -517,7 +517,7 @@ Esta evaluacion identifico **7 issues** en 5 categorias de analisis. **Todos los
 - PRD, UX, Arquitectura y Epics completamente alineados en SSG + Firebase Hosting
 - 49/49 FRs cubiertos (100%)
 - 29 NFRs con metricas medibles
-- 5 epics con 32 stories bien dimensionadas (tras split de 1.2)
+- 5 epics con 37 stories bien dimensionadas (tras split de 1.2 y renumeración)
 - Testing integrado en cada epic
 - 46 UX Design Requirements trazados a stories
 - Test design con plan QA y arquitectura de testing listos
