@@ -38,6 +38,7 @@ generated: 2026-03-16
 last_updated: 2026-03-17
 # story 1-2 created: 2026-03-17
 # story 1-2 done: 2026-03-17
+# story 1-3 created: 2026-03-17
 project: portfolio
 project_key: NOKEY
 tracking_system: file-system
@@ -48,7 +49,7 @@ development_status:
   epic-1: in-progress
   1-1-inicializacion-del-proyecto-y-tooling: done
   1-2-infraestructura-de-testing-local: done
-  1-3-ci-cd-pipeline-y-quality-gates: backlog
+  1-3-ci-cd-pipeline-y-quality-gates: ready-for-dev
   1-4-zod-schemas-y-modelos-de-datos: backlog
   1-5-design-tokens-y-sistema-de-temas: backlog
   1-6-componentes-ui-base: backlog
