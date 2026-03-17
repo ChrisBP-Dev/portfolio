@@ -453,19 +453,21 @@ on workflow_dispatch:
 
 **Implementation Sequence:**
 
+> **Principio rector:** Testing no es una fase — está integrado en cada paso de implementación.
+
 1. Init proyecto Astro 6 + integraciones (Svelte, Tailwind)
 2. Configurar Firebase SDKs (client + admin para build)
-3. Definir Zod schemas (modelos con nested localization)
-4. **Migrar datos Firestore** (script one-time: Flutter schema → schema profesional)
-5. Configurar i18n y routing
-6. Implementar layouts y componentes estáticos
-7. Implementar páginas públicas con data de Firestore (build time)
-8. Implementar admin (Svelte islands + Firebase client SDK)
-9. Implementar Image Service (StoredImage + ImageSlot + ImageService)
-10. Implementar blog (editor TipTap + CRUD)
-11. SEO (meta tags, OpenGraph, sitemap, structured data)
-12. Testing (Vitest + Playwright)
-13. CI/CD (GitHub Actions + Firebase deploy)
+3. Configurar infraestructura de testing (Firebase Emulator Suite, Vitest, Playwright, test data factories)
+4. Configurar GitHub Actions pipeline base (lint + type-check + test + build)
+5. Definir Zod schemas (modelos con nested localization) — incluye unit tests de validación de schemas
+6. **Migrar datos Firestore** (script one-time: Flutter schema → schema profesional) — incluye tests de migración contra emuladores
+7. Configurar i18n y routing — incluye unit tests de resolución de locale y rutas
+8. Implementar layouts y componentes estáticos
+9. Implementar páginas públicas con data de Firestore (build time) — incluye E2E de navegación pública y Lighthouse CI
+10. Implementar admin (Svelte islands + Firebase client SDK) — incluye unit tests de servicios, integration tests de Security Rules, y E2E de happy paths CRUD
+11. Implementar Image Service (StoredImage + ImageSlot + ImageService) — incluye unit tests de ciclo de vida y E2E de upload/replace/delete
+12. Implementar blog (editor TipTap + CRUD) — incluye unit tests de serialización TipTap y E2E de publicación
+13. SEO (meta tags, OpenGraph, sitemap, structured data) — incluye unit tests de meta tags y Lighthouse CI validation
 
 **Cross-Component Dependencies:**
 

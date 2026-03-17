@@ -267,18 +267,17 @@ Targets de performance y criterios de accesibilidad completos en la sección **N
 
 | Área | Features | Criterio de Completitud |
 |---|---|---|
-| **Sitio Público** | Home, Projects, Experience, Contact, Blog | Todas las páginas renderizadas, responsive, i18n ES/EN |
-| **SEO** | Meta tags, OpenGraph, sitemap, robots.txt, hreflang, structured data | Lighthouse SEO > 95 |
-| **Admin** | Login `/admin`, CRUD Projects, Technologies, Experiences, Blog | Todas las operaciones sin errores |
-| **Blog** | Editor rico con imágenes, slugs, publicado/borrador, listado, páginas individuales | CRUD funcional, URLs limpias |
-| **Imágenes** | Upload, reemplazo, eliminación con ciclo de vida completo | 0 assets huérfanos en Storage |
-| **Performance** | LCP <1.5s, INP <100ms, CLS <0.05, bundle <50KB | Lighthouse Performance > 95 |
-| **Accessibility** | WCAG 2.1 AA, navegación por teclado, contraste, alt text | Lighthouse Accessibility > 95 |
-| **Testing** | Vitest (unit) + Playwright (E2E) | Cobertura > 80% |
-| **CI/CD** | GitHub Actions: build, test, Lighthouse CI, deploy | Pipeline funcional |
-| **Open Source** | README, `.env.example`, cero secrets, datos de ejemplo | Clonable y deployable |
-| **i18n** | ES/EN completo con toggle y hreflang | Todas las páginas bilingües |
-| **Tema** | Dark/Light mode con persistencia | Ambos temas funcionales |
+| **Sitio Público** | Home, Projects, Experience, Contact, Blog | Todas las páginas renderizadas, responsive, i18n ES/EN. Smoke tests E2E validan navegación y renderizado correcto |
+| **SEO** | Meta tags, OpenGraph, sitemap, robots.txt, hreflang, structured data | Lighthouse SEO > 95. Unit tests verifican generación de meta tags y structured data |
+| **Admin** | Login `/admin`, CRUD Projects, Technologies, Experiences, Blog | Todas las operaciones sin errores. CRUD operations tested con unit tests de servicios + E2E happy paths |
+| **Blog** | Editor rico con imágenes, slugs, publicado/borrador, listado, páginas individuales | CRUD funcional con E2E coverage, URLs limpias, estado publicado/borrador verificado |
+| **Imágenes** | Upload, reemplazo, eliminación con ciclo de vida completo | 0 assets huérfanos en Storage. Unit tests para lógica de ciclo de vida, E2E para upload/replace/delete |
+| **Performance** | LCP <1.5s, INP <100ms, CLS <0.05, bundle <50KB | Lighthouse Performance > 95. Lighthouse CI como quality gate en cada deploy |
+| **Accessibility** | WCAG 2.1 AA, navegación por teclado, contraste, alt text | Lighthouse Accessibility > 95. Axe checks integrados en E2E tests |
+| **Open Source** | README, `.env.example`, cero secrets, datos de ejemplo | Clonable y deployable. README documenta setup de emuladores y ejecución de tests |
+| **i18n** | ES/EN completo con toggle y hreflang | Todas las páginas bilingües. Unit tests para lógica de traducción |
+| **Tema** | Dark/Light mode con persistencia | Ambos temas funcionales. E2E verifica toggle y persistencia |
+| **Infraestructura de Calidad** | GitHub Actions (build, test, lint, Lighthouse CI), Firebase Emulator Suite, linting/type-check pre-commit | Pipeline CI verde en cada push. Emuladores levantan para tests de integración. Cobertura total > 80% (Vitest) |
 
 ### Post-MVP Features (Phase 2 — Growth)
 
