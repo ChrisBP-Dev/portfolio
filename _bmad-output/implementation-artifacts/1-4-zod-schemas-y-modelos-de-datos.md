@@ -23,6 +23,7 @@ So that all data flowing through the app is validated consistently at build time
 - [ ] Task 1: Instalar Zod 4 (AC: todos)
   - [ ] 1.1 `pnpm add zod@^4.0.0` — versión estable actual: 4.3.6
   - [ ] 1.2 Verificar que `pnpm type-check` y `pnpm lint` pasan post-instalación
+  - [ ] 1.3 Smoke test de `z.url()`: ejecutar `pnpm exec tsx -e "import { z } from 'zod'; const s = z.url(); type T = z.infer<typeof s>; const r: T = s.parse('https://a.com'); console.log(typeof r)"` — debe imprimir `string`. Si imprime `object` (tipo `URL`), usar `z.string().url()` en lugar de `z.url()` en todos los schemas
 
 - [ ] Task 2: Crear shared schemas (AC: #1, #6)
   - [ ] 2.1 Crear `src/lib/schemas/shared-schemas.ts` con: `localeSchema`, `localizedString`, `localizedStringArray`, `storedImageSchema`
@@ -85,6 +86,8 @@ import { z } from 'zod';
 
 **Lo que NO cambia:** `z.object()`, `z.array()`, `z.enum()`, `z.infer<>`, `.optional()`, `.nullable()` — API core idéntica.
 
+**Verificación post-instalación (Task 1.3):** Confirmar que `z.url()` infiere como `string` y no como `URL`. Si infiere `URL`, usar `z.string().url()` como fallback en todos los schemas que usen `z.url()`.
+
 ### Shared Schemas — Implementación Exacta
 
 ```typescript
@@ -130,13 +133,13 @@ import { z } from 'zod';
 import { localizedString, localizedStringArray, storedImageSchema } from './shared-schemas';
 
 export const projectSchema = z.object({
-  id: z.string(),
+  id: z.string(),                          // sin min(1) — Firestore auto-generated IDs
   companyName: localizedString,
   shortDescription: localizedString,
   features: localizedStringArray,
   mainImage: storedImageSchema,
   screenshots: z.array(storedImageSchema),
-  websiteUrl: z.url().optional(),
+  websiteUrl: z.url().optional(),          // top-level z.url() de Zod 4
   sourceCodeUrl: z.url().optional(),
   technologies: z.array(z.string()),
   slug: z.string().min(1),
@@ -153,9 +156,9 @@ import { storedImageSchema } from './shared-schemas';
 
 export const technologySchema = z.object({
   id: z.string(),
-  name: z.string().min(1),
+  name: z.string().min(1),                 // no localizado — nombres de tecnologías son universales
   image: storedImageSchema,
-  experienceYears: z.number().int().nonnegative(),
+  experienceYears: z.number().int().nonnegative(), // numérico, la UI formatea "3 años"/"3 years"
 });
 
 export type Technology = z.infer<typeof technologySchema>;
@@ -169,11 +172,11 @@ import { localizedString, localizedStringArray } from './shared-schemas';
 
 export const experienceSchema = z.object({
   id: z.string(),
-  companyName: z.string().min(1),
+  companyName: z.string().min(1),          // no localizado — nombres de empresas son universales
   jobName: localizedString,
-  responsibilities: localizedStringArray,
-  startDate: z.date(),
-  endDate: z.date().nullable(),
+  responsibilities: localizedStringArray,  // array tipado, NO string — corrige patrón Flutter
+  startDate: z.date(),                     // Firestore Timestamps convertidos a Date
+  endDate: z.date().nullable(),            // null = empleo actual (NO undefined)
 });
 
 export type Experience = z.infer<typeof experienceSchema>;
@@ -192,23 +195,13 @@ export const blogPostSchema = z.object({
   slug: z.string().min(1),
   coverImage: storedImageSchema,
   images: z.array(storedImageSchema),
-  status: z.enum(['published', 'draft']),
+  status: z.enum(['published', 'draft']),  // NO boolean published — union literal
   createdAt: z.date(),
   updatedAt: z.date(),
 });
 
 export type BlogPost = z.infer<typeof blogPostSchema>;
 ```
-
-**Notas sobre entity schemas:**
-- `id: z.string()` sin `min(1)` — Firestore auto-generated IDs
-- `companyName` en Technology y Experience es `z.string()` (no localizado — nombres universales)
-- `experienceYears: z.number().int().nonnegative()` — numérico, la UI formatea "3 años"/"3 years"
-- `responsibilities` es `localizedStringArray` (array tipado, NO string — corrige patrón Flutter)
-- `startDate/endDate` como `z.date()` — Firestore Timestamps convertidos a Date
-- `endDate: z.date().nullable()` — null = empleo actual
-- `status: z.enum(['published', 'draft'])` — NO boolean `published`, usa union literal
-- `websiteUrl/sourceCodeUrl` como `z.url().optional()` — top-level `z.url()` de Zod 4
 
 ### ImageSlot — Discriminated Union (UI State)
 
@@ -279,7 +272,77 @@ export function createProject(overrides?: Partial<Project>): Project {
 }
 ```
 
-**Patrón para todas las factories:** Misma estructura — importar tipo de schema, retornar objeto válido, aplicar overrides con spread.
+```typescript
+// src/test/factories/technology.ts
+import type { Technology } from '../../lib/schemas/technology-schema';
+
+export function createTechnology(overrides?: Partial<Technology>): Technology {
+  return {
+    id: crypto.randomUUID(),
+    name: 'Astro',
+    image: {
+      url: 'https://example.com/images/astro-logo.webp',
+      storagePath: 'technologies/astro/logo.webp',
+    },
+    experienceYears: 3,
+    ...overrides,
+  };
+}
+```
+
+```typescript
+// src/test/factories/experience.ts
+import type { Experience } from '../../lib/schemas/experience-schema';
+
+export function createExperience(overrides?: Partial<Experience>): Experience {
+  return {
+    id: crypto.randomUUID(),
+    companyName: 'Empresa Demo',
+    jobName: { es: 'Desarrollador Full Stack', en: 'Full Stack Developer' },
+    responsibilities: {
+      es: ['Desarrollar features', 'Code review'],
+      en: ['Develop features', 'Code review'],
+    },
+    startDate: new Date('2024-01-15'),
+    endDate: null,                         // null = empleo actual (NO undefined)
+    ...overrides,
+  };
+}
+```
+
+```typescript
+// src/test/factories/blog-post.ts
+import type { BlogPost } from '../../lib/schemas/blog-post-schema';
+
+export function createBlogPost(overrides?: Partial<BlogPost>): BlogPost {
+  return {
+    id: crypto.randomUUID(),
+    title: { es: 'Post de ejemplo', en: 'Example post' },
+    content: { es: '<p>Contenido del blog</p>', en: '<p>Blog content</p>' },
+    slug: 'post-de-ejemplo',
+    coverImage: {
+      url: 'https://example.com/images/blog-cover.webp',
+      storagePath: 'blog/post-de-ejemplo/cover.webp',
+    },
+    images: [],
+    status: 'published',
+    createdAt: new Date('2026-03-10'),
+    updatedAt: new Date('2026-03-14'),
+    ...overrides,
+  };
+}
+```
+
+```typescript
+// src/test/factories/index.ts
+// Solo re-exporta factory functions — tipos se importan directamente desde schemas
+export { createProject } from './project';
+export { createTechnology } from './technology';
+export { createExperience } from './experience';
+export { createBlogPost } from './blog-post';
+```
+
+**Patrón de todas las factories:** importar tipo de schema, retornar objeto válido que pasa `schema.parse()`, aplicar overrides con spread. Notar: `endDate` usa `null` (`.nullable()`) y campos opcionales usan `undefined` (`.optional()`) — no confundir.
 
 ### Tests de Schemas — Qué Cubrir
 
