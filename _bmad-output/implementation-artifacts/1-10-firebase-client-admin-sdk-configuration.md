@@ -1,6 +1,6 @@
 # Story 1.10: Firebase Client & Admin SDK Configuration
 
-Status: review
+Status: done
 
 ## Story
 
@@ -529,16 +529,19 @@ Claude Opus 4.6 (1M context)
 ### Completion Notes List
 
 - All 7 tasks completed with all subtasks
-- 14 new unit tests added (UNIT-001 through UNIT-014), all passing
-- Total test count: 142 (128 baseline + 14 new), 0 regressions
+- 18 unit tests total (UNIT-001 through UNIT-018), all passing (142 baseline → 146 after code review patches)
 - Type-check: 0 errors, Lint: 0 errors, Build: succeeds (2 pages)
-- Client SDK uses `globalThis.__firebaseEmulatorsConnected` for HMR-safe emulator guard
-- Admin SDK sets `process.env` emulator hosts before SDK init
+- Client SDK uses `globalThis.__firebaseEmulatorsConnected` for HMR-safe emulator guard (flag set BEFORE connect calls)
+- Admin SDK emulator env vars now inside the `getApps().length === 0` init guard
+- `toDate()` validates invalid date strings, non-finite numbers, and null/undefined with descriptive errors
+- Error messages in client.ts now report `PUBLIC_FIREBASE_*` env var names (not camelCase SDK keys)
+- Private key trimmed before missing-var validation to catch whitespace-only values
 - All 7 ACs satisfied
 
 ### Change Log
 
 - 2026-03-18: Implemented story 1.10 — Firebase Client & Admin SDK Configuration (all 7 tasks)
+- 2026-03-18: Code review passed — 9 patches applied, 4 deferred, 1 intent gap noted
 
 ### File List
 

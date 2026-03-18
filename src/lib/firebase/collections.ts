@@ -15,7 +15,14 @@ export const COLLECTION_PATHS = {
 } as const;
 
 function toDate(val: unknown): Date {
-  if (val instanceof Date) return val;
+  if (val == null)
+    throw new Error(
+      `toDate: received ${val === undefined ? 'undefined' : 'null'} — required date field is missing from document data`,
+    );
+  if (val instanceof Date) {
+    if (isNaN(val.getTime())) throw new Error('toDate: received an invalid Date object');
+    return val;
+  }
   if (
     val != null &&
     typeof val === 'object' &&
@@ -24,9 +31,16 @@ function toDate(val: unknown): Date {
   ) {
     return (val as { toDate: () => Date }).toDate();
   }
-  if (typeof val === 'string') return new Date(val);
-  if (typeof val === 'number') return new Date(val);
-  throw new Error(`Cannot convert to Date: ${String(val)}`);
+  if (typeof val === 'string') {
+    const d = new Date(val);
+    if (isNaN(d.getTime())) throw new Error(`toDate: cannot parse date string "${val}"`);
+    return d;
+  }
+  if (typeof val === 'number') {
+    if (!isFinite(val)) throw new Error(`toDate: cannot convert non-finite number ${val} to Date`);
+    return new Date(val);
+  }
+  throw new Error(`toDate: cannot convert value to Date: ${String(val)}`);
 }
 
 export function parseProject(data: Record<string, unknown>, id: string): Project {

@@ -44,7 +44,7 @@ describe('Firebase Client SDK', () => {
     expect(client).toHaveProperty('app');
   });
 
-  it('[P1] 1.10-UNIT-012: client.ts throws descriptive error when env vars are missing', async () => {
+  it('[P1] 1.10-UNIT-012: client.ts throws error listing missing PUBLIC_FIREBASE_* var names', async () => {
     vi.resetModules();
     vi.stubEnv('PUBLIC_FIREBASE_API_KEY', '');
     vi.stubEnv('PUBLIC_FIREBASE_AUTH_DOMAIN', '');
@@ -53,6 +53,18 @@ describe('Firebase Client SDK', () => {
     vi.stubEnv('PUBLIC_FIREBASE_MESSAGING_SENDER_ID', '');
     vi.stubEnv('PUBLIC_FIREBASE_APP_ID', '');
 
-    await expect(() => import('../client')).rejects.toThrow('Missing env vars');
+    await expect(() => import('../client')).rejects.toThrow('PUBLIC_FIREBASE_API_KEY');
+  });
+
+  it('[P0] 1.10-UNIT-015: client.ts connects to emulators with correct ports when PUBLIC_USE_EMULATORS=true', async () => {
+    vi.stubEnv('PUBLIC_USE_EMULATORS', 'true');
+    delete (globalThis as Record<string, unknown>).__firebaseEmulatorsConnected;
+    const { connectAuthEmulator } = await import('firebase/auth');
+    const { connectFirestoreEmulator } = await import('firebase/firestore');
+    const { connectStorageEmulator } = await import('firebase/storage');
+    await import('../client');
+    expect(connectAuthEmulator).toHaveBeenCalledWith(expect.anything(), 'http://127.0.0.1:9099');
+    expect(connectFirestoreEmulator).toHaveBeenCalledWith(expect.anything(), '127.0.0.1', 8080);
+    expect(connectStorageEmulator).toHaveBeenCalledWith(expect.anything(), '127.0.0.1', 9199);
   });
 });

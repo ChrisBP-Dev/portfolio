@@ -113,4 +113,22 @@ describe('Firebase Collections', () => {
       expect(() => parseBlogPost(data as Record<string, unknown>, id)).toThrow();
     });
   });
+
+  describe('toDate validation', () => {
+    it('[P1] 1.10-UNIT-017: parseBlogPost() with invalid date string for createdAt throws descriptive error', () => {
+      const { id, ...data } = createBlogPost();
+      const invalidData = { ...data, createdAt: 'not-a-date' };
+      expect(() => parseBlogPost(invalidData as Record<string, unknown>, id)).toThrow(
+        'toDate: cannot parse date string "not-a-date"',
+      );
+    });
+
+    it('[P1] 1.10-UNIT-018: parseExperience() with missing startDate throws descriptive error', () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { id, startDate: _startDate, ...data } = createExperience();
+      expect(() => parseExperience(data as Record<string, unknown>, id)).toThrow(
+        'toDate: received undefined',
+      );
+    });
+  });
 });

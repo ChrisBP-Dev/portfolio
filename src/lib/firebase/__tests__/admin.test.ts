@@ -32,12 +32,21 @@ describe('Firebase Admin SDK', () => {
     expect(admin).toHaveProperty('adminStorage');
   });
 
-  it('[P1] 1.10-UNIT-014: admin.ts throws descriptive error when env vars are missing', async () => {
+  it('[P1] 1.10-UNIT-014: admin.ts throws error listing missing FIREBASE_ADMIN_* var names', async () => {
     vi.resetModules();
     vi.stubEnv('FIREBASE_ADMIN_PROJECT_ID', '');
     vi.stubEnv('FIREBASE_ADMIN_CLIENT_EMAIL', '');
     vi.stubEnv('FIREBASE_ADMIN_PRIVATE_KEY', '');
 
-    await expect(() => import('../admin')).rejects.toThrow('Missing env vars');
+    await expect(() => import('../admin')).rejects.toThrow('FIREBASE_ADMIN_PROJECT_ID');
+  });
+
+  it('[P0] 1.10-UNIT-016: admin.ts sets FIRESTORE_EMULATOR_HOST and FIREBASE_STORAGE_EMULATOR_HOST when USE_EMULATORS=true', async () => {
+    vi.stubEnv('USE_EMULATORS', 'true');
+    delete process.env.FIRESTORE_EMULATOR_HOST;
+    delete process.env.FIREBASE_STORAGE_EMULATOR_HOST;
+    await import('../admin');
+    expect(process.env.FIRESTORE_EMULATOR_HOST).toBe('127.0.0.1:8080');
+    expect(process.env.FIREBASE_STORAGE_EMULATOR_HOST).toBe('127.0.0.1:9199');
   });
 });
