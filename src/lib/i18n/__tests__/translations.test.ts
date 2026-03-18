@@ -49,5 +49,15 @@ describe('translations', () => {
       expect(t('skipnav.label', 'es')).toBe('Saltar al contenido');
       expect(t('skipnav.label', 'en')).toBe('Skip to content');
     });
+
+    it('theme.toLight has correct values', () => {
+      expect(t('theme.toLight', 'es')).toBe('Cambiar a modo claro');
+      expect(t('theme.toLight', 'en')).toBe('Switch to light mode');
+    });
+
+    it('theme.toDark has correct values', () => {
+      expect(t('theme.toDark', 'es')).toBe('Cambiar a modo oscuro');
+      expect(t('theme.toDark', 'en')).toBe('Switch to dark mode');
+    });
   });
 });

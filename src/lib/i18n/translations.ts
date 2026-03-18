@@ -19,6 +19,10 @@ const translations: Record<string, Record<Locale, string>> = {
   'mobile.close': { es: 'Cerrar menú', en: 'Close menu' },
   'locale.switch': { es: 'Cambiar a inglés', en: 'Switch to Spanish' },
 
+  // Theme toggle aria
+  'theme.toLight': { es: 'Cambiar a modo claro', en: 'Switch to light mode' },
+  'theme.toDark': { es: 'Cambiar a modo oscuro', en: 'Switch to dark mode' },
+
   // Meta
   'meta.description': { es: 'Portfolio de Christopher Bobadilla', en: "Christopher Bobadilla's Portfolio" },
 

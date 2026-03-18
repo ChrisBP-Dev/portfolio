@@ -1,0 +1,17 @@
+---
+// ThemeScript.astro — Inline synchronous script for FOUC prevention
+// Runs in <head> BEFORE any CSS/content renders
+// Must use is:inline (no bundling) for synchronous execution
+---
+
+<script is:inline>
+(function() {
+  const d = document.documentElement;
+  const stored = localStorage.getItem('theme');
+  const isLight = stored === 'light' || (!stored && window.matchMedia('(prefers-color-scheme: light)').matches);
+  if (isLight) {
+    d.classList.remove('dark');
+  }
+  d.style.colorScheme = isLight ? 'light' : 'dark';
+})();
+</script>

@@ -10,6 +10,27 @@
  * :root = light mode, .dark = dark mode
  * <html class="dark"> hace dark el default
  * ============================================ */
+/* color-scheme — tells browser native UI (scrollbars, form controls) to match theme */
+:root { color-scheme: light; }
+.dark { color-scheme: dark; }
+
+/* Theme transition — only active during toggle */
+.theme-transitioning,
+.theme-transitioning *,
+.theme-transitioning *::before,
+.theme-transitioning *::after {
+  transition: color 200ms ease, background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-transitioning,
+  .theme-transitioning *,
+  .theme-transitioning *::before,
+  .theme-transitioning *::after {
+    transition-duration: 0ms !important;
+  }
+}
+
 :root {
   --theme-bg: #FAFBFC;
   --theme-surface: #FFFFFF;
