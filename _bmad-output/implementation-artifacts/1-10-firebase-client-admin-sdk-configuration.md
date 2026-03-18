@@ -47,33 +47,45 @@ So that admin features can use the client SDK and build scripts can query Firest
 - [ ] **Task 4: Create `src/lib/firebase/collections.ts` — Typed collection helpers** (AC: 3)
   - [ ] 4.1 Export `COLLECTION_PATHS` constant object: `{ projects: 'Projects', technologies: 'Technologies', experiences: 'Experiences', blogPosts: 'BlogPosts' } as const`
   - [ ] 4.2 Import Zod schemas: `projectSchema`, `technologySchema`, `experienceSchema`, `blogPostSchema` and their types
-  - [ ] 4.3 Create Firestore Timestamp → JS Date converter helper (private): `function toDate(val: unknown): Date` — handles Firestore `Timestamp` objects (have `.toDate()` method), JS `Date` instances, and numeric timestamps
+  - [ ] 4.3 Create Firestore Timestamp → JS Date converter helper (private): `function toDate(val: unknown): Date` — handles Firestore `Timestamp` objects (have `.toDate()` method), JS `Date` instances, ISO string dates, and numeric timestamps
   - [ ] 4.4 Create `parseProject(data: Record<string, unknown>, id: string): Project` — spread data, add id, convert date fields if any, validate with `projectSchema.parse()`
   - [ ] 4.5 Create `parseTechnology(data: Record<string, unknown>, id: string): Technology` — spread data, add id, validate with `technologySchema.parse()`
-  - [ ] 4.6 Create `parseExperience(data: Record<string, unknown>, id: string): Experience` — spread data, add id, convert `startDate`/`endDate` with `toDate()`, validate with `experienceSchema.parse()`
-  - [ ] 4.7 Create `parseBlogPost(data: Record<string, unknown>, id: string): BlogPost` — spread data, add id, convert `createdAt`/`updatedAt` with `toDate()`, validate with `blogPostSchema.parse()`
+  - [ ] 4.6 Create `parseExperience(data: Record<string, unknown>, id: string): Experience` — spread data, add id, convert `startDate`/`endDate` with `toDate()`, validate with `experienceSchema.parse()`. Note: schema uses `.refine()` that enforces `endDate >= startDate` — invalid date ordering will throw
+  - [ ] 4.7 Create `parseBlogPost(data: Record<string, unknown>, id: string): BlogPost` — spread data, add id, convert `createdAt`/`updatedAt` with `toDate()`, validate with `blogPostSchema.parse()`. Note: schema uses `.refine()` that enforces `updatedAt >= createdAt` — invalid date ordering will throw
 
 - [ ] **Task 5: Update `.env.example`** (AC: 5, 7)
-  - [ ] 5.1 Add `PUBLIC_USE_EMULATORS=false` under a "# Emuladores (solo para desarrollo local)" section
-  - [ ] 5.2 Add `USE_EMULATORS=false` (for Admin SDK build-time emulator support)
-  - [ ] 5.3 Verify all existing vars are still present and documented
+  - [ ] 5.1 Add new section at the end of the file following the existing comment format:
+    ```
+    # Emuladores (solo para desarrollo local)
+    # Activar para conectar SDKs a Firebase Emulator Suite en vez de producción
+    PUBLIC_USE_EMULATORS=false
+    USE_EMULATORS=false
+    ```
+  - [ ] 5.2 Verify all existing 10 vars (7 PUBLIC_ + 3 FIREBASE_ADMIN_) are still present and documented
 
 - [ ] **Task 6: Unit tests** (AC: 1-7)
+  - **Test naming convention:** Follow project standard `[P0] 1.10-UNIT-XXX: description` (see `src/lib/schemas/__tests__/schemas.test.ts` for reference)
+  - **Test data:** Use existing factories from `src/test/factories/` (`createProject`, `createTechnology`, `createExperience`, `createBlogPost`) — they generate Zod-valid data. For Timestamp simulation, destructure factory output and replace Date fields with `{ toDate: () => originalDate }` mocks
+  - **Emulators NOT needed:** All collections.test.ts tests use pure mock data — no Firebase Emulators required. Only future integration tests will need emulators
   - [ ] 6.1 Create `src/lib/firebase/__tests__/collections.test.ts`:
-    - Test `COLLECTION_PATHS` has exactly 4 entries with correct Firestore collection names
-    - Test `parseProject()` with valid data returns typed Project
-    - Test `parseProject()` with missing required field throws ZodError
-    - Test `parseTechnology()` with valid data returns typed Technology
-    - Test `parseExperience()` with valid data (endDate null) returns typed Experience
-    - Test `parseExperience()` with Firestore-like Timestamp mock (object with `.toDate()` method) converts correctly
-    - Test `parseBlogPost()` with valid data returns typed BlogPost
-    - Test `parseBlogPost()` with Timestamp mocks for createdAt/updatedAt converts correctly
+    - `[P0] 1.10-UNIT-001:` COLLECTION_PATHS has exactly 4 entries with correct Firestore collection names
+    - `[P0] 1.10-UNIT-002:` parseProject() with valid factory data returns typed Project
+    - `[P1] 1.10-UNIT-003:` parseProject() with missing required field throws ZodError
+    - `[P0] 1.10-UNIT-004:` parseTechnology() with valid factory data returns typed Technology
+    - `[P0] 1.10-UNIT-005:` parseExperience() with valid factory data (endDate null) returns typed Experience
+    - `[P0] 1.10-UNIT-006:` parseExperience() with Firestore-like Timestamp mock (object with `.toDate()` method) converts correctly
+    - `[P1] 1.10-UNIT-007:` parseExperience() with endDate < startDate throws (schema `.refine()` validation)
+    - `[P0] 1.10-UNIT-008:` parseBlogPost() with valid factory data returns typed BlogPost
+    - `[P0] 1.10-UNIT-009:` parseBlogPost() with Timestamp mocks for createdAt/updatedAt converts correctly
+    - `[P1] 1.10-UNIT-010:` parseBlogPost() with updatedAt < createdAt throws (schema `.refine()` validation)
   - [ ] 6.2 Create `src/lib/firebase/__tests__/client.test.ts`:
-    - Test `client.ts` module is importable (ES module check)
-    - Test module exports `auth`, `db`, `storage`, `app` names
+    - Mock `import.meta.env` with valid `PUBLIC_FIREBASE_*` values using `vi.stubEnv()` or `vi.hoisted()` + `vi.mock()` BEFORE dynamic import
+    - `[P0] 1.10-UNIT-011:` client.ts module exports `auth`, `db`, `storage`, `app` names
+    - `[P1] 1.10-UNIT-012:` client.ts throws descriptive error when env vars are missing
   - [ ] 6.3 Create `src/lib/firebase/__tests__/admin.test.ts`:
-    - Test `admin.ts` module is importable (ES module check)
-    - Test module exports `adminDb`, `adminStorage` names
+    - Mock `import.meta.env` with valid `FIREBASE_ADMIN_*` values BEFORE dynamic import
+    - `[P0] 1.10-UNIT-013:` admin.ts module exports `adminDb`, `adminStorage` names
+    - `[P1] 1.10-UNIT-014:` admin.ts throws descriptive error when env vars are missing
   - [ ] 6.4 Run `pnpm test` and verify 0 regressions (baseline: 128 tests, 10 files)
 
 - [ ] **Task 7: Build verification** (AC: 1-7)
@@ -264,6 +276,7 @@ function toDate(val: unknown): Date {
   if (val != null && typeof val === 'object' && 'toDate' in val && typeof (val as { toDate: unknown }).toDate === 'function') {
     return (val as { toDate: () => Date }).toDate();
   }
+  if (typeof val === 'string') return new Date(val);
   if (typeof val === 'number') return new Date(val);
   throw new Error(`Cannot convert to Date: ${String(val)}`);
 }
@@ -367,13 +380,36 @@ interface ImportMeta {
 
 ### Testing Strategy
 
-Firebase SDK initialization requires actual env vars or emulators. For unit tests:
+**Firebase Emulators NOT required for these unit tests.** All tests use mock data or mocked env vars. Only future integration tests (Epic 2+) will need running emulators.
 
-1. **collections.test.ts** — Test parse helpers with mock data (no Firebase needed). Mock Firestore `Timestamp` as `{ toDate: () => new Date(...) }`. This is the most valuable test file.
-2. **client.test.ts** — Test module structure only (importability, export names). Actual initialization would fail without env vars. Use dynamic `import()` in try/catch or check module exports.
-3. **admin.test.ts** — Same as client — test module structure only.
+1. **collections.test.ts** — Test parse helpers with factory data from `src/test/factories/`. Mock Firestore `Timestamp` as `{ toDate: () => originalDate }`. Use factory output, destructure, and replace Date fields with Timestamp mocks. This is the most valuable test file.
+2. **client.test.ts** — Mock `import.meta.env` then test module exports and validation errors.
+3. **admin.test.ts** — Mock `import.meta.env` then test module exports and validation errors.
 
-**Note on client/admin tests:** These modules will throw on import if env vars are missing. The test should verify the module exists and has the right structure. For testing actual SDK behavior, integration tests with emulators (future) would be appropriate. A pragmatic approach: mock `import.meta.env` in test setup, or test the validation error messages.
+**Vitest `import.meta.env` mocking for client/admin tests:**
+
+```typescript
+// Option A: vi.stubEnv() — sets individual env vars before dynamic import
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+beforeEach(() => {
+  vi.stubEnv('PUBLIC_FIREBASE_API_KEY', 'test-key');
+  vi.stubEnv('PUBLIC_FIREBASE_AUTH_DOMAIN', 'test.firebaseapp.com');
+  // ... stub all required vars
+});
+
+// Option B: For testing missing vars, DON'T stub them — the module will throw
+it('throws descriptive error when env vars missing', async () => {
+  // Reset module registry to force re-evaluation
+  vi.resetModules();
+  await expect(() => import('../client')).rejects.toThrow('Missing env vars');
+});
+```
+
+**Schema `.refine()` constraints to respect in test data:**
+- `experienceSchema`: `endDate >= startDate` (or `endDate === null`)
+- `blogPostSchema`: `updatedAt >= createdAt`
+- Factory data from `src/test/factories/` already satisfies these constraints
 
 ### Build Impact
 
