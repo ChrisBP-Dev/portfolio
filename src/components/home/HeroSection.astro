@@ -20,16 +20,14 @@ const contactHref = localizeHref('/contact', locale);
 <Section variant="hero">
   <Container variant="narrow">
     <div class="flex flex-col items-center text-center">
-      <div class="rounded-full bg-gradient-to-br from-primary to-primary-dark p-[3px] mb-8">
-        <div class="rounded-full bg-background">
-          <Image
-            src={avatar}
-            alt="ChrisBP"
-            class="rounded-full"
-            width={120}
-            height={120}
-          />
-        </div>
+      <div class="w-48 h-48 rounded-full overflow-hidden bg-gradient-to-br from-primary to-primary-dark mb-8 flex items-center justify-center">
+        <Image
+          src={avatar}
+          alt="ChrisBP"
+          class="block"
+          width={150}
+          height={150}
+        />
       </div>
 
       <h1 class="text-display font-bold mb-6">

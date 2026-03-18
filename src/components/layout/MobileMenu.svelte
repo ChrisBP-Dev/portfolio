@@ -2,7 +2,7 @@
   import { cubicInOut } from 'svelte/easing';
   import { navItems, localizeHref } from '../../data/navigation';
   import { t } from '../../lib/i18n/translations';
-  import logoSrc from '../../assets/logo/cbp-short-logo-dark.png';
+  import logoSrc from '../../assets/logo/cbp-large-logo-dark.png';
 
   interface Props {
     currentPage?: string;
