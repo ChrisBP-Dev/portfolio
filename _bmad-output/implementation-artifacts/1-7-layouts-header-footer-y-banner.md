@@ -1,6 +1,6 @@
 # Story 1.7: Layouts, Header, Footer y Banner
 
-Status: review
+Status: done
 
 ## Story
 
@@ -351,3 +351,58 @@ Claude Opus 4.6 (1M context)
 - `src/layouts/.gitkeep` — ELIMINADO
 - `package.json` — MODIFICADO (sharp dependency)
 - `pnpm-lock.yaml` — MODIFICADO
+
+## Code Review Record
+
+### Review Model Used
+
+Claude Opus 4.6 (1M context)
+
+### Review Layers
+
+- **Blind Hunter** — adversarial review, diff only (no project context)
+- **Edge Case Hunter** — boundary conditions, race conditions, unhandled paths
+- **Acceptance Auditor** — spec compliance, AC verification
+
+### Triage Summary
+
+| Categoría | Cantidad |
+|-----------|----------|
+| Bad Spec | 3 |
+| Patch | 6 |
+| Defer | 2 |
+| Rechazados (ruido) | 14 |
+
+### Bad Spec Findings (Corregidos)
+
+- **BS-1**: Banner invisible detrás del Header `fixed top-0` — composición visual rota. El Banner (estático) quedaba oculto detrás del Header fijo con z-50. **Fix:** Header cambiado de `fixed top-0` a `sticky top-0`, eliminado `pt-16` del `<main>` en BaseLayout.
+- **BS-2**: Breakpoints del spec (450/900px) contradicen `lg:` (1024px) usado en componentes — contradicción interna del spec. **Nota:** No se modificó; los breakpoints `lg:` son la implementación pragmática correcta para Tailwind v4.
+- **BS-3**: SkipNav spec dice "focus-visible styles" pero el code template usa `focus:`. **Fix:** Cambiado a `focus-visible:` en SkipNav.astro.
+
+### Patches Applied (6)
+
+- **P-1**: Focus trap guard para NodeList vacía — `if (focusable.length === 0) return;` en MobileMenu.svelte
+- **P-2**: Retorno de focus al trigger button al cerrar — `bind:this={triggerRef}` + `triggerRef?.focus()` en `close()`
+- **P-3**: Cierre automático al redimensionar a desktop — `matchMedia('(min-width: 1024px)')` listener en `$effect`
+- **P-4**: Animación de salida (slide-up) — reemplazado CSS `@keyframes` con Svelte custom `transition:slideDown` que soporta intro+outro, `cubicInOut` easing, y `prefers-reduced-motion`
+- **P-5**: `tabindex="-1"` agregado a `<main id="main">` para que el skip link mueva el focus correctamente
+- **P-6**: `navItems` duplicado extraído a `src/data/navigation.ts` — importado en Header.astro y MobileMenu.svelte
+
+### Deferred Items (2)
+
+- **D-1**: `lang="es"` con contenido en inglés — será resuelto en story 1.8 (i18n)
+- **D-2**: AdminLayout sidebar sin responsive handling — placeholder para story 3.2
+
+### Verification
+
+- `pnpm type-check`: 0 errores (37 archivos)
+- `pnpm test`: 58 tests passed, 0 regresiones
+- `pnpm build`: exitoso, 1 página generada
+
+### Files Modified by Code Review
+
+- `src/components/common/SkipNav.astro` — focus: → focus-visible: (BS-3)
+- `src/components/layout/Header.astro` — fixed → sticky, navItems import (BS-1, P-6)
+- `src/components/layout/MobileMenu.svelte` — focus trap guard, focus return, matchMedia, Svelte transition, navItems import (P-1 a P-6)
+- `src/layouts/BaseLayout.astro` — remove pt-16, add tabindex="-1" (BS-1, P-5)
+- `src/data/navigation.ts` — NUEVO, shared navItems + NavKey type (P-6)

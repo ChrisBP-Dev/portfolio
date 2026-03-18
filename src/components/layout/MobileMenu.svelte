@@ -1,17 +1,24 @@
 <script lang="ts">
+  import { cubicInOut } from 'svelte/easing';
+  import { navItems } from '../../data/navigation';
   import logoSrc from '../../assets/logo/cbp-short-logo-dark.png';
 
   let { currentPage = 'home' }: { currentPage: string } = $props();
 
   let isOpen = $state(false);
+  let triggerRef: HTMLButtonElement;
 
-  const navItems = [
-    { label: 'Home', href: '/', key: 'home' },
-    { label: 'Projects', href: '/projects', key: 'projects' },
-    { label: 'Experience', href: '/experience', key: 'experience' },
-    { label: 'Blog', href: '/blog', key: 'blog' },
-    { label: 'Contact', href: '/contact', key: 'contact' },
-  ];
+  const reducedMotion = typeof window !== 'undefined'
+    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    : false;
+
+  function slideDown(_node: Element) {
+    return {
+      duration: reducedMotion ? 0 : 300,
+      easing: cubicInOut,
+      css: (t: number) => `transform: translateY(${(1 - t) * -100}%)`,
+    };
+  }
 
   function toggle() {
     isOpen = !isOpen;
@@ -19,6 +26,7 @@
 
   function close() {
     isOpen = false;
+    triggerRef?.focus();
   }
 
   $effect(() => {
@@ -26,6 +34,10 @@
 
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const handleResize = () => { if (mq.matches) close(); };
+    mq.addEventListener('change', handleResize);
 
     function handleKeydown(e: KeyboardEvent) {
       if (e.key === 'Escape') {
@@ -38,6 +50,8 @@
         if (!menu) return;
 
         const focusable = menu.querySelectorAll<HTMLElement>('a[href], button');
+        if (focusable.length === 0) return;
+
         const first = focusable[0];
         const last = focusable[focusable.length - 1];
 
@@ -56,11 +70,13 @@
     return () => {
       document.body.style.overflow = originalOverflow;
       document.removeEventListener('keydown', handleKeydown);
+      mq.removeEventListener('change', handleResize);
     };
   });
 </script>
 
 <button
+  bind:this={triggerRef}
   class="lg:hidden min-h-11 min-w-11 flex items-center justify-center text-text-primary focus:outline-2 focus:outline-offset-2 focus:outline-primary"
   aria-label={isOpen ? 'Cerrar menú' : 'Abrir menú'}
   aria-expanded={isOpen}
@@ -80,7 +96,8 @@
 {#if isOpen}
   <div
     id="mobile-menu-overlay"
-    class="fixed inset-0 z-[60] bg-background flex flex-col items-center justify-center mobile-overlay motion-reduce:transition-none"
+    class="fixed inset-0 z-[60] bg-background flex flex-col items-center justify-center"
+    transition:slideDown
   >
     <div class="absolute top-4 left-4">
       <img src={logoSrc} alt="ChrisBP" class="h-10 w-auto" />
@@ -110,24 +127,3 @@
     </nav>
   </div>
 {/if}
-
-<style>
-  .mobile-overlay {
-    animation: slideDown 300ms ease-in-out;
-  }
-
-  @keyframes slideDown {
-    from {
-      transform: translateY(-100%);
-    }
-    to {
-      transform: translateY(0);
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .mobile-overlay {
-      animation: none;
-    }
-  }
-</style>
