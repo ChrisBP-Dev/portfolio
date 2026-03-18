@@ -31,7 +31,7 @@ So that I can form a positive first impression within 3 seconds.
   - [ ] 2.1 Add translation keys to `src/lib/i18n/translations.ts`:
     - `home.hero.heading` — "Yo programo y creo" / "I code and create"
     - `home.hero.headingAccent` — "contenido" / "content"
-    - `home.hero.description` — paragraph describing Christopher (ES/EN)
+    - `home.hero.description` — ES: "Desarrollador apasionado por crear aplicaciones móviles, sitios web y contenido educativo sobre tecnología." / EN: "Developer passionate about creating mobile apps, websites, and educational content about technology." (Christopher can refine later — provide meaningful placeholder, NOT lorem ipsum)
     - `home.hero.cta.contact` — "Contáctame" / "Get in Touch"
     - `home.hero.cta.resume` — "Descargar CV" / "Download Resume"
     - `home.knowledgeOf.title` — "CONOCIMIENTOS" / "KNOWLEDGE OF"
@@ -45,36 +45,43 @@ So that I can form a positive first impression within 3 seconds.
   - [ ] 3.3 Avatar: use `cbp-short-logo-dark.png` from `src/assets/logo/` with Astro `<Image />` — circular crop (`rounded-full`), gradient border (2-3px solid with brand gradient via `border-image` or wrapper div with gradient background + inner padding)
   - [ ] 3.4 Heading: split into two parts — regular text + accent word. Accent word uses CSS `background-clip: text` with `background-image: linear-gradient(135deg, #48A1CD, #108385)` and `text-fill-color: transparent`
   - [ ] 3.5 Description paragraph: centered, max-width for readability, `text-secondary` color
-  - [ ] 3.6 Two CTAs using existing `Button.astro`: "Get in Touch" (`variant="primary"`, `href` → localized `/contact`) + "Download Resume" (`variant="secondary"`, `href` → `/resume.pdf` or placeholder)
+  - [ ] 3.6 Two CTAs using existing `Button.astro`: "Get in Touch" (`variant="primary"`, `href` → localized `/contact`) + "Download Resume" (`variant="secondary"`, `href="/resume.pdf"`, `download` — Button.astro supports extra HTML attributes via `...attrs` spread, so just pass `download` as a prop)
   - [ ] 3.7 Responsive: all content centered, spacing scales with Section variant `hero`
-  - [ ] 3.8 Wrap in existing `Section.astro` with `variant="hero"` and `Container.astro`
+  - [ ] 3.8 Wrap in existing `Section.astro` with `variant="hero"` and `Container.astro` with `variant="narrow"` (720px max-width for centered hero readability)
+  - [ ] 3.9 Create placeholder `public/resume.pdf` if it does not exist (it currently does NOT exist) — Christopher will replace with real CV later
 
 - [ ] Task 4: TechnologiesSection.astro component (AC: #2, #3, #4, #5)
   - [ ] 4.1 Create `src/components/home/TechnologiesSection.astro`
   - [ ] 4.2 Props: `technologies: Technology[]`, `locale: Locale`
-  - [ ] 4.3 Title "KNOWLEDGE OF" bold centered — use `t('home.knowledgeOf.title', locale)`, uppercase, font-weight 700, `heading-2` size
+  - [ ] 4.3 Title "KNOWLEDGE OF" bold centered — use `t('home.knowledgeOf.title', locale)`, uppercase, font-weight 700, `text-heading-1` size (section titles use heading-1 per UX spec)
   - [ ] 4.4 Technology items in horizontal flex row (`flex flex-wrap justify-center gap-6 lg:gap-8`): each item is vertical stack (image on top, name below centered)
   - [ ] 4.5 Technology images: `<img>` tag (NOT Astro `<Image />` — these are external Firebase Storage URLs), `loading="lazy"`, reasonable size (48-64px), `alt={tech.name}`
   - [ ] 4.6 Technology names: `tech.name` (not localized — technology names are universal per schema)
-  - [ ] 4.7 Wrap in existing `Section.astro` and `Container.astro`
+  - [ ] 4.7 Wrap in existing `Section.astro` with `variant="default"` and `Container.astro` with `variant="default"` (1200px max-width for tech row)
   - [ ] 4.8 Compact layout — NOT categorized grid, just a centered row
+  - [ ] 4.9 Remove `src/components/home/.gitkeep` after adding real component files
 
 - [ ] Task 5: Wire up Home pages with data fetching (AC: all)
   - [ ] 5.1 Update `src/pages/index.astro`:
-    - Import `adminDb` from `../../lib/firebase/admin`
-    - Import `getAllTechnologies` from `../../lib/firebase/collections`
-    - Import `getLocaleFromUrl` from `../../lib/i18n/config`
+    - Import `adminDb` from `../lib/firebase/admin` (one level up from `src/pages/`)
+    - Import `getAllTechnologies` from `../lib/firebase/collections`
+    - Import `getLocaleFromUrl` from `../lib/i18n/config`
     - Query technologies in frontmatter: `const technologies = await getAllTechnologies(adminDb)`
-    - Get locale: `const locale = getLocaleFromUrl(Astro.url)`
+    - Get locale: `const locale = getLocaleFromUrl(Astro.url)` → returns `'es'` for `/`
     - Replace `<h1>Astro</h1>` with `<HeroSection>` + `<TechnologiesSection>`
     - Update BaseLayout props: localized `title` and `description` for SEO
-  - [ ] 5.2 Update `src/pages/en/index.astro` — same pattern, English locale
+  - [ ] 5.2 Update `src/pages/en/index.astro` — same pattern but imports use `../../lib/` (two levels up from `src/pages/en/`), `getLocaleFromUrl(Astro.url)` returns `'en'` for `/en/`
   - [ ] 5.3 Verify `pnpm build` succeeds — this is the FIRST real Admin SDK usage in build time (validates SSG architecture)
 
 - [ ] Task 6: Unit tests (AC: all)
   - [ ] 6.1 Test `getAllTechnologies()` — mock Firestore, verify parse flow and return type
   - [ ] 6.2 Test all new i18n keys exist for both locales
   - [ ] 6.3 Verify CI pipeline passes (`pnpm lint && pnpm type-check && pnpm test && pnpm build`)
+
+- [ ] Task 7: E2E smoke test (Epic 1 retro recommendation — start Playwright E2E from this story)
+  - [ ] 7.1 Create `tests/e2e/home-page.spec.ts` — basic smoke test: home page loads, HeroSection visible (heading text, both CTAs), TechnologiesSection visible (title + at least 1 technology item)
+  - [ ] 7.2 Test both locales: `/` (ES) and `/en/` (EN) — verify section titles change language
+  - [ ] 7.3 Verify `pnpm exec playwright test` passes in CI
 
 ## Dev Notes
 
@@ -105,14 +112,24 @@ Add to `src/lib/firebase/collections.ts`. Accept Firestore instance as parameter
 import type { Firestore } from 'firebase-admin/firestore';
 
 export async function getAllTechnologies(db: Firestore): Promise<Technology[]> {
-  const snapshot = await db.collection(COLLECTION_PATHS.technologies).get();
+  const snapshot = await db.collection(COLLECTION_PATHS.technologies).orderBy('name').get();
   return snapshot.docs.map((doc) => parseTechnology(doc.data(), doc.id));
+}
+
+export async function getAllProjects(db: Firestore): Promise<Project[]> {
+  const snapshot = await db.collection(COLLECTION_PATHS.projects).get();
+  return snapshot.docs.map((doc) => parseProject(doc.data(), doc.id));
+}
+
+export async function getAllExperiences(db: Firestore): Promise<Experience[]> {
+  const snapshot = await db.collection(COLLECTION_PATHS.experiences).orderBy('startDate', 'desc').get();
+  return snapshot.docs.map((doc) => parseExperience(doc.data(), doc.id));
 }
 ```
 
 **Why parameter injection:** `collections.ts` currently has NO import of `admin.ts`. Keeping it that way means the parse functions remain usable in any context (migration scripts, tests, future client SDK). The `db` parameter is injected by the caller.
 
-Also add `getAllProjects()` and `getAllExperiences()` following the same pattern — Story 2.3 needs them, and establishing the pattern now prevents duplication later.
+**Why `orderBy('name')` on technologies:** Ensures consistent display order across builds. Without it, Firestore returns docs by document ID which is unpredictable.
 
 ### Avatar/Mascot Image
 
@@ -155,11 +172,7 @@ The heading "I code and create **content**" has the word "content" (or "contenid
 
 ### "Download Resume" CTA
 
-The button links to a resume PDF. Check if a PDF exists in `public/` directory. If not:
-- Create a placeholder file at `public/resume.pdf` (or `public/cv-christopher-bobadilla.pdf`)
-- Christopher will replace with his real CV later
-- The `href` should be a direct path: `/resume.pdf`
-- Add `download` attribute to the `<a>` tag for download behavior
+`public/resume.pdf` does NOT exist — create a minimal placeholder PDF (Task 3.9). Christopher will replace with his real CV later. Usage: `<Button variant="secondary" href="/resume.pdf" download>{t('home.hero.cta.resume', locale)}</Button>` — the `download` attribute passes through via Button.astro's `...attrs` spread.
 
 ### Technology Images — External URLs from Firebase Storage
 
@@ -189,13 +202,9 @@ Technologies: 4 docs (new schema)
 
 **DO NOT create** SectionTitle, GradientText, or other new common components unless truly reusable across 3+ stories. Inline the styles in the home components.
 
-### i18n Pattern — Static UI Strings vs. Dynamic Data
+### i18n Pattern
 
-Two separate i18n systems:
-1. **Static UI strings** → `t('key', locale)` from `src/lib/i18n/translations.ts` — for headings, labels, CTAs
-2. **Dynamic data** → `item.field[locale]` from Firestore — for project names, descriptions, etc.
-
-For this story, technologies use `tech.name` (NOT localized — names are universal). Only UI labels (heading, description, CTAs, section titles) use `t()`.
+Two systems: `t('key', locale)` for static UI strings (headings, CTAs) and `item.field[locale]` for Firestore data. For this story, technology names are universal strings (`tech.name`), NOT localized.
 
 ### Visual References — MUST Consult Before Implementing
 
@@ -256,8 +265,6 @@ src/lib/firebase/__tests__/collections.test.ts   # Test get* functions (if not a
 
 Verify existence and add test for new functions if file already exists.
 
-`src/components/home/` directory exists (has `.gitkeep`) — remove `.gitkeep` after adding real files.
-
 ### Testing Standards
 
 - Framework: Vitest
@@ -302,25 +309,9 @@ Pattern: semantic commit prefixes (`feat:`, `fix:`, `docs:`), descriptive messag
 
 ### References
 
-- [Source: _bmad-output/planning-artifacts/visual-reference/01-desktop-home-top.png] — Desktop home visual reference
-- [Source: _bmad-output/planning-artifacts/visual-reference/06-mobile-home-top.png] — Mobile home visual reference
-- [Source: _bmad-output/planning-artifacts/visual-reference/12-mobile-light-mode.png] — Light mode variant
-- [Source: _bmad-output/planning-artifacts/ux-design-specification.md#About Me] — UX spec for About Me section
-- [Source: _bmad-output/planning-artifacts/ux-design-specification.md#Knowledge Of] — UX spec for Knowledge Of section
-- [Source: _bmad-output/planning-artifacts/architecture.md#Component Architecture] — Astro vs Svelte component rules
-- [Source: _bmad-output/planning-artifacts/architecture.md#Data Architecture] — SSG data fetching pattern
-- [Source: _bmad-output/planning-artifacts/epics.md#Story 2.2] — Original acceptance criteria
-- [Source: src/lib/firebase/collections.ts] — Parse helpers and COLLECTION_PATHS
-- [Source: src/lib/firebase/admin.ts] — Admin SDK init (build-time only)
-- [Source: src/lib/schemas/technology-schema.ts] — Technology Zod schema
-- [Source: src/lib/i18n/translations.ts] — Current translation keys
-- [Source: src/lib/i18n/config.ts] — Locale config and getLocaleFromUrl()
-- [Source: src/components/common/Button.astro] — Button component (primary/secondary variants)
-- [Source: src/components/common/Section.astro] — Section wrapper component
-- [Source: src/components/common/Container.astro] — Centered content wrapper
-- [Source: src/layouts/BaseLayout.astro] — Main page layout
-- [Source: _bmad-output/implementation-artifacts/2-1-data-migration-script.md] — Previous story learnings
-- [Source: _bmad-output/implementation-artifacts/epic-1-retro-2026-03-18.md] — Epic 1 retrospective
+**Visual:** `_bmad-output/planning-artifacts/visual-reference/` → `01-desktop-home-top.png`, `06-mobile-home-top.png`, `12-mobile-light-mode.png`
+**Specs:** `_bmad-output/planning-artifacts/` → `ux-design-specification.md`, `architecture.md`, `epics.md`
+**Previous work:** `_bmad-output/implementation-artifacts/2-1-data-migration-script.md`, `epic-1-retro-2026-03-18.md`
 
 ## Dev Agent Record
 
