@@ -12,6 +12,7 @@ dist/
 # Firebase credentials
 *.pem
 *-service-account*.json
+*-adminsdk-*.json
 
 # OS files
 .DS_Store

@@ -16,7 +16,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test --pass-with-no-tests",
-    "emulators": "firebase emulators:start --only auth,firestore,storage"
+    "emulators": "firebase emulators:start --only auth,firestore,storage",
+    "migrate": "node --env-file=.env --import tsx src/lib/scripts/migrate-firestore-data.ts"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -52,6 +53,7 @@
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-svelte": "^3.5.1",
     "tailwindcss": "^4.2.1",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.57.1",
     "vitest": "^4.1.0"
