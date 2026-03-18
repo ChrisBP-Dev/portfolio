@@ -14,7 +14,7 @@ So that I can read content in my preferred language.
 2. **AC-2: English routing** — `GET /en/` renders English content; `Astro.currentLocale` returns `'en'`
 3. **AC-3: Static translations dictionary** — `src/lib/i18n/translations.ts` provides both ES and EN for all UI strings (nav labels, buttons, section titles, aria-labels)
 4. **AC-4: LocaleToggle FAB** — Renders floating bottom-right with active locale flag (Spain for ES, USA for EN)
-5. **AC-5: Locale switching** — On Spanish page, clicking LocaleToggle navigates to English equivalent (and vice versa) without full page reload; flag changes accordingly
+5. **AC-5: Locale switching** — On Spanish page, clicking LocaleToggle navigates to English equivalent URL via `window.location.href` (and vice versa); flag changes accordingly. Note: Astro SSG generates separate HTML files per locale, so navigation is a standard page transition — this is correct and expected for static output. Do NOT attempt SPA-like navigation or View Transitions.
 6. **AC-6: Locale-aware URLs** — `/en/projects` renders in English with correct URL; all existing pages have `/en/` counterparts
 7. **AC-7: Svelte 5 island** — LocaleToggle is a Svelte 5 component with `client:load` hydration
 8. **AC-8: Accessibility** — `aria-label` reads "Cambiar a inglés" on ES pages, "Switch to Spanish" on EN pages
@@ -37,7 +37,7 @@ So that I can read content in my preferred language.
 - [ ] **Task 4: Localize navigation data** (AC: 3, 9)
   - [ ] 4.1 Refactor `src/data/navigation.ts` — change `label` from `string` to `Record<Locale, string>` (e.g., `{ es: 'Inicio', en: 'Home' }`) or use translations dictionary with keys
   - [ ] 4.2 Update `Header.astro` to pass `locale` and render localized nav labels
-  - [ ] 4.3 Update `MobileMenu.svelte` to accept `locale` prop and render localized labels + aria-labels
+  - [ ] 4.3 Update `MobileMenu.svelte` to accept `locale` prop (`'es' | 'en'`). Specific changes: (a) Add `locale` to Props interface, (b) Change nav label rendering from `item.label` to `item.label[locale]` (since `label` becomes `Record<Locale, string>`), (c) Change hrefs from `item.href` to `localizeHref(item.href, locale)` — import `localizeHref` from navigation.ts, (d) Change hamburger aria-label from hardcoded `'Abrir menú'/'Cerrar menú'` to use translations: `t('mobile.open', locale)`/`t('mobile.close', locale)`, (e) Change nav aria-label from `'Navegación principal'` to `t('nav.aria', locale)` — import `t` from translations.ts
 
 - [ ] **Task 5: Update BaseLayout for i18n** (AC: 1, 2, 9)
   - [ ] 5.1 Change `<html lang="es">` to `<html lang={locale}>` using `Astro.currentLocale`
@@ -74,12 +74,13 @@ So that I can read content in my preferred language.
 - [ ] **Task 10: Unit tests** (AC: 1-9)
   - [ ] 10.1 Create `src/lib/i18n/__tests__/config.test.ts` — test `getLocaleFromUrl()` with various URL patterns (`/`, `/en/`, `/projects`, `/en/projects`)
   - [ ] 10.2 Create `src/lib/i18n/__tests__/translations.test.ts` — test `t()` returns correct strings for both locales, test all keys exist in both ES and EN, test unknown key returns key itself
-  - [ ] 10.3 Verify all existing tests still pass (`pnpm test`)
+  - [ ] 10.3 Create `src/data/__tests__/navigation.test.ts` — test `localizeHref()`: returns unchanged href for `'es'` locale, prefixes `/en` for `'en'` locale, handles root `/` correctly (`/en/` not `/en`), handles nested paths (`/projects` → `/en/projects`)
+  - [ ] 10.4 Verify all existing tests still pass (`pnpm test`)
 
 - [ ] **Task 11: Build verification** (AC: 1-9)
   - [ ] 11.1 `pnpm type-check` — 0 errors
-  - [ ] 11.2 `pnpm test` — all tests pass, 0 regressions
-  - [ ] 11.3 `pnpm build` — succeeds, generates both `/` and `/en/` routes
+  - [ ] 11.2 `pnpm test` — all tests pass (baseline: 58, expected: ~68+), 0 regressions
+  - [ ] 11.3 `pnpm build` — succeeds, generates both `/` and `/en/` routes in `dist/`
 
 ## Dev Notes
 
@@ -88,8 +89,8 @@ So that I can read content in my preferred language.
 - **Framework:** Astro 6.0.5 SSG (`output: 'static'`), Svelte 5.53.12 for islands, Tailwind CSS 4.2.1 (CSS-first)
 - **i18n approach:** Astro native i18n — NO third-party i18n library needed
 - **Routing:** Folder-based. Spanish at root `/`, English under `/en/`. `prefixDefaultLocale: false`
-- **Astro 6 breaking change:** `redirectToDefaultLocale` default changed in v6 — set explicitly to `true`
-- **Static output:** `getRelativeLocaleUrl()` from `astro:i18n` works with static builds for URL generation
+- **Astro 6 breaking change:** `redirectToDefaultLocale` defaults to `false` in Astro 6 (was `true` in v5). Set explicitly to `true` so that `/es/` redirects to `/` (default locale has no prefix).
+- **Static output:** `getRelativeLocaleUrl()` from `astro:i18n` works with static builds for URL generation. Import: `import { getRelativeLocaleUrl } from 'astro:i18n';`
 - **`Astro.currentLocale`:** Available in all `.astro` files, returns current locale from URL
 
 ### LocaleToggle Architecture
@@ -179,6 +180,10 @@ i18n: {
 },
 ```
 
+### Components NOT Modified (Excluded from i18n)
+
+- `src/layouts/AdminLayout.astro` — NO changes. Admin pages are single-language (Spanish only) per architecture. Do NOT add locale prop or translations to AdminLayout.
+
 ### Existing Components to Modify
 
 | File | Change | Props Added |
@@ -192,6 +197,45 @@ i18n: {
 | `src/components/common/SkipNav.astro` | Accept `locale`, localize link text | `locale: Locale` |
 | `src/data/navigation.ts` | Bilingual labels, `localizeHref()` helper | — |
 
+### Props Interface Changes (Before → After)
+
+```typescript
+// BaseLayout.astro
+// BEFORE:
+interface Props { title: string; description?: string; currentPage?: NavKey; }
+// AFTER:
+interface Props { title: string; description?: string; currentPage?: NavKey; }
+// locale is NOT a prop — derived internally: const locale = (Astro.currentLocale ?? 'es') as Locale;
+
+// Header.astro
+// BEFORE:
+interface Props { currentPage?: NavKey; }
+// AFTER:
+interface Props { currentPage?: NavKey; locale: Locale; }
+
+// MobileMenu.svelte (Svelte 5 Props — must be serializable for hydration)
+// BEFORE:
+interface Props { currentPage?: string; }
+// AFTER:
+interface Props { currentPage?: string; locale: 'es' | 'en'; }
+// NOTE: Use string literal union, NOT imported Locale type (Svelte island serialization)
+
+// Banner.astro
+// BEFORE: no Props interface (no props)
+// AFTER:
+interface Props { locale: Locale; }
+
+// Footer.astro
+// BEFORE: no Props interface (no props)
+// AFTER:
+interface Props { locale: Locale; }
+
+// SkipNav.astro
+// BEFORE: no Props interface (no props)
+// AFTER:
+interface Props { locale: Locale; }
+```
+
 ### Files to Create
 
 | File | Purpose |
@@ -202,6 +246,7 @@ i18n: {
 | `src/pages/en/index.astro` | English home page |
 | `src/lib/i18n/__tests__/config.test.ts` | Unit tests for locale config |
 | `src/lib/i18n/__tests__/translations.test.ts` | Unit tests for translations |
+| `src/data/__tests__/navigation.test.ts` | Unit tests for `localizeHref()` |
 
 ### Files to Delete
 
@@ -216,7 +261,7 @@ i18n: {
 - **NEVER** import from Flutter patterns — Astro native i18n is the approach
 - **NEVER** use `next-intl` or other third-party i18n libraries — Astro has built-in support
 - **NEVER** create a global Svelte store for locale — use `Astro.currentLocale` (SSG, not SPA)
-- **NEVER** use `client:visible` for LocaleToggle — must be `client:load` (immediate interaction)
+- **NEVER** use `client:visible` for LocaleToggle — must be `client:load` (immediate interaction). NOTE: The architecture doc says `client:visible` for LanguageToggle — this was corrected here because the toggle must be interactive immediately on page load, not lazily when scrolled into view.
 
 ### Locale Type — Reuse Existing Schema
 
@@ -230,14 +275,23 @@ Reuse in `src/lib/i18n/config.ts`:
 ```typescript
 export type { Locale } from '../schemas/shared-schemas';
 export { localeSchema } from '../schemas/shared-schemas';
+import type { Locale } from '../schemas/shared-schemas';
+
 export const defaultLocale: Locale = 'es';
 export const locales: Locale[] = ['es', 'en'];
+
+/** Extract locale from URL path. Returns defaultLocale if no locale prefix found. */
+export function getLocaleFromUrl(url: URL): Locale {
+  const [, lang] = url.pathname.split('/');
+  if ((locales as string[]).includes(lang)) return lang as Locale;
+  return defaultLocale;
+}
 ```
 
 ### Project Structure Notes
 
 - `src/lib/i18n/` is the designated folder per architecture [Source: architecture.md#Organización-del-proyecto]
-- `src/components/layout/LanguageToggle.svelte` is the architecture name — but the epics/UX use "LocaleToggle". Use `LocaleToggle.svelte` to match the story name. The architecture can be updated later if needed.
+- Architecture doc uses `LanguageToggle.svelte` as name — this story uses `LocaleToggle.svelte` (matching epics/UX naming). `LocaleToggle.svelte` is the canonical name. Do NOT create a file named `LanguageToggle.svelte`.
 - Tests go in `src/lib/i18n/__tests__/` (co-located pattern) [Source: architecture.md#Testing]
 - Navigation data stays in `src/data/navigation.ts` (established in story 1.7)
 
@@ -254,8 +308,11 @@ export const locales: Locale[] = ['es', 'en'];
 **Deferred item from 1.7 resolved here:**
 - D-1: `lang="es"` hardcoded — now dynamic via `Astro.currentLocale`
 
+**Bug fix from 1.7:**
+- Banner currently displays "Welcome to my Portfolio" (English) even on the Spanish page (`lang="es"`). This story fixes this by localizing Banner text: ES → "Bienvenido a mi Portfolio", EN → "Welcome to my Portfolio".
+
 **Hardcoded strings identified in 1.7 to localize:**
-- Banner: "Welcome to my Portfolio"
+- Banner: "Welcome to my Portfolio" (currently English on Spanish page — BUG)
 - SkipNav: "Saltar al contenido"
 - Footer: "Contact" heading, 3 Spanish aria-labels
 - MobileMenu: "Abrir menú" / "Cerrar menú" / "Navegación principal"
@@ -270,7 +327,9 @@ export const locales: Locale[] = ['es', 'en'];
 
 ### Git Intelligence
 
-Recent commits show clean story-by-story progression. Current test count: 58 tests passing. Type-check: 0 errors across 37 files. Build: successful, generating 1 page (will generate 2 after this story: `/` and `/en/`).
+Recent commits show clean story-by-story progression.
+- **Baseline before this story:** 58 tests passing, 0 type errors (37 files), 1 page generated
+- **Expected after this story:** ~68+ tests (adding config, translations, navigation tests), 0 type errors, 2 pages generated (`/` and `/en/`)
 
 ### References
 
