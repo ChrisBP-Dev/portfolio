@@ -393,8 +393,16 @@ Claude Opus 4.6 (1M context)
 - **D-1**: `lang="es"` con contenido en inglés — será resuelto en story 1.8 (i18n)
 - **D-2**: AdminLayout sidebar sin responsive handling — placeholder para story 3.2
 
+### CI Fix (post-review)
+
+El CI falló por un bug pre-existente en la config de ESLint (originado en story 1.1/1.3): el parser de TypeScript no estaba configurado para archivos `.svelte`. Esto era latente porque MobileMenu.svelte es el primer archivo Svelte con `<script lang="ts">` del proyecto.
+
+- **eslint.config.js**: agregado `tseslint.parser` para `.svelte`, browser globals (`window`, `document`, `HTMLElement`, etc.), y `argsIgnorePattern: ^_` para `@typescript-eslint/no-unused-vars`
+- **MobileMenu.svelte**: `$props()` inline type annotation cambiada a `interface Props` (compatible con svelte-eslint-parser), `$state` cast para triggerRef, `{#each}` key agregada (`item.key`)
+
 ### Verification
 
+- `pnpm lint`: 0 errores
 - `pnpm type-check`: 0 errores (37 archivos)
 - `pnpm test`: 58 tests passed, 0 regresiones
 - `pnpm build`: exitoso, 1 página generada
@@ -403,6 +411,7 @@ Claude Opus 4.6 (1M context)
 
 - `src/components/common/SkipNav.astro` — focus: → focus-visible: (BS-3)
 - `src/components/layout/Header.astro` — fixed → sticky, navItems import (BS-1, P-6)
-- `src/components/layout/MobileMenu.svelte` — focus trap guard, focus return, matchMedia, Svelte transition, navItems import (P-1 a P-6)
+- `src/components/layout/MobileMenu.svelte` — focus trap guard, focus return, matchMedia, Svelte transition, navItems import, Props interface, {#each} key (P-1 a P-6, CI fix)
 - `src/layouts/BaseLayout.astro` — remove pt-16, add tabindex="-1" (BS-1, P-5)
 - `src/data/navigation.ts` — NUEVO, shared navItems + NavKey type (P-6)
+- `eslint.config.js` — MODIFICADO, TypeScript parser + browser globals para Svelte (CI fix, pre-existente de story 1.1/1.3)
