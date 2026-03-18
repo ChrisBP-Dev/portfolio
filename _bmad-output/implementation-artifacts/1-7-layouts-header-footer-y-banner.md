@@ -28,13 +28,13 @@ so that **I can navigate the portfolio intuitively on any device**.
   - [ ] 2.1 Create `src/components/layout/Banner.astro` — full-width `[background:var(--brand-gradient)]`, white text centered
 - [ ] Task 3: Create Header component (AC: #3, #9)
   - [ ] 3.1 Create `src/components/layout/Header.astro` — pinned `<header>` with `<nav>`, logo left, 5 desktop links right
-  - [ ] 3.2 Implement active nav item detection via `currentPage` prop → `aria-current="page"` + gradient underline
-  - [ ] 3.3 Add hamburger button (visible `lg:hidden`) with `aria-expanded` + `aria-label`
+  - [ ] 3.2 Implement active nav item detection via `currentPage` prop → `aria-current="page"` + gradient `::after` underline
+  - [ ] 3.3 Embed `<MobileMenu client:load currentPage={currentPage} />` inside Header (hamburger lives in Svelte island, not in Astro)
 - [ ] Task 4: Create MobileMenu island (AC: #4, #9)
-  - [ ] 4.1 Create `src/components/layout/MobileMenu.svelte` — Svelte 5 island with `client:load`
-  - [ ] 4.2 Slide-down animation, overlay, logo + X close + centered nav items
-  - [ ] 4.3 Escape key closes, focus trap inside, body scroll lock
-  - [ ] 4.4 `prefers-reduced-motion: reduce` disables animation
+  - [ ] 4.1 Create `src/components/layout/MobileMenu.svelte` — Svelte 5 Runes island with `client:load`
+  - [ ] 4.2 Hamburger toggle button (`lg:hidden`) + slide-down overlay + logo + X close + centered nav items
+  - [ ] 4.3 Escape key closes, focus trap (Tab wraps first↔last), body scroll lock via `$effect`
+  - [ ] 4.4 `prefers-reduced-motion: reduce` via CSS media query (Tailwind `motion-reduce:`)
 - [ ] Task 5: Create Footer component (AC: #5)
   - [ ] 5.1 Create `src/components/layout/Footer.astro` — semantic `<footer>`, "Contact" title, 3 social icon links, copyright
   - [ ] 5.2 Social links: TikTok, GitHub, LinkedIn — `target="_blank" rel="noopener noreferrer"` with `aria-label`
@@ -44,14 +44,14 @@ so that **I can navigate the portfolio intuitively on any device**.
   - [ ] 6.3 Accept props: `title`, `description`, `currentPage`
   - [ ] 6.4 Import global.css, set `lang="es"`, `class="dark"` on `<html>`
 - [ ] Task 7: Create AdminLayout (AC: #2)
-  - [ ] 7.1 Create `src/layouts/AdminLayout.astro` — `<aside>` sidebar placeholder + `<main>` content area
+  - [ ] 7.1 Create `src/layouts/AdminLayout.astro` — full `<html>` shell (lang, dark, head, global.css) + `<aside>` sidebar placeholder + `<main>` content area
 - [ ] Task 8: Refactor index.astro to use BaseLayout (AC: #1)
   - [ ] 8.1 Replace inline HTML with `<BaseLayout title="Portfolio — ChrisBP" currentPage="home">`
 - [ ] Task 9: Responsive & accessibility verification (AC: #8, #9)
   - [ ] 9.1 Verify all 3 breakpoints render correctly
   - [ ] 9.2 `pnpm type-check && pnpm build && pnpm test` — all green, 0 regressions
 - [ ] Task 10: Add layout component type tests
-  - [ ] 10.1 Create `src/components/layout/__tests__/layout-props.test.ts` — type-check imports for Header, Footer, Banner, SkipNav
+  - [ ] 10.1 Create `src/components/layout/__tests__/layout-props.test.ts` — type-check imports for Header, Footer, Banner, SkipNav, MobileMenu
 
 ## Dev Notes
 
@@ -104,41 +104,68 @@ src/
 #### Banner.astro
 
 - Full-width bar with `[background:var(--brand-gradient)]`
-- Text "Welcome to my Portfolio" — `text-white text-center`
+- Text "Welcome to my Portfolio" — `text-white text-center` (English placeholder — will be i18n'd in story 1.8)
 - Compact height: `py-3` or `py-4`
 - No Container wrapper (full-width bleed)
+- Banner is NOT fixed — it scrolls with page content (only Header is fixed)
 
 #### Header.astro
 
 Props: `currentPage: 'home' | 'projects' | 'experience' | 'blog' | 'contact'`
 
-- `<header class="fixed top-0 w-full bg-background/95 backdrop-blur-sm z-50 border-b border-border">`
-- Inside: `<Container>` wrapping logo + nav
-- Logo: import from `src/assets/logo/cbp-short-logo-dark.png` via Astro's `import` + `<img>`
-- Desktop nav (`hidden lg:flex`): 5 links — Home (`/`), Projects (`/projects`), Experience (`/experience`), Blog (`/blog`), Contact (`/contact`)
-- Active link: `aria-current="page"` attribute + gradient underline via `border-b-2 border-transparent` on inactive, `[border-image:var(--brand-gradient)_1]` or `bg-gradient-to-r from-primary to-primary-dark` underline on active
-- Hamburger button (`lg:hidden`): `aria-label="Abrir menú"`, `aria-expanded={false}` (Svelte handles toggle)
+- `<header class="fixed top-0 w-full h-16 bg-background/95 backdrop-blur-sm z-50 border-b border-border">`
+- Inside: `<Container>` wrapping logo + desktop nav + MobileMenu island
+- Logo: `import { Image } from 'astro:assets'` + `import logo from '../../assets/logo/cbp-short-logo-dark.png'` → `<Image src={logo} alt="ChrisBP" class="h-10 w-auto" />`
+- Desktop nav (`hidden lg:flex gap-8 items-center`): 5 links — Home (`/`), Projects (`/projects`), Experience (`/experience`), Blog (`/blog`), Contact (`/contact`)
+- Active link: `aria-current="page"` + `::after` pseudo-element underline with `[background:var(--brand-gradient)]` height `2px` — NO `border-image` (breaks on rounded elements)
+- Inactive link: `relative` + no `::after` visible, `hover:text-primary` transition
+- Tablet (sm to lg): shows hamburger menu — same as mobile
+- Hamburger button lives INSIDE `MobileMenu.svelte` (not in Astro) — Astro ships zero JS, cannot handle click events
+- Embed: `<MobileMenu client:load currentPage={currentPage} />`
 
 #### MobileMenu.svelte (Svelte 5 Island)
 
-Props: `currentPage: string`, `isOpen: boolean` (or internal state)
+Props: `currentPage: string` — internal state only, NO `isOpen` prop
 
+**Svelte 5 Runes (mandatory per architecture):**
+- `let isOpen = $state(false)` for toggle state
+- `$effect()` for body scroll lock and keyboard listener cleanup
+
+**Hamburger button (rendered by this component, visible `lg:hidden`):**
+- `<button class="lg:hidden min-h-11 min-w-11 ..." aria-label={isOpen ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={isOpen}>`
+- Toggles `isOpen` on click
+
+**Overlay (when open):**
 - Full-screen overlay: `fixed inset-0 z-[60] bg-background`
 - Slide-down animation: CSS `transform: translateY(-100%)` → `translateY(0)` with `transition: transform 300ms ease-in-out`
 - Content: logo at top + X close button + 5 nav items centered vertically
 - Close triggers: X button click, Escape key, nav item click
-- Focus trap: first/last focusable element Tab wraps
-- Body scroll lock: `document.body.style.overflow = 'hidden'` on open, restore on close
-- `prefers-reduced-motion`: check `window.matchMedia('(prefers-reduced-motion: reduce)')` → skip transition
+
+**Focus trap implementation:**
+- On open, query focusable elements: `menu.querySelectorAll('a[href], button')`
+- On Tab at last element → focus first element; on Shift+Tab at first element → focus last element
+- Implement in `$effect()` with keydown listener; cleanup on close
+
+**Body scroll lock:**
+- `$effect()`: when `isOpen` → save `document.body.style.overflow`, set `'hidden'`; cleanup restores original value
+
+**Reduced motion:**
+- Use CSS media query: `@media (prefers-reduced-motion: reduce) { .mobile-overlay { transition: none; } }`
+- Or Tailwind: `motion-reduce:transition-none` on the overlay element
+
 - Hydrate with `client:load` (must be interactive immediately)
 
 #### Footer.astro
 
-- `<footer class="w-full bg-surface border-t border-border">`
+- `<footer class="w-full bg-surface border-t border-border py-12">`
 - Inside: `<Container>` centered content
 - `<h2>` "Contact" centered (use `text-heading-2`)
-- 3 social links centered: TikTok, GitHub, LinkedIn — SVG icons or text with `aria-label="Visitar perfil de [platform]"`, `target="_blank"`, `rel="noopener noreferrer"`
-- Copyright: "©2024 Christopher Bobadilla" — `text-text-muted text-body-sm`
+- 3 social links centered as inline SVG icons with `fill="currentColor"` for theme compatibility:
+  - TikTok → `href="https://www.tiktok.com/@chrisbp_dev"` `aria-label="Visitar perfil de TikTok"`
+  - GitHub → `href="https://github.com/ChrisBP-Dev"` `aria-label="Visitar perfil de GitHub"`
+  - LinkedIn → `href="https://www.linkedin.com/in/christopher-bobadilla"` `aria-label="Visitar perfil de LinkedIn"`
+  - All with `target="_blank" rel="noopener noreferrer"`, `min-h-11 min-w-11` touch target, `focus:outline-2 focus:outline-offset-2 focus:outline-primary`
+- Copyright: dynamic year via frontmatter `const currentYear = new Date().getFullYear()` → `©${currentYear} Christopher Bobadilla` — `text-text-muted text-body-sm`
 
 #### BaseLayout.astro
 
@@ -175,7 +202,7 @@ const { title, description = 'Portfolio de Christopher Bobadilla', currentPage =
     <SkipNav />
     <Banner />
     <Header currentPage={currentPage} />
-    <main id="main" class="flex-1 pt-[header-height]">
+    <main id="main" class="flex-1 pt-16">
       <slot />
     </main>
     <Footer />
@@ -183,16 +210,19 @@ const { title, description = 'Portfolio de Christopher Bobadilla', currentPage =
 </html>
 ```
 
-**Note:** The `pt-[header-height]` is placeholder — calculate actual header height and apply as padding-top on `<main>` so content doesn't hide behind the fixed header.
+**Note:** `pt-16` (64px) matches the fixed Header height `h-16`. Banner is NOT fixed so it doesn't affect padding.
 
 #### AdminLayout.astro
 
 Props: `title: string`
 
-- Minimal shell: `<html>` + `<head>` + `<body>` with `<aside>` sidebar placeholder (empty div with comment "sidebar — story 3.2") + `<main>` content area
-- No Banner, no public Header/Footer
-- `<aside class="w-64 bg-surface border-r border-border min-h-screen">` placeholder
-- `<main class="flex-1">` for content slot
+- Full `<html lang="es" class="dark">` shell — same boilerplate as BaseLayout:
+  - `import '../styles/global.css'` in frontmatter
+  - `<head>`: charset, viewport, generator, description ("Admin — Portfolio ChrisBP"), `<title>{title}</title>`
+- `<body class="bg-background text-text-primary min-h-screen flex">`
+- `<aside class="w-64 bg-surface border-r border-border min-h-screen">` placeholder with HTML comment `<!-- sidebar — story 3.2 -->`
+- `<main class="flex-1"><slot /></main>` for content
+- No Banner, no public Header/Footer, no SkipNav
 
 ### Styling Rules
 
@@ -241,7 +271,7 @@ Props: `title: string`
 - Layout sub-components go in `src/components/layout/` — already scaffolded with `.gitkeep`
 - SkipNav goes in `src/components/common/` — it's a reusable utility component
 - Tests co-located at `src/components/layout/__tests__/`
-- Logo assets at `src/assets/logo/cbp-short-logo-dark.png` — use Astro `import` for optimized handling
+- Logo assets at `src/assets/logo/cbp-short-logo-dark.png` — use `import { Image } from 'astro:assets'` for build-time optimization (per architecture decision)
 
 ### References
 
@@ -268,7 +298,8 @@ Props: `title: string`
 - `transition-all` instead of `transition-colors` when animating shadow/filter too
 - Nullish coalescing for optional string props to avoid rendering "undefined"
 - Brand gradient via `[background:var(--brand-gradient)]` (Tailwind arbitrary value referencing CSS custom property)
-- NEVER `border-image` with gradient on rounded elements (CSS limitation) — use alternative approaches
+- NEVER `border-image` with gradient on rounded elements (CSS limitation) — use `::after` pseudo-element with `[background:var(--brand-gradient)]` instead
+- Astro `.astro` components CANNOT have click handlers (zero JS) — interactive toggles MUST live inside Svelte islands
 
 **Test approach:**
 - `pnpm type-check` as primary validation (compile-time Props checking)
