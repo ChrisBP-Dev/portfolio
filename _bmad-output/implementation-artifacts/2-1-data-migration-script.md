@@ -25,7 +25,7 @@ So that the public site can render real portfolio data from day one.
 ## Tasks / Subtasks
 
 - [ ] Task 1: Script scaffold and Firebase Admin init (AC: #1, #11)
-  - [ ] 1.1 Create `src/lib/scripts/migrate-firestore-data.ts` with standalone Admin SDK init (NO import from `admin.ts` — uses `dotenv` + `process.env`)
+  - [ ] 1.1 Create `src/lib/scripts/migrate-firestore-data.ts` with standalone Admin SDK init (NO import from `admin.ts` — uses `process.env` via Node 22+ `--env-file=.env`, NO instalar dotenv)
   - [ ] 1.2 Install `tsx` as devDependency for ESM TypeScript execution
   - [ ] 1.3 Add `"migrate"` npm script to package.json: `"tsx src/lib/scripts/migrate-firestore-data.ts"`
   - [ ] 1.4 Scaffold main function with collection iteration and dry-run mode support
@@ -34,7 +34,7 @@ So that the public site can render real portfolio data from day one.
   - [ ] 2.1 Implement `migrateProject()`: merge suffix fields into nested localized objects
   - [ ] 2.2 Transform `ImageAndPath` → `StoredImage` for mainImage and screenshots array
   - [ ] 2.3 Generate `slug` from `companyNameEn` using regex `/^[a-z0-9]+(?:-[a-z0-9]+)*$/`
-  - [ ] 2.4 Preserve `technologies`, `websiteUrl`, `sourceCodeUrl` as-is
+  - [ ] 2.4 Preserve `technologies` as-is; sanitize `websiteUrl`/`sourceCodeUrl` — si el valor no es URL válida (ej: `'source-code'` literal), setear `undefined`
 
 - [ ] Task 3: Technologies collection migration (AC: #2, #3, #6)
   - [ ] 3.1 Implement `migrateTechnology()`: transform `image: ImageAndPath` → `image: StoredImage`
@@ -93,7 +93,7 @@ const db = getFirestore();
 
 El proyecto es `"type": "module"` (ESM). `ts-node` requiere configuración extra para ESM. Usar `tsx` que funciona nativamente con ESM:
 - Instalar: `pnpm add -D tsx`
-- AC dice `npx ts-node` pero el equipo acordó usar `tsx` por compatibilidad ESM
+- AC #11 dice `npx tsx` pero el método real de ejecución es el npm script `"migrate"` que usa `node --env-file=.env --import tsx` (necesita cargar env vars). AC #11 es referencial.
 
 ### Modelo Flutter EXACTO (del _flutter-archive)
 
@@ -127,7 +127,7 @@ class Technology {
   String id;
   String name;
   ImageAndPath image;
-  String experienceTime;  // "2+" o "3 years" → parsear a int
+  String experienceTime;  // "2+", "3 years", "over 2 years" → parsear a int
 }
 ```
 
@@ -145,27 +145,35 @@ class Experience {
 
 ### Transformaciones campo por campo
 
+**Nota:** El campo `id` se preserva sin cambio en las 3 colecciones (ya existe en Flutter y en Zod schemas).
+
 | Colección | Campo Viejo | Transformación | Campo Nuevo |
 |-----------|------------|----------------|-------------|
-| **Projects** | `companyNameEs` + `companyNameEn` | Merge → objeto | `companyName: { es, en }` |
+| **Projects** | `id` | Sin cambio | `id` |
+| | `companyNameEs` + `companyNameEn` | Merge → objeto | `companyName: { es, en }` |
 | | `shortDescriptionEs` + `shortDescriptionEn` | Merge → objeto | `shortDescription: { es, en }` |
 | | `featuresES` + `featuresEN` | Merge → objeto | `features: { es: [...], en: [...] }` |
 | | `mainImage: ImageAndPath` | Drop `localImage`, rename `refPath` | `mainImage: StoredImage` |
 | | `screenshots: ImageAndPath[]` | Misma transformación por item | `screenshots: StoredImage[]` |
 | | (no existe) | Generar de `companyNameEn` | `slug` |
-| | `technologies`, `websiteUrl`, `sourceCodeUrl` | Sin cambio | Igual |
-| **Technologies** | `image: ImageAndPath` | Drop `localImage`, rename `refPath` | `image: StoredImage` |
-| | `experienceTime: "2+"` | Parsear primer número | `experienceYears: 2` |
-| **Experiences** | `jobNameEs` + `jobNameEn` | Merge → objeto | `jobName: { es, en }` |
-| | `responsabilitiesEs` + `responsabilitiesEn` | Merge arrays → objeto | `responsibilities: { es: [...], en: [...] }` |
-| | `date: "Jan 2024 - Present"` | Parsear a fechas | `startDate: Date, endDate: Date\|null` |
+| | `technologies` | Sin cambio | `technologies` |
+| | `websiteUrl`, `sourceCodeUrl` | Sanitizar: si no es URL válida → `undefined` | `websiteUrl?`, `sourceCodeUrl?` |
+| **Technologies** | `id` | Sin cambio | `id` |
+| | `name` | Sin cambio | `name` |
+| | `image: ImageAndPath` | Drop `localImage`, rename `refPath` | `image: StoredImage` |
+| | `experienceTime: "2+"`, `"over 2 years"` | Parsear primer número | `experienceYears: 2` |
+| **Experiences** | `id` | Sin cambio | `id` |
 | | `companyName` | Sin cambio | `companyName` |
+| | `jobNameEs` + `jobNameEn` | Merge → objeto | `jobName: { es, en }` |
+| | `responsabilitiesEs` + `responsabilitiesEn` | Merge arrays → objeto | `responsibilities: { es: [...], en: [...] }` |
+| | `date: "Jan 2024 - Present"` | Parsear a fechas (normalizar em-dash) | `startDate: Date, endDate: Date\|null` |
 
 ### Zod Schemas — Fuente de verdad
 
 Los schemas ya están definidos y son estrictos. Referencia rápida de validaciones que afectan la migración:
 
 - **`storedImageSchema`**: `url` debe pasar `z.url()`, `storagePath` debe ser `min(1)`. Si `url` o `refPath` son `null` en datos viejos, el documento fallará validación.
+- **`projectSchema.websiteUrl/sourceCodeUrl`**: `z.url().optional()` — datos Flutter pueden contener strings no-URL (ej: `'source-code'` literal). Validar con `try { new URL(value) }` antes de incluir; si falla, setear `undefined`.
 - **`projectSchema.slug`**: Regex `/^[a-z0-9]+(?:-[a-z0-9]+)*$/` — solo minúsculas, números y guiones. La función de generación debe limpiar acentos, caracteres especiales.
 - **`technologySchema.experienceYears`**: `z.number().int().nonnegative()` — debe ser entero >= 0. No decimales.
 - **`experienceSchema`**: `.refine()` valida que `endDate === null || endDate >= startDate`. Parseo del `date` string debe respetar este orden.
@@ -189,6 +197,8 @@ parseExperience(data, id): Experience  // Convierte startDate/endDate con toDate
 ```
 
 **IMPORTAR estos helpers para validación post-migración** — no reimplementar la conversión de tipos.
+
+**CONFIRMADO:** `collections.ts` es 100% Node-compatible — NO usa `import.meta.env` ni dependencias de Astro. Importable directamente desde el script de migración con `tsx`.
 
 **NOTA:** `collections.ts` usa imports de schemas que usan `z.url()` (Zod 4). Esto funciona con `tsx` sin problemas.
 
@@ -227,12 +237,15 @@ El campo `date` en Experiences es un string de display como:
 - `"Jan 2024 - Present"`
 - `"Mar 2022 - Dec 2023"`
 - `"2021 - 2023"`
+- `"2022 – 2022"` (con em-dash U+2013 en vez de hyphen)
 
 Lógica de parseo:
 ```typescript
 function parseDateRange(dateStr: string): { startDate: Date; endDate: Date | null } {
-  const parts = dateStr.split(' - ');
-  const startDate = new Date(parts[0]); // "Jan 2024" → Date
+  // Normalizar em-dash (U+2013) y en-dash (U+2014) a hyphen estándar
+  const normalized = dateStr.replace(/[\u2013\u2014]/g, '-');
+  const parts = normalized.split(' - ');
+  const startDate = new Date(parts[0].trim()); // "Jan 2024" → Date
   const endPart = parts[1]?.trim();
   const endDate = (!endPart || endPart.toLowerCase() === 'present')
     ? null
@@ -269,6 +282,26 @@ function isAlreadyMigrated(data: Record<string, unknown>, collection: string): b
       return false;
   }
 }
+```
+
+### Batch writes — Firestore limit
+
+Usar `db.batch()` para agrupar las actualizaciones. Firestore limita a **500 operaciones por batch**. Para un portfolio pequeño esto no es problema, pero implementar el patrón correcto:
+
+```typescript
+const batch = db.batch();
+let opCount = 0;
+
+// Por cada documento transformado:
+batch.update(docRef, updates);
+opCount++;
+if (opCount >= 499) {
+  await batch.commit();
+  batch = db.batch(); // Nuevo batch (re-asignar variable con let)
+  opCount = 0;
+}
+// Commit final si quedan operaciones pendientes
+if (opCount > 0) await batch.commit();
 ```
 
 ### Limpieza de campos viejos
@@ -310,8 +343,9 @@ package.json                           # Agregar "migrate" script y tsx dependen
 - Framework: Vitest
 - Patrón: extraer funciones puras (transform, parse) y testearlas individualmente
 - Las funciones que interactúan con Firestore se testean via mocks del Admin SDK
-- Usar factories existentes de `src/test/factories/` como referencia de datos válidos
+- Factories existentes (`src/test/factories/{project,technology,experience}.ts`) generan datos en **nuevo schema** (post-migración). Para tests del migration script, crear datos de prueba en **viejo schema Flutter** dentro del test file (no crear factories separadas).
 - Coverage: todas las funciones de transformación, parseo, y detección de idempotencia
+- Edge cases a cubrir en tests: em-dash en dates, `sourceCodeUrl: 'source-code'` (no-URL), `experienceTime: 'over 2 years'`
 
 ### Previous Story Intelligence
 
