@@ -1,5 +1,16 @@
+---
+import type { Locale } from '../../lib/i18n/config';
+import { t } from '../../lib/i18n/translations';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+---
+
 <div class="w-full [background:var(--brand-gradient)] py-3">
   <p class="text-white text-center text-body-sm font-medium">
-    Welcome to my Portfolio
+    {t('banner.welcome', locale)}
   </p>
 </div>

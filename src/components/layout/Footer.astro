@@ -1,20 +1,27 @@
 ---
 import Container from '../common/Container.astro';
+import type { Locale } from '../../lib/i18n/config';
+import { t } from '../../lib/i18n/translations';
 
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
 const currentYear = new Date().getFullYear();
 ---
 
 <footer class="w-full bg-surface border-t border-border py-12">
   <Container>
     <div class="flex flex-col items-center gap-6">
-      <h2 class="text-heading-2">Contact</h2>
+      <h2 class="text-heading-2">{t('footer.contact', locale)}</h2>
 
       <div class="flex items-center gap-6">
         <a
           href="https://www.tiktok.com/@chrisbp_dev"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Visitar perfil de TikTok"
+          aria-label={t('social.tiktok', locale)}
           class="min-h-11 min-w-11 flex items-center justify-center text-text-secondary hover:text-primary transition-colors focus:outline-2 focus:outline-offset-2 focus:outline-primary"
         >
           <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
@@ -26,7 +33,7 @@ const currentYear = new Date().getFullYear();
           href="https://github.com/ChrisBP-Dev"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Visitar perfil de GitHub"
+          aria-label={t('social.github', locale)}
           class="min-h-11 min-w-11 flex items-center justify-center text-text-secondary hover:text-primary transition-colors focus:outline-2 focus:outline-offset-2 focus:outline-primary"
         >
           <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
@@ -38,7 +45,7 @@ const currentYear = new Date().getFullYear();
           href="https://www.linkedin.com/in/christopher-bobadilla"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Visitar perfil de LinkedIn"
+          aria-label={t('social.linkedin', locale)}
           class="min-h-11 min-w-11 flex items-center justify-center text-text-secondary hover:text-primary transition-colors focus:outline-2 focus:outline-offset-2 focus:outline-primary"
         >
           <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">

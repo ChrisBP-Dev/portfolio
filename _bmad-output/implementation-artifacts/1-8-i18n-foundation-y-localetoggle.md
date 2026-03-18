@@ -1,6 +1,6 @@
 # Story 1.8: i18n Foundation y LocaleToggle
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -22,65 +22,65 @@ So that I can read content in my preferred language.
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Astro i18n configuration** (AC: 1, 2)
-  - [ ] 1.1 Add `i18n` block to `astro.config.mjs`: `defaultLocale: 'es'`, `locales: ['es', 'en']`, `routing: { prefixDefaultLocale: false, redirectToDefaultLocale: true }`
-  - [ ] 1.2 Verify `Astro.currentLocale` returns `'es'` on `/` and `'en'` on `/en/`
+- [x] **Task 1: Astro i18n configuration** (AC: 1, 2)
+  - [x] 1.1 Add `i18n` block to `astro.config.mjs`: `defaultLocale: 'es'`, `locales: ['es', 'en']`, `routing: { prefixDefaultLocale: false, redirectToDefaultLocale: true }`
+  - [x] 1.2 Verify `Astro.currentLocale` returns `'es'` on `/` and `'en'` on `/en/`
 
-- [ ] **Task 2: i18n config module** (AC: 1, 2, 3)
-  - [ ] 2.1 Create `src/lib/i18n/config.ts` — export `defaultLocale`, `locales`, `type Locale` (reuse from `shared-schemas.ts`), helper `getLocaleFromUrl(url: URL): Locale`
-  - [ ] 2.2 Delete `src/lib/i18n/.gitkeep`
+- [x] **Task 2: i18n config module** (AC: 1, 2, 3)
+  - [x] 2.1 Create `src/lib/i18n/config.ts` — export `defaultLocale`, `locales`, `type Locale` (reuse from `shared-schemas.ts`), helper `getLocaleFromUrl(url: URL): Locale`
+  - [x] 2.2 Delete `src/lib/i18n/.gitkeep`
 
-- [ ] **Task 3: Static translations dictionary** (AC: 3, 9)
-  - [ ] 3.1 Create `src/lib/i18n/translations.ts` — `Record<string, Record<Locale, string>>` covering: nav labels (Home/Inicio, Projects/Proyectos, Experience/Experiencia, Blog, Contact/Contacto), Banner text, Footer heading, SkipNav text, MobileMenu aria-labels, LocaleToggle aria-labels, BaseLayout default description
-  - [ ] 3.2 Export `t(key: string, locale: Locale): string` helper function
+- [x] **Task 3: Static translations dictionary** (AC: 3, 9)
+  - [x] 3.1 Create `src/lib/i18n/translations.ts` — `Record<string, Record<Locale, string>>` covering: nav labels (Home/Inicio, Projects/Proyectos, Experience/Experiencia, Blog, Contact/Contacto), Banner text, Footer heading, SkipNav text, MobileMenu aria-labels, LocaleToggle aria-labels, BaseLayout default description
+  - [x] 3.2 Export `t(key: string, locale: Locale): string` helper function
 
-- [ ] **Task 4: Localize navigation data** (AC: 3, 9)
-  - [ ] 4.1 Refactor `src/data/navigation.ts` — change `label` from `string` to `Record<Locale, string>` (e.g., `{ es: 'Inicio', en: 'Home' }`) or use translations dictionary with keys
-  - [ ] 4.2 Update `Header.astro` to pass `locale` and render localized nav labels
-  - [ ] 4.3 Update `MobileMenu.svelte` to accept `locale` prop (`'es' | 'en'`). Specific changes: (a) Add `locale` to Props interface, (b) Change nav label rendering from `item.label` to `item.label[locale]` (since `label` becomes `Record<Locale, string>`), (c) Change hrefs from `item.href` to `localizeHref(item.href, locale)` — import `localizeHref` from navigation.ts, (d) Change hamburger aria-label from hardcoded `'Abrir menú'/'Cerrar menú'` to use translations: `t('mobile.open', locale)`/`t('mobile.close', locale)`, (e) Change nav aria-label from `'Navegación principal'` to `t('nav.aria', locale)` — import `t` from translations.ts
+- [x] **Task 4: Localize navigation data** (AC: 3, 9)
+  - [x] 4.1 Refactor `src/data/navigation.ts` — change `label` from `string` to `Record<Locale, string>` (e.g., `{ es: 'Inicio', en: 'Home' }`) or use translations dictionary with keys
+  - [x] 4.2 Update `Header.astro` to pass `locale` and render localized nav labels
+  - [x] 4.3 Update `MobileMenu.svelte` to accept `locale` prop (`'es' | 'en'`). Specific changes: (a) Add `locale` to Props interface, (b) Change nav label rendering from `item.label` to `item.label[locale]` (since `label` becomes `Record<Locale, string>`), (c) Change hrefs from `item.href` to `localizeHref(item.href, locale)` — import `localizeHref` from navigation.ts, (d) Change hamburger aria-label from hardcoded `'Abrir menú'/'Cerrar menú'` to use translations: `t('mobile.open', locale)`/`t('mobile.close', locale)`, (e) Change nav aria-label from `'Navegación principal'` to `t('nav.aria', locale)` — import `t` from translations.ts
 
-- [ ] **Task 5: Update BaseLayout for i18n** (AC: 1, 2, 9)
-  - [ ] 5.1 Change `<html lang="es">` to `<html lang={locale}>` using `Astro.currentLocale`
-  - [ ] 5.2 Add `locale` to Props, derive from `Astro.currentLocale ?? 'es'`
-  - [ ] 5.3 Pass `locale` down to Header, Banner, Footer, SkipNav
-  - [ ] 5.4 Localize default `description` meta tag
-  - [ ] 5.5 Add `<link rel="alternate" hreflang="es" href="...">` and `<link rel="alternate" hreflang="en" href="...">` tags using `getRelativeLocaleUrl` from `astro:i18n`
+- [x] **Task 5: Update BaseLayout for i18n** (AC: 1, 2, 9)
+  - [x] 5.1 Change `<html lang="es">` to `<html lang={locale}>` using `Astro.currentLocale`
+  - [x] 5.2 Add `locale` to Props, derive from `Astro.currentLocale ?? 'es'`
+  - [x] 5.3 Pass `locale` down to Header, Banner, Footer, SkipNav
+  - [x] 5.4 Localize default `description` meta tag
+  - [x] 5.5 Add `<link rel="alternate" hreflang="es" href="...">` and `<link rel="alternate" hreflang="en" href="...">` tags using `getRelativeLocaleUrl` from `astro:i18n`
 
-- [ ] **Task 6: Localize existing layout components** (AC: 9)
-  - [ ] 6.1 `Banner.astro` — accept `locale` prop, render "Bienvenido a mi Portfolio" / "Welcome to my Portfolio"
-  - [ ] 6.2 `Footer.astro` — accept `locale` prop, render "Contacto" / "Contact", localize aria-labels
-  - [ ] 6.3 `SkipNav.astro` — accept `locale` prop, render "Saltar al contenido" / "Skip to content"
-  - [ ] 6.4 `Header.astro` — accept `locale` prop, localize nav `aria-label`, pass locale to MobileMenu
-  - [ ] 6.5 Update all component nav `href` values to use locale-aware URLs (e.g., on EN pages, links point to `/en/projects` not `/projects`)
+- [x] **Task 6: Localize existing layout components** (AC: 9)
+  - [x] 6.1 `Banner.astro` — accept `locale` prop, render "Bienvenido a mi Portfolio" / "Welcome to my Portfolio"
+  - [x] 6.2 `Footer.astro` — accept `locale` prop, render "Contacto" / "Contact", localize aria-labels
+  - [x] 6.3 `SkipNav.astro` — accept `locale` prop, render "Saltar al contenido" / "Skip to content"
+  - [x] 6.4 `Header.astro` — accept `locale` prop, localize nav `aria-label`, pass locale to MobileMenu
+  - [x] 6.5 Update all component nav `href` values to use locale-aware URLs (e.g., on EN pages, links point to `/en/projects` not `/projects`)
 
-- [ ] **Task 7: Create LocaleToggle.svelte** (AC: 4, 5, 7, 8)
-  - [ ] 7.1 Create `src/components/layout/LocaleToggle.svelte` — Svelte 5 island with `client:load`
-  - [ ] 7.2 Props: `currentLocale: 'es' | 'en'`, `currentPath: string`
-  - [ ] 7.3 Render as FAB: `position: fixed`, `bottom-right`, `z-[55]` (above content, below modals)
-  - [ ] 7.4 Show flag emoji or SVG: Spain flag for ES, USA flag for EN (active locale shown)
-  - [ ] 7.5 `onclick` → `window.location.href` to locale-switched URL (compute target path by adding/removing `/en/` prefix)
-  - [ ] 7.6 `aria-label` — "Cambiar a inglés" when on ES, "Switch to Spanish" when on EN
-  - [ ] 7.7 Touch target `min-h-11 min-w-11`, focus ring `focus:outline-2 focus:outline-offset-2 focus:outline-primary`
-  - [ ] 7.8 Styling: `bg-surface border border-border rounded-full shadow-lg` with hover/active states
+- [x] **Task 7: Create LocaleToggle.svelte** (AC: 4, 5, 7, 8)
+  - [x] 7.1 Create `src/components/layout/LocaleToggle.svelte` — Svelte 5 island with `client:load`
+  - [x] 7.2 Props: `currentLocale: 'es' | 'en'`, `currentPath: string`
+  - [x] 7.3 Render as FAB: `position: fixed`, `bottom-right`, `z-[55]` (above content, below modals)
+  - [x] 7.4 Show flag emoji or SVG: Spain flag for ES, USA flag for EN (active locale shown)
+  - [x] 7.5 `onclick` → `window.location.href` to locale-switched URL (compute target path by adding/removing `/en/` prefix)
+  - [x] 7.6 `aria-label` — "Cambiar a inglés" when on ES, "Switch to Spanish" when on EN
+  - [x] 7.7 Touch target `min-h-11 min-w-11`, focus ring `focus:outline-2 focus:outline-offset-2 focus:outline-primary`
+  - [x] 7.8 Styling: `bg-surface border border-border rounded-full shadow-lg` with hover/active states
 
-- [ ] **Task 8: Place LocaleToggle in BaseLayout** (AC: 4)
-  - [ ] 8.1 Import and render `<LocaleToggle client:load currentLocale={locale} currentPath={Astro.url.pathname} />` in BaseLayout, after `<Footer />`
-  - [ ] 8.2 Position: fixed bottom-right (CSS in the component, NOT in BaseLayout)
+- [x] **Task 8: Place LocaleToggle in BaseLayout** (AC: 4)
+  - [x] 8.1 Import and render `<LocaleToggle client:load currentLocale={locale} currentPath={Astro.url.pathname} />` in BaseLayout, after `<Footer />`
+  - [x] 8.2 Position: fixed bottom-right (CSS in the component, NOT in BaseLayout)
 
-- [ ] **Task 9: Create `/en/` page routes** (AC: 2, 6)
-  - [ ] 9.1 Create `src/pages/en/index.astro` — mirrors `src/pages/index.astro` but with English content/locale
-  - [ ] 9.2 For MVP, only `en/index.astro` is needed (other pages created in Epic 2); add placeholder or redirect for future routes
+- [x] **Task 9: Create `/en/` page routes** (AC: 2, 6)
+  - [x] 9.1 Create `src/pages/en/index.astro` — mirrors `src/pages/index.astro` but with English content/locale
+  - [x] 9.2 For MVP, only `en/index.astro` is needed (other pages created in Epic 2); add placeholder or redirect for future routes
 
-- [ ] **Task 10: Unit tests** (AC: 1-9)
-  - [ ] 10.1 Create `src/lib/i18n/__tests__/config.test.ts` — test `getLocaleFromUrl()` with various URL patterns (`/`, `/en/`, `/projects`, `/en/projects`)
-  - [ ] 10.2 Create `src/lib/i18n/__tests__/translations.test.ts` — test `t()` returns correct strings for both locales, test all keys exist in both ES and EN, test unknown key returns key itself
-  - [ ] 10.3 Create `src/data/__tests__/navigation.test.ts` — test `localizeHref()`: returns unchanged href for `'es'` locale, prefixes `/en` for `'en'` locale, handles root `/` correctly (`/en/` not `/en`), handles nested paths (`/projects` → `/en/projects`)
-  - [ ] 10.4 Verify all existing tests still pass (`pnpm test`)
+- [x] **Task 10: Unit tests** (AC: 1-9)
+  - [x] 10.1 Create `src/lib/i18n/__tests__/config.test.ts` — test `getLocaleFromUrl()` with various URL patterns (`/`, `/en/`, `/projects`, `/en/projects`)
+  - [x] 10.2 Create `src/lib/i18n/__tests__/translations.test.ts` — test `t()` returns correct strings for both locales, test all keys exist in both ES and EN, test unknown key returns key itself
+  - [x] 10.3 Create `src/data/__tests__/navigation.test.ts` — test `localizeHref()`: returns unchanged href for `'es'` locale, prefixes `/en` for `'en'` locale, handles root `/` correctly (`/en/` not `/en`), handles nested paths (`/projects` → `/en/projects`)
+  - [x] 10.4 Verify all existing tests still pass (`pnpm test`)
 
-- [ ] **Task 11: Build verification** (AC: 1-9)
-  - [ ] 11.1 `pnpm type-check` — 0 errors
-  - [ ] 11.2 `pnpm test` — all tests pass (baseline: 58, expected: ~68+), 0 regressions
-  - [ ] 11.3 `pnpm build` — succeeds, generates both `/` and `/en/` routes in `dist/`
+- [x] **Task 11: Build verification** (AC: 1-9)
+  - [x] 11.1 `pnpm type-check` — 0 errors
+  - [x] 11.2 `pnpm test` — all tests pass (baseline: 58, expected: ~68+), 0 regressions
+  - [x] 11.3 `pnpm build` — succeeds, generates both `/` and `/en/` routes in `dist/`
 
 ## Dev Notes
 
@@ -343,11 +343,44 @@ Recent commits show clean story-by-story progression.
 ## Dev Agent Record
 
 ### Agent Model Used
+Claude Opus 4.6 (1M context)
 
 ### Debug Log References
+- Astro 6 `redirectToDefaultLocale: true` incompatible con `prefixDefaultLocale: false` — removido de config (no causa loops infinitos sin prefix)
+- TypeScript strict null check en `getLocaleFromUrl` — agregado guard `lang &&` antes de `.includes()`
 
 ### Completion Notes List
+- Configurado Astro i18n nativo con `defaultLocale: 'es'`, `locales: ['es', 'en']`, `prefixDefaultLocale: false`
+- Creado módulo `src/lib/i18n/config.ts` con `getLocaleFromUrl()`, reutilizando `Locale` type de `shared-schemas.ts`
+- Creado diccionario de traducciones con 16 claves cubriendo nav, layout, aria-labels, meta, social
+- Refactorizado `navigation.ts` con labels bilingues `Record<Locale, string>` y helper `localizeHref()`
+- `BaseLayout.astro`: `lang` dinámico, `locale` derivado de `Astro.currentLocale`, hreflang alternates, descripción localizada
+- Localizados Banner, Footer, SkipNav, Header y MobileMenu con prop `locale` y traducciones `t()`
+- Creado `LocaleToggle.svelte` como FAB fixed bottom-right z-[55] con banderas emoji, `client:load`
+- Creado `src/pages/en/index.astro` para ruta inglés
+- Bug fix: Banner ahora muestra "Bienvenido a mi Portfolio" en ES (era "Welcome to my Portfolio")
+- Tests: 111 total (58 baseline + 53 nuevos), 0 regresiones
+- Type-check: 0 errores (43 archivos)
+- Build: 2 páginas generadas (/ y /en/)
+- Lint: 0 errores
 
 ### Change Log
+- 2026-03-18: Implementación completa de Story 1.8 — i18n foundation, traducciones, LocaleToggle FAB, localización de componentes existentes
 
 ### File List
+- `astro.config.mjs` — modificado (agregado bloque i18n)
+- `src/lib/i18n/config.ts` — creado
+- `src/lib/i18n/translations.ts` — creado
+- `src/lib/i18n/.gitkeep` — eliminado
+- `src/data/navigation.ts` — modificado (labels bilingues, localizeHref)
+- `src/layouts/BaseLayout.astro` — modificado (lang dinámico, locale, hreflang, LocaleToggle)
+- `src/components/layout/Header.astro` — modificado (locale prop, nav localizado)
+- `src/components/layout/MobileMenu.svelte` — modificado (locale prop, labels/aria localizados)
+- `src/components/layout/Banner.astro` — modificado (locale prop, texto localizado)
+- `src/components/layout/Footer.astro` — modificado (locale prop, heading y aria localizados)
+- `src/components/common/SkipNav.astro` — modificado (locale prop, texto localizado)
+- `src/components/layout/LocaleToggle.svelte` — creado
+- `src/pages/en/index.astro` — creado
+- `src/lib/i18n/__tests__/config.test.ts` — creado
+- `src/lib/i18n/__tests__/translations.test.ts` — creado
+- `src/data/__tests__/navigation.test.ts` — creado

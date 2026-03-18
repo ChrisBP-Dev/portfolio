@@ -1,13 +1,15 @@
 <script lang="ts">
   import { cubicInOut } from 'svelte/easing';
-  import { navItems } from '../../data/navigation';
+  import { navItems, localizeHref } from '../../data/navigation';
+  import { t } from '../../lib/i18n/translations';
   import logoSrc from '../../assets/logo/cbp-short-logo-dark.png';
 
   interface Props {
     currentPage?: string;
+    locale: 'es' | 'en';
   }
 
-  let { currentPage = 'home' }: Props = $props();
+  let { currentPage = 'home', locale }: Props = $props();
 
   let isOpen = $state(false);
   let triggerRef = $state(null) as HTMLButtonElement | null;
@@ -82,7 +84,7 @@
 <button
   bind:this={triggerRef}
   class="lg:hidden min-h-11 min-w-11 flex items-center justify-center text-text-primary focus:outline-2 focus:outline-offset-2 focus:outline-primary"
-  aria-label={isOpen ? 'Cerrar menú' : 'Abrir menú'}
+  aria-label={isOpen ? t('mobile.close', locale) : t('mobile.open', locale)}
   aria-expanded={isOpen}
   onclick={toggle}
 >
@@ -109,7 +111,7 @@
 
     <button
       class="absolute top-4 right-4 min-h-11 min-w-11 flex items-center justify-center text-text-primary focus:outline-2 focus:outline-offset-2 focus:outline-primary"
-      aria-label="Cerrar menú"
+      aria-label={t('mobile.close', locale)}
       onclick={close}
     >
       <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -117,15 +119,15 @@
       </svg>
     </button>
 
-    <nav class="flex flex-col items-center gap-8" aria-label="Navegación principal">
+    <nav class="flex flex-col items-center gap-8" aria-label={t('nav.aria', locale)}>
       {#each navItems as item (item.key)}
         <a
-          href={item.href}
+          href={localizeHref(item.href, locale)}
           class="text-heading-2 font-semibold transition-colors min-h-11 flex items-center focus:outline-2 focus:outline-offset-2 focus:outline-primary {currentPage === item.key ? 'text-primary' : 'text-text-secondary hover:text-primary'}"
           aria-current={currentPage === item.key ? 'page' : undefined}
           onclick={close}
         >
-          {item.label}
+          {item.label[locale]}
         </a>
       {/each}
     </nav>

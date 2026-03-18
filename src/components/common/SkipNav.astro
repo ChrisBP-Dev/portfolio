@@ -1,6 +1,17 @@
+---
+import type { Locale } from '../../lib/i18n/config';
+import { t } from '../../lib/i18n/translations';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+---
+
 <a
   href="#main"
   class="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:top-4 focus-visible:left-4 focus-visible:z-[100] focus-visible:bg-primary focus-visible:text-white focus-visible:px-4 focus-visible:py-2 focus-visible:rounded-lg"
 >
-  Saltar al contenido
+  {t('skipnav.label', locale)}
 </a>

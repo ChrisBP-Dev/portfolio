@@ -4,6 +4,10 @@ import SkipNav from '../components/common/SkipNav.astro';
 import Banner from '../components/layout/Banner.astro';
 import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
+import LocaleToggle from '../components/layout/LocaleToggle.svelte';
+import { t } from '../lib/i18n/translations';
+import type { Locale } from '../lib/i18n/config';
+import { getRelativeLocaleUrl } from 'astro:i18n';
 
 interface Props {
   title: string;
@@ -11,10 +15,11 @@ interface Props {
   currentPage?: 'home' | 'projects' | 'experience' | 'blog' | 'contact';
 }
 
-const { title, description = 'Portfolio de Christopher Bobadilla', currentPage = 'home' } = Astro.props;
+const locale = (Astro.currentLocale ?? 'es') as Locale;
+const { title, description = t('meta.description', locale), currentPage = 'home' } = Astro.props;
 ---
 
-<html lang="es" class="dark">
+<html lang={locale} class="dark">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -22,15 +27,18 @@ const { title, description = 'Portfolio de Christopher Bobadilla', currentPage =
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
+    <link rel="alternate" hreflang="es" href={getRelativeLocaleUrl('es', Astro.url.pathname)} />
+    <link rel="alternate" hreflang="en" href={getRelativeLocaleUrl('en', Astro.url.pathname)} />
     <title>{title}</title>
   </head>
   <body class="bg-background text-text-primary min-h-screen flex flex-col">
-    <SkipNav />
-    <Banner />
-    <Header currentPage={currentPage} />
+    <SkipNav locale={locale} />
+    <Banner locale={locale} />
+    <Header currentPage={currentPage} locale={locale} />
     <main id="main" class="flex-1" tabindex="-1">
       <slot />
     </main>
-    <Footer />
+    <Footer locale={locale} />
+    <LocaleToggle client:load currentLocale={locale} currentPath={Astro.url.pathname} />
   </body>
 </html>
