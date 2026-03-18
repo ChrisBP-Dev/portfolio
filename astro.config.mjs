@@ -3,6 +3,7 @@ import svelte from '@astrojs/svelte';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
+  site: 'https://portfolio-chrisbp.web.app',
   output: 'static',
   i18n: {
     defaultLocale: 'es',

@@ -51,7 +51,7 @@ development_status:
   1-5-design-tokens-y-sistema-de-temas: done
   1-6-componentes-ui-base: done
   1-7-layouts-header-footer-y-banner: done
-  1-8-i18n-foundation-y-localetoggle: review
+  1-8-i18n-foundation-y-localetoggle: done
   1-9-themetoggle-y-persistencia-de-tema: backlog
   1-10-firebase-client-admin-sdk-configuration: backlog
   epic-1-retrospective: optional

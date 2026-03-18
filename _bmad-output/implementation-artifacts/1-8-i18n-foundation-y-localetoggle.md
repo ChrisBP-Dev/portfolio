@@ -1,6 +1,6 @@
 # Story 1.8: i18n Foundation y LocaleToggle
 
-Status: review
+Status: done
 
 ## Story
 
@@ -366,6 +366,49 @@ Claude Opus 4.6 (1M context)
 
 ### Change Log
 - 2026-03-18: Implementación completa de Story 1.8 — i18n foundation, traducciones, LocaleToggle FAB, localización de componentes existentes
+- 2026-03-18: Code review pasado — 2 patches aplicados, 2 bad_spec documentados, 1 defer anotado
+
+### Code Review Record
+
+**Reviewer:** Claude Opus 4.6 (1M context) — bmad-code-review workflow
+**Date:** 2026-03-18
+**Layers:** Blind Hunter + Edge Case Hunter + Acceptance Auditor (3/3 completados)
+**Diff scope:** commits `ccf6ae9..269d8b8` (implementación + fix hreflang)
+
+#### Findings Summary
+| Categoría | Cantidad |
+|-----------|----------|
+| Bad Spec | 2 |
+| Patch | 1 (crítico) |
+| Defer | 1 |
+| Rechazados | 10 |
+
+#### Patches Aplicados
+
+**P-1: Falta `site` en `astro.config.mjs` — hreflang URLs usaban `localhost`** (crítico)
+- `astro.config.mjs` — agregado `site: 'https://portfolio-chrisbp.web.app'`
+- Sin esta propiedad, `Astro.url` usaba `http://localhost:4321` durante build, produciendo hreflang tags inválidos
+
+**P-2: LocaleToggle aria-label hardcodeado — eliminar código muerto**
+- `LocaleToggle.svelte` — ahora usa `t('locale.switch', currentLocale)` en vez de strings hardcodeados
+- La clave `locale.switch` ya existía en `translations.ts` como código muerto; ahora se consume correctamente
+
+#### Bad Spec Documentados
+
+**BS-1:** `redirectToDefaultLocale: true` especificado en Dev Notes es incompatible con Astro 6 + `prefixDefaultLocale: false`. El dev agent ya lo había detectado y documentado en su debug log. El spec debería eliminar esa instrucción.
+
+**BS-2:** El spec definía `locale.switch` en el diccionario de traducciones Y decía hardcodear aria-labels en LocaleToggle. Resuelto usando `t()` — la clave ya no es código muerto.
+
+#### Defer
+
+**D-1:** Links de navegación en inglés (`/en/projects`, etc.) producen 404 — por diseño, las páginas se crean en Epic 2.
+
+#### Verificación Post-Patch
+- Type-check: 0 errores (43 archivos)
+- Tests: 111 passing, 0 regresiones
+- Build: 2 páginas generadas
+- Lint: 0 errores
+- Hreflang: URLs absolutas correctas (`https://portfolio-chrisbp.web.app/`)
 
 ### File List
 - `astro.config.mjs` — modificado (agregado bloque i18n)

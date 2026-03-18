@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { t } from '../../lib/i18n/translations';
+
   interface Props {
     currentLocale: 'es' | 'en';
     currentPath: string;
@@ -6,9 +8,7 @@
 
   let { currentLocale, currentPath }: Props = $props();
 
-  const ariaLabel = $derived(
-    currentLocale === 'es' ? 'Cambiar a inglés' : 'Switch to Spanish'
-  );
+  const ariaLabel = $derived(t('locale.switch', currentLocale));
 
   const flag = $derived(currentLocale === 'es' ? '🇪🇸' : '🇺🇸');
 
