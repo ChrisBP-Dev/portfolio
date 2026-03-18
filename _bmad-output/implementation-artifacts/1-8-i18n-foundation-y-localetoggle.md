@@ -1,0 +1,294 @@
+# Story 1.8: i18n Foundation y LocaleToggle
+
+Status: ready-for-dev
+
+## Story
+
+As a visitor,
+I want to switch the site language between Spanish and English,
+So that I can read content in my preferred language.
+
+## Acceptance Criteria
+
+1. **AC-1: Default Spanish routing** — `GET /` renders Spanish content; `Astro.currentLocale` returns `'es'`
+2. **AC-2: English routing** — `GET /en/` renders English content; `Astro.currentLocale` returns `'en'`
+3. **AC-3: Static translations dictionary** — `src/lib/i18n/translations.ts` provides both ES and EN for all UI strings (nav labels, buttons, section titles, aria-labels)
+4. **AC-4: LocaleToggle FAB** — Renders floating bottom-right with active locale flag (Spain for ES, USA for EN)
+5. **AC-5: Locale switching** — On Spanish page, clicking LocaleToggle navigates to English equivalent (and vice versa) without full page reload; flag changes accordingly
+6. **AC-6: Locale-aware URLs** — `/en/projects` renders in English with correct URL; all existing pages have `/en/` counterparts
+7. **AC-7: Svelte 5 island** — LocaleToggle is a Svelte 5 component with `client:load` hydration
+8. **AC-8: Accessibility** — `aria-label` reads "Cambiar a inglés" on ES pages, "Switch to Spanish" on EN pages
+9. **AC-9: Existing components localized** — Banner, Header nav labels, Footer heading, MobileMenu aria-labels, SkipNav text all render in the active locale
+
+## Tasks / Subtasks
+
+- [ ] **Task 1: Astro i18n configuration** (AC: 1, 2)
+  - [ ] 1.1 Add `i18n` block to `astro.config.mjs`: `defaultLocale: 'es'`, `locales: ['es', 'en']`, `routing: { prefixDefaultLocale: false, redirectToDefaultLocale: true }`
+  - [ ] 1.2 Verify `Astro.currentLocale` returns `'es'` on `/` and `'en'` on `/en/`
+
+- [ ] **Task 2: i18n config module** (AC: 1, 2, 3)
+  - [ ] 2.1 Create `src/lib/i18n/config.ts` — export `defaultLocale`, `locales`, `type Locale` (reuse from `shared-schemas.ts`), helper `getLocaleFromUrl(url: URL): Locale`
+  - [ ] 2.2 Delete `src/lib/i18n/.gitkeep`
+
+- [ ] **Task 3: Static translations dictionary** (AC: 3, 9)
+  - [ ] 3.1 Create `src/lib/i18n/translations.ts` — `Record<string, Record<Locale, string>>` covering: nav labels (Home/Inicio, Projects/Proyectos, Experience/Experiencia, Blog, Contact/Contacto), Banner text, Footer heading, SkipNav text, MobileMenu aria-labels, LocaleToggle aria-labels, BaseLayout default description
+  - [ ] 3.2 Export `t(key: string, locale: Locale): string` helper function
+
+- [ ] **Task 4: Localize navigation data** (AC: 3, 9)
+  - [ ] 4.1 Refactor `src/data/navigation.ts` — change `label` from `string` to `Record<Locale, string>` (e.g., `{ es: 'Inicio', en: 'Home' }`) or use translations dictionary with keys
+  - [ ] 4.2 Update `Header.astro` to pass `locale` and render localized nav labels
+  - [ ] 4.3 Update `MobileMenu.svelte` to accept `locale` prop and render localized labels + aria-labels
+
+- [ ] **Task 5: Update BaseLayout for i18n** (AC: 1, 2, 9)
+  - [ ] 5.1 Change `<html lang="es">` to `<html lang={locale}>` using `Astro.currentLocale`
+  - [ ] 5.2 Add `locale` to Props, derive from `Astro.currentLocale ?? 'es'`
+  - [ ] 5.3 Pass `locale` down to Header, Banner, Footer, SkipNav
+  - [ ] 5.4 Localize default `description` meta tag
+  - [ ] 5.5 Add `<link rel="alternate" hreflang="es" href="...">` and `<link rel="alternate" hreflang="en" href="...">` tags using `getRelativeLocaleUrl` from `astro:i18n`
+
+- [ ] **Task 6: Localize existing layout components** (AC: 9)
+  - [ ] 6.1 `Banner.astro` — accept `locale` prop, render "Bienvenido a mi Portfolio" / "Welcome to my Portfolio"
+  - [ ] 6.2 `Footer.astro` — accept `locale` prop, render "Contacto" / "Contact", localize aria-labels
+  - [ ] 6.3 `SkipNav.astro` — accept `locale` prop, render "Saltar al contenido" / "Skip to content"
+  - [ ] 6.4 `Header.astro` — accept `locale` prop, localize nav `aria-label`, pass locale to MobileMenu
+  - [ ] 6.5 Update all component nav `href` values to use locale-aware URLs (e.g., on EN pages, links point to `/en/projects` not `/projects`)
+
+- [ ] **Task 7: Create LocaleToggle.svelte** (AC: 4, 5, 7, 8)
+  - [ ] 7.1 Create `src/components/layout/LocaleToggle.svelte` — Svelte 5 island with `client:load`
+  - [ ] 7.2 Props: `currentLocale: 'es' | 'en'`, `currentPath: string`
+  - [ ] 7.3 Render as FAB: `position: fixed`, `bottom-right`, `z-[55]` (above content, below modals)
+  - [ ] 7.4 Show flag emoji or SVG: Spain flag for ES, USA flag for EN (active locale shown)
+  - [ ] 7.5 `onclick` → `window.location.href` to locale-switched URL (compute target path by adding/removing `/en/` prefix)
+  - [ ] 7.6 `aria-label` — "Cambiar a inglés" when on ES, "Switch to Spanish" when on EN
+  - [ ] 7.7 Touch target `min-h-11 min-w-11`, focus ring `focus:outline-2 focus:outline-offset-2 focus:outline-primary`
+  - [ ] 7.8 Styling: `bg-surface border border-border rounded-full shadow-lg` with hover/active states
+
+- [ ] **Task 8: Place LocaleToggle in BaseLayout** (AC: 4)
+  - [ ] 8.1 Import and render `<LocaleToggle client:load currentLocale={locale} currentPath={Astro.url.pathname} />` in BaseLayout, after `<Footer />`
+  - [ ] 8.2 Position: fixed bottom-right (CSS in the component, NOT in BaseLayout)
+
+- [ ] **Task 9: Create `/en/` page routes** (AC: 2, 6)
+  - [ ] 9.1 Create `src/pages/en/index.astro` — mirrors `src/pages/index.astro` but with English content/locale
+  - [ ] 9.2 For MVP, only `en/index.astro` is needed (other pages created in Epic 2); add placeholder or redirect for future routes
+
+- [ ] **Task 10: Unit tests** (AC: 1-9)
+  - [ ] 10.1 Create `src/lib/i18n/__tests__/config.test.ts` — test `getLocaleFromUrl()` with various URL patterns (`/`, `/en/`, `/projects`, `/en/projects`)
+  - [ ] 10.2 Create `src/lib/i18n/__tests__/translations.test.ts` — test `t()` returns correct strings for both locales, test all keys exist in both ES and EN, test unknown key returns key itself
+  - [ ] 10.3 Verify all existing tests still pass (`pnpm test`)
+
+- [ ] **Task 11: Build verification** (AC: 1-9)
+  - [ ] 11.1 `pnpm type-check` — 0 errors
+  - [ ] 11.2 `pnpm test` — all tests pass, 0 regressions
+  - [ ] 11.3 `pnpm build` — succeeds, generates both `/` and `/en/` routes
+
+## Dev Notes
+
+### Architecture Constraints
+
+- **Framework:** Astro 6.0.5 SSG (`output: 'static'`), Svelte 5.53.12 for islands, Tailwind CSS 4.2.1 (CSS-first)
+- **i18n approach:** Astro native i18n — NO third-party i18n library needed
+- **Routing:** Folder-based. Spanish at root `/`, English under `/en/`. `prefixDefaultLocale: false`
+- **Astro 6 breaking change:** `redirectToDefaultLocale` default changed in v6 — set explicitly to `true`
+- **Static output:** `getRelativeLocaleUrl()` from `astro:i18n` works with static builds for URL generation
+- **`Astro.currentLocale`:** Available in all `.astro` files, returns current locale from URL
+
+### LocaleToggle Architecture
+
+- **Type:** Svelte 5 island with `client:load` (must be interactive immediately)
+- **Pattern:** FAB (Floating Action Button) — fixed position bottom-right, always visible
+- **State:** Stateless — reads `currentLocale` and `currentPath` as props, navigates on click
+- **Navigation:** `window.location.href` assignment (changes route; Astro SSG pages are separate HTML files, so full navigation is expected and correct for static output)
+- **Positioning:** `fixed bottom-6 right-6 z-[55]` — below MobileMenu overlay (z-[60]) but above normal content (z-50)
+- **Stacking with ThemeToggle (story 1.9):** LocaleToggle at `bottom-6 right-6`, ThemeToggle will stack above at `bottom-20 right-6` (coordinate positioning in story 1.9)
+
+### Translations Dictionary Structure
+
+```typescript
+// src/lib/i18n/translations.ts
+import type { Locale } from './config';
+
+const translations: Record<string, Record<Locale, string>> = {
+  // Navigation
+  'nav.home': { es: 'Inicio', en: 'Home' },
+  'nav.projects': { es: 'Proyectos', en: 'Projects' },
+  'nav.experience': { es: 'Experiencia', en: 'Experience' },
+  'nav.blog': { es: 'Blog', en: 'Blog' },
+  'nav.contact': { es: 'Contacto', en: 'Contact' },
+
+  // Layout
+  'banner.welcome': { es: 'Bienvenido a mi Portfolio', en: 'Welcome to my Portfolio' },
+  'footer.contact': { es: 'Contacto', en: 'Contact' },
+  'skipnav.label': { es: 'Saltar al contenido', en: 'Skip to content' },
+
+  // Aria labels
+  'nav.aria': { es: 'Navegación principal', en: 'Main navigation' },
+  'mobile.open': { es: 'Abrir menú', en: 'Open menu' },
+  'mobile.close': { es: 'Cerrar menú', en: 'Close menu' },
+  'locale.switch': { es: 'Cambiar a inglés', en: 'Switch to Spanish' },
+
+  // Meta
+  'meta.description': { es: 'Portfolio de Christopher Bobadilla', en: "Christopher Bobadilla's Portfolio" },
+
+  // Social aria
+  'social.tiktok': { es: 'Visitar perfil de TikTok', en: 'Visit TikTok profile' },
+  'social.github': { es: 'Visitar perfil de GitHub', en: 'Visit GitHub profile' },
+  'social.linkedin': { es: 'Visitar perfil de LinkedIn', en: 'Visit LinkedIn profile' },
+};
+
+export function t(key: string, locale: Locale): string {
+  return translations[key]?.[locale] ?? key;
+}
+
+export default translations;
+```
+
+### Navigation Data Refactor
+
+```typescript
+// src/data/navigation.ts — UPDATED
+import type { Locale } from '../lib/i18n/config';
+
+export const navItems = [
+  { key: 'home', href: '/', label: { es: 'Inicio', en: 'Home' } },
+  { key: 'projects', href: '/projects', label: { es: 'Proyectos', en: 'Projects' } },
+  { key: 'experience', href: '/experience', label: { es: 'Experiencia', en: 'Experience' } },
+  { key: 'blog', href: '/blog', label: { es: 'Blog', en: 'Blog' } },
+  { key: 'contact', href: '/contact', label: { es: 'Contacto', en: 'Contact' } },
+] as const;
+
+export type NavKey = (typeof navItems)[number]['key'];
+
+/** Prefix href with /en for English locale */
+export function localizeHref(href: string, locale: Locale): string {
+  if (locale === 'en') return `/en${href}`;
+  return href;
+}
+```
+
+### Astro Config i18n Block
+
+```javascript
+// astro.config.mjs — ADD to defineConfig
+i18n: {
+  defaultLocale: 'es',
+  locales: ['es', 'en'],
+  routing: {
+    prefixDefaultLocale: false,
+    redirectToDefaultLocale: true,
+  },
+},
+```
+
+### Existing Components to Modify
+
+| File | Change | Props Added |
+|------|--------|-------------|
+| `astro.config.mjs` | Add `i18n` config block | — |
+| `src/layouts/BaseLayout.astro` | Dynamic `lang`, pass `locale`, hreflang links, localized description | `locale` derived from `Astro.currentLocale` |
+| `src/components/layout/Header.astro` | Accept `locale`, localize nav labels, locale-aware hrefs, localize aria-label | `locale: Locale` |
+| `src/components/layout/MobileMenu.svelte` | Accept `locale` prop, localize labels and aria-labels, locale-aware hrefs | `locale: 'es' \| 'en'` |
+| `src/components/layout/Banner.astro` | Accept `locale`, use translations for text | `locale: Locale` |
+| `src/components/layout/Footer.astro` | Accept `locale`, localize heading and aria-labels | `locale: Locale` |
+| `src/components/common/SkipNav.astro` | Accept `locale`, localize link text | `locale: Locale` |
+| `src/data/navigation.ts` | Bilingual labels, `localizeHref()` helper | — |
+
+### Files to Create
+
+| File | Purpose |
+|------|---------|
+| `src/lib/i18n/config.ts` | Locale type, default locale, `getLocaleFromUrl()` helper |
+| `src/lib/i18n/translations.ts` | UI strings dictionary + `t()` helper |
+| `src/components/layout/LocaleToggle.svelte` | FAB component for locale switching |
+| `src/pages/en/index.astro` | English home page |
+| `src/lib/i18n/__tests__/config.test.ts` | Unit tests for locale config |
+| `src/lib/i18n/__tests__/translations.test.ts` | Unit tests for translations |
+
+### Files to Delete
+
+| File | Reason |
+|------|--------|
+| `src/lib/i18n/.gitkeep` | Replaced by actual files |
+
+### Critical Anti-Patterns to Avoid
+
+- **NEVER** use suffix pattern (`fieldEs`/`fieldEn`) — always nested objects `{ es, en }`
+- **NEVER** hardcode locale strings in components — always use `t()` or translations dict
+- **NEVER** import from Flutter patterns — Astro native i18n is the approach
+- **NEVER** use `next-intl` or other third-party i18n libraries — Astro has built-in support
+- **NEVER** create a global Svelte store for locale — use `Astro.currentLocale` (SSG, not SPA)
+- **NEVER** use `client:visible` for LocaleToggle — must be `client:load` (immediate interaction)
+
+### Locale Type — Reuse Existing Schema
+
+`Locale` type already exists in `src/lib/schemas/shared-schemas.ts`:
+```typescript
+export const localeSchema = z.enum(['es', 'en']);
+export type Locale = z.infer<typeof localeSchema>; // 'es' | 'en'
+```
+
+Reuse in `src/lib/i18n/config.ts`:
+```typescript
+export type { Locale } from '../schemas/shared-schemas';
+export { localeSchema } from '../schemas/shared-schemas';
+export const defaultLocale: Locale = 'es';
+export const locales: Locale[] = ['es', 'en'];
+```
+
+### Project Structure Notes
+
+- `src/lib/i18n/` is the designated folder per architecture [Source: architecture.md#Organización-del-proyecto]
+- `src/components/layout/LanguageToggle.svelte` is the architecture name — but the epics/UX use "LocaleToggle". Use `LocaleToggle.svelte` to match the story name. The architecture can be updated later if needed.
+- Tests go in `src/lib/i18n/__tests__/` (co-located pattern) [Source: architecture.md#Testing]
+- Navigation data stays in `src/data/navigation.ts` (established in story 1.7)
+
+### Previous Story Intelligence (1.7)
+
+**Patterns to reuse:**
+- Props interface with `class?: string` for custom styling
+- Svelte 5 Runes: `$state`, `$derived`, `$effect` — though LocaleToggle is mostly stateless
+- `client:load` for immediate hydration
+- Focus ring: `focus:outline-2 focus:outline-offset-2 focus:outline-primary`
+- Touch target: `min-h-11 min-w-11` (44x44px)
+- Semantic tokens: `bg-surface`, `border-border`, `text-text-primary`
+
+**Deferred item from 1.7 resolved here:**
+- D-1: `lang="es"` hardcoded — now dynamic via `Astro.currentLocale`
+
+**Hardcoded strings identified in 1.7 to localize:**
+- Banner: "Welcome to my Portfolio"
+- SkipNav: "Saltar al contenido"
+- Footer: "Contact" heading, 3 Spanish aria-labels
+- MobileMenu: "Abrir menú" / "Cerrar menú" / "Navegación principal"
+- Navigation: English-only labels (Home, Projects, Experience, Blog, Contact)
+- BaseLayout: `lang="es"`, Spanish-only description meta
+
+**Code review insights from 1.7:**
+- `sharp` dependency already installed for `astro:assets` Image optimization
+- Header uses `sticky top-0` (not fixed) — resolved in 1.7 review
+- Navigation items shared via `src/data/navigation.ts` (extracted during review)
+- `tabindex="-1"` on `<main id="main">` for skip link focus
+
+### Git Intelligence
+
+Recent commits show clean story-by-story progression. Current test count: 58 tests passing. Type-check: 0 errors across 37 files. Build: successful, generating 1 page (will generate 2 after this story: `/` and `/en/`).
+
+### References
+
+- [Source: _bmad-output/planning-artifacts/epics.md#Epic-1, Story 1.8]
+- [Source: _bmad-output/planning-artifacts/architecture.md#i18n, #Routing, #Organización-del-proyecto]
+- [Source: _bmad-output/planning-artifacts/ux-design-specification.md#FABs-flotantes, #LocaleToggle, #Accessibility]
+- [Source: _bmad-output/implementation-artifacts/1-7-layouts-header-footer-y-banner.md#Dev-Notes, #Deferred-Items]
+- [Source: Astro i18n docs — https://docs.astro.build/en/guides/internationalization/]
+- [Source: Astro i18n API — https://docs.astro.build/en/reference/modules/astro-i18n/]
+
+## Dev Agent Record
+
+### Agent Model Used
+
+### Debug Log References
+
+### Completion Notes List
+
+### Change Log
+
+### File List
