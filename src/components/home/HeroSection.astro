@@ -20,13 +20,15 @@ const contactHref = localizeHref('/contact', locale);
 <Section variant="hero">
   <Container variant="narrow">
     <div class="flex flex-col items-center text-center">
-      <div class="w-48 h-48 rounded-full overflow-hidden bg-gradient-to-br from-primary to-primary-dark mb-8 flex items-center justify-center">
+      <!-- Circle in background, logo image overlaid on top (no overflow-hidden) -->
+      <div class="relative flex justify-center mb-8">
+        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-32 h-32 rounded-full bg-gradient-to-br from-primary to-primary-dark"></div>
         <Image
           src={avatar}
           alt="ChrisBP"
-          class="block"
-          width={150}
-          height={150}
+          class="relative block z-10"
+          width={170}
+          height={141}
         />
       </div>
 
