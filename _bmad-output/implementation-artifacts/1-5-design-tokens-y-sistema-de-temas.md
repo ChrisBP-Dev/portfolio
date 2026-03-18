@@ -23,8 +23,8 @@ So that the portfolio looks polished and my theme preference is respected.
 ## Tasks / Subtasks
 
 - [ ] Task 1: Configurar carga de fuentes (AC: #4, #5)
-  - [ ] 1.1 **PRIMARY:** Configurar Astro Fonts API en `astro.config.mjs` — Poppins (400,500,600,700) y JetBrains Mono (400) via `fontProviders.google()` con `display: 'swap'`. Verificar que `import { fontProviders } from 'astro/config'` funciona en Astro 6.0.5+
-  - [ ] 1.2 **FALLBACK (si 1.1 falla):** `pnpm add @fontsource/poppins @fontsource/jetbrains-mono`. Importar CSS de pesos específicos en `src/pages/index.astro` (mover a BaseLayout en Story 1.7)
+  - [ ] 1.1 **PRIMARY:** Configurar Astro Fonts API en `astro.config.mjs` — Poppins (400,500,600,700) y JetBrains Mono (400) via `fontProviders.google()` con `display: 'swap'`. **Verificacion rapida:** agregar el import `import { defineConfig, fontProviders } from 'astro/config'` y ejecutar `pnpm build`. Si el build falla con error de import (ej: `fontProviders is not exported`) → la API no esta disponible en esta version, ir directo a 1.2
+  - [ ] 1.2 **FALLBACK (si 1.1 falla):** `pnpm add @fontsource/poppins @fontsource/jetbrains-mono`. Importar CSS de pesos específicos en `src/pages/index.astro` (mover a BaseLayout en Story 1.7). Si se usa este path, cambiar fonts en `@theme inline` a `@theme` (sin inline) con strings directos (ver seccion "Si se usa @fontsource" en Dev Notes)
   - [ ] 1.3 Verificar que `pnpm build` genera CSS con `@font-face` declarations para Poppins y JetBrains Mono
 
 - [ ] Task 2: Implementar tokens de color semánticos (AC: #1, #2)
@@ -46,13 +46,16 @@ So that the portfolio looks polished and my theme preference is respected.
 
 - [ ] Task 6: Test de contraste WCAG AA (AC: #9)
   - [ ] 6.1 Crear `src/styles/__tests__/contrast.test.ts` con función `contrastRatio(hex1, hex2)` que calcula WCAG contrast ratio
-  - [ ] 6.2 Tests para los 6 pares críticos: text-primary/background y text-secondary/background en ambos temas (4 combos) + primary/surface en ambos temas (2 combos). Todos deben ser >4.5:1 para texto normal
+  - [ ] 6.2 Tests para los 6 pares críticos con thresholds diferenciados segun UX spec:
+    - text-primary/background en ambos temas: **>7:1** (UX spec requiere >7:1 para texto principal)
+    - text-secondary/background en ambos temas: **>4.5:1** (WCAG AA normal text)
+    - primary-dark/surface en ambos temas: **>3:1** (acento/link — texto grande). Usar `primary-dark` (#108385) en vez de `primary` (#48A1CD) porque primary sobre blanco es ~2.97:1 y NO pasa. Primary se usa como color de acento visual (gradientes, bordes, iconos), NO como texto sobre fondo blanco
 
 - [ ] Task 7: Validaciones finales
   - [ ] 7.1 `pnpm lint` — 0 errores
   - [ ] 7.2 `pnpm type-check` — 0 errores
   - [ ] 7.3 `pnpm build` — 0 errores, CSS generado contiene los custom properties
-  - [ ] 7.4 `pnpm test` — todos los tests pasan (existentes + contrast tests nuevos)
+  - [ ] 7.4 `pnpm test` — **47 tests** pasan (41 existentes + 6 contrast nuevos)
 
 ## Dev Notes
 
@@ -126,7 +129,7 @@ Sin `--breakpoint-*: initial`, Tailwind mantiene los defaults Y los custom, caus
 | `heading-2` | clamp(1.25rem, 2.5vw, 1.75rem) | 600 | 1.3 | Subtitulos, nombres de proyecto |
 | `heading-3` | clamp(1.1rem, 2vw, 1.375rem) | 500 | 1.4 | Titulos de card |
 | `body` | 1rem (16px) | 400 | 1.6 | Texto de parrafo |
-| `body-sm` | 0.875rem (14px) | 400 | 1.5 | Metadata, fechas, tags |
+| `body-sm` | 0.875rem (14px) | 400 | 1.5 | Metadata, fechas, tags (UX spec lo llama "body-small", CSS token es `body-sm`) |
 | `caption` | 0.75rem (12px) | 400 | 1.4 | Labels, helpers |
 | `code` | 0.875rem (14px) | 400 | 1.5 | Code blocks (JetBrains Mono) |
 
@@ -140,7 +143,9 @@ Sin `--breakpoint-*: initial`, Tailwind mantiene los defaults Y los custom, caus
 ```
 **Uso:** `<h1 class="text-display">` aplica font-size, line-height Y font-weight automaticamente.
 
-### Implementacion Exacta — global.css
+### Implementacion Exacta — global.css (REFERENCIA CANONICA)
+
+**Este bloque es el resultado final esperado de `src/styles/global.css`.** Las Tasks 2-5 describen el orden de ejecucion, pero este bloque es la fuente de verdad para el contenido completo del archivo. Copiar este bloque y ajustar solo la seccion de fonts segun si se usa Astro Fonts API (Task 1.1) o @fontsource (Task 1.2).
 
 ```css
 @import 'tailwindcss';
@@ -343,20 +348,20 @@ function contrastRatio(hex1: string, hex2: string): number {
 const colors = {
   dark: { bg: '#0F1419', surface: '#1A1F2E', textPrimary: '#E8ECF1', textSecondary: '#8B95A5' },
   light: { bg: '#FAFBFC', surface: '#FFFFFF', textPrimary: '#1A1F2E', textSecondary: '#5A6270' },
-  brand: { primary: '#48A1CD' },
+  brand: { primary: '#48A1CD', primaryDark: '#108385' },
 };
 
 describe('WCAG AA Contrast Ratios', () => {
-  // text-primary sobre background: debe ser >7:1
-  test('dark: text-primary on background > 4.5:1', () => {
-    expect(contrastRatio(colors.dark.textPrimary, colors.dark.bg)).toBeGreaterThan(4.5);
+  // text-primary sobre background: UX spec requiere >7:1
+  test('dark: text-primary on background > 7:1', () => {
+    expect(contrastRatio(colors.dark.textPrimary, colors.dark.bg)).toBeGreaterThan(7);
   });
 
-  test('light: text-primary on background > 4.5:1', () => {
-    expect(contrastRatio(colors.light.textPrimary, colors.light.bg)).toBeGreaterThan(4.5);
+  test('light: text-primary on background > 7:1', () => {
+    expect(contrastRatio(colors.light.textPrimary, colors.light.bg)).toBeGreaterThan(7);
   });
 
-  // text-secondary sobre background: debe ser >4.5:1
+  // text-secondary sobre background: WCAG AA >4.5:1
   test('dark: text-secondary on background > 4.5:1', () => {
     expect(contrastRatio(colors.dark.textSecondary, colors.dark.bg)).toBeGreaterThan(4.5);
   });
@@ -365,18 +370,21 @@ describe('WCAG AA Contrast Ratios', () => {
     expect(contrastRatio(colors.light.textSecondary, colors.light.bg)).toBeGreaterThan(4.5);
   });
 
-  // primary sobre surface: debe ser >3:1 (usado como acento/link — texto grande)
-  test('dark: primary on surface > 3:1', () => {
-    expect(contrastRatio(colors.brand.primary, colors.dark.surface)).toBeGreaterThan(3);
+  // primary-dark sobre surface: >3:1 (usado como color de texto/link accesible)
+  // Nota: primary (#48A1CD) sobre blanco es ~2.97:1 y NO pasa — primary se usa
+  // como acento visual (gradientes, bordes, iconos), NO como texto sobre fondo blanco.
+  // Para texto accesible en light mode, usar primary-dark (#108385) que tiene ~5.5:1.
+  test('dark: primary-dark on surface > 3:1', () => {
+    expect(contrastRatio(colors.brand.primaryDark, colors.dark.surface)).toBeGreaterThan(3);
   });
 
-  test('light: primary on surface > 3:1', () => {
-    expect(contrastRatio(colors.brand.primary, colors.light.surface)).toBeGreaterThan(3);
+  test('light: primary-dark on surface > 3:1', () => {
+    expect(contrastRatio(colors.brand.primaryDark, colors.light.surface)).toBeGreaterThan(3);
   });
 });
 ```
 
-**Nota sobre primary en light mode:** El ratio de `#48A1CD` sobre `#FFFFFF` es ~2.7:1, que NO pasa ni para texto grande. Esto es aceptable porque `primary` se usa como color de acento (bordes, iconos, gradientes) y NO como color de texto sobre fondo blanco. Para texto de links en light mode, usar `primary-dark` (#108385) que tiene mejor contraste (~5.5:1). Si el test falla para primary/surface en light, ajustar el umbral a >3:1 solo para dark y documentar que en light mode el primary se usa con gradiente o sobre fondos oscuros.
+**Regla de uso de primary vs primary-dark:** `primary` (#48A1CD) tiene ratio ~2.97:1 sobre blanco — usarlo SOLO como acento visual (gradientes, bordes, iconos, backgrounds). Para texto accesible sobre surface (links, labels), usar `primary-dark` (#108385) que tiene ~5.5:1 sobre blanco. Los tests validan `primary-dark` sobre surface, NO `primary`.
 
 ### Inteligencia de Story 1-4
 
@@ -384,7 +392,7 @@ Estado actual post Story 1-4:
 - **Tailwind CSS 4.2.1** via `@tailwindcss/vite` — CSS-first config, NO `tailwind.config.js`
 - **`src/styles/global.css`** tiene placeholder `@theme {}` con comentario "Se configuraran en Story 1.5"
 - **Astro 6.0.5** con output static, Svelte integration
-- **Vitest 4.1.0** — 41 tests pasan (35 schema + 6 factory)
+- **Vitest 4.1.0** — 41 tests pasan (35 schema + 6 factory). Despues de esta story deben ser **47** (41 + 6 contrast). Test pattern en vitest.config.ts: `src/**/*.{test,spec}.{js,ts}`
 - **TypeScript strictest** — `extends: "astro/tsconfigs/strictest"`
 - **ESLint** con plugins astro y svelte
 - **CI pipeline** en push a main: lint -> type-check -> test -> build -> Lighthouse
@@ -403,6 +411,8 @@ Estado actual post Story 1-4:
 - **NO limpiar `--text-*` defaults** — mantener text-sm, text-lg etc. de Tailwind. Tokens custom (text-display, text-heading-1) se agregan sin conflicto
 - **NO agregar `@fontsource` si Astro Fonts API funciona** — preferir la solucion built-in
 - **NO agregar script de FOUC prevention** — innecesario porque Astro SSG genera HTML estatico con class="dark" ya incluido. El script sera relevante en Story 1.9 con localStorage
+- **NO definir shadow o border-radius tokens** — el UX spec los menciona como tokens futuros, pero no son parte de los ACs de esta story. Se definiran cuando los componentes los necesiten (Story 1.6+)
+- **NO crear contenido en `design-artifacts/D-Design-System/`** — ese directorio existe vacio como placeholder del WDS module, no se usa en el BMM workflow
 
 ### Project Structure Notes
 
