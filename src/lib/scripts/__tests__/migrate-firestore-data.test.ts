@@ -4,6 +4,7 @@ import {
   parseDateRange,
   parseExperienceYears,
   transformImageAndPath,
+  stripUndefined,
   migrateProject,
   migrateTechnology,
   migrateExperience,
@@ -121,14 +122,14 @@ describe('parseDateRange', () => {
     expect(result.endDate!.getMonth()).toBe(11); // December
   });
 
-  it('handles em-dash (U+2013)', () => {
+  it('handles en-dash (U+2013)', () => {
     const result = parseDateRange('2022 \u2013 2022');
     expect(result.startDate.getFullYear()).toBe(2022);
     expect(result.endDate).toBeInstanceOf(Date);
     expect(result.endDate!.getFullYear()).toBe(2022);
   });
 
-  it('handles en-dash (U+2014)', () => {
+  it('handles em-dash (U+2014)', () => {
     const result = parseDateRange('Jan 2021 \u2014 Dec 2021');
     expect(result.startDate.getFullYear()).toBe(2021);
     expect(result.endDate!.getFullYear()).toBe(2021);
@@ -241,16 +242,6 @@ describe('migrateProject', () => {
     expect(result.screenshots).toEqual([]);
   });
 
-  it('includes FieldValue.delete() markers for old fields', () => {
-    const flutterData = makeFlutterProject();
-    const result = migrateProject(flutterData);
-    expect(result._deletions).toContain('companyNameEs');
-    expect(result._deletions).toContain('companyNameEn');
-    expect(result._deletions).toContain('shortDescriptionEs');
-    expect(result._deletions).toContain('shortDescriptionEn');
-    expect(result._deletions).toContain('featuresES');
-    expect(result._deletions).toContain('featuresEN');
-  });
 });
 
 // --- migrateTechnology ---
@@ -281,11 +272,6 @@ describe('migrateTechnology', () => {
     expect(result.experienceYears).toBe(2);
   });
 
-  it('includes FieldValue.delete() markers for old fields', () => {
-    const flutterData = makeFlutterTechnology();
-    const result = migrateTechnology(flutterData);
-    expect(result._deletions).toContain('experienceTime');
-  });
 });
 
 // --- migrateExperience ---
@@ -320,16 +306,6 @@ describe('migrateExperience', () => {
     expect(result.endDate!.getFullYear()).toBe(2023);
   });
 
-  it('includes FieldValue.delete() markers for old fields', () => {
-    const flutterData = makeFlutterExperience();
-    const result = migrateExperience(flutterData);
-    expect(result._deletions).toContain('jobNameEs');
-    expect(result._deletions).toContain('jobNameEn');
-    expect(result._deletions).toContain('responsabilitiesEs');
-    expect(result._deletions).toContain('responsabilitiesEn');
-    expect(result._deletions).toContain('date');
-  });
-
   it('filters empty strings from responsibilities arrays', () => {
     const flutterData = makeFlutterExperience({
       responsabilitiesEs: ['Disenar sistemas', '', 'Liderar equipo'],
@@ -338,6 +314,26 @@ describe('migrateExperience', () => {
     const result = migrateExperience(flutterData);
     expect(result.responsibilities.es).toEqual(['Disenar sistemas', 'Liderar equipo']);
     expect(result.responsibilities.en).toEqual(['Design systems', 'Lead team']);
+  });
+});
+
+// --- stripUndefined ---
+
+describe('stripUndefined', () => {
+  it('removes keys with undefined values', () => {
+    const result = stripUndefined({ a: 1, b: undefined, c: 'hello' });
+    expect(result).toEqual({ a: 1, c: 'hello' });
+    expect(result).not.toHaveProperty('b');
+  });
+
+  it('preserves null values (Firestore accepts null)', () => {
+    const result = stripUndefined({ a: null, b: 0, c: '' });
+    expect(result).toEqual({ a: null, b: 0, c: '' });
+  });
+
+  it('returns empty object when all values are undefined', () => {
+    const result = stripUndefined({ a: undefined, b: undefined });
+    expect(result).toEqual({});
   });
 });
 

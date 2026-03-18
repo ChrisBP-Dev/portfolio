@@ -88,7 +88,7 @@ function isValidUrl(value: unknown): boolean {
 }
 
 /** Strip undefined values — Firestore rejects undefined */
-function stripUndefined(obj: Record<string, unknown>): Record<string, unknown> {
+export function stripUndefined(obj: Record<string, unknown>): Record<string, unknown> {
   return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined));
 }
 
@@ -110,11 +110,6 @@ export function migrateProject(data: Record<string, unknown>) {
     technologies: data.technologies as string[],
     websiteUrl: isValidUrl(data.websiteUrl) ? (data.websiteUrl as string) : undefined,
     sourceCodeUrl: isValidUrl(data.sourceCodeUrl) ? (data.sourceCodeUrl as string) : undefined,
-    _deletions: [
-      'companyNameEs', 'companyNameEn',
-      'shortDescriptionEs', 'shortDescriptionEn',
-      'featuresES', 'featuresEN',
-    ],
   };
 }
 
@@ -123,7 +118,6 @@ export function migrateTechnology(data: Record<string, unknown>) {
     name: data.name as string,
     image: transformImageAndPath(data.image as Record<string, unknown>),
     experienceYears: parseExperienceYears(data.experienceTime as string),
-    _deletions: ['experienceTime'],
   };
 }
 
@@ -139,7 +133,6 @@ export function migrateExperience(data: Record<string, unknown>) {
     },
     startDate,
     endDate,
-    _deletions: ['jobNameEs', 'jobNameEn', 'responsabilitiesEs', 'responsabilitiesEn', 'date'],
   };
 }
 
@@ -239,10 +232,7 @@ async function runMigration() {
 
       try {
         const transformed = migrate(data);
-        const fields = Object.fromEntries(
-          Object.entries(transformed).filter(([k]) => k !== '_deletions'),
-        );
-        const clean = stripUndefined(fields);
+        const clean = stripUndefined(transformed as Record<string, unknown>);
 
         // Validate against Zod schema
         validate(clean as Record<string, unknown>, doc.id);
@@ -278,11 +268,27 @@ async function runMigration() {
     results[`${source} -> ${target}`] = stats;
   }
 
+  // ─── Compute Phase 1 totals before cleanup ───
+
+  let totalMigrated = 0;
+  let totalSkipped = 0;
+  let totalFailed = 0;
+
+  for (const stats of Object.values(results)) {
+    totalMigrated += stats.migrated;
+    totalSkipped += stats.skipped;
+    totalFailed += stats.failed;
+  }
+
   // ─── Phase 2: Clean up obsolete collections ───
 
   console.log('\n--- Phase 2: Cleanup obsolete data ---');
 
   let totalDeleted = 0;
+
+  if (totalFailed > 0) {
+    console.warn('  SKIPPED — some documents failed in Phase 1. Source data preserved for re-run.');
+  } else {
 
   // Delete old-format docs in PascalCase target collections (pre-existing obsolete data)
   // and obsolete collections entirely
@@ -336,21 +342,16 @@ async function runMigration() {
     }
   }
 
+  } // end Phase 2 else block
+
   // ─── Summary ───
 
   console.log('\n===================================================');
   console.log('  Migration Summary');
   console.log('===================================================');
 
-  let totalMigrated = 0;
-  let totalSkipped = 0;
-  let totalFailed = 0;
-
   for (const [name, stats] of Object.entries(results)) {
     console.log(`  ${name}: ${stats.migrated} migrated | ${stats.skipped} skipped | ${stats.failed} failed`);
-    totalMigrated += stats.migrated;
-    totalSkipped += stats.skipped;
-    totalFailed += stats.failed;
   }
 
   console.log(`  Cleanup: ${totalDeleted} obsolete docs ${dryRun ? 'would be' : ''} deleted`);

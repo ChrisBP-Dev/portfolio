@@ -1,6 +1,6 @@
 # Story 2.1: Data Migration Script
 
-Status: review
+Status: done
 
 ## Story
 
@@ -10,7 +10,7 @@ So that the public site can render real portfolio data from day one.
 
 ## Acceptance Criteria
 
-1. **Given** the migration script in `src/lib/scripts/migrate-firestore-data.ts` **When** executed against Firestore **Then** it transforms all documents in Projects, Technologies, and Experiences collections
+1. **Given** the migration script in `src/lib/scripts/migrate-firestore-data.ts` **When** executed against Firestore **Then** it transforms all documents in Projects and Technologies collections (Experiences transform function is implemented and tested but not wired into the runner — no legacy data exists in Firestore)
 2. **And** localized fields transform: `companyNameEs/En` → `companyName: { es, en }`, `shortDescriptionEs/En` → `shortDescription: { es, en }`, `featuresES/EN` → `features: { es, en }`, `jobNameEs/En` → `jobName: { es, en }`, `responsabilitiesEs/En` → `responsibilities: { es: [...], en: [...] }`
 3. **And** image fields transform: `ImageAndPath { url, localImage, refPath }` → `StoredImage { url, storagePath }` — drop `localImage`, rename `refPath` → `storagePath`
 4. **And** Storage files are NOT renamed — only Firestore field names change
@@ -20,7 +20,7 @@ So that the public site can render real portfolio data from day one.
 8. **And** a document already in new schema is skipped (idempotent)
 9. **And** after migration, each document passes its corresponding Zod schema validation
 10. **And** backup command `firebase firestore:export` documented as pre-migration step
-11. **And** script runs via `npx tsx src/lib/scripts/migrate-firestore-data.ts`
+11. **And** script runs via `pnpm migrate` (or `pnpm migrate -- --dry-run` for preview). Note: `npx tsx` alone won't load `.env` vars; the npm script uses `node --env-file=.env --import tsx`
 
 ## Tasks / Subtasks
 
@@ -304,22 +304,9 @@ if (opCount >= 499) {
 if (opCount > 0) await batch.commit();
 ```
 
-### Limpieza de campos viejos
+### Limpieza de campos viejos (SUPERSEDED)
 
-Después de escribir los campos nuevos, **eliminar los campos viejos** del documento para mantener limpieza. Usar `FieldValue.delete()`:
-
-```typescript
-import { FieldValue } from 'firebase-admin/firestore';
-
-// En la actualización del documento:
-const updates = {
-  // Campos nuevos
-  companyName: { es: data.companyNameEs, en: data.companyNameEn },
-  // Eliminar campos viejos
-  companyNameEs: FieldValue.delete(),
-  companyNameEn: FieldValue.delete(),
-};
-```
+> **NOTA (code review 2026-03-18):** La implementación final usa migración cross-collection (`batch.set()` a nueva colección + borrado de colección fuente) en vez de in-place `FieldValue.delete()`. El patrón original de `FieldValue.delete()` fue reemplazado porque el schema discovery reveló que las colecciones fuente eran lowercase (`projects`, `technologies`) mientras los targets son PascalCase (`Projects`, `Technologies`). Los `_deletions` arrays se removieron como dead code en el code review.
 
 ### Project Structure Notes
 
@@ -425,10 +412,12 @@ TOTAL: 10 migrated | 0 skipped | 0 failed | 15 obsolete deleted
 - 2026-03-18: Initial implementation of story 2-1 — all 7 tasks completed
 - 2026-03-18: Rewrote script for cross-collection migration after discovering real Firestore schema differs from story assumptions (lowercase collections, no ImageAndPath objects in PascalCase collection, no Experiences)
 - 2026-03-18: Executed live migration — 10 docs migrated, 15 obsolete deleted, 0 failures
+- 2026-03-18: Code review (3-layer adversarial) — 8 actionable findings, 14 rejected as noise
+- 2026-03-18: Code review patches applied: (P-1) Phase 2 guard skips cleanup on Phase 1 failures, (P-2) removed dead `_deletions` code, (P-3) fixed en-dash/em-dash test labels, (P-5) added `stripUndefined` test + export. P-4 (engines field) already existed. Updated AC #1, AC #11, and FieldValue.delete() dev notes per bad_spec findings
 
 ### File List
 - `src/lib/scripts/migrate-firestore-data.ts` (new) — Migration script: pure transforms + cross-collection migration engine + cleanup
-- `src/lib/scripts/__tests__/migrate-firestore-data.test.ts` (new) — 41 unit tests for all transform/parse/idempotency functions
+- `src/lib/scripts/__tests__/migrate-firestore-data.test.ts` (new) — 41 unit tests (post-review: 41 → 41: -3 dead _deletions tests, +3 stripUndefined tests)
 - `package.json` (modified) — Added `tsx` devDependency and `"migrate"` npm script
 - `pnpm-lock.yaml` (modified) — Lock file updated for tsx
 - `.gitignore` (modified) — Added `*-adminsdk-*.json` pattern for Firebase service account files
