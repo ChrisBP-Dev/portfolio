@@ -2,7 +2,7 @@
   import { cubicInOut } from 'svelte/easing';
   import { navItems, localizeHref } from '../../data/navigation';
   import { t } from '../../lib/i18n/translations';
-  import logoSrc from '../../assets/logo/cbp-large-logo-dark.png';
+  import logoSrc from '../../assets/logo/cbp-large-logo-dark.png?url';
 
   interface Props {
     currentPage?: string;
@@ -17,6 +17,11 @@
   const reducedMotion = typeof window !== 'undefined'
     ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
     : false;
+
+  function bodyPortal(node: Element) {
+    document.body.appendChild(node);
+    return { destroy() {} };
+  }
 
   function slideDown(_node: Element) {
     return {
@@ -102,6 +107,7 @@
 {#if isOpen}
   <div
     id="mobile-menu-overlay"
+    use:bodyPortal
     class="fixed inset-0 z-[60] bg-background flex flex-col items-center justify-center"
     transition:slideDown
   >
