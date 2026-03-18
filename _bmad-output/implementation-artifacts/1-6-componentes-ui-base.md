@@ -12,7 +12,7 @@ So that all features are built with visual consistency from the start.
 
 1. **Given** Container component **When** used with default props **Then** centered max-width 1200px with responsive padding (16px mobile, 24px tablet >=450px, 32px desktop >=900px) **And** `narrow` variant sets max-width 720px
 2. **Given** Section component **When** used with default props **Then** applies consistent vertical spacing (48px mobile / 96px desktop) **And** `hero` variant uses 64px/128px **And** `compact` variant uses 24px/48px
-3. **Given** Button component **When** rendered with variant prop **Then** 4 variants work: `primary` (brand gradient bg, white text, subtle shadow), `secondary` (outline border-primary, text-primary), `danger` (error bg, white text), `ghost` (no bg, text-primary, hover bg sutil) — all min 44x44px touch target
+3. **Given** Button component **When** rendered with variant prop **Then** 4 variants work: `primary` (brand gradient bg, white text, subtle shadow), `secondary` (outline border-primary, text-primary-dark for WCAG AA), `danger` (error bg, white text), `ghost` (no bg, text-text-primary, hover bg sutil) — all min 44x44px touch target
 4. **Given** Card component **When** used with default props **Then** shows `surface` background with `border` border **And** hover class option enables `surface-elevated` background transition
 5. **Given** Badge component **When** rendered with variant prop **Then** 3 variants work: `technology` (gradient border), `status` with `published` (success bg) / `draft` (warning bg), `language` with `ES` (primary bg) / `EN` (success bg)
 6. **Given** Input component **When** rendered with type prop **Then** supports `text`, `textarea`, `select`, `file` variants **And** label always visible above field **And** required fields show asterisk **And** error prop shows red message below field **And** `aria-describedby` links input to error message
@@ -37,7 +37,7 @@ So that all features are built with visual consistency from the start.
   - [ ] 3.5 Disabled: `opacity-50 pointer-events-none`
 
 - [ ] Task 4: Card component (AC: #4, #7)
-  - [ ] 4.1 Crear `src/components/common/Card.astro` con Props: `hoverable?: boolean`, `class?: string`
+  - [ ] 4.1 Crear `src/components/common/Card.astro` con Props: `as?: 'article' | 'div'`, `hoverable?: boolean`, `class?: string`
   - [ ] 4.2 Implementar: `bg-surface border border-border rounded-xl p-4`, hover opcional con `hover:bg-surface-elevated transition-colors`
 
 - [ ] Task 5: Badge component (AC: #5)
@@ -129,7 +129,7 @@ Nota: `min-h-11` = 44px, `min-w-11` = 44px (touch target WCAG).
 **Variantes:**
 ```
 primary:    text-white [background:var(--brand-gradient)] shadow-md hover:shadow-lg hover:brightness-110
-secondary:  border-2 border-primary text-primary hover:bg-primary/10
+secondary:  border-2 border-primary text-primary-dark hover:bg-primary/10
 danger:     bg-error text-white hover:brightness-110
 ghost:      text-text-primary hover:bg-surface-elevated
 ```
@@ -152,7 +152,7 @@ Astro soporta tags dinamicos con esta sintaxis.
 base:      bg-surface border border-border rounded-xl p-4
 hoverable: hover:bg-surface-elevated transition-colors duration-200
 ```
-Semantica: renderizar como `<article>` por default (correcto para cards de proyecto/blog). Aceptar prop `as` si necesita ser `<div>`.
+Semantica: renderizar como `<article>` por default (correcto para cards de proyecto/blog). Prop `as` permite cambiar a `<div>` cuando el contenido no es un articulo independiente. Badge.astro reemplaza el TechnologyBadge.astro original de la arquitectura, ampliando a 3 variantes (technology, status, language). Stories futuras deben importar `Badge.astro` con el variant correspondiente.
 
 #### Badge.astro
 **Base:** `inline-flex items-center px-2 py-1 rounded-full text-caption font-medium`
@@ -264,21 +264,19 @@ describe('Component Props Types', () => {
 });
 ```
 
-Nota: Astro components se pueden importar en tests para verificar que compilan, aunque no se pueden renderizar sin el runtime de Astro. Lo importante es que el type-check y build validen la correctitud.
+Nota: Astro components se pueden importar en tests via `getViteConfig` que incluye el compilador Astro. Si los imports .astro fallan en Vitest, el fallback es validar con `pnpm type-check` + `pnpm build` como prueba principal de compilacion.
 
 ### Inteligencia de Story 1-5
 
 Estado actual del proyecto post Story 1.5:
 - **Tailwind CSS 4.2.1** via `@tailwindcss/vite` — CSS-first config, NO `tailwind.config.js`
-- **`src/styles/global.css`** tiene TODOS los tokens: 12 colores semanticos (light/dark), 8 tipografia compound, spacing 4px base, breakpoints custom (sm:450, lg:900, xl:1200), dark mode class-based
-- **Astro Fonts API** funciona — Poppins (400/500/600/700) y JetBrains Mono (400) self-hosteados
+- **`src/styles/global.css`** tiene TODOS los tokens (colores, tipografia, spacing, breakpoints — ver seccion "Tailwind CSS v4" arriba para lista completa)
+- **Astro Fonts API** — Poppins (400/500/600/700) y JetBrains Mono (400) self-hosteados
 - **Dark mode default** via `class="dark"` en `<html>` de `src/pages/index.astro`
-- **Vitest 4.1.0** — 47 tests pasan. Test pattern: `src/**/*.{test,spec}.{js,ts}`
+- **Vitest 4.1.0** — 47 tests pasan. Pattern: `src/**/*.{test,spec}.{js,ts}`
 - **TypeScript strictest** — `extends: "astro/tsconfigs/strictest"`
-- **`src/components/`** tiene subdirectorios con `.gitkeep` placeholders: `common/`, `layout/`, `home/`, `projects/`, `blog/`, `contact/`, `admin/`
-- **Zod schemas** definidos en `src/lib/schemas/`: project, technology, experience, blog-post, image-slot, shared
 - **CI pipeline:** lint -> type-check -> test -> build -> Lighthouse (en push a main)
-- **`primary` (#48A1CD) vs `primary-dark` (#108385):** primary tiene ~2.97:1 sobre blanco — usarlo SOLO como acento visual (gradientes, bordes, iconos). Para texto accesible sobre surface, usar `primary-dark` o `text-primary`. Los botones primary usan gradient bg con texto blanco, que SI tiene buen contraste.
+- **Contraste critico — `text-primary` (#48A1CD) vs `text-primary-dark` (#108385):** `text-primary` tiene ~2.97:1 sobre blanco — SOLO para acentos no-textuales (gradientes, bordes, iconos, bg con opacidad). Para texto accesible sobre surface, usar `text-primary-dark` (~5.5:1 sobre blanco). `text-text-primary` es el color semantico de texto general (cambia con tema).
 
 ### Que NO Hacer en Esta Story
 
@@ -325,22 +323,10 @@ Archivos NO modificados:
 
 ### References
 
-- [Source: _bmad-output/planning-artifacts/epics.md — Epic 1, Story 1.6 Acceptance Criteria]
-- [Source: _bmad-output/planning-artifacts/architecture.md — Component Boundaries (.astro vs .svelte)]
-- [Source: _bmad-output/planning-artifacts/architecture.md — File Organization (src/components/common/)]
-- [Source: _bmad-output/planning-artifacts/architecture.md — Naming (PascalCase components, kebab-case files)]
-- [Source: _bmad-output/planning-artifacts/architecture.md — Testing (Vitest, __tests__/ co-located)]
-- [Source: _bmad-output/planning-artifacts/ux-design-specification.md — Button Hierarchy (4 variants, gradient primary, 44x44px touch)]
-- [Source: _bmad-output/planning-artifacts/ux-design-specification.md — Card (surface bg, hover elevation)]
-- [Source: _bmad-output/planning-artifacts/ux-design-specification.md — Badge (3 variants: technology, status, language)]
-- [Source: _bmad-output/planning-artifacts/ux-design-specification.md — Input (label visible, error inline, asterisk required)]
-- [Source: _bmad-output/planning-artifacts/ux-design-specification.md — Container & Section (max-width, responsive padding, spacing)]
-- [Source: _bmad-output/planning-artifacts/ux-design-specification.md — Accessibility (WCAG AA, focus 2px solid primary, 44x44 touch)]
-- [Source: _bmad-output/planning-artifacts/ux-design-specification.md — Responsive Strategy (mobile-first, breakpoints 450/900/1200)]
-- [Source: _bmad-output/planning-artifacts/ux-design-specification.md — Color System (tabla completa light/dark, gradiente de marca)]
-- [Source: _bmad-output/planning-artifacts/ux-design-specification.md — Spacing (4px base, 48px/96px secciones)]
-- [Source: _bmad-output/implementation-artifacts/1-5-design-tokens-y-sistema-de-temas.md — tokens implementados, Astro Fonts API, primary vs primary-dark]
-- [Source: Web — Astro 6 TypeScript Props interface pattern (HTMLAttributes from 'astro/types')]
+- epics.md — Epic 1, Story 1.6 AC | architecture.md — Component boundaries, file organization, naming, testing
+- ux-design-specification.md — Button/Card/Badge/Input specs, Container/Section layout, accessibility (WCAG AA), responsive strategy, color system, spacing
+- 1-5-design-tokens-y-sistema-de-temas.md — tokens implementados, Astro Fonts API, primary vs primary-dark
+- Web — Astro 6 TypeScript Props interface pattern (HTMLAttributes from 'astro/types')
 
 ## Dev Agent Record
 
