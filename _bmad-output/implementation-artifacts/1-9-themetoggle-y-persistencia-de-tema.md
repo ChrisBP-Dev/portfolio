@@ -1,6 +1,6 @@
 # Story 1.9: ThemeToggle y Persistencia de Tema
 
-Status: review
+Status: done
 
 ## Story
 
@@ -406,3 +406,43 @@ Claude Opus 4.6 (1M context)
 ### Change Log
 
 - 2026-03-18: Implementación completa de Story 1.9 — ThemeToggle y persistencia de tema (AC 1-9 satisfechos)
+- 2026-03-18: Code review passed — 0 patches, 2 defers, 13 rejected as noise
+
+## Code Review Record
+
+### Review Model Used
+
+Claude Opus 4.6 (1M context)
+
+### Review Date
+
+2026-03-18
+
+### Review Scope
+
+Commit range: `b9390f3..51f7af7` — 8 source files, +237/-0 lines
+
+### Review Layers
+
+- **Blind Hunter**: Completed — 10 findings
+- **Edge Case Hunter**: Completed — 7 findings
+- **Acceptance Auditor**: Completed — 0 actionable findings
+
+### Triage Summary
+
+| Categoría | Cantidad |
+|-----------|----------|
+| intent_gap | 0 |
+| bad_spec | 0 |
+| patch | 0 |
+| defer | 2 |
+| reject | 13 |
+
+### Verdict: PASS
+
+La implementación cumple fielmente los 9 criterios de aceptación, todas las restricciones de tasks, y evita todos los anti-patterns listados.
+
+### Deferred Items
+
+- **D-1**: Sin try/catch en localStorage — riesgo extremadamente bajo en navegadores modernos. El HTML default `class="dark"` sirve como fallback seguro.
+- **D-2**: Flash de icono incorrecto para usuarios light-mode — limitación inherente de SSG + Svelte islands, duración imperceptible (milisegundos).
