@@ -16,7 +16,7 @@ import {
   createBlogPost,
 } from '../../../test/factories';
 
-/** Creates a mock Firestore instance that returns the given docs for any collection query. */
+/** Creates a mock Firestore db and query spy for unit testing collection functions. */
 function createMockDb(docs: Array<{ id: string; data: Record<string, unknown> }>) {
   const snapshot = {
     docs: docs.map((d) => ({ id: d.id, data: () => d.data })),
@@ -25,10 +25,8 @@ function createMockDb(docs: Array<{ id: string; data: Record<string, unknown> }>
     get: vi.fn().mockResolvedValue(snapshot),
     orderBy: vi.fn().mockReturnThis(),
   };
-  return {
-    collection: vi.fn().mockReturnValue(query),
-    _query: query,
-  };
+  const db = { collection: vi.fn().mockReturnValue(query) };
+  return { db, query };
 }
 
 describe('Firebase Collections', () => {
@@ -138,7 +136,7 @@ describe('Firebase Collections', () => {
       const tech2 = createTechnology({ name: 'Firebase' });
       const { id: id1, ...data1 } = tech1;
       const { id: id2, ...data2 } = tech2;
-      const db = createMockDb([
+      const { db, query } = createMockDb([
         { id: id1, data: data1 as Record<string, unknown> },
         { id: id2, data: data2 as Record<string, unknown> },
       ]);
@@ -149,27 +147,28 @@ describe('Firebase Collections', () => {
       expect(result[0]!.name).toBe('Flutter');
       expect(result[1]!.name).toBe('Firebase');
       expect(db.collection).toHaveBeenCalledWith(COLLECTION_PATHS.technologies);
-      expect(db._query.orderBy).toHaveBeenCalledWith('name');
+      expect(query.orderBy).toHaveBeenCalledWith('name');
     });
 
     it('[P1] 2.2-UNIT-002: returns empty array when no documents exist', async () => {
-      const db = createMockDb([]);
+      const { db } = createMockDb([]);
       const result = await getAllTechnologies(db as never);
       expect(result).toEqual([]);
     });
   });
 
   describe('getAllProjects', () => {
-    it('[P0] 2.2-UNIT-003: returns parsed Project[] from mock Firestore', async () => {
+    it('[P0] 2.2-UNIT-003: returns parsed Project[] from mock Firestore ordered by slug', async () => {
       const proj = createProject({ slug: 'test-proj' });
       const { id, ...data } = proj;
-      const db = createMockDb([{ id, data: data as Record<string, unknown> }]);
+      const { db, query } = createMockDb([{ id, data: data as Record<string, unknown> }]);
 
       const result = await getAllProjects(db as never);
 
       expect(result).toHaveLength(1);
       expect(result[0]!.slug).toBe('test-proj');
       expect(db.collection).toHaveBeenCalledWith(COLLECTION_PATHS.projects);
+      expect(query.orderBy).toHaveBeenCalledWith('slug');
     });
   });
 
@@ -177,14 +176,14 @@ describe('Firebase Collections', () => {
     it('[P0] 2.2-UNIT-004: returns parsed Experience[] from mock Firestore', async () => {
       const exp = createExperience({ companyName: 'Acme Corp' });
       const { id, ...data } = exp;
-      const db = createMockDb([{ id, data: data as Record<string, unknown> }]);
+      const { db, query } = createMockDb([{ id, data: data as Record<string, unknown> }]);
 
       const result = await getAllExperiences(db as never);
 
       expect(result).toHaveLength(1);
       expect(result[0]!.companyName).toBe('Acme Corp');
       expect(db.collection).toHaveBeenCalledWith(COLLECTION_PATHS.experiences);
-      expect(db._query.orderBy).toHaveBeenCalledWith('startDate', 'desc');
+      expect(query.orderBy).toHaveBeenCalledWith('startDate', 'desc');
     });
   });
 

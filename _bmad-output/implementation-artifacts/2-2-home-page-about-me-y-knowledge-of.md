@@ -1,6 +1,6 @@
 # Story 2.2: Home Page — About Me y Knowledge Of
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -317,12 +317,32 @@ Pattern: semantic commit prefixes (`feat:`, `fix:`, `docs:`), descriptive messag
 
 ### Agent Model Used
 
-Claude Opus 4.6 (1M context)
+Claude Opus 4.6 (1M context) — Implementación
+Claude Sonnet 4.6 — Code Review (bmad-code-review: 3 capas paralelas)
 
 ### Debug Log References
 
 - Type-check encontró que Button.astro no incluía `download` en Props → resuelto añadiendo `download?: boolean | string` al interface
 - Array access en tests requirió non-null assertions (`result[0]!`) para satisfacer strictNullChecks
+
+### Code Review Record (2026-03-18)
+
+**Reviewer:** bmad-code-review (Blind Hunter + Edge Case Hunter + Acceptance Auditor)
+**Findings:** 4 patch, 4 defer, 9 reject
+
+**Patches aplicados:**
+- P2: `HeroSection.astro` — reemplazado ternario manual por `localizeHref('/contact', locale)` de `src/data/navigation.ts` (helper canónico ya usado en Header/MobileMenu)
+- P3: `collections.ts` — añadido `orderBy('slug')` a `getAllProjects()` para orden determinista entre builds SSG
+- P4: `collections.test.ts` — refactorizado `createMockDb` para retornar `{ db, query }` en lugar de exponer `_query` interno; tests actualizados para usar `query.orderBy` directamente
+
+**Patch pre-existente confirmado correcto:**
+- P1 (E2E locale text): el archivo ya tenía `'Descargar CV'` en el bloque ES — false positive en el diff de review
+
+**Defers registrados (no causados por este cambio):**
+- D1: Sin try/catch en index.astro para fallos de Firestore (fallo ruidoso = comportamiento intencional en SSG)
+- D2: Empty technologies array sin fallback visual
+- D3: contactHref ternary no extensible (mitigado con fix P2)
+- D4: URLs externas de imágenes sin domain allowlist
 
 ### Completion Notes List
 
@@ -337,6 +357,7 @@ Claude Opus 4.6 (1M context)
 ### Change Log
 
 - 2026-03-18: Implementación completa de Story 2.2 — Home Page About Me & Knowledge Of
+- 2026-03-18: Code review patches aplicados — 3 patches (localizeHref, orderBy en getAllProjects, refactor mock _query) + 1 pre-existente ya correcto (E2E locale text)
 
 ### File List
 
