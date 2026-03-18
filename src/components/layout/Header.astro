@@ -1,0 +1,49 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../../assets/logo/cbp-short-logo-dark.png';
+import Container from '../common/Container.astro';
+import MobileMenu from './MobileMenu.svelte';
+
+interface Props {
+  currentPage?: 'home' | 'projects' | 'experience' | 'blog' | 'contact';
+}
+
+const { currentPage = 'home' } = Astro.props;
+
+const navItems = [
+  { label: 'Home', href: '/', key: 'home' },
+  { label: 'Projects', href: '/projects', key: 'projects' },
+  { label: 'Experience', href: '/experience', key: 'experience' },
+  { label: 'Blog', href: '/blog', key: 'blog' },
+  { label: 'Contact', href: '/contact', key: 'contact' },
+] as const;
+---
+
+<header class="fixed top-0 w-full h-16 bg-background/95 backdrop-blur-sm z-50 border-b border-border">
+  <Container>
+    <div class="flex items-center justify-between h-16">
+      <a href="/" class="flex items-center focus:outline-2 focus:outline-offset-2 focus:outline-primary">
+        <Image src={logo} alt="ChrisBP" class="h-10 w-auto" />
+      </a>
+
+      <nav class="hidden lg:flex gap-8 items-center" aria-label="Navegación principal">
+        {navItems.map((item) => (
+          <a
+            href={item.href}
+            class:list={[
+              'relative text-body-sm font-medium transition-colors min-h-11 flex items-center focus:outline-2 focus:outline-offset-2 focus:outline-primary',
+              currentPage === item.key
+                ? 'text-primary after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:[background:var(--brand-gradient)]'
+                : 'text-text-secondary hover:text-primary',
+            ]}
+            aria-current={currentPage === item.key ? 'page' : undefined}
+          >
+            {item.label}
+          </a>
+        ))}
+      </nav>
+
+      <MobileMenu client:load currentPage={currentPage} />
+    </div>
+  </Container>
+</header>

@@ -1,6 +1,6 @@
 # Story 1.7: Layouts, Header, Footer y Banner
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -22,36 +22,36 @@ so that **I can navigate the portfolio intuitively on any device**.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Create SkipNav component (AC: #7)
-  - [ ] 1.1 Create `src/components/common/SkipNav.astro` — `<a>` linking to `#main`, sr-only + focus-visible styles
-- [ ] Task 2: Create Banner component (AC: #6)
-  - [ ] 2.1 Create `src/components/layout/Banner.astro` — full-width `[background:var(--brand-gradient)]`, white text centered
-- [ ] Task 3: Create Header component (AC: #3, #9)
-  - [ ] 3.1 Create `src/components/layout/Header.astro` — pinned `<header>` with `<nav>`, logo left, 5 desktop links right
-  - [ ] 3.2 Implement active nav item detection via `currentPage` prop → `aria-current="page"` + gradient `::after` underline
-  - [ ] 3.3 Embed `<MobileMenu client:load currentPage={currentPage} />` inside Header (hamburger lives in Svelte island, not in Astro)
-- [ ] Task 4: Create MobileMenu island (AC: #4, #9)
-  - [ ] 4.1 Create `src/components/layout/MobileMenu.svelte` — Svelte 5 Runes island with `client:load`
-  - [ ] 4.2 Hamburger toggle button (`lg:hidden`) + slide-down overlay + logo + X close + centered nav items
-  - [ ] 4.3 Escape key closes, focus trap (Tab wraps first↔last), body scroll lock via `$effect`
-  - [ ] 4.4 `prefers-reduced-motion: reduce` via CSS media query (Tailwind `motion-reduce:`)
-- [ ] Task 5: Create Footer component (AC: #5)
-  - [ ] 5.1 Create `src/components/layout/Footer.astro` — semantic `<footer>`, "Contact" title, 3 social icon links, copyright
-  - [ ] 5.2 Social links: TikTok, GitHub, LinkedIn — `target="_blank" rel="noopener noreferrer"` with `aria-label`
-- [ ] Task 6: Create BaseLayout (AC: #1, #7)
-  - [ ] 6.1 Create `src/layouts/BaseLayout.astro` — html + head + body shell
-  - [ ] 6.2 Compose: SkipNav → Banner → Header → `<main id="main">` → Footer
-  - [ ] 6.3 Accept props: `title`, `description`, `currentPage`
-  - [ ] 6.4 Import global.css, set `lang="es"`, `class="dark"` on `<html>`
-- [ ] Task 7: Create AdminLayout (AC: #2)
-  - [ ] 7.1 Create `src/layouts/AdminLayout.astro` — full `<html>` shell (lang, dark, head, global.css) + `<aside>` sidebar placeholder + `<main>` content area
-- [ ] Task 8: Refactor index.astro to use BaseLayout (AC: #1)
-  - [ ] 8.1 Replace inline HTML with `<BaseLayout title="Portfolio — ChrisBP" currentPage="home">`
-- [ ] Task 9: Responsive & accessibility verification (AC: #8, #9)
-  - [ ] 9.1 Verify all 3 breakpoints render correctly
-  - [ ] 9.2 `pnpm type-check && pnpm build && pnpm test` — all green, 0 regressions
-- [ ] Task 10: Add layout component type tests
-  - [ ] 10.1 Create `src/components/layout/__tests__/layout-props.test.ts` — type-check imports for Header, Footer, Banner, SkipNav, MobileMenu
+- [x] Task 1: Create SkipNav component (AC: #7)
+  - [x] 1.1 Create `src/components/common/SkipNav.astro` — `<a>` linking to `#main`, sr-only + focus-visible styles
+- [x] Task 2: Create Banner component (AC: #6)
+  - [x] 2.1 Create `src/components/layout/Banner.astro` — full-width `[background:var(--brand-gradient)]`, white text centered
+- [x] Task 3: Create Header component (AC: #3, #9)
+  - [x] 3.1 Create `src/components/layout/Header.astro` — pinned `<header>` with `<nav>`, logo left, 5 desktop links right
+  - [x] 3.2 Implement active nav item detection via `currentPage` prop → `aria-current="page"` + gradient `::after` underline
+  - [x] 3.3 Embed `<MobileMenu client:load currentPage={currentPage} />` inside Header (hamburger lives in Svelte island, not in Astro)
+- [x] Task 4: Create MobileMenu island (AC: #4, #9)
+  - [x] 4.1 Create `src/components/layout/MobileMenu.svelte` — Svelte 5 Runes island with `client:load`
+  - [x] 4.2 Hamburger toggle button (`lg:hidden`) + slide-down overlay + logo + X close + centered nav items
+  - [x] 4.3 Escape key closes, focus trap (Tab wraps first↔last), body scroll lock via `$effect`
+  - [x] 4.4 `prefers-reduced-motion: reduce` via CSS media query (Tailwind `motion-reduce:`)
+- [x] Task 5: Create Footer component (AC: #5)
+  - [x] 5.1 Create `src/components/layout/Footer.astro` — semantic `<footer>`, "Contact" title, 3 social icon links, copyright
+  - [x] 5.2 Social links: TikTok, GitHub, LinkedIn — `target="_blank" rel="noopener noreferrer"` with `aria-label`
+- [x] Task 6: Create BaseLayout (AC: #1, #7)
+  - [x] 6.1 Create `src/layouts/BaseLayout.astro` — html + head + body shell
+  - [x] 6.2 Compose: SkipNav → Banner → Header → `<main id="main">` → Footer
+  - [x] 6.3 Accept props: `title`, `description`, `currentPage`
+  - [x] 6.4 Import global.css, set `lang="es"`, `class="dark"` on `<html>`
+- [x] Task 7: Create AdminLayout (AC: #2)
+  - [x] 7.1 Create `src/layouts/AdminLayout.astro` — full `<html>` shell (lang, dark, head, global.css) + `<aside>` sidebar placeholder + `<main>` content area
+- [x] Task 8: Refactor index.astro to use BaseLayout (AC: #1)
+  - [x] 8.1 Replace inline HTML with `<BaseLayout title="Portfolio — ChrisBP" currentPage="home">`
+- [x] Task 9: Responsive & accessibility verification (AC: #8, #9)
+  - [x] 9.1 Verify all 3 breakpoints render correctly
+  - [x] 9.2 `pnpm type-check && pnpm build && pnpm test` — all green, 0 regressions
+- [x] Task 10: Add layout component type tests
+  - [x] 10.1 Create `src/components/layout/__tests__/layout-props.test.ts` — type-check imports for Header, Footer, Banner, SkipNav, MobileMenu
 
 ## Dev Notes
 
@@ -315,8 +315,39 @@ Recent commits follow pattern: `feat: implement story X.X — description` for i
 
 ### Agent Model Used
 
+Claude Opus 4.6 (1M context)
+
 ### Debug Log References
+
+- Build inicialmente falló por falta de `sharp` — se agregó como dependencia para `astro:assets` Image optimization
+- MobileMenu logo corregido: se usa import Vite en vez de ruta pública directa
 
 ### Completion Notes List
 
+- SkipNav: componente `<a>` sr-only con focus-visible, enlaza a `#main`
+- Banner: barra gradient full-width con texto blanco centrado, usa `var(--brand-gradient)`
+- Header: `<header>` fijo con logo (Image optimizada), 5 nav items desktop, active link con `aria-current="page"` y `::after` gradient underline
+- MobileMenu: isla Svelte 5 con `$state`/`$effect`, hamburger `lg:hidden`, overlay slide-down con animación, focus trap, scroll lock, Escape cierra, `prefers-reduced-motion`
+- Footer: `<footer>` semántico con "Contact", 3 iconos SVG inline (TikTok, GitHub, LinkedIn), copyright dinámico
+- BaseLayout: shell HTML completo (`lang="es"`, `class="dark"`) con composición SkipNav → Banner → Header → main → Footer
+- AdminLayout: shell HTML con `<aside>` sidebar placeholder + `<main>` content area
+- index.astro refactorizado a usar BaseLayout
+- Tests: 5 nuevos tests de importabilidad para layout components (58 total, 0 regresiones)
+- Validación: `pnpm type-check` 0 errores, `pnpm test` 58 tests passed, `pnpm build` exitoso
+- Dependencia `sharp` agregada para soporte de Image optimization de Astro
+
 ### File List
+
+- `src/components/common/SkipNav.astro` — NUEVO
+- `src/components/layout/Banner.astro` — NUEVO
+- `src/components/layout/Header.astro` — NUEVO
+- `src/components/layout/MobileMenu.svelte` — NUEVO
+- `src/components/layout/Footer.astro` — NUEVO
+- `src/components/layout/__tests__/layout-props.test.ts` — NUEVO
+- `src/layouts/BaseLayout.astro` — NUEVO
+- `src/layouts/AdminLayout.astro` — NUEVO
+- `src/pages/index.astro` — MODIFICADO (refactorizado a BaseLayout)
+- `src/components/layout/.gitkeep` — ELIMINADO
+- `src/layouts/.gitkeep` — ELIMINADO
+- `package.json` — MODIFICADO (sharp dependency)
+- `pnpm-lock.yaml` — MODIFICADO
