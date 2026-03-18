@@ -1,6 +1,6 @@
 # Story 1.6: Componentes UI Base
 
-Status: review
+Status: done
 
 ## Story
 
@@ -353,9 +353,32 @@ Claude Opus 4.6 (1M context)
 - 6 tests nuevos (importabilidad de módulos), 47 existentes sin regresiones → 53 total
 - Lint: 0 errores | Type-check: 0 errores | Build: exitoso
 
+### Code Review Record
+
+**Reviewer:** Claude Opus 4.6 (1M context) — 3-layer adversarial review (Blind Hunter, Edge Case Hunter, Acceptance Auditor)
+
+**Acceptance Criteria:** 8/8 PASS — sin violaciones de spec detectadas.
+
+**Patches Applied (4):**
+
+1. **BS-1 — Badge Props discriminated union:** Cambiado `interface Props` con `value` opcional flat a `type Props` con unión discriminada. `technology` ya no acepta `value`; `status` requiere `'published' | 'draft'`; `language` requiere `'ES' | 'EN'`. Previene renderizado silencioso sin estilos de variante.
+2. **BS-2 — Button disabled `<a>` keyboard fix:** `href` se omite cuando `disabled=true`, haciendo que el `<a>` no sea navegable por teclado. Antes, `pointer-events-none` solo bloqueaba mouse pero Enter seguía activando la navegación.
+3. **P-1 — Textarea value undefined fix:** Cambiado `>{value}</textarea>` a `>{value ?? ''}</textarea>` para evitar renderizar "undefined" cuando el prop no se pasa.
+4. **D-3 — Button transition-all:** Cambiado `transition-colors` a `transition-all` en base classes para cubrir transiciones de `filter` (brightness) y `box-shadow` en variantes primary/danger.
+
+**Deferred (4) — no acción requerida ahora:**
+
+- **D-1:** Input `placeholder`/`value` silenciosamente ignorados para `select` y `file` — limitación del browser, se resolverá con Svelte forms en Epic 3.
+- **D-2:** Section sin `aria-label` para landmark — ya soportado vía `{...attrs}`, depende del contexto de página (Story 1.7+).
+- **D-4:** IDs duplicados si múltiples inputs comparten `name` en una página — per spec design `input-${name}`, relevante en Epic 3.
+- **D-5:** Input `...attrs` spread puede sobreescribir `id` — protegido por TypeScript Props interface, solo afecta forwarding programático.
+
+**Rejected as noise:** 8 findings (patrón estándar Astro, limitaciones de browser, decisiones per-spec).
+
 ### Change Log
 
 - 2026-03-17: Implementación completa de 6 componentes UI base y tests de props
+- 2026-03-17: Code review — 4 patches aplicados (Badge union discriminada, Button disabled href, Textarea value nullish, Button transition-all)
 
 ### File List
 

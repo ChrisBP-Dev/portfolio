@@ -7,11 +7,10 @@
  * corners (CSS limitation). This approach maintains rounded-full and is
  * visually cleaner.
  */
-interface Props {
-  variant: 'technology' | 'status' | 'language';
-  value?: 'published' | 'draft' | 'ES' | 'EN';
-  class?: string;
-}
+type Props =
+  | { variant: 'technology'; value?: never; class?: string }
+  | { variant: 'status'; value: 'published' | 'draft'; class?: string }
+  | { variant: 'language'; value: 'ES' | 'EN'; class?: string };
 
 const { variant, value, class: className, ...attrs } = Astro.props;
 

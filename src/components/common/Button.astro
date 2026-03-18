@@ -11,7 +11,7 @@ const { variant = 'primary', href, type = 'button', disabled = false, class: cla
 
 const Tag = href ? 'a' : 'button';
 
-const baseClasses = 'min-h-11 min-w-11 px-6 py-3 rounded-lg font-semibold text-body-sm inline-flex items-center justify-center gap-2 transition-colors duration-200 focus:outline-2 focus:outline-offset-2 focus:outline-primary';
+const baseClasses = 'min-h-11 min-w-11 px-6 py-3 rounded-lg font-semibold text-body-sm inline-flex items-center justify-center gap-2 transition-all duration-200 focus:outline-2 focus:outline-offset-2 focus:outline-primary';
 
 const variantClasses: Record<string, string> = {
   primary: 'text-white [background:var(--brand-gradient)] shadow-md hover:shadow-lg hover:brightness-110',
@@ -24,7 +24,7 @@ const disabledClasses = disabled ? 'opacity-50 pointer-events-none' : '';
 ---
 
 <Tag
-  href={href}
+  href={!disabled ? href : undefined}
   type={!href ? type : undefined}
   disabled={!href && disabled ? true : undefined}
   aria-disabled={disabled ? 'true' : undefined}

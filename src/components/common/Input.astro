@@ -46,7 +46,7 @@ const fileClasses = [
       aria-describedby={error ? errorId : undefined}
       class={fieldClasses}
       {...attrs}
-    >{value}</textarea>
+    >{value ?? ''}</textarea>
   ) : type === 'select' ? (
     <select
       id={id}
