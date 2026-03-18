@@ -5,6 +5,7 @@ interface Props {
   type?: 'button' | 'submit' | 'reset';
   disabled?: boolean;
   class?: string;
+  download?: boolean | string;
 }
 
 const { variant = 'primary', href, type = 'button', disabled = false, class: className, ...attrs } = Astro.props;

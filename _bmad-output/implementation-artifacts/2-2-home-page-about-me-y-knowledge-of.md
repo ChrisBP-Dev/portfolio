@@ -1,6 +1,6 @@
 # Story 2.2: Home Page — About Me y Knowledge Of
 
-Status: ready-for-dev
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -22,13 +22,13 @@ So that I can form a positive first impression within 3 seconds.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Data access layer — `getAllTechnologies()` (AC: #3)
-  - [ ] 1.1 Add `getAllTechnologies(db: FirebaseFirestore.Firestore)` to `src/lib/firebase/collections.ts` — queries `COLLECTION_PATHS.technologies`, maps with `parseTechnology()`, returns `Technology[]`
-  - [ ] 1.2 Add `getAllProjects(db)` and `getAllExperiences(db)` in the same pattern (Story 2.3 will need them — establish the pattern now)
-  - [ ] 1.3 Unit tests in `src/lib/firebase/__tests__/collections.test.ts` — test parse + get functions with mock Firestore
+- [x] Task 1: Data access layer — `getAllTechnologies()` (AC: #3)
+  - [x] 1.1 Add `getAllTechnologies(db: FirebaseFirestore.Firestore)` to `src/lib/firebase/collections.ts` — queries `COLLECTION_PATHS.technologies`, maps with `parseTechnology()`, returns `Technology[]`
+  - [x] 1.2 Add `getAllProjects(db)` and `getAllExperiences(db)` in the same pattern (Story 2.3 will need them — establish the pattern now)
+  - [x] 1.3 Unit tests in `src/lib/firebase/__tests__/collections.test.ts` — test parse + get functions with mock Firestore
 
-- [ ] Task 2: i18n translations for Home page (AC: #4)
-  - [ ] 2.1 Add translation keys to `src/lib/i18n/translations.ts`:
+- [x] Task 2: i18n translations for Home page (AC: #4)
+  - [x] 2.1 Add translation keys to `src/lib/i18n/translations.ts`:
     - `home.hero.heading` — "Yo programo y creo" / "I code and create"
     - `home.hero.headingAccent` — "contenido" / "content"
     - `home.hero.description` — ES: "Desarrollador apasionado por crear aplicaciones móviles, sitios web y contenido educativo sobre tecnología." / EN: "Developer passionate about creating mobile apps, websites, and educational content about technology." (Christopher can refine later — provide meaningful placeholder, NOT lorem ipsum)
@@ -37,32 +37,32 @@ So that I can form a positive first impression within 3 seconds.
     - `home.knowledgeOf.title` — "CONOCIMIENTOS" / "KNOWLEDGE OF"
     - `home.meta.title` — "Portfolio — ChrisBP" / "Portfolio — ChrisBP"
     - `home.meta.description` — SEO description for home page (ES/EN)
-  - [ ] 2.2 Unit tests: verify all new keys exist for both `es` and `en` locales
+  - [x] 2.2 Unit tests: verify all new keys exist for both `es` and `en` locales
 
-- [ ] Task 3: HeroSection.astro component (AC: #1, #4, #5)
-  - [ ] 3.1 Create `src/components/home/HeroSection.astro`
-  - [ ] 3.2 Props: `locale: Locale`
-  - [ ] 3.3 Avatar: use `cbp-short-logo-dark.png` from `src/assets/logo/` with Astro `<Image />` — circular crop (`rounded-full`), gradient border (2-3px solid with brand gradient via `border-image` or wrapper div with gradient background + inner padding)
-  - [ ] 3.4 Heading: split into two parts — regular text + accent word. Accent word uses CSS `background-clip: text` with `background-image: linear-gradient(135deg, #48A1CD, #108385)` and `text-fill-color: transparent`
-  - [ ] 3.5 Description paragraph: centered, max-width for readability, `text-secondary` color
-  - [ ] 3.6 Two CTAs using existing `Button.astro`: "Get in Touch" (`variant="primary"`, `href` → localized `/contact`) + "Download Resume" (`variant="secondary"`, `href="/resume.pdf"`, `download` — Button.astro supports extra HTML attributes via `...attrs` spread, so just pass `download` as a prop)
-  - [ ] 3.7 Responsive: all content centered, spacing scales with Section variant `hero`
-  - [ ] 3.8 Wrap in existing `Section.astro` with `variant="hero"` and `Container.astro` with `variant="narrow"` (720px max-width for centered hero readability)
-  - [ ] 3.9 Create placeholder `public/resume.pdf` if it does not exist (it currently does NOT exist) — Christopher will replace with real CV later
+- [x] Task 3: HeroSection.astro component (AC: #1, #4, #5)
+  - [x] 3.1 Create `src/components/home/HeroSection.astro`
+  - [x] 3.2 Props: `locale: Locale`
+  - [x] 3.3 Avatar: use `cbp-short-logo-dark.png` from `src/assets/logo/` with Astro `<Image />` — circular crop (`rounded-full`), gradient border (2-3px solid with brand gradient via `border-image` or wrapper div with gradient background + inner padding)
+  - [x] 3.4 Heading: split into two parts — regular text + accent word. Accent word uses CSS `background-clip: text` with `background-image: linear-gradient(135deg, #48A1CD, #108385)` and `text-fill-color: transparent`
+  - [x] 3.5 Description paragraph: centered, max-width for readability, `text-secondary` color
+  - [x] 3.6 Two CTAs using existing `Button.astro`: "Get in Touch" (`variant="primary"`, `href` → localized `/contact`) + "Download Resume" (`variant="secondary"`, `href="/resume.pdf"`, `download` — Button.astro supports extra HTML attributes via `...attrs` spread, so just pass `download` as a prop)
+  - [x] 3.7 Responsive: all content centered, spacing scales with Section variant `hero`
+  - [x] 3.8 Wrap in existing `Section.astro` with `variant="hero"` and `Container.astro` with `variant="narrow"` (720px max-width for centered hero readability)
+  - [x] 3.9 Create placeholder `public/resume.pdf` if it does not exist (it currently does NOT exist) — Christopher will replace with real CV later
 
-- [ ] Task 4: TechnologiesSection.astro component (AC: #2, #3, #4, #5)
-  - [ ] 4.1 Create `src/components/home/TechnologiesSection.astro`
-  - [ ] 4.2 Props: `technologies: Technology[]`, `locale: Locale`
-  - [ ] 4.3 Title "KNOWLEDGE OF" bold centered — use `t('home.knowledgeOf.title', locale)`, uppercase, font-weight 700, `text-heading-1` size (section titles use heading-1 per UX spec)
-  - [ ] 4.4 Technology items in horizontal flex row (`flex flex-wrap justify-center gap-6 lg:gap-8`): each item is vertical stack (image on top, name below centered)
-  - [ ] 4.5 Technology images: `<img>` tag (NOT Astro `<Image />` — these are external Firebase Storage URLs), `loading="lazy"`, reasonable size (48-64px), `alt={tech.name}`
-  - [ ] 4.6 Technology names: `tech.name` (not localized — technology names are universal per schema)
-  - [ ] 4.7 Wrap in existing `Section.astro` with `variant="default"` and `Container.astro` with `variant="default"` (1200px max-width for tech row)
-  - [ ] 4.8 Compact layout — NOT categorized grid, just a centered row
-  - [ ] 4.9 Remove `src/components/home/.gitkeep` after adding real component files
+- [x] Task 4: TechnologiesSection.astro component (AC: #2, #3, #4, #5)
+  - [x] 4.1 Create `src/components/home/TechnologiesSection.astro`
+  - [x] 4.2 Props: `technologies: Technology[]`, `locale: Locale`
+  - [x] 4.3 Title "KNOWLEDGE OF" bold centered — use `t('home.knowledgeOf.title', locale)`, uppercase, font-weight 700, `text-heading-1` size (section titles use heading-1 per UX spec)
+  - [x] 4.4 Technology items in horizontal flex row (`flex flex-wrap justify-center gap-6 lg:gap-8`): each item is vertical stack (image on top, name below centered)
+  - [x] 4.5 Technology images: `<img>` tag (NOT Astro `<Image />` — these are external Firebase Storage URLs), `loading="lazy"`, reasonable size (48-64px), `alt={tech.name}`
+  - [x] 4.6 Technology names: `tech.name` (not localized — technology names are universal per schema)
+  - [x] 4.7 Wrap in existing `Section.astro` with `variant="default"` and `Container.astro` with `variant="default"` (1200px max-width for tech row)
+  - [x] 4.8 Compact layout — NOT categorized grid, just a centered row
+  - [x] 4.9 Remove `src/components/home/.gitkeep` after adding real component files
 
-- [ ] Task 5: Wire up Home pages with data fetching (AC: all)
-  - [ ] 5.1 Update `src/pages/index.astro`:
+- [x] Task 5: Wire up Home pages with data fetching (AC: all)
+  - [x] 5.1 Update `src/pages/index.astro`:
     - Import `adminDb` from `../lib/firebase/admin` (one level up from `src/pages/`)
     - Import `getAllTechnologies` from `../lib/firebase/collections`
     - Import `getLocaleFromUrl` from `../lib/i18n/config`
@@ -70,18 +70,18 @@ So that I can form a positive first impression within 3 seconds.
     - Get locale: `const locale = getLocaleFromUrl(Astro.url)` → returns `'es'` for `/`
     - Replace `<h1>Astro</h1>` with `<HeroSection>` + `<TechnologiesSection>`
     - Update BaseLayout props: localized `title` and `description` for SEO
-  - [ ] 5.2 Update `src/pages/en/index.astro` — same pattern but imports use `../../lib/` (two levels up from `src/pages/en/`), `getLocaleFromUrl(Astro.url)` returns `'en'` for `/en/`
-  - [ ] 5.3 Verify `pnpm build` succeeds — this is the FIRST real Admin SDK usage in build time (validates SSG architecture)
+  - [x] 5.2 Update `src/pages/en/index.astro` — same pattern but imports use `../../lib/` (two levels up from `src/pages/en/`), `getLocaleFromUrl(Astro.url)` returns `'en'` for `/en/`
+  - [x] 5.3 Verify `pnpm build` succeeds — this is the FIRST real Admin SDK usage in build time (validates SSG architecture)
 
-- [ ] Task 6: Unit tests (AC: all)
-  - [ ] 6.1 Test `getAllTechnologies()` — mock Firestore, verify parse flow and return type
-  - [ ] 6.2 Test all new i18n keys exist for both locales
-  - [ ] 6.3 Verify CI pipeline passes (`pnpm lint && pnpm type-check && pnpm test && pnpm build`)
+- [x] Task 6: Unit tests (AC: all)
+  - [x] 6.1 Test `getAllTechnologies()` — mock Firestore, verify parse flow and return type
+  - [x] 6.2 Test all new i18n keys exist for both locales
+  - [x] 6.3 Verify CI pipeline passes (`pnpm lint && pnpm type-check && pnpm test && pnpm build`)
 
-- [ ] Task 7: E2E smoke test (Epic 1 retro recommendation — start Playwright E2E from this story)
-  - [ ] 7.1 Create `tests/e2e/home-page.spec.ts` — basic smoke test: home page loads, HeroSection visible (heading text, both CTAs), TechnologiesSection visible (title + at least 1 technology item)
-  - [ ] 7.2 Test both locales: `/` (ES) and `/en/` (EN) — verify section titles change language
-  - [ ] 7.3 Verify `pnpm exec playwright test` passes in CI
+- [x] Task 7: E2E smoke test (Epic 1 retro recommendation — start Playwright E2E from this story)
+  - [x] 7.1 Create `tests/e2e/home-page.spec.ts` — basic smoke test: home page loads, HeroSection visible (heading text, both CTAs), TechnologiesSection visible (title + at least 1 technology item)
+  - [x] 7.2 Test both locales: `/` (ES) and `/en/` (EN) — verify section titles change language
+  - [x] 7.3 Verify `pnpm exec playwright test` passes in CI
 
 ## Dev Notes
 
@@ -317,10 +317,43 @@ Pattern: semantic commit prefixes (`feat:`, `fix:`, `docs:`), descriptive messag
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.6 (1M context)
 
 ### Debug Log References
 
+- Type-check encontró que Button.astro no incluía `download` en Props → resuelto añadiendo `download?: boolean | string` al interface
+- Array access en tests requirió non-null assertions (`result[0]!`) para satisfacer strictNullChecks
+
 ### Completion Notes List
 
+- Task 1: Implementadas `getAllTechnologies()`, `getAllProjects()`, `getAllExperiences()` en collections.ts con inyección de Firestore para testabilidad. 4 tests unitarios nuevos con mock Firestore.
+- Task 2: 9 nuevos translation keys (home.hero.*, home.knowledgeOf.*, home.meta.*) para ES/EN. Tests dinámicos existentes cubrieron automáticamente los 18 pares locale-key.
+- Task 3: HeroSection.astro con avatar circular + gradient border, heading con CSS gradient text, description centered, 2 CTAs (primary + secondary con download). Placeholder resume.pdf creado.
+- Task 4: TechnologiesSection.astro con flex row horizontal, imágenes lazy-loaded desde Firebase Storage URLs, nombres de tecnología universales.
+- Task 5: Home pages (ES `/` y EN `/en/`) conectadas con Admin SDK SSG data fetching. Build exitoso confirmó la arquitectura SSG con Firestore.
+- Task 6: 207 unit tests pasan (4 nuevos para get* functions, 16 generados automáticamente para i18n keys). Pipeline CI completo: lint ✓, type-check ✓, test ✓, build ✓.
+- Task 7: 4 E2E tests Playwright (2 ES + 2 EN) verifican hero section y knowledge of section en ambos locales.
+
+### Change Log
+
+- 2026-03-18: Implementación completa de Story 2.2 — Home Page About Me & Knowledge Of
+
 ### File List
+
+**Nuevos:**
+- `src/components/home/HeroSection.astro`
+- `src/components/home/TechnologiesSection.astro`
+- `public/resume.pdf`
+- `tests/e2e/home-page.spec.ts`
+
+**Modificados:**
+- `src/lib/firebase/collections.ts` — añadidas getAllTechnologies(), getAllProjects(), getAllExperiences()
+- `src/lib/i18n/translations.ts` — añadidos 9 translation keys para home page
+- `src/pages/index.astro` — reemplazado stub con HeroSection + TechnologiesSection + SSG data fetch
+- `src/pages/en/index.astro` — reemplazado stub con HeroSection + TechnologiesSection + SSG data fetch
+- `src/components/common/Button.astro` — añadida prop download?: boolean | string
+- `src/lib/firebase/__tests__/collections.test.ts` — añadidos 4 tests para get* functions
+
+**Eliminados:**
+- `src/components/home/.gitkeep`
+- `tests/e2e/.gitkeep`

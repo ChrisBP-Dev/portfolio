@@ -1,0 +1,37 @@
+---
+import Section from '../common/Section.astro';
+import Container from '../common/Container.astro';
+import { t } from '../../lib/i18n/translations';
+import type { Locale } from '../../lib/i18n/config';
+import type { Technology } from '../../lib/schemas/technology-schema';
+
+interface Props {
+  technologies: Technology[];
+  locale: Locale;
+}
+
+const { technologies, locale } = Astro.props;
+---
+
+<Section variant="default">
+  <Container variant="default">
+    <h2 class="text-heading-1 font-bold text-center mb-10">
+      {t('home.knowledgeOf.title', locale)}
+    </h2>
+
+    <div class="flex flex-wrap justify-center gap-6 lg:gap-8">
+      {technologies.map((tech) => (
+        <div class="flex flex-col items-center gap-2">
+          <img
+            src={tech.image.url}
+            alt={tech.name}
+            width="56"
+            height="56"
+            loading="lazy"
+          />
+          <span class="text-body-sm text-text-secondary">{tech.name}</span>
+        </div>
+      ))}
+    </div>
+  </Container>
+</Section>

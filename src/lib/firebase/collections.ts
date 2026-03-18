@@ -1,3 +1,4 @@
+import type { Firestore } from 'firebase-admin/firestore';
 import { projectSchema } from '../schemas/project-schema';
 import type { Project } from '../schemas/project-schema';
 import { technologySchema } from '../schemas/technology-schema';
@@ -67,4 +68,24 @@ export function parseBlogPost(data: Record<string, unknown>, id: string): BlogPo
     createdAt: toDate(data.createdAt),
     updatedAt: toDate(data.updatedAt),
   });
+}
+
+export async function getAllTechnologies(db: Firestore): Promise<Technology[]> {
+  const snapshot = await db.collection(COLLECTION_PATHS.technologies).orderBy('name').get();
+  return snapshot.docs.map((doc) => parseTechnology(doc.data() as Record<string, unknown>, doc.id));
+}
+
+export async function getAllProjects(db: Firestore): Promise<Project[]> {
+  const snapshot = await db.collection(COLLECTION_PATHS.projects).get();
+  return snapshot.docs.map((doc) => parseProject(doc.data() as Record<string, unknown>, doc.id));
+}
+
+export async function getAllExperiences(db: Firestore): Promise<Experience[]> {
+  const snapshot = await db
+    .collection(COLLECTION_PATHS.experiences)
+    .orderBy('startDate', 'desc')
+    .get();
+  return snapshot.docs.map((doc) =>
+    parseExperience(doc.data() as Record<string, unknown>, doc.id),
+  );
 }

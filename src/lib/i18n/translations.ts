@@ -26,6 +26,26 @@ const translations: Record<string, Record<Locale, string>> = {
   // Meta
   'meta.description': { es: 'Portfolio de Christopher Bobadilla', en: "Christopher Bobadilla's Portfolio" },
 
+  // Home — Hero
+  'home.hero.heading': { es: 'Yo programo y creo', en: 'I code and create' },
+  'home.hero.headingAccent': { es: 'contenido', en: 'content' },
+  'home.hero.description': {
+    es: 'Desarrollador apasionado por crear aplicaciones móviles, sitios web y contenido educativo sobre tecnología.',
+    en: 'Developer passionate about creating mobile apps, websites, and educational content about technology.',
+  },
+  'home.hero.cta.contact': { es: 'Contáctame', en: 'Get in Touch' },
+  'home.hero.cta.resume': { es: 'Descargar CV', en: 'Download Resume' },
+
+  // Home — Knowledge Of
+  'home.knowledgeOf.title': { es: 'CONOCIMIENTOS', en: 'KNOWLEDGE OF' },
+
+  // Home — Meta
+  'home.meta.title': { es: 'Portfolio — ChrisBP', en: 'Portfolio — ChrisBP' },
+  'home.meta.description': {
+    es: 'Portfolio de ChrisBP — Desarrollador de aplicaciones móviles, sitios web y creador de contenido educativo sobre tecnología.',
+    en: "ChrisBP's Portfolio — Mobile app developer, web developer, and educational tech content creator.",
+  },
+
   // Social aria
   'social.tiktok': { es: 'Visitar perfil de TikTok', en: 'Visit TikTok profile' },
   'social.github': { es: 'Visitar perfil de GitHub', en: 'Visit GitHub profile' },
