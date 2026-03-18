@@ -1,0 +1,23 @@
+---
+interface Props {
+  variant?: 'default' | 'hero' | 'compact';
+  id?: string;
+  class?: string;
+}
+
+const { variant = 'default', id, class: className, ...attrs } = Astro.props;
+
+const variantClasses: Record<string, string> = {
+  default: 'py-12 lg:py-24',
+  hero: 'py-16 lg:py-32',
+  compact: 'py-6 lg:py-12',
+};
+---
+
+<section
+  id={id}
+  class:list={[variantClasses[variant], className]}
+  {...attrs}
+>
+  <slot />
+</section>

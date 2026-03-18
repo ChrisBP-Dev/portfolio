@@ -1,0 +1,20 @@
+---
+interface Props {
+  variant?: 'default' | 'narrow';
+  class?: string;
+}
+
+const { variant = 'default', class: className, ...attrs } = Astro.props;
+
+const variantClasses: Record<string, string> = {
+  default: 'max-w-[75rem]',
+  narrow: 'max-w-[45rem]',
+};
+---
+
+<div
+  class:list={['mx-auto w-full px-4 sm:px-6 lg:px-8', variantClasses[variant], className]}
+  {...attrs}
+>
+  <slot />
+</div>

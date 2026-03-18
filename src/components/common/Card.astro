@@ -1,0 +1,19 @@
+---
+interface Props {
+  as?: 'article' | 'div';
+  hoverable?: boolean;
+  class?: string;
+}
+
+const { as: Tag = 'article', hoverable = false, class: className, ...attrs }: Props = Astro.props;
+
+const baseClasses = 'bg-surface border border-border rounded-xl p-4';
+const hoverClasses = hoverable ? 'hover:bg-surface-elevated transition-colors duration-200' : '';
+---
+
+<Tag
+  class:list={[baseClasses, hoverClasses, className]}
+  {...attrs}
+>
+  <slot />
+</Tag>

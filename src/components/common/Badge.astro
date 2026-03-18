@@ -1,0 +1,45 @@
+---
+/**
+ * Badge component — 3 variants: technology, status, language.
+ *
+ * Design decision: technology variant uses bg-primary/10 + border-primary/30
+ * instead of CSS border-image gradient, because border-image forces square
+ * corners (CSS limitation). This approach maintains rounded-full and is
+ * visually cleaner.
+ */
+interface Props {
+  variant: 'technology' | 'status' | 'language';
+  value?: 'published' | 'draft' | 'ES' | 'EN';
+  class?: string;
+}
+
+const { variant, value, class: className, ...attrs } = Astro.props;
+
+const baseClasses = 'inline-flex items-center px-2 py-1 rounded-full text-caption font-medium';
+
+const variantClasses: Record<string, string | Record<string, string>> = {
+  technology: 'bg-primary/10 text-primary border border-primary/30',
+  status: {
+    published: 'bg-success/15 text-success',
+    draft: 'bg-warning/15 text-warning',
+  },
+  language: {
+    ES: 'bg-primary/15 text-primary',
+    EN: 'bg-success/15 text-success',
+  },
+};
+
+function getVariantClasses(v: string, val?: string): string {
+  const classes = variantClasses[v];
+  if (typeof classes === 'string') return classes;
+  if (classes && val && val in classes) return (classes as Record<string, string>)[val]!;
+  return '';
+}
+---
+
+<span
+  class:list={[baseClasses, getVariantClasses(variant, value), className]}
+  {...attrs}
+>
+  <slot />
+</span>
