@@ -1,6 +1,6 @@
 # Story 1.10: Firebase Client & Admin SDK Configuration
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -20,54 +20,54 @@ So that admin features can use the client SDK and build scripts can query Firest
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create `src/env.d.ts` — TypeScript env var declarations** (AC: 4, 5, 6)
-  - [ ] 1.1 Create `src/env.d.ts` extending Astro's `ImportMetaEnv` interface with all `PUBLIC_FIREBASE_*` and `FIREBASE_ADMIN_*` variables
-  - [ ] 1.2 Include `PUBLIC_USE_EMULATORS` and `USE_EMULATORS` boolean vars
-  - [ ] 1.3 Include `PUBLIC_ADMIN_UID` string var
+- [x] **Task 1: Create `src/env.d.ts` — TypeScript env var declarations** (AC: 4, 5, 6)
+  - [x] 1.1 Create `src/env.d.ts` extending Astro's `ImportMetaEnv` interface with all `PUBLIC_FIREBASE_*` and `FIREBASE_ADMIN_*` variables
+  - [x] 1.2 Include `PUBLIC_USE_EMULATORS` and `USE_EMULATORS` boolean vars
+  - [x] 1.3 Include `PUBLIC_ADMIN_UID` string var
 
-- [ ] **Task 2: Create `src/lib/firebase/client.ts` — Firebase Client SDK** (AC: 1, 4, 5, 7)
-  - [ ] 2.1 Import modular API: `initializeApp`, `getApps` from `'firebase/app'`; `getAuth` from `'firebase/auth'`; `getFirestore` from `'firebase/firestore'`; `getStorage` from `'firebase/storage'`
-  - [ ] 2.2 Build `firebaseConfig` object from `import.meta.env.PUBLIC_FIREBASE_*` vars (apiKey, authDomain, projectId, storageBucket, messagingSenderId, appId)
-  - [ ] 2.3 Validate all 6 config values are present — if any missing, throw descriptive error listing each missing var name
-  - [ ] 2.4 Initialize with singleton pattern: `getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]`
-  - [ ] 2.5 Export named: `auth`, `db`, `storage`, `app`
-  - [ ] 2.6 Emulator connection: if `import.meta.env.PUBLIC_USE_EMULATORS === 'true'`, call `connectAuthEmulator(auth, 'http://127.0.0.1:9099')`, `connectFirestoreEmulator(db, '127.0.0.1', 8080)`, `connectStorageEmulator(storage, '127.0.0.1', 9199)` — ports match `firebase.json` emulator config
-  - [ ] 2.7 Wrap emulator connections in a guard to prevent double-connection on HMR: use a module-level `let emulatorsConnected = false` flag
+- [x] **Task 2: Create `src/lib/firebase/client.ts` — Firebase Client SDK** (AC: 1, 4, 5, 7)
+  - [x] 2.1 Import modular API: `initializeApp`, `getApps` from `'firebase/app'`; `getAuth` from `'firebase/auth'`; `getFirestore` from `'firebase/firestore'`; `getStorage` from `'firebase/storage'`
+  - [x] 2.2 Build `firebaseConfig` object from `import.meta.env.PUBLIC_FIREBASE_*` vars (apiKey, authDomain, projectId, storageBucket, messagingSenderId, appId)
+  - [x] 2.3 Validate all 6 config values are present — if any missing, throw descriptive error listing each missing var name
+  - [x] 2.4 Initialize with singleton pattern: `getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]`
+  - [x] 2.5 Export named: `auth`, `db`, `storage`, `app`
+  - [x] 2.6 Emulator connection: if `import.meta.env.PUBLIC_USE_EMULATORS === 'true'`, call `connectAuthEmulator(auth, 'http://127.0.0.1:9099')`, `connectFirestoreEmulator(db, '127.0.0.1', 8080)`, `connectStorageEmulator(storage, '127.0.0.1', 9199)` — ports match `firebase.json` emulator config
+  - [x] 2.7 Wrap emulator connections in a guard to prevent double-connection on HMR: use a module-level `let emulatorsConnected = false` flag
 
-- [ ] **Task 3: Create `src/lib/firebase/admin.ts` — Firebase Admin SDK** (AC: 2, 4, 6, 7)
-  - [ ] 3.1 Import modular API: `initializeApp`, `cert`, `getApps` from `'firebase-admin/app'`; `getFirestore` from `'firebase-admin/firestore'`; `getStorage` from `'firebase-admin/storage'`
-  - [ ] 3.2 Read credentials from `import.meta.env`: `FIREBASE_ADMIN_PROJECT_ID`, `FIREBASE_ADMIN_CLIENT_EMAIL`, `FIREBASE_ADMIN_PRIVATE_KEY`
-  - [ ] 3.3 Validate all 3 credentials are present — if any missing, throw descriptive error listing each missing var name
-  - [ ] 3.4 Handle `FIREBASE_ADMIN_PRIVATE_KEY` newline escaping: `.replace(/\\n/g, '\n')` since env vars store `\n` as literal two-char sequence
-  - [ ] 3.5 Initialize with singleton: `getApps().length === 0 ? initializeApp({ credential: cert({...}) }) : getApps()[0]`
-  - [ ] 3.6 Export named: `adminDb` (from `getFirestore()`), `adminStorage` (from `getStorage()`)
-  - [ ] 3.7 Emulator support: Admin SDK auto-detects `FIRESTORE_EMULATOR_HOST` and `FIREBASE_STORAGE_EMULATOR_HOST` env vars. For explicit `USE_EMULATORS=true`, set `process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080'` and `process.env.FIREBASE_STORAGE_EMULATOR_HOST = '127.0.0.1:9199'` BEFORE calling `getFirestore()`/`getStorage()`
-  - [ ] 3.8 Add file-top comment: `// BUILD TIME ONLY — never import in Svelte islands or client code`
+- [x] **Task 3: Create `src/lib/firebase/admin.ts` — Firebase Admin SDK** (AC: 2, 4, 6, 7)
+  - [x] 3.1 Import modular API: `initializeApp`, `cert`, `getApps` from `'firebase-admin/app'`; `getFirestore` from `'firebase-admin/firestore'`; `getStorage` from `'firebase-admin/storage'`
+  - [x] 3.2 Read credentials from `import.meta.env`: `FIREBASE_ADMIN_PROJECT_ID`, `FIREBASE_ADMIN_CLIENT_EMAIL`, `FIREBASE_ADMIN_PRIVATE_KEY`
+  - [x] 3.3 Validate all 3 credentials are present — if any missing, throw descriptive error listing each missing var name
+  - [x] 3.4 Handle `FIREBASE_ADMIN_PRIVATE_KEY` newline escaping: `.replace(/\\n/g, '\n')` since env vars store `\n` as literal two-char sequence
+  - [x] 3.5 Initialize with singleton: `getApps().length === 0 ? initializeApp({ credential: cert({...}) }) : getApps()[0]`
+  - [x] 3.6 Export named: `adminDb` (from `getFirestore()`), `adminStorage` (from `getStorage()`)
+  - [x] 3.7 Emulator support: Admin SDK auto-detects `FIRESTORE_EMULATOR_HOST` and `FIREBASE_STORAGE_EMULATOR_HOST` env vars. For explicit `USE_EMULATORS=true`, set `process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080'` and `process.env.FIREBASE_STORAGE_EMULATOR_HOST = '127.0.0.1:9199'` BEFORE calling `getFirestore()`/`getStorage()`
+  - [x] 3.8 Add file-top comment: `// BUILD TIME ONLY — never import in Svelte islands or client code`
 
-- [ ] **Task 4: Create `src/lib/firebase/collections.ts` — Typed collection helpers** (AC: 3)
-  - [ ] 4.1 Export `COLLECTION_PATHS` constant object: `{ projects: 'Projects', technologies: 'Technologies', experiences: 'Experiences', blogPosts: 'BlogPosts' } as const`
-  - [ ] 4.2 Import Zod schemas: `projectSchema`, `technologySchema`, `experienceSchema`, `blogPostSchema` and their types
-  - [ ] 4.3 Create Firestore Timestamp → JS Date converter helper (private): `function toDate(val: unknown): Date` — handles Firestore `Timestamp` objects (have `.toDate()` method), JS `Date` instances, ISO string dates, and numeric timestamps
-  - [ ] 4.4 Create `parseProject(data: Record<string, unknown>, id: string): Project` — spread data, add id, convert date fields if any, validate with `projectSchema.parse()`
-  - [ ] 4.5 Create `parseTechnology(data: Record<string, unknown>, id: string): Technology` — spread data, add id, validate with `technologySchema.parse()`
-  - [ ] 4.6 Create `parseExperience(data: Record<string, unknown>, id: string): Experience` — spread data, add id, convert `startDate`/`endDate` with `toDate()`, validate with `experienceSchema.parse()`. Note: schema uses `.refine()` that enforces `endDate >= startDate` — invalid date ordering will throw
-  - [ ] 4.7 Create `parseBlogPost(data: Record<string, unknown>, id: string): BlogPost` — spread data, add id, convert `createdAt`/`updatedAt` with `toDate()`, validate with `blogPostSchema.parse()`. Note: schema uses `.refine()` that enforces `updatedAt >= createdAt` — invalid date ordering will throw
+- [x] **Task 4: Create `src/lib/firebase/collections.ts` — Typed collection helpers** (AC: 3)
+  - [x] 4.1 Export `COLLECTION_PATHS` constant object: `{ projects: 'Projects', technologies: 'Technologies', experiences: 'Experiences', blogPosts: 'BlogPosts' } as const`
+  - [x] 4.2 Import Zod schemas: `projectSchema`, `technologySchema`, `experienceSchema`, `blogPostSchema` and their types
+  - [x] 4.3 Create Firestore Timestamp → JS Date converter helper (private): `function toDate(val: unknown): Date` — handles Firestore `Timestamp` objects (have `.toDate()` method), JS `Date` instances, ISO string dates, and numeric timestamps
+  - [x] 4.4 Create `parseProject(data: Record<string, unknown>, id: string): Project` — spread data, add id, convert date fields if any, validate with `projectSchema.parse()`
+  - [x] 4.5 Create `parseTechnology(data: Record<string, unknown>, id: string): Technology` — spread data, add id, validate with `technologySchema.parse()`
+  - [x] 4.6 Create `parseExperience(data: Record<string, unknown>, id: string): Experience` — spread data, add id, convert `startDate`/`endDate` with `toDate()`, validate with `experienceSchema.parse()`. Note: schema uses `.refine()` that enforces `endDate >= startDate` — invalid date ordering will throw
+  - [x] 4.7 Create `parseBlogPost(data: Record<string, unknown>, id: string): BlogPost` — spread data, add id, convert `createdAt`/`updatedAt` with `toDate()`, validate with `blogPostSchema.parse()`. Note: schema uses `.refine()` that enforces `updatedAt >= createdAt` — invalid date ordering will throw
 
-- [ ] **Task 5: Update `.env.example`** (AC: 5, 7)
-  - [ ] 5.1 Add new section at the end of the file following the existing comment format:
+- [x] **Task 5: Update `.env.example`** (AC: 5, 7)
+  - [x] 5.1 Add new section at the end of the file following the existing comment format:
     ```
     # Emuladores (solo para desarrollo local)
     # Activar para conectar SDKs a Firebase Emulator Suite en vez de producción
     PUBLIC_USE_EMULATORS=false
     USE_EMULATORS=false
     ```
-  - [ ] 5.2 Verify all existing 10 vars (7 PUBLIC_ + 3 FIREBASE_ADMIN_) are still present and documented
+  - [x] 5.2 Verify all existing 10 vars (7 PUBLIC_ + 3 FIREBASE_ADMIN_) are still present and documented
 
-- [ ] **Task 6: Unit tests** (AC: 1-7)
+- [x] **Task 6: Unit tests** (AC: 1-7)
   - **Test naming convention:** Follow project standard `[P0] 1.10-UNIT-XXX: description` (see `src/lib/schemas/__tests__/schemas.test.ts` for reference)
   - **Test data:** Use existing factories from `src/test/factories/` (`createProject`, `createTechnology`, `createExperience`, `createBlogPost`) — they generate Zod-valid data. For Timestamp simulation, destructure factory output and replace Date fields with `{ toDate: () => originalDate }` mocks
   - **Emulators NOT needed:** All collections.test.ts tests use pure mock data — no Firebase Emulators required. Only future integration tests will need emulators
-  - [ ] 6.1 Create `src/lib/firebase/__tests__/collections.test.ts`:
+  - [x] 6.1 Create `src/lib/firebase/__tests__/collections.test.ts`:
     - `[P0] 1.10-UNIT-001:` COLLECTION_PATHS has exactly 4 entries with correct Firestore collection names
     - `[P0] 1.10-UNIT-002:` parseProject() with valid factory data returns typed Project
     - `[P1] 1.10-UNIT-003:` parseProject() with missing required field throws ZodError
@@ -78,22 +78,22 @@ So that admin features can use the client SDK and build scripts can query Firest
     - `[P0] 1.10-UNIT-008:` parseBlogPost() with valid factory data returns typed BlogPost
     - `[P0] 1.10-UNIT-009:` parseBlogPost() with Timestamp mocks for createdAt/updatedAt converts correctly
     - `[P1] 1.10-UNIT-010:` parseBlogPost() with updatedAt < createdAt throws (schema `.refine()` validation)
-  - [ ] 6.2 Create `src/lib/firebase/__tests__/client.test.ts`:
+  - [x] 6.2 Create `src/lib/firebase/__tests__/client.test.ts`:
     - Mock `import.meta.env` with valid `PUBLIC_FIREBASE_*` values using `vi.stubEnv()` or `vi.hoisted()` + `vi.mock()` BEFORE dynamic import
     - `[P0] 1.10-UNIT-011:` client.ts module exports `auth`, `db`, `storage`, `app` names
     - `[P1] 1.10-UNIT-012:` client.ts throws descriptive error when env vars are missing
-  - [ ] 6.3 Create `src/lib/firebase/__tests__/admin.test.ts`:
+  - [x] 6.3 Create `src/lib/firebase/__tests__/admin.test.ts`:
     - Mock `import.meta.env` with valid `FIREBASE_ADMIN_*` values BEFORE dynamic import
     - `[P0] 1.10-UNIT-013:` admin.ts module exports `adminDb`, `adminStorage` names
     - `[P1] 1.10-UNIT-014:` admin.ts throws descriptive error when env vars are missing
-  - [ ] 6.4 Run `pnpm test` and verify 0 regressions (baseline: 128 tests, 10 files)
+  - [x] 6.4 Run `pnpm test` and verify 0 regressions (baseline: 128 tests, 10 files)
 
-- [ ] **Task 7: Build verification** (AC: 1-7)
-  - [ ] 7.1 `pnpm type-check` — 0 errors
-  - [ ] 7.2 `pnpm test` — all tests pass (baseline: 128, expected: ~140+), 0 regressions
-  - [ ] 7.3 `pnpm build` — succeeds (Admin SDK import may need valid env or graceful skip if no env)
-  - [ ] 7.4 `pnpm lint` — 0 errors
-  - [ ] 7.5 Remove `.gitkeep` from `src/lib/firebase/` since it now has real files
+- [x] **Task 7: Build verification** (AC: 1-7)
+  - [x] 7.1 `pnpm type-check` — 0 errors
+  - [x] 7.2 `pnpm test` — all tests pass (baseline: 128, expected: ~140+), 0 regressions
+  - [x] 7.3 `pnpm build` — succeeds (Admin SDK import may need valid env or graceful skip if no env)
+  - [x] 7.4 `pnpm lint` — 0 errors
+  - [x] 7.5 Remove `.gitkeep` from `src/lib/firebase/` since it now has real files
 
 ## Dev Notes
 
@@ -517,10 +517,42 @@ Recent commits show clean story-by-story progression:
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.6 (1M context)
 
 ### Debug Log References
 
+- Type error fix: `getApps()[0]` returns `FirebaseApp | undefined` — added non-null assertion `!` since we check `.length === 0` first
+- Lint fix: triple-slash reference in env.d.ts — added eslint-disable comment (required by Astro)
+- Lint fix: unused destructured var `_slug` in test — added eslint-disable comment
+- Lint fix: `emulatorsConnected = true` flagged as useless assignment — changed to `globalThis` pattern for HMR guard
+
 ### Completion Notes List
 
+- All 7 tasks completed with all subtasks
+- 14 new unit tests added (UNIT-001 through UNIT-014), all passing
+- Total test count: 142 (128 baseline + 14 new), 0 regressions
+- Type-check: 0 errors, Lint: 0 errors, Build: succeeds (2 pages)
+- Client SDK uses `globalThis.__firebaseEmulatorsConnected` for HMR-safe emulator guard
+- Admin SDK sets `process.env` emulator hosts before SDK init
+- All 7 ACs satisfied
+
+### Change Log
+
+- 2026-03-18: Implemented story 1.10 — Firebase Client & Admin SDK Configuration (all 7 tasks)
+
 ### File List
+
+#### Archivos creados
+- `src/env.d.ts` — TypeScript declarations for all Firebase env vars
+- `src/lib/firebase/client.ts` — Firebase Client SDK initialization (browser only)
+- `src/lib/firebase/admin.ts` — Firebase Admin SDK initialization (build time only)
+- `src/lib/firebase/collections.ts` — Collection paths + typed Zod parse helpers
+- `src/lib/firebase/__tests__/collections.test.ts` — 10 unit tests for parse helpers
+- `src/lib/firebase/__tests__/client.test.ts` — 2 unit tests for client module
+- `src/lib/firebase/__tests__/admin.test.ts` — 2 unit tests for admin module
+
+#### Archivos modificados
+- `.env.example` — Added `PUBLIC_USE_EMULATORS` and `USE_EMULATORS` vars
+
+#### Archivos eliminados
+- `src/lib/firebase/.gitkeep` — Replaced by real source files
