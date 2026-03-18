@@ -36,6 +36,7 @@
 
 generated: 2026-03-16
 last_updated: 2026-03-17
+# story 1-5 done: 2026-03-17
 # story 1-5 created: 2026-03-17
 # story 1-2 created: 2026-03-17
 # story 1-2 done: 2026-03-17
@@ -54,7 +55,7 @@ development_status:
   1-2-infraestructura-de-testing-local: done
   1-3-ci-cd-pipeline-y-quality-gates: done
   1-4-zod-schemas-y-modelos-de-datos: done
-  1-5-design-tokens-y-sistema-de-temas: review
+  1-5-design-tokens-y-sistema-de-temas: done
   1-6-componentes-ui-base: backlog
   1-7-layouts-header-footer-y-banner: backlog
   1-8-i18n-foundation-y-localetoggle: backlog
