@@ -10,6 +10,28 @@ export default [
   ...astro.configs.recommended,
   ...svelte.configs['flat/recommended'],
   {
+    files: ['**/*.svelte'],
+    languageOptions: {
+      globals: {
+        window: 'readonly',
+        document: 'readonly',
+        HTMLElement: 'readonly',
+        HTMLButtonElement: 'readonly',
+        Element: 'readonly',
+        KeyboardEvent: 'readonly',
+        NodeListOf: 'readonly',
+      },
+      parserOptions: {
+        parser: tseslint.parser,
+      },
+    },
+  },
+  {
+    rules: {
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    },
+  },
+  {
     ignores: ['dist/', 'node_modules/', '_flutter-archive/', '_bmad/', '_bmad-output/', '.astro/', 'lighthouserc.cjs'],
   },
 ];

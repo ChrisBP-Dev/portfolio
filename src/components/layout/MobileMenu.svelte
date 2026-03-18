@@ -3,10 +3,14 @@
   import { navItems } from '../../data/navigation';
   import logoSrc from '../../assets/logo/cbp-short-logo-dark.png';
 
-  let { currentPage = 'home' }: { currentPage: string } = $props();
+  interface Props {
+    currentPage?: string;
+  }
+
+  let { currentPage = 'home' }: Props = $props();
 
   let isOpen = $state(false);
-  let triggerRef: HTMLButtonElement;
+  let triggerRef = $state(null) as HTMLButtonElement | null;
 
   const reducedMotion = typeof window !== 'undefined'
     ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -114,7 +118,7 @@
     </button>
 
     <nav class="flex flex-col items-center gap-8" aria-label="Navegación principal">
-      {#each navItems as item}
+      {#each navItems as item (item.key)}
         <a
           href={item.href}
           class="text-heading-2 font-semibold transition-colors min-h-11 flex items-center focus:outline-2 focus:outline-offset-2 focus:outline-primary {currentPage === item.key ? 'text-primary' : 'text-text-secondary hover:text-primary'}"
