@@ -358,6 +358,8 @@ Claude Sonnet 4.6 — Code Review (bmad-code-review: 3 capas paralelas)
 
 - 2026-03-18: Implementación completa de Story 2.2 — Home Page About Me & Knowledge Of
 - 2026-03-18: Code review patches aplicados — 3 patches (localizeHref, orderBy en getAllProjects, refactor mock _query) + 1 pre-existente ya correcto (E2E locale text)
+- 2026-03-18: Fixes visuales post-review (comparación con visual-reference): logo del header/mobile-menu corregido a `cbp-large-logo-dark.png`; avatar hero refactorizado a imagen SOBRE círculo (sin `overflow-hidden`) para que la gorra sobresalga como en la referencia; aspect ratio del avatar corregido a proporciones naturales (170×141px desde 1395×1155 original); círculo reducido a `w-32` para proporción correcta
+- 2026-03-18: Fix crítico mobile menu: overlay confinado a 63px (alto del header) por `backdrop-blur-sm` creando containing block para `position:fixed` → resuelto con `bodyPortal` Svelte action que mueve overlay a `document.body`; logo roto en Svelte (`[object Object]`) → resuelto con `?url` suffix en el import PNG
 
 ### File List
 
@@ -374,6 +376,9 @@ Claude Sonnet 4.6 — Code Review (bmad-code-review: 3 capas paralelas)
 - `src/pages/en/index.astro` — reemplazado stub con HeroSection + TechnologiesSection + SSG data fetch
 - `src/components/common/Button.astro` — añadida prop download?: boolean | string
 - `src/lib/firebase/__tests__/collections.test.ts` — añadidos 4 tests para get* functions
+- `src/components/home/HeroSection.astro` — avatar refactorizado: imagen sobre círculo (sin overflow-hidden), aspect ratio natural 170×141px, círculo w-32
+- `src/components/layout/Header.astro` — logo corregido a cbp-large-logo-dark.png
+- `src/components/layout/MobileMenu.svelte` — logo corregido a cbp-large-logo-dark.png con ?url; bodyPortal action para escapar backdrop-filter containing block
 
 **Eliminados:**
 - `src/components/home/.gitkeep`
