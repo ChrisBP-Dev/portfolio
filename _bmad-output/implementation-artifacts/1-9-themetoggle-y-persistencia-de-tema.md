@@ -25,7 +25,7 @@ So that I can browse in my preferred visual mode across sessions.
 
 - [ ] **Task 1: Anti-FOUC inline script** (AC: 1, 5, 6, 9)
   - [ ] 1.1 Create `src/components/layout/ThemeScript.astro` containing an inline `<script is:inline>` that runs synchronously in `<head>`
-  - [ ] 1.2 Script logic: (1) read `localStorage.getItem('theme')`, (2) if stored value exists, use it, (3) else check `window.matchMedia('(prefers-color-scheme: light)').matches`, (4) if OS prefers light → remove `.dark`, (5) else keep `.dark` (default)
+  - [ ] 1.2 Script logic: (1) read `localStorage.getItem('theme')`, (2) if stored value exists, use it, (3) else check `window.matchMedia('(prefers-color-scheme: light)').matches`, (4) if OS prefers light → remove `.dark`, (5) else keep `.dark` (default). Also set `document.documentElement.style.colorScheme` to match (`'dark'` or `'light'`) so native browser UI (scrollbars, form controls) matches the theme
   - [ ] 1.3 Script must NOT use any imports or modules — pure inline JS for synchronous execution
 
 - [ ] **Task 2: Add theme translations** (AC: 8)
@@ -35,7 +35,7 @@ So that I can browse in my preferred visual mode across sessions.
   - [ ] 3.1 Create `src/components/layout/ThemeToggle.svelte` — Svelte 5 island
   - [ ] 3.2 Props: `currentLocale: 'es' | 'en'` (for localized aria-label)
   - [ ] 3.3 State: read initial theme from `document.documentElement.classList.contains('dark')` on mount
-  - [ ] 3.4 Toggle function: toggle `.dark` class on `document.documentElement`, save to `localStorage.setItem('theme', newTheme)`, update internal state
+  - [ ] 3.4 Toggle function: toggle `.dark` class on `document.documentElement`, update `document.documentElement.style.colorScheme`, save to `localStorage.setItem('theme', newTheme)`, update internal state. Guard transition timeout with `clearTimeout` to handle rapid clicks
   - [ ] 3.5 Icons: sun icon (`☀️` or SVG) when dark mode active, moon icon (`🌙` or SVG) when light mode active
   - [ ] 3.6 `aria-label`: use `t('theme.toLight', currentLocale)` when dark, `t('theme.toDark', currentLocale)` when light — import `t` from translations
   - [ ] 3.7 Positioning: `fixed bottom-20 right-6 z-[55]` — stacked directly above LocaleToggle (`bottom-6`)
@@ -43,13 +43,14 @@ So that I can browse in my preferred visual mode across sessions.
   - [ ] 3.9 Touch target: `min-h-11 min-w-11` (44x44px), focus ring `focus:outline-2 focus:outline-offset-2 focus:outline-primary`
   - [ ] 3.10 Transition: `active:scale-95 transition-all` on the button itself. The color transition happens via CSS (Task 4)
 
-- [ ] **Task 4: Add theme transition CSS** (AC: 4)
-  - [ ] 4.1 Add to `src/styles/global.css` a rule that applies `transition: color 200ms, background-color 200ms, border-color 200ms` to relevant elements when theme changes
-  - [ ] 4.2 Use `@media (prefers-reduced-motion: reduce)` to set `transition-duration: 0ms`
-  - [ ] 4.3 Approach: add a temporary class (e.g., `theme-transitioning`) to `<html>` during toggle, apply transitions only while that class exists, remove after 200ms. This avoids permanent transitions on every property change during normal interaction
+- [ ] **Task 4: Add theme transition CSS and color-scheme** (AC: 4)
+  - [ ] 4.1 Add `color-scheme` declarations to `src/styles/global.css`: `:root { color-scheme: light; }` and `.dark { color-scheme: dark; }` — ensures native browser UI (scrollbars, form controls, `<select>`, `<input>`) matches the active theme
+  - [ ] 4.2 Add `.theme-transitioning` rule to `src/styles/global.css` that applies `transition: color 200ms, background-color 200ms, border-color 200ms, box-shadow 200ms` with `!important` to `*, *::before, *::after`
+  - [ ] 4.3 Use `@media (prefers-reduced-motion: reduce)` to set `transition-duration: 0ms !important`
+  - [ ] 4.4 Approach: add a temporary class (`theme-transitioning`) to `<html>` during toggle, apply transitions only while that class exists, remove after 200ms with `clearTimeout` guard for rapid clicks. This avoids permanent transitions on every property change during normal interaction
 
 - [ ] **Task 5: Integrate in BaseLayout** (AC: 2, 9)
-  - [ ] 5.1 Import `ThemeScript.astro` and render in `<head>` (BEFORE any stylesheet links to prevent FOUC)
+  - [ ] 5.1 Import `ThemeScript.astro` and render in `<head>` AFTER `<meta charset="utf-8" />` but BEFORE any stylesheet `<link>` tags to prevent FOUC
   - [ ] 5.2 Import `ThemeToggle.svelte` and render after `<LocaleToggle>` with `client:load`
   - [ ] 5.3 Pass `currentLocale={locale}` prop to ThemeToggle
   - [ ] 5.4 Keep `class="dark"` on `<html>` in the template — the inline script REMOVES it only for light-preference users. Dark is the default state
@@ -69,7 +70,7 @@ So that I can browse in my preferred visual mode across sessions.
     - Test no stored value + no media query → default is 'dark'
     - Test no stored value + prefers-color-scheme: light → theme is 'light'
     - Test stored value overrides OS preference
-  - [ ] 6.4 Verify existing contrast tests still pass (they test both light and dark theme tokens)
+  - [ ] 6.4 Run `pnpm test` and verify all existing tests pass with 0 regressions — contrast/token tests in `src/styles/__tests__/` validate both light and dark themes
 
 - [ ] **Task 7: Build verification** (AC: 1-9)
   - [ ] 7.1 `pnpm type-check` — 0 errors
@@ -106,13 +107,13 @@ Without an inline script, Astro SSG would serve `<html class="dark">` and then J
 ```javascript
 // ThemeScript.astro — runs BEFORE any CSS/content renders
 (function() {
-  const stored = localStorage.getItem('theme');
-  if (stored === 'light') {
-    document.documentElement.classList.remove('dark');
-  } else if (!stored && window.matchMedia('(prefers-color-scheme: light)').matches) {
-    document.documentElement.classList.remove('dark');
+  var d = document.documentElement;
+  var stored = localStorage.getItem('theme');
+  var isLight = stored === 'light' || (!stored && window.matchMedia('(prefers-color-scheme: light)').matches);
+  if (isLight) {
+    d.classList.remove('dark');
   }
-  // Default: keep 'dark' class (already in HTML)
+  d.style.colorScheme = isLight ? 'light' : 'dark';
 })();
 ```
 
@@ -169,39 +170,56 @@ Without an inline script, Astro SSG would serve `<html class="dark">` and then J
 
   const icon = $derived(isDark ? '☀️' : '🌙');
 
+  let transitionTimer: ReturnType<typeof setTimeout>;
+
   function toggleTheme() {
+    clearTimeout(transitionTimer);
+    document.documentElement.classList.add('theme-transitioning');
+
     isDark = !isDark;
     document.documentElement.classList.toggle('dark', isDark);
+    document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
+
+    transitionTimer = setTimeout(() => {
+      document.documentElement.classList.remove('theme-transitioning');
+    }, 200);
   }
 </script>
 ```
 
 **Note on `$effect`:** The `$effect` runs once after mount and reads the DOM state set by the inline script. This ensures the island starts in sync with the actual theme.
 
+**Note on SSG navigation:** Every page load in this SSG site is a full HTML reload. The ThemeScript inline runs again on each navigation, reading localStorage. State continuity between pages is automatic — no Svelte store or cross-page sync needed.
+
 ### Theme Transition Approach
 
 To avoid all CSS transitions firing on every interaction (e.g., hover states use `transition-all`), use a temporary class approach:
 
 ```javascript
+let transitionTimer: ReturnType<typeof setTimeout>;
+
 function toggleTheme() {
-  // Add transition class
+  clearTimeout(transitionTimer);
   document.documentElement.classList.add('theme-transitioning');
 
-  // Toggle theme
   isDark = !isDark;
   document.documentElement.classList.toggle('dark', isDark);
+  document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
   localStorage.setItem('theme', isDark ? 'dark' : 'light');
 
-  // Remove transition class after animation
-  setTimeout(() => {
+  transitionTimer = setTimeout(() => {
     document.documentElement.classList.remove('theme-transitioning');
   }, 200);
 }
 ```
 
-CSS in `global.css`:
+CSS in `global.css` — add both `color-scheme` and transition rules:
 ```css
+/* color-scheme — tells browser native UI (scrollbars, form controls) to match theme */
+:root { color-scheme: light; }
+.dark { color-scheme: dark; }
+
 /* Theme transition — only active during toggle */
 .theme-transitioning,
 .theme-transitioning *,
@@ -243,8 +261,8 @@ Add 2 keys to `src/lib/i18n/translations.ts`:
 <!-- AFTER (head): -->
 <html lang={locale} class="dark">
   <head>
-    <ThemeScript />  <!-- FIRST thing in <head>, before stylesheets -->
     <meta charset="utf-8" />
+    <ThemeScript />  <!-- AFTER charset, BEFORE any stylesheet links -->
     ...
   </head>
 
@@ -278,7 +296,7 @@ Add 2 keys to `src/lib/i18n/translations.ts`:
 | File | Change |
 |------|--------|
 | `src/lib/i18n/translations.ts` | Add `theme.toLight` and `theme.toDark` keys |
-| `src/styles/global.css` | Add `.theme-transitioning` transition rules |
+| `src/styles/global.css` | Add `color-scheme` declarations + `.theme-transitioning` transition rules |
 | `src/layouts/BaseLayout.astro` | Import ThemeScript + ThemeToggle, add to layout |
 
 ### Critical Anti-Patterns to Avoid
