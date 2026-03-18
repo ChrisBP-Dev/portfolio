@@ -1,6 +1,6 @@
 # Story 1.5: Design Tokens y Sistema de Temas
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -22,40 +22,40 @@ So that the portfolio looks polished and my theme preference is respected.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Configurar carga de fuentes (AC: #4, #5)
-  - [ ] 1.1 **PRIMARY:** Configurar Astro Fonts API en `astro.config.mjs` — Poppins (400,500,600,700) y JetBrains Mono (400) via `fontProviders.google()` con `display: 'swap'`. **Verificacion rapida:** agregar el import `import { defineConfig, fontProviders } from 'astro/config'` y ejecutar `pnpm build`. Si el build falla con error de import (ej: `fontProviders is not exported`) → la API no esta disponible en esta version, ir directo a 1.2
-  - [ ] 1.2 **FALLBACK (si 1.1 falla):** `pnpm add @fontsource/poppins @fontsource/jetbrains-mono`. Importar CSS de pesos específicos en `src/pages/index.astro` (mover a BaseLayout en Story 1.7). Si se usa este path, cambiar fonts en `@theme inline` a `@theme` (sin inline) con strings directos (ver seccion "Si se usa @fontsource" en Dev Notes)
-  - [ ] 1.3 Verificar que `pnpm build` genera CSS con `@font-face` declarations para Poppins y JetBrains Mono
+- [x] Task 1: Configurar carga de fuentes (AC: #4, #5)
+  - [x] 1.1 **PRIMARY:** Configurar Astro Fonts API en `astro.config.mjs` — Poppins (400,500,600,700) y JetBrains Mono (400) via `fontProviders.google()` con `display: 'swap'`. **Verificacion rapida:** agregar el import `import { defineConfig, fontProviders } from 'astro/config'` y ejecutar `pnpm build`. Si el build falla con error de import (ej: `fontProviders is not exported`) → la API no esta disponible en esta version, ir directo a 1.2
+  - N/A 1.2 **FALLBACK (si 1.1 falla):** No fue necesario — Astro Fonts API funciona correctamente
+  - [x] 1.3 Verificar que `pnpm build` genera CSS con `@font-face` declarations para Poppins y JetBrains Mono
 
-- [ ] Task 2: Implementar tokens de color semánticos (AC: #1, #2)
-  - [ ] 2.1 En `src/styles/global.css`: definir CSS variables en `:root` (light mode) y `.dark` (dark mode) con valores exactos del UX spec (ver tabla en Dev Notes)
-  - [ ] 2.2 Agregar bloque `@theme inline` que bridge las CSS variables a utilidades Tailwind (`bg-background`, `text-text-primary`, etc.)
-  - [ ] 2.3 Agregar CSS custom property `--brand-gradient: linear-gradient(135deg, #48A1CD, #108385);` en `:root` (no cambia con tema)
+- [x] Task 2: Implementar tokens de color semánticos (AC: #1, #2)
+  - [x] 2.1 En `src/styles/global.css`: definir CSS variables en `:root` (light mode) y `.dark` (dark mode) con valores exactos del UX spec (ver tabla en Dev Notes)
+  - [x] 2.2 Agregar bloque `@theme inline` que bridge las CSS variables a utilidades Tailwind (`bg-background`, `text-text-primary`, etc.)
+  - [x] 2.3 Agregar CSS custom property `--brand-gradient: linear-gradient(135deg, #48A1CD, #108385);` en `:root` (no cambia con tema)
 
-- [ ] Task 3: Configurar dark mode como default (AC: #8)
-  - [ ] 3.1 Agregar `@custom-variant dark (&:where(.dark, .dark *));` en `global.css` (class-based dark mode en Tailwind v4)
-  - [ ] 3.2 En `src/pages/index.astro`: agregar `class="dark"` al elemento `<html>` — dark mode es default. Story 1.9 agregará el toggle y la persistencia
+- [x] Task 3: Configurar dark mode como default (AC: #8)
+  - [x] 3.1 Agregar `@custom-variant dark (&:where(.dark, .dark *));` en `global.css` (class-based dark mode en Tailwind v4)
+  - [x] 3.2 En `src/pages/index.astro`: agregar `class="dark"` al elemento `<html>` — dark mode es default. Story 1.9 agregará el toggle y la persistencia
 
-- [ ] Task 4: Definir tokens de tipografia (AC: #3)
-  - [ ] 4.1 En bloque `@theme` de `global.css`: definir 8 compound typography tokens con namespace `--text-*`, incluyendo sub-propiedades `--line-height`, `--font-weight` (ver tabla exacta en Dev Notes)
-  - [ ] 4.2 Configurar font families en `@theme inline` (si Astro Fonts API): `--font-sans: var(--font-poppins), ...` y `--font-mono: var(--font-jetbrains-mono), ...`. Si @fontsource: usar `@theme` (sin inline) con strings directos
+- [x] Task 4: Definir tokens de tipografia (AC: #3)
+  - [x] 4.1 En bloque `@theme` de `global.css`: definir 8 compound typography tokens con namespace `--text-*`, incluyendo sub-propiedades `--line-height`, `--font-weight` (ver tabla exacta en Dev Notes)
+  - [x] 4.2 Configurar font families en `@theme inline` (si Astro Fonts API): `--font-sans: var(--font-poppins), ...` y `--font-mono: var(--font-jetbrains-mono), ...`. Si @fontsource: usar `@theme` (sin inline) con strings directos
 
-- [ ] Task 5: Definir spacing y breakpoints (AC: #6, #7)
-  - [ ] 5.1 En `@theme`: `--spacing: 0.25rem;` — esto genera automáticamente la escala 4px base (p-1=4px, p-2=8px, ..., p-24=96px)
-  - [ ] 5.2 En `@theme`: limpiar breakpoints default y definir custom: `--breakpoint-*: initial;` seguido de `--breakpoint-sm: 28.125rem; --breakpoint-lg: 56.25rem; --breakpoint-xl: 75rem;`
+- [x] Task 5: Definir spacing y breakpoints (AC: #6, #7)
+  - [x] 5.1 En `@theme`: `--spacing: 0.25rem;` — esto genera automáticamente la escala 4px base (p-1=4px, p-2=8px, ..., p-24=96px)
+  - [x] 5.2 En `@theme`: limpiar breakpoints default y definir custom: `--breakpoint-*: initial;` seguido de `--breakpoint-sm: 28.125rem; --breakpoint-lg: 56.25rem; --breakpoint-xl: 75rem;`
 
-- [ ] Task 6: Test de contraste WCAG AA (AC: #9)
-  - [ ] 6.1 Crear `src/styles/__tests__/contrast.test.ts` con función `contrastRatio(hex1, hex2)` que calcula WCAG contrast ratio
-  - [ ] 6.2 Tests para los 6 pares críticos con thresholds diferenciados segun UX spec:
+- [x] Task 6: Test de contraste WCAG AA (AC: #9)
+  - [x] 6.1 Crear `src/styles/__tests__/contrast.test.ts` con función `contrastRatio(hex1, hex2)` que calcula WCAG contrast ratio
+  - [x] 6.2 Tests para los 6 pares críticos con thresholds diferenciados segun UX spec:
     - text-primary/background en ambos temas: **>7:1** (UX spec requiere >7:1 para texto principal)
     - text-secondary/background en ambos temas: **>4.5:1** (WCAG AA normal text)
     - primary-dark/surface en ambos temas: **>3:1** (acento/link — texto grande). Usar `primary-dark` (#108385) en vez de `primary` (#48A1CD) porque primary sobre blanco es ~2.97:1 y NO pasa. Primary se usa como color de acento visual (gradientes, bordes, iconos), NO como texto sobre fondo blanco
 
-- [ ] Task 7: Validaciones finales
-  - [ ] 7.1 `pnpm lint` — 0 errores
-  - [ ] 7.2 `pnpm type-check` — 0 errores
-  - [ ] 7.3 `pnpm build` — 0 errores, CSS generado contiene los custom properties
-  - [ ] 7.4 `pnpm test` — **47 tests** pasan (41 existentes + 6 contrast nuevos)
+- [x] Task 7: Validaciones finales
+  - [x] 7.1 `pnpm lint` — 0 errores
+  - [x] 7.2 `pnpm type-check` — 0 errores
+  - [x] 7.3 `pnpm build` — 0 errores, CSS generado contiene los custom properties
+  - [x] 7.4 `pnpm test` — **47 tests** pasan (41 existentes + 6 contrast nuevos)
 
 ## Dev Notes
 
@@ -456,6 +456,24 @@ Claude Opus 4.6 (1M context)
 
 ### Completion Notes List
 
+- Astro Fonts API (Opcion A) funciono correctamente — no fue necesario el fallback @fontsource
+- 10 archivos de fuentes self-hosteados automaticamente por Astro (Poppins 400/500/600/700 + JetBrains Mono 400, ambos en woff2)
+- 12 semantic color tokens definidos con soporte light/dark via CSS variables + `@theme inline` bridge
+- Brand gradient como CSS custom property en `:root`
+- 8 compound typography tokens con clamp() sizes, line-heights y font-weights
+- Spacing base 4px (--spacing: 0.25rem) con multiplicador automatico de Tailwind v4
+- Breakpoints custom (sm:450px, lg:900px, xl:1200px) con defaults cleared via `--breakpoint-*: initial`
+- Dark mode como default via `class="dark"` en `<html>` y `@custom-variant dark`
+- 6 tests WCAG AA de contraste con thresholds diferenciados (>7:1, >4.5:1, >3:1)
+- Todas las validaciones pasan: lint 0 errores, type-check 0 errores, 47 tests, build exitoso
+
 ### Change Log
 
+- 2026-03-17: Implementacion completa de Story 1.5 — design tokens, fuentes, temas, tests de contraste
+
 ### File List
+
+- `astro.config.mjs` — MODIFICADO: agregada configuracion Astro Fonts API (Poppins + JetBrains Mono)
+- `src/styles/global.css` — MODIFICADO: tokens de color, tipografia, spacing, breakpoints, dark mode
+- `src/pages/index.astro` — MODIFICADO: `class="dark"` en `<html>`
+- `src/styles/__tests__/contrast.test.ts` — NUEVO: 6 tests WCAG AA de contraste
