@@ -17,6 +17,15 @@ interface Props {
 
 const locale = (Astro.currentLocale ?? 'es') as Locale;
 const { title, description = t('meta.description', locale), currentPage = 'home' } = Astro.props;
+
+// Strip locale prefix to get the base route path for hreflang generation
+const routePath = locale === 'en'
+  ? Astro.url.pathname.replace(/^\/en\/?/, '/') || '/'
+  : Astro.url.pathname;
+
+// Absolute URLs required by Lighthouse SEO hreflang audit
+const esHref = new URL(getRelativeLocaleUrl('es', routePath), Astro.url).href;
+const enHref = new URL(getRelativeLocaleUrl('en', routePath), Astro.url).href;
 ---
 
 <html lang={locale} class="dark">
@@ -27,8 +36,8 @@ const { title, description = t('meta.description', locale), currentPage = 'home'
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
-    <link rel="alternate" hreflang="es" href={getRelativeLocaleUrl('es', Astro.url.pathname)} />
-    <link rel="alternate" hreflang="en" href={getRelativeLocaleUrl('en', Astro.url.pathname)} />
+    <link rel="alternate" hreflang="es" href={esHref} />
+    <link rel="alternate" hreflang="en" href={enHref} />
     <title>{title}</title>
   </head>
   <body class="bg-background text-text-primary min-h-screen flex flex-col">
