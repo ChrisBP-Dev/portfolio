@@ -43,7 +43,7 @@ export function parseDateRange(dateStr: string): { startDate: Date; endDate: Dat
   const normalized = dateStr.replace(/[\u2013\u2014]/g, '-');
   const parts = normalized.split(/\s*-\s*/);
 
-  const startDate = parseToDate(parts[0]);
+  const startDate = parseToDate(parts[0] ?? '');
   if (isNaN(startDate.getTime())) {
     console.warn(`  Warning: Cannot parse start date from "${dateStr}" — using epoch as fallback`);
     return { startDate: new Date(0), endDate: null };
@@ -65,7 +65,7 @@ export function parseDateRange(dateStr: string): { startDate: Date; endDate: Dat
 
 export function parseExperienceYears(timeStr: string): number {
   const match = timeStr.match(/(\d+)/);
-  return match ? parseInt(match[1], 10) : 0;
+  return match ? parseInt(match[1]!, 10) : 0;
 }
 
 export function transformImageAndPath(
@@ -184,7 +184,7 @@ async function runMigration() {
   }
 
   if (getApps().length === 0) {
-    initializeApp({ credential: cert({ projectId, clientEmail, privateKey }) });
+    initializeApp({ credential: cert({ projectId: projectId!, clientEmail: clientEmail!, privateKey: privateKey! }) });
   }
 
   const db = getFirestore();
