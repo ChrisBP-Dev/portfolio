@@ -14,7 +14,7 @@ So that my experience is professional regardless of how I access the portfolio.
 2. **Tablet Layout** — En viewport 450-900px se muestran 2-column project grids, menú compacto o hamburger.
 3. **Desktop Layout** — En viewport >900px se muestran 3-column grids, menú horizontal completo, max-width 1200px.
 4. **Locale Switching Completeness** — Cambiar locale vía LocaleToggle cambia TODO el contenido: nav labels, section titles, project names, descriptions, experience details, button texts.
-5. **hreflang Tags** — Cada página pública incluye `<link rel="alternate" hreflang="es">` y `<link rel="alternate" hreflang="en">`.
+5. **hreflang Tags** — Cada página pública incluye `<link rel="alternate" hreflang="es">`, `<link rel="alternate" hreflang="en">`, y `<link rel="alternate" hreflang="x-default">`.
 6. **Lazy Loading** — Imágenes below-the-fold usan `loading="lazy"`.
 7. **View Transitions** — View Transitions API habilitada para navegación suave entre páginas.
 
@@ -61,6 +61,7 @@ And buttons cambian: "Get in Touch"→"Contáctame", "See All"→"Ver Todos"
 Given visito cualquier página pública
 Then el <head> contiene <link rel="alternate" hreflang="es" href="...">
 And el <head> contiene <link rel="alternate" hreflang="en" href="...">
+And el <head> contiene <link rel="alternate" hreflang="x-default" href="...">
 And los hrefs son URLs absolutas
 ```
 
@@ -92,16 +93,19 @@ And los botones tienen min-h-11 min-w-11
   - [ ] 1.1 Agregar `import { ClientRouter } from 'astro:transitions'` en `BaseLayout.astro`
   - [ ] 1.2 Renderizar `<ClientRouter />` en `<head>` (después de `<title>`)
   - [ ] 1.3 Agregar `transition:animate="fade"` en `<main>` para transición por defecto
-  - [ ] 1.4 Agregar `transition:persist` en `<ThemeToggle client:load>` y `<LocaleToggle client:load>` para mantener estado entre navegaciones
+  - [ ] 1.4 Agregar `transition:persist` SOLO en `<ThemeToggle client:load>` — NO en LocaleToggle (ver nota en Dev Notes)
   - [ ] 1.5 Verificar que `prefers-reduced-motion` desactiva animaciones automáticamente (Astro lo maneja nativo)
   - [ ] 1.6 Verificar que Svelte islands con `client:load` y `client:visible` se rehidratan correctamente tras navegación
+  - [ ] 1.7 Agregar listener `astro:after-swap` en ThemeScript.astro para re-aplicar tema desde localStorage tras cada View Transition (previene FOUC)
+  - [ ] 1.8 Refactorizar LocaleToggle para usar `<a href>` en lugar de `window.location.href` para que View Transitions funcionen en cambio de idioma
 
 - [ ] Task 2: Auditoría y polish responsive — Mobile (AC: 1, 8)
   - [ ] 2.1 Verificar en viewport 375px: Home, Projects, Project Detail, Contact — todo single-column
-  - [ ] 2.2 Verificar hamburger menu funciona en mobile (ya implementado — MobileMenu.svelte)
+  - [ ] 2.2 **BUG CONOCIDO:** Corregir MobileMenu.svelte — usa `matchMedia('(min-width: 1024px)')` pero breakpoint `lg` es 900px. Cambiar a `(min-width: 56.25rem)` para alinear con Header.astro que usa `lg:flex`
   - [ ] 2.3 Verificar touch targets 44x44px en botones, links, y elementos interactivos
   - [ ] 2.4 Verificar tipografía escalada con `clamp()` es legible en mobile
   - [ ] 2.5 Corregir cualquier overflow horizontal o elementos cortados en mobile
+  - [ ] 2.6 Verificar ExperienceSection: `whitespace-nowrap` en fechas puede causar overflow en viewports estrechos — considerar `truncate` o `text-wrap`
 
 - [ ] Task 3: Auditoría y polish responsive — Tablet (AC: 2)
   - [ ] 3.1 Verificar en viewport 768px: project grids muestran 2 columnas (sm:grid-cols-2)
@@ -110,9 +114,10 @@ And los botones tienen min-h-11 min-w-11
 
 - [ ] Task 4: Auditoría y polish responsive — Desktop (AC: 3)
   - [ ] 4.1 Verificar en viewport 1280px: project grids muestran 3 columnas (lg:grid-cols-3)
-  - [ ] 4.2 Verificar nav horizontal completo visible en desktop (lg:flex)
-  - [ ] 4.3 Verificar max-width 1200px del Container principal (max-w-[75rem])
-  - [ ] 4.4 Verificar Container padding: lg:px-8
+  - [ ] 4.2 **BUG CONOCIDO:** `ProjectFilter.svelte:65` solo tiene `grid-cols-1 sm:grid-cols-2` — falta `lg:grid-cols-3` para cumplir AC 3. `ProjectsSection.astro` SÍ lo tiene correctamente
+  - [ ] 4.3 Verificar nav horizontal completo visible en desktop (lg:flex)
+  - [ ] 4.4 Verificar max-width 1200px del Container principal (max-w-[75rem])
+  - [ ] 4.5 Verificar Container padding: lg:px-8
 
 - [ ] Task 5: Auditoría i18n — Completitud de contenido bilingüe (AC: 4)
   - [ ] 5.1 Verificar LocaleToggle cambia TODAS las traducciones en Home (hero, knowledge of, projects, experience)
@@ -124,13 +129,15 @@ And los botones tienen min-h-11 min-w-11
 - [ ] Task 6: Verificar hreflang tags (AC: 5)
   - [ ] 6.1 Verificar que BaseLayout.astro genera hreflang correctamente (ya implementado — lines 42-43)
   - [ ] 6.2 Verificar URLs absolutas en hreflang (ya usa `new URL(..., Astro.url).href`)
-  - [ ] 6.3 Verificar hreflang en todas las rutas: /, /projects, /projects/[slug], /contact
+  - [ ] 6.3 Agregar `<link rel="alternate" hreflang="x-default" href={enHref} />` en BaseLayout.astro (falta actualmente — mejora SEO para Google)
+  - [ ] 6.4 Verificar hreflang en todas las rutas: /, /projects, /projects/[slug], /contact
 
 - [ ] Task 7: Auditoría lazy loading de imágenes (AC: 6)
   - [ ] 7.1 Verificar `loading="lazy"` en imágenes below-the-fold (gallery thumbnails, technology icons en secciones bajas)
   - [ ] 7.2 Verificar imagen principal de proyecto usa `fetchpriority="high"` (above-the-fold)
   - [ ] 7.3 Verificar `decoding="async"` en imágenes que lo soportan
   - [ ] 7.4 Verificar avatar/mascota en hero: NO debe ser lazy (es above-the-fold)
+  - [ ] 7.5 Verificar ImageViewer.svelte: thumbnails del gallery sin `width`/`height` explícitos — agregar para prevenir CLS (NFR3: CLS <0.05)
 
 - [ ] Task 8: Pipeline — Build y verificación (AC: all)
   - [ ] 8.1 Ejecutar `pnpm lint && pnpm type-check && pnpm build` — 0 errores
@@ -168,28 +175,55 @@ import { ClientRouter } from 'astro:transitions';
   <main id="main" class="flex-1" tabindex="-1" transition:animate="fade">
     <slot />
   </main>
-  <!-- Persistir estado de toggles entre navegaciones -->
+  <!-- SOLO ThemeToggle usa transition:persist (mantiene tema sin rehidratación) -->
   <ThemeToggle client:load currentLocale={locale} transition:persist />
-  <LocaleToggle client:load currentLocale={locale} currentPath={Astro.url.pathname} transition:persist />
+  <!-- LocaleToggle NO usa transition:persist — necesita props frescos (currentPath) en cada navegación -->
+  <LocaleToggle client:load currentLocale={locale} currentPath={Astro.url.pathname} />
 </body>
 ```
 
 **Comportamiento clave:**
 - `ClientRouter` habilita navegación SPA-like sin recargas completas
 - `transition:animate="fade"` aplica crossfade al `<main>` en cada navegación
-- `transition:persist` en ThemeToggle y LocaleToggle mantiene su estado (tema/locale) sin rehidratación
+- `transition:persist` SOLO en ThemeToggle — mantiene estado del tema sin rehidratación
+- LocaleToggle NO debe usar `transition:persist` porque `currentPath` se pasa como prop y quedaría stale (apuntaría a la URL anterior, no la actual). Dejar que Astro lo re-renderice con props frescos en cada navegación
 - `prefers-reduced-motion: reduce` desactiva animaciones automáticamente (Astro lo maneja)
 - Browsers sin soporte → fallback a navegación normal (sin animación, funcionalidad intacta)
 - NO se necesita configuración en `astro.config.mjs` — `<ClientRouter />` es autocontenido
+
+**ThemeScript + View Transitions — FOUC prevention:**
+
+Con ClientRouter, Astro swapea atributos de `<html>` incluyendo `class="dark"` hardcodeado en el template. Si el usuario está en light mode, el swap resetea a `class="dark"` momentáneamente. Solución obligatoria — agregar en ThemeScript.astro:
+
+```html
+<script is:inline>
+(function() {
+  // ... FOUC prevention existente (no tocar) ...
+})();
+// Re-aplicar tema tras cada View Transition swap
+document.addEventListener('astro:after-swap', () => {
+  const d = document.documentElement;
+  const stored = localStorage.getItem('theme');
+  const isLight = stored === 'light' || (!stored && window.matchMedia('(prefers-color-scheme: light)').matches);
+  if (isLight) d.classList.remove('dark');
+  else d.classList.add('dark');
+  d.style.colorScheme = isLight ? 'light' : 'dark';
+});
+</script>
+```
+
+**LocaleToggle + View Transitions — navegación suave:**
+
+Actualmente `LocaleToggle.svelte:26` usa `window.location.href = getTargetUrl()` que causa full page reload, anulando View Transitions. Refactorizar el componente para renderizar un `<a href={getTargetUrl()}>` en lugar de un `<button>` con `onclick`. Esto permite que ClientRouter intercepte la navegación y aplique la transición suave.
 
 ### Lo Que Ya Está Implementado (auditoría, no reimplementar)
 
 | Feature | Estado | Archivos |
 |---------|--------|----------|
 | Breakpoints sm:450px, lg:900px, xl:1200px | ✓ | `src/styles/global.css:91-95` |
-| Hamburger menu mobile | ✓ | `MobileMenu.svelte` |
+| Hamburger menu mobile | ⚠ BUG: JS breakpoint 1024px ≠ CSS lg:900px | `MobileMenu.svelte:49` |
 | Typography clamp() fluid scaling | ✓ | `global.css:97-129` |
-| Grid 1→2→3 columnas | ✓ | `ProjectsSection.astro`, `ProjectFilter.svelte` |
+| Grid 1→2→3 columnas | ⚠ ProjectFilter.svelte solo llega a 2 cols | `ProjectsSection.astro` ✓, `ProjectFilter.svelte:65` falta `lg:grid-cols-3` |
 | Container responsive padding | ✓ | `Container.astro: px-4 sm:px-6 lg:px-8` |
 | i18n config EN default | ✓ | `config.ts`, `astro.config.mjs` |
 | 138 translation keys ES/EN | ✓ | `translations.ts` |
@@ -219,13 +253,20 @@ Las stories 2.1–2.7 ya implementaron responsive, i18n, hreflang, y lazy loadin
 **Tests E2E:** `page.getByRole()`, `page.getByLabel()` — NO selectores CSS frágiles
 **Pipeline:** `pnpm lint && pnpm type-check && pnpm build` antes de terminar
 
+### Bugs Conocidos a Corregir en Esta Story
+
+1. **MobileMenu.svelte:49 breakpoint desalineado**: Usa `matchMedia('(min-width: 1024px)')` pero el breakpoint `lg` del proyecto es `56.25rem` (900px). Header.astro muestra nav desktop con `lg:flex` a 900px. Entre 900-1024px ambos menús son visibles. **Fix:** cambiar a `(min-width: 56.25rem)`.
+2. **ProjectFilter.svelte:65 sin 3 columnas desktop**: Solo tiene `grid-cols-1 sm:grid-cols-2` — falta `lg:grid-cols-3` para cumplir AC 3. ProjectsSection.astro SÍ lo tiene correcto.
+3. **LocaleToggle.svelte:26 full page reload**: Usa `window.location.href` que causa recarga completa, anulando View Transitions. **Fix:** refactorizar a `<a href>` para que ClientRouter intercepte la navegación.
+
 ### Posibles Issues a Encontrar en Auditoría
 
 1. **View Transitions + Svelte islands**: Si un island con `client:visible` no se rehidrata tras navegación, verificar que Astro lo reinicializa. Usar `transition:persist` solo si el estado debe mantenerse.
-2. **LocaleToggle + View Transitions**: `currentPath` se pasa como prop — verificar que se actualiza con la nueva URL tras View Transition (puede requerir `transition:persist` o escuchar `astro:page-load`).
-3. **ThemeScript**: El script de tema que previene FOUC debe ejecutarse en cada navegación. Verificar con `astro:page-load` event si es necesario.
-4. **MobileMenu state**: Si el menú está abierto y se navega vía View Transition, verificar que se cierra automáticamente.
-5. **Hero avatar image**: NO debe tener `loading="lazy"` (es above-the-fold). Verificar.
+2. **ThemeScript FOUC post-transition**: OBLIGATORIO agregar listener `astro:after-swap` (ver solución en Dev Notes arriba). Sin esto, cambiar de página en light mode causa flash a dark mode.
+3. **MobileMenu state**: Si el menú está abierto y se navega vía View Transition, verificar que se cierra automáticamente.
+4. **Hero avatar image**: NO debe tener `loading="lazy"` (es above-the-fold). Verificar.
+5. **ExperienceSection dates**: `whitespace-nowrap` en fechas + `ml-4` fijo puede causar overflow horizontal en viewports <375px.
+6. **ImageViewer thumbnails**: Sin `width`/`height` explícitos — puede causar CLS. Agregar dimensiones.
 
 ### Responsive Breakpoints Definidos
 
@@ -240,23 +281,23 @@ Clases Tailwind: `sm:` (≥450px), `lg:` (≥900px), `xl:` (≥1200px). No hay `
 
 ### Project Structure Notes
 
-**Archivos a modificar:**
+**Archivos a modificar (cambios requeridos):**
 ```
-src/layouts/BaseLayout.astro   # Agregar ClientRouter + transition directives
+src/layouts/BaseLayout.astro               # Agregar ClientRouter, transition:animate, transition:persist en ThemeToggle, hreflang x-default
+src/components/layout/ThemeScript.astro    # Agregar listener astro:after-swap para FOUC prevention
+src/components/layout/MobileMenu.svelte    # FIX: cambiar matchMedia 1024px → 56.25rem
+src/components/layout/LocaleToggle.svelte  # FIX: refactorizar <button> a <a href> para View Transitions
+src/components/projects/ProjectFilter.svelte # FIX: agregar lg:grid-cols-3
 ```
 
-**Archivos a verificar (solo modificar si hay bugs):**
+**Archivos a verificar (solo modificar si hay bugs adicionales):**
 ```
 src/components/layout/Header.astro          # Nav responsive lg:flex / lg:hidden
-src/components/layout/MobileMenu.svelte     # Hamburger, aria-expanded
-src/components/layout/ThemeToggle.svelte     # Persistencia entre navegaciones
-src/components/layout/LocaleToggle.svelte   # Actualización de currentPath
-src/components/layout/ThemeScript.astro      # FOUC prevention post-transition
+src/components/layout/ThemeToggle.svelte     # Persistencia entre navegaciones (transition:persist)
 src/components/home/ProjectsSection.astro   # Grid responsive, lazy loading
 src/components/home/TechnologiesSection.astro # Lazy loading icons
-src/components/home/ExperienceSection.astro  # Locale formatting
-src/components/projects/ProjectFilter.svelte # Grid responsive
-src/components/projects/ImageViewer.svelte   # Lazy loading, client:visible
+src/components/home/ExperienceSection.astro  # Locale formatting, whitespace-nowrap en dates
+src/components/projects/ImageViewer.svelte   # Lazy loading, client:visible, agregar width/height a thumbnails
 src/pages/index.astro                       # EN home
 src/pages/es/index.astro                    # ES home
 src/pages/projects/index.astro              # EN projects
