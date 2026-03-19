@@ -47,6 +47,7 @@ So that I can see the details of Christopher's work clearly.
     let isOpen = $state(false);
     let currentIndex = $state(0);
     let dialogRef = $state<HTMLDialogElement | null>(null);
+    let currentImage = $derived(screenshots[currentIndex]);
     ```
   - [ ] 2.3 Navigation functions:
     - `open(index: number)` — sets `currentIndex`, calls `dialogRef.showModal()`, sets `isOpen = true`
@@ -103,7 +104,7 @@ So that I can see the details of Christopher's work clearly.
       class="fixed inset-0 w-full h-full max-w-none max-h-none m-0 p-0 bg-transparent backdrop:bg-black/80"
       oncancel={close}
       onclick={handleBackdropClick}
-      aria-label={`${screenshots[currentIndex]?.alt ?? ''} — ${currentIndex + 1} ${t('imageViewer.counter', locale)} ${screenshots.length}`}
+      aria-label={`${currentImage?.alt ?? ''} — ${currentIndex + 1} ${t('imageViewer.counter', locale)} ${screenshots.length}`}
     >
       <!-- Close button -->
       <button
@@ -143,15 +144,15 @@ So that I can see the details of Christopher's work clearly.
       <!-- Centered image -->
       <div class="flex items-center justify-center w-full h-full p-8 sm:p-12">
         <img
-          src={screenshots[currentIndex]?.url}
-          alt={`${screenshots[currentIndex]?.alt ?? ''} ${currentIndex + 1}`}
+          src={currentImage?.url}
+          alt={`${currentImage?.alt ?? ''} ${currentIndex + 1}`}
           class="max-w-full max-h-full object-contain"
         />
       </div>
 
       <!-- Counter (e.g., "3 de 5") -->
       {#if screenshots.length > 1}
-        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white text-body-sm px-3 py-1 rounded-full">
+        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white text-body-sm px-3 py-1 rounded-full" aria-live="polite">
           {currentIndex + 1} {t('imageViewer.counter', locale)} {screenshots.length}
         </div>
       {/if}
