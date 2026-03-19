@@ -37,21 +37,20 @@ test.describe('Projects Page — ES', () => {
     const select = page.locator('main select');
     const options = select.locator('option:not([value=""])');
     const firstTechValue = await options.first().getAttribute('value');
+    expect(firstTechValue).toBeTruthy();
 
-    if (firstTechValue) {
-      await select.selectOption(firstTechValue);
+    await select.selectOption(firstTechValue!);
 
-      const filteredCards = page.locator('article');
-      const filteredCount = await filteredCards.count();
-      expect(filteredCount).toBeLessThanOrEqual(initialCount);
-      expect(filteredCount).toBeGreaterThan(0);
+    const filteredCards = page.locator('article');
+    const filteredCount = await filteredCards.count();
+    expect(filteredCount).toBeLessThanOrEqual(initialCount);
+    expect(filteredCount).toBeGreaterThan(0);
 
-      await select.selectOption('');
+    await select.selectOption('');
 
-      const restoredCards = page.locator('article');
-      const restoredCount = await restoredCards.count();
-      expect(restoredCount).toBe(initialCount);
-    }
+    const restoredCards = page.locator('article');
+    const restoredCount = await restoredCards.count();
+    expect(restoredCount).toBe(initialCount);
   });
 
   test('each project card shows name, description, technology chips, and screenshots', async ({
@@ -95,13 +94,12 @@ test.describe('Projects Page — EN', () => {
     const select = page.locator('main select');
     const options = select.locator('option:not([value=""])');
     const firstTechValue = await options.first().getAttribute('value');
+    expect(firstTechValue).toBeTruthy();
 
-    if (firstTechValue) {
-      await select.selectOption(firstTechValue);
+    await select.selectOption(firstTechValue!);
 
-      const filteredCards = page.locator('article');
-      const filteredCount = await filteredCards.count();
-      expect(filteredCount).toBeGreaterThan(0);
-    }
+    const filteredCards = page.locator('article');
+    const filteredCount = await filteredCards.count();
+    expect(filteredCount).toBeGreaterThan(0);
   });
 });

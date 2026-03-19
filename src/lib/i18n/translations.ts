@@ -65,7 +65,7 @@ const translations: Record<string, Record<Locale, string>> = {
     es: 'Como desarrollador, he tenido la oportunidad de trabajar en diferentes proyectos, tanto personales como profesionales. A continuación algunos de los proyectos en los que he trabajado:',
     en: "As a developer, I've had the opportunity to work on different projects, both personal and professional. Below are some of the projects I've worked on:",
   },
-  'projects.filter.label': { es: 'Filter by:', en: 'Filter by:' },
+  'projects.filter.label': { es: 'Filtrar por:', en: 'Filter by:' },
   'projects.filter.all': { es: 'Todos los Proyectos', en: 'All Projects' },
   'projects.technologies': { es: 'Tecnologías', en: 'Technologies' },
   'projects.website': { es: 'Website', en: 'Website' },

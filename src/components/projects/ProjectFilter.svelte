@@ -102,17 +102,19 @@
         {/if}
 
         <!-- Technologies section -->
-        <div class="px-4 py-2">
-          <h3 class="text-body-sm font-semibold mb-2">{technologiesLabel}</h3>
-          <div class="flex flex-wrap gap-2">
-            {#each getTechByIds(project.technologies) as tech (tech.id)}
-              <span class="inline-flex items-center gap-1 bg-primary/10 text-primary border border-primary/30 rounded-full px-2 py-1 text-caption">
-                <img src={tech.image.url} alt={tech.name} class="w-4 h-4" />
-                {tech.name}
-              </span>
-            {/each}
+        {#if project.technologies.length > 0}
+          <div class="px-4 py-2">
+            <h3 class="text-body-sm font-semibold mb-2">{technologiesLabel}</h3>
+            <div class="flex flex-wrap gap-2">
+              {#each getTechByIds(project.technologies) as tech (tech.id)}
+                <span class="inline-flex items-center gap-1 bg-primary/10 text-primary border border-primary/30 rounded-full px-2 py-1 text-caption">
+                  <img src={tech.image.url} alt={tech.name} loading="lazy" class="w-4 h-4" />
+                  {tech.name}
+                </span>
+              {/each}
+            </div>
           </div>
-        </div>
+        {/if}
 
         <!-- Screenshots section -->
         {#if project.screenshots.length > 0}

@@ -1,6 +1,6 @@
 # Story 2.4: Projects Listing y Filtro por Tecnología
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -418,19 +418,36 @@ Claude Opus 4.6 (1M context)
 - Task 6: Created 6 E2E tests (4 ES, 2 EN) covering: page load with intro/filter/cards, filter default state, filter interaction (select tech → count changes → reset), card content verification, EN locale.
 - Extra: Created `seed-experiences.ts` script and seeded 3 experiences (GuardOwl, QETO, LA CABANITA) to Firestore. These were hardcoded in the Flutter app and never migrated because they didn't exist in Firestore. ExperienceSection on home page now renders correctly.
 
+### Code Review Record
+
+Reviewer: Claude Sonnet 4.6 (code-review workflow)
+Date: 2026-03-18
+Layers: Blind Hunter + Edge Case Hunter + Acceptance Auditor
+
+**Findings triage:** 4 patch · 7 defer · 9 rejected as noise
+
+Patches applied:
+- P1: Fixed `projects.filter.label` ES value from `'Filter by:'` → `'Filtrar por:'` (AC #6 violation)
+- P2: Added `loading="lazy"` to technology chip `<img>` (Firebase Storage URL requirement)
+- P3: Wrapped technologies section in `{#if project.technologies.length > 0}` guard (empty array renders empty heading)
+- P4: Converted silent `if (firstTechValue)` guard to `expect(firstTechValue).toBeTruthy()` assertion in E2E filter tests (both ES and EN)
+
+Deferred (not caused by this change): orphaned tech IDs, schema-enforced null safety, screenshot URL key collision, seed script partial-collection exit, locale fallback.
+
 ### Change Log
 
 - 2026-03-18: Implemented story 2.4 — Projects Listing y Filtro por Tecnología (all 6 tasks complete)
 - 2026-03-18: Fixed Lighthouse CI accessibility failures — label semantics, h1 heading, touch target sizes
 - 2026-03-18: Seeded Experiences collection in Firestore — 3 experiences from Flutter archive (fixes empty ExperienceSection from story 2.3)
+- 2026-03-18: Code review passed — applied 4 patches (i18n translation, lazy loading, tech section guard, E2E assertions)
 
 ### File List
 
-- `src/lib/i18n/translations.ts` (modified — added projects.* keys incl. projects.heading)
+- `src/lib/i18n/translations.ts` (modified — added projects.* keys incl. projects.heading; fixed filter.label ES translation)
 - `src/pages/projects/index.astro` (new — ES projects listing page)
 - `src/pages/en/projects/index.astro` (new — EN projects listing page)
 - `src/components/projects/ProjectFilter.svelte` (new — Svelte 5 interactive filter island)
 - `src/components/projects/.gitkeep` (deleted)
-- `tests/e2e/projects-page.spec.ts` (new — 6 E2E tests)
+- `tests/e2e/projects-page.spec.ts` (new — 6 E2E tests; hardened filter assertions)
 - `src/lib/scripts/seed-experiences.ts` (new — seed script for Experiences collection)
 - `package.json` (modified — added seed:experiences script)
