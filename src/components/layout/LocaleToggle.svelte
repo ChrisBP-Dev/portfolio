@@ -18,7 +18,7 @@
       return `/es${currentPath === '/' ? '/' : currentPath}`;
     }
     // Currently on ES (/es/ prefix) → go to EN (remove /es prefix)
-    const withoutPrefix = currentPath.replace(/^\/es\/?/, '/');
+    const withoutPrefix = currentPath.replace(/^\/es(\/|$)/, '$1');
     return withoutPrefix || '/';
   }
 

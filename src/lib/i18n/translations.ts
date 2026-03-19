@@ -118,7 +118,11 @@ const translations: Record<string, Record<Locale, string>> = {
   'contact.validation.messageRequired': { es: 'Mensaje es obligatorio', en: 'Message is required' },
   'contact.validation.channelRequired': { es: 'Selecciona un canal', en: 'Select a channel' },
   'contact.validation.nameMin': { es: 'El nombre debe tener al menos 2 caracteres', en: 'Name must be at least 2 characters' },
+  'contact.validation.nameMax': { es: 'El nombre no puede superar los 100 caracteres', en: 'Name cannot exceed 100 characters' },
   'contact.validation.messageMin': { es: 'El mensaje debe tener al menos 10 caracteres', en: 'Message must be at least 10 characters' },
+  'contact.validation.messageMax': { es: 'El mensaje no puede superar los 2000 caracteres', en: 'Message cannot exceed 2000 characters' },
+  'contact.form.popupBlocked': { es: 'Tu navegador bloque\u00f3 la ventana emergente. Haz clic abajo para abrir manualmente.', en: 'Your browser blocked the popup. Click below to open manually.' },
+  'contact.form.openManually': { es: 'Abrir WhatsApp', en: 'Open WhatsApp' },
   'contact.meta.title': { es: 'Contacto — ChrisBP', en: 'Contact — ChrisBP' },
   'contact.meta.description': {
     es: 'Ponte en contacto conmigo por WhatsApp o Email.',

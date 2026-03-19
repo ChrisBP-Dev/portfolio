@@ -13,33 +13,36 @@
   let message = $state('');
   let channel = $state('');
   let errors = $state<Record<string, string>>({});
+  let fallbackUrl = $state('');
 
   const countries = [
-    { code: '+34', flag: '\u{1F1EA}\u{1F1F8}', name: 'España' },
-    { code: '+1', flag: '\u{1F1FA}\u{1F1F8}', name: 'United States' },
-    { code: '+52', flag: '\u{1F1F2}\u{1F1FD}', name: 'México' },
-    { code: '+57', flag: '\u{1F1E8}\u{1F1F4}', name: 'Colombia' },
-    { code: '+51', flag: '\u{1F1F5}\u{1F1EA}', name: 'Perú' },
-    { code: '+56', flag: '\u{1F1E8}\u{1F1F1}', name: 'Chile' },
-    { code: '+54', flag: '\u{1F1E6}\u{1F1F7}', name: 'Argentina' },
-    { code: '+44', flag: '\u{1F1EC}\u{1F1E7}', name: 'United Kingdom' },
-    { code: '+49', flag: '\u{1F1E9}\u{1F1EA}', name: 'Deutschland' },
-    { code: '+33', flag: '\u{1F1EB}\u{1F1F7}', name: 'France' },
+    { iso: 'US', code: '+1', flag: '\u{1F1FA}\u{1F1F8}', name: 'United States' },
+    { iso: 'ES', code: '+34', flag: '\u{1F1EA}\u{1F1F8}', name: 'Espa\u00f1a' },
+    { iso: 'MX', code: '+52', flag: '\u{1F1F2}\u{1F1FD}', name: 'M\u00e9xico' },
+    { iso: 'CO', code: '+57', flag: '\u{1F1E8}\u{1F1F4}', name: 'Colombia' },
+    { iso: 'PE', code: '+51', flag: '\u{1F1F5}\u{1F1EA}', name: 'Per\u00fa' },
+    { iso: 'CL', code: '+56', flag: '\u{1F1E8}\u{1F1F1}', name: 'Chile' },
+    { iso: 'AR', code: '+54', flag: '\u{1F1E6}\u{1F1F7}', name: 'Argentina' },
+    { iso: 'GB', code: '+44', flag: '\u{1F1EC}\u{1F1E7}', name: 'United Kingdom' },
+    { iso: 'DE', code: '+49', flag: '\u{1F1E9}\u{1F1EA}', name: 'Deutschland' },
+    { iso: 'FR', code: '+33', flag: '\u{1F1EB}\u{1F1F7}', name: 'France' },
   ];
 
   function validateField(field: string, value: string): string | undefined {
     if (field === 'name') {
       if (!value.trim()) return t('contact.validation.nameRequired', locale);
       if (value.trim().length < 2) return t('contact.validation.nameMin', locale);
+      if (value.trim().length > 100) return t('contact.validation.nameMax', locale);
     }
     if (field === 'email') {
       if (!value.trim()) return t('contact.validation.emailRequired', locale);
-      const emailResult = z.string().email().safeParse(value);
+      const emailResult = z.string().email().safeParse(value.trim());
       if (!emailResult.success) return t('contact.validation.emailInvalid', locale);
     }
     if (field === 'message') {
       if (!value.trim()) return t('contact.validation.messageRequired', locale);
       if (value.trim().length < 10) return t('contact.validation.messageMin', locale);
+      if (value.trim().length > 2000) return t('contact.validation.messageMax', locale);
     }
     if (field === 'channel') {
       if (!value) return t('contact.validation.channelRequired', locale);
@@ -58,25 +61,29 @@
     }
   }
 
-  function buildWhatsAppUrl(ph: string, cc: string, n: string, em: string, msg: string): string {
-    const fullPhone = `${cc}${ph}`.replace(/[\s\-()]/g, '');
+  function buildWhatsAppUrl(n: string, em: string, ph: string, msg: string): string {
+    const whatsappNumber = (import.meta.env.PUBLIC_WHATSAPP_NUMBER ?? '').replace(/[\s\-+()]/g, '');
+    const phoneInfo = ph ? `\n${locale === 'es' ? 'Tel\u00e9fono' : 'Phone'}: ${ph}` : '';
     const text = locale === 'es'
-      ? `Hola, soy ${n} (${em}). ${msg}`
-      : `Hi, I'm ${n} (${em}). ${msg}`;
-    return `https://wa.me/${fullPhone}?text=${encodeURIComponent(text)}`;
+      ? `Hola, soy ${n} (${em}).${phoneInfo}\n\n${msg}`
+      : `Hi, I'm ${n} (${em}).${phoneInfo}\n\n${msg}`;
+    return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
   }
 
   function buildMailtoUrl(n: string, em: string, ph: string, msg: string): string {
-    const to = import.meta.env.PUBLIC_CONTACT_EMAIL;
+    const to = import.meta.env.PUBLIC_CONTACT_EMAIL ?? '';
     const subject = locale === 'es'
       ? `Nuevo mensaje de ${n}`
       : `New message from ${n}`;
-    const phoneLabel = locale === 'es' ? 'Teléfono' : 'Phone';
-    const body = `${locale === 'es' ? 'De' : 'From'}: ${n}\nEmail: ${em}\n${phoneLabel}: ${ph}\n\n${msg}`;
+    const phoneLabel = locale === 'es' ? 'Tel\u00e9fono' : 'Phone';
+    const phoneInfo = ph ? `\n${phoneLabel}: ${ph}` : '';
+    const body = `${locale === 'es' ? 'De' : 'From'}: ${n}\nEmail: ${em}${phoneInfo}\n\n${msg}`;
     return `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   }
 
   function handleSubmit() {
+    fallbackUrl = '';
+
     // Validate all fields
     const newErrors: Record<string, string> = {};
     const nameErr = validateField('name', name);
@@ -92,13 +99,20 @@
 
     if (Object.keys(errors).length > 0) return;
 
-    const fullPhone = phone ? `${countryCode}${phone}` : '';
+    // Trim values for URL construction
+    const trimName = name.trim();
+    const trimEmail = email.trim();
+    const trimPhone = phone.trim() ? `${countryCode}${phone.trim()}`.replace(/[\s\-()]/g, '') : '';
+    const trimMessage = message.trim();
 
     if (channel === 'whatsapp') {
-      const url = buildWhatsAppUrl(phone, countryCode, name, email, message);
-      window.open(url, '_blank', 'noopener,noreferrer');
+      const url = buildWhatsAppUrl(trimName, trimEmail, trimPhone, trimMessage);
+      const opened = window.open(url, '_blank', 'noopener,noreferrer');
+      if (!opened) {
+        fallbackUrl = url;
+      }
     } else if (channel === 'email') {
-      const url = buildMailtoUrl(name, email, fullPhone, message);
+      const url = buildMailtoUrl(trimName, trimEmail, trimPhone, trimMessage);
       window.location.href = url;
     }
   }
@@ -120,6 +134,7 @@
       bind:value={name}
       onblur={() => handleBlur('name', name)}
       placeholder={t('contact.form.namePlaceholder', locale)}
+      maxlength={100}
       aria-required="true"
       aria-invalid={errors.name ? 'true' : undefined}
       aria-describedby={errors.name ? 'input-name-error' : undefined}
@@ -163,8 +178,8 @@
         aria-label={t('contact.form.countryCode', locale)}
         class="bg-surface border border-border rounded-lg px-2 py-3 text-body text-text-primary focus:outline-2 focus:outline-offset-2 focus:outline-primary focus:border-primary min-h-11 min-w-11"
       >
-        {#each countries as country (country.code)}
-          <option value={country.code}>{country.flag} {country.code}</option>
+        {#each countries as country (country.iso)}
+          <option value={country.code}>{country.flag} {country.name}</option>
         {/each}
       </select>
       <input
@@ -188,6 +203,7 @@
       onblur={() => handleBlur('message', message)}
       placeholder={t('contact.form.messagePlaceholder', locale)}
       rows="4"
+      maxlength={2000}
       aria-required="true"
       aria-invalid={errors.message ? 'true' : undefined}
       aria-describedby={errors.message ? 'input-message-error' : undefined}
@@ -220,6 +236,21 @@
       <p id="input-channel-error" class="text-body-sm text-error mt-1" role="alert">{errors.channel}</p>
     {/if}
   </div>
+
+  <!-- Popup blocked fallback -->
+  {#if fallbackUrl}
+    <div role="alert" class="bg-surface border border-primary rounded-lg p-4 text-body-sm">
+      <p class="text-text-secondary mb-2">{t('contact.form.popupBlocked', locale)}</p>
+      <a
+        href={fallbackUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-primary font-semibold underline hover:brightness-110"
+      >
+        {t('contact.form.openManually', locale)}
+      </a>
+    </div>
+  {/if}
 
   <!-- Submit button -->
   <button

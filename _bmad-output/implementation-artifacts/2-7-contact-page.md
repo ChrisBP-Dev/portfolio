@@ -1,6 +1,6 @@
 # Story 2.7: Contact Page
 
-Status: review
+Status: done
 
 ## Story
 
@@ -387,6 +387,33 @@ Claude Opus 4.6 (1M context)
 - Todos los E2E tests (5 archivos) y unit tests (2 archivos) actualizados para reflejar las nuevas URLs
 - Pipeline completa: 0 lint, 0 type errors, 303 unit tests, 54 E2E tests (0 regressions)
 
+#### Post-implementation: Code Review Patches (2026-03-19)
+
+Adversarial code review con 3 capas paralelas (Blind Hunter, Edge Case Hunter, Acceptance Auditor).
+22 hallazgos brutos → triaged a 1 bad_spec, 9 patch, 5 defer, 7 rejected.
+
+**Patches aplicados:**
+- **F1 (bad_spec → patched):** WhatsApp wa.me ahora usa `PUBLIC_WHATSAPP_NUMBER` (número de Christopher) como destinatario, NO el teléfono del visitante. Teléfono del visitante incluido en body del mensaje.
+- **F5:** Fallback `?? ''` para `PUBLIC_CONTACT_EMAIL` y `PUBLIC_WHATSAPP_NUMBER` — evita `mailto:undefined` y `wa.me/undefined`.
+- **F7:** Regex de LocaleToggle corregida de `/^\/es\/?/` a `/^\/es(\/|$)/` — evita over-matching de paths como `/essential`. Mismo fix aplicado en BaseLayout.astro.
+- **F8:** Valores del formulario (name, email, phone, message) se trimmean antes de construir URLs.
+- **F9:** Detección de popup blocker — si `window.open()` retorna null, muestra fallback con enlace directo a WhatsApp.
+- **F10+F14:** Country picker muestra flag+nombre (BDD Scenario 7) y usa ISO code como key de `{#each}` (evita colisión de dial codes compartidos).
+- **F15:** `maxlength` HTML en name (100) y message (2000) + validación soft con mensajes i18n.
+- Nuevas translation keys: `nameMax`, `messageMax`, `popupBlocked`, `openManually`.
+- Nueva env var: `PUBLIC_WHATSAPP_NUMBER` en `.env`, `.env.example`, `src/env.d.ts`.
+
+**Deferred (para story futura o tech debt):**
+- **F11:** URLs antiguas `/en/*` rotas tras locale flip — requiere redirects a nivel de hosting o Astro config.
+- **F12:** Trailing slash inconsistency en navegación para `/es` home — Astro lo maneja correctamente en la práctica.
+- **F13:** `novalidate` sin fallback si hydration falla — riesgo bajo con `client:load`.
+- **F14b:** Country code `+1` compartido por múltiples países — solo riesgo si se agregan más países con `+1`.
+
+**ACCIÓN REQUERIDA:** Christopher debe configurar su número real de WhatsApp en `.env`:
+`PUBLIC_WHATSAPP_NUMBER=+34XXXXXXXXX` (formato E.164 con código de país)
+
+Pipeline completa: 0 lint, 0 type errors, 311 unit tests, 54 E2E tests (0 regressions)
+
 ### File List
 
 **Story 2.7 — Contact Page:**
@@ -398,6 +425,15 @@ Claude Opus 4.6 (1M context)
 - `.env` (modified) — Added PUBLIC_CONTACT_EMAIL value
 - `.env.example` (modified) — Added PUBLIC_CONTACT_EMAIL placeholder
 - `tests/e2e/contact-page.spec.ts` (new) — 12 E2E tests for contact page
+
+**Code review patches:**
+- `src/components/contact/ContactForm.svelte` (modified) — F1,F5,F8,F9,F10,F14,F15
+- `src/components/layout/LocaleToggle.svelte` (modified) — F7 regex fix
+- `src/layouts/BaseLayout.astro` (modified) — F7 regex consistency
+- `src/lib/i18n/translations.ts` (modified) — 4 new keys (nameMax, messageMax, popupBlocked, openManually)
+- `src/env.d.ts` (modified) — Added PUBLIC_WHATSAPP_NUMBER type
+- `.env` (modified) — Added PUBLIC_WHATSAPP_NUMBER placeholder
+- `.env.example` (modified) — Added PUBLIC_WHATSAPP_NUMBER placeholder
 
 **Default locale flip (EN as default):**
 - `astro.config.mjs` (modified) — defaultLocale: 'es' → 'en'
