@@ -1,0 +1,41 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Section from '../../../components/common/Section.astro';
+import Container from '../../../components/common/Container.astro';
+import ProjectFilter from '../../../components/projects/ProjectFilter.svelte';
+import { adminDb } from '../../../lib/firebase/admin';
+import { getAllProjects, getAllTechnologies } from '../../../lib/firebase/collections';
+import { getLocaleFromUrl } from '../../../lib/i18n/config';
+import { t } from '../../../lib/i18n/translations';
+
+const locale = getLocaleFromUrl(Astro.url);
+const projects = await getAllProjects(adminDb);
+const technologies = await getAllTechnologies(adminDb);
+---
+
+<BaseLayout
+  title={t('projects.meta.title', locale)}
+  description={t('projects.meta.description', locale)}
+  currentPage="projects"
+>
+  <Section variant="default">
+    <Container variant="default">
+      <p class="text-body text-text-secondary mb-8">
+        {t('projects.intro', locale)}
+      </p>
+      <ProjectFilter
+        client:load
+        projects={projects}
+        technologies={technologies}
+        locale={locale}
+        filterLabel={t('projects.filter.label', locale)}
+        allProjectsLabel={t('projects.filter.all', locale)}
+        technologiesLabel={t('projects.technologies', locale)}
+        websiteLabel={t('projects.website', locale)}
+        sourceCodeLabel={t('projects.sourceCode', locale)}
+        screenshotsLabel={t('projects.screenshots', locale)}
+        noResultsLabel={t('projects.noResults', locale)}
+      />
+    </Container>
+  </Section>
+</BaseLayout>

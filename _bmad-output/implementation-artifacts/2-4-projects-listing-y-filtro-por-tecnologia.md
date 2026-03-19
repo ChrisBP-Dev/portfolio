@@ -1,6 +1,6 @@
 # Story 2.4: Projects Listing y Filtro por Tecnología
 
-Status: ready-for-dev
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -24,8 +24,8 @@ So that I can find relevant work samples quickly.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: i18n translations for Projects page (AC: #6, #7)
-  - [ ] 1.1 Add translation keys to `src/lib/i18n/translations.ts`:
+- [x] Task 1: i18n translations for Projects page (AC: #6, #7)
+  - [x] 1.1 Add translation keys to `src/lib/i18n/translations.ts`:
     - `projects.meta.title` — "Proyectos — ChrisBP" / "Projects — ChrisBP"
     - `projects.meta.description` — "Proyectos personales y profesionales de ChrisBP" / "ChrisBP's personal and professional projects"
     - `projects.intro` — "Como desarrollador, he tenido la oportunidad de trabajar en diferentes proyectos, tanto personales como profesionales. A continuación algunos de los proyectos en los que he trabajado:" / "As a developer, I've had the opportunity to work on different projects, both personal and professional. Below are some of the projects I've worked on:"
@@ -36,11 +36,11 @@ So that I can find relevant work samples quickly.
     - `projects.sourceCode` — "Código Fuente" / "Source Code"
     - `projects.screenshots` — "Screenshots" / "Screenshots"
     - `projects.noResults` — "No se encontraron proyectos con esta tecnología" / "No projects found with this technology"
-  - [ ] 1.2 Verify existing dynamic i18n tests pass with new keys
+  - [x] 1.2 Verify existing dynamic i18n tests pass with new keys
 
-- [ ] Task 2: Create `src/pages/projects/index.astro` — Projects listing page ES (AC: #1, #4, #6)
-  - [ ] 2.1 Create directory `src/pages/projects/` and add `index.astro`
-  - [ ] 2.2 Frontmatter — imports and data fetching:
+- [x] Task 2: Create `src/pages/projects/index.astro` — Projects listing page ES (AC: #1, #4, #6)
+  - [x] 2.1 Create directory `src/pages/projects/` and add `index.astro`
+  - [x] 2.2 Frontmatter — imports and data fetching:
     ```typescript
     ---
     import BaseLayout from '../../layouts/BaseLayout.astro';
@@ -57,12 +57,12 @@ So that I can find relevant work samples quickly.
     const technologies = await getAllTechnologies(adminDb);
     ---
     ```
-  - [ ] 2.3 Page structure:
+  - [x] 2.3 Page structure:
     - `BaseLayout` with `title={t('projects.meta.title', locale)}`, `description={t('projects.meta.description', locale)}`, `currentPage="projects"`
     - `Section variant="default"` + `Container variant="default"`
     - Introductory `<p>` with `t('projects.intro', locale)`, `text-body text-text-secondary mb-8`
     - `ProjectFilter` Svelte island with `client:load` passing serialized data (see Task 3)
-  - [ ] 2.4 Pass data to ProjectFilter as JSON-serializable props:
+  - [x] 2.4 Pass data to ProjectFilter as JSON-serializable props:
     ```astro
     <ProjectFilter
       client:load
@@ -79,9 +79,9 @@ So that I can find relevant work samples quickly.
     />
     ```
 
-- [ ] Task 3: Create `src/components/projects/ProjectFilter.svelte` — Interactive filter island (AC: #1, #2, #3, #4, #5)
-  - [ ] 3.1 Create `src/components/projects/ProjectFilter.svelte` (directory already exists, no `.gitkeep` to remove)
-  - [ ] 3.2 Props interface using Svelte 5 `$props()`:
+- [x] Task 3: Create `src/components/projects/ProjectFilter.svelte` — Interactive filter island (AC: #1, #2, #3, #4, #5)
+  - [x] 3.1 Create `src/components/projects/ProjectFilter.svelte` (directory already exists, no `.gitkeep` to remove)
+  - [x] 3.2 Props interface using Svelte 5 `$props()`:
     ```svelte
     <script lang="ts">
       import type { Project } from '../../lib/schemas/project-schema';
@@ -114,7 +114,7 @@ So that I can find relevant work samples quickly.
       } = $props();
     </script>
     ```
-  - [ ] 3.3 Filter state with Svelte 5 runes:
+  - [x] 3.3 Filter state with Svelte 5 runes:
     ```svelte
     let selectedTech = $state<string>('');
 
@@ -124,14 +124,14 @@ So that I can find relevant work samples quickly.
         : projects.filter(p => p.technologies.includes(selectedTech))
     );
     ```
-  - [ ] 3.4 Filter dropdown UI — matches visual reference:
+  - [x] 3.4 Filter dropdown UI — matches visual reference:
     - `<div class="flex items-center justify-end gap-2 mb-6">`
     - `<span class="text-body-sm text-text-secondary">{filterLabel}</span>`
     - `<select>` with `bg-surface border border-border rounded-lg px-3 py-2 text-body-sm`
     - Default `<option value="">{allProjectsLabel}</option>`
     - Map technologies to `<option value={tech.id}>{tech.name}</option>`
     - Bind: `bind:value={selectedTech}`
-  - [ ] 3.5 Project cards grid:
+  - [x] 3.5 Project cards grid:
     - `<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">`
     - Each card: `<article class="bg-surface border border-border rounded-xl overflow-hidden hover:bg-surface-elevated transition-colors duration-200">` (semantic HTML + hover state established in Story 2.3)
     - Card content layout (per visual reference — expanded card with all info visible):
@@ -143,9 +143,9 @@ So that I can find relevant work samples quickly.
       - **Technology chips**: For each `techId` in `project.technologies`, resolve via `getTechByIds()`, render: `<span class="inline-flex items-center gap-1 bg-primary/10 text-primary border border-primary/30 rounded-full px-2 py-1 text-caption"><img src={tech.image.url} alt={tech.name} class="w-4 h-4" /> {tech.name}</span>` — same styling as Badge.astro technology variant
       - **Screenshots section**: `<div class="px-4 py-2"><h3 class="text-body-sm font-semibold mb-2">{screenshotsLabel}</h3>` + horizontal scroll of screenshot thumbnails
       - **Screenshot thumbnails**: `<div class="flex gap-2 overflow-x-auto px-4 pb-4">` with each screenshot as `<img src={ss.url} alt={project.companyName[locale] + ' screenshot'} loading="lazy" class="h-24 rounded-lg object-cover">`
-  - [ ] 3.6 No results state: when `filteredProjects.length === 0`, show `<p class="text-body text-text-secondary text-center py-12">{noResultsLabel}</p>`
-  - [ ] 3.7 Project card links to detail page: the project name `<h2>` is wrapped in an `<a>` element using `href={localizeHref('/projects/' + project.slug, locale)}` (uses the canonical `localizeHref` helper imported from `../../data/navigation`). Detail pages will be built in Story 2.5 — 404 is expected now.
-  - [ ] 3.8 Technology resolution helper (inside component):
+  - [x] 3.6 No results state: when `filteredProjects.length === 0`, show `<p class="text-body text-text-secondary text-center py-12">{noResultsLabel}</p>`
+  - [x] 3.7 Project card links to detail page: the project name `<h2>` is wrapped in an `<a>` element using `href={localizeHref('/projects/' + project.slug, locale)}` (uses the canonical `localizeHref` helper imported from `../../data/navigation`). Detail pages will be built in Story 2.5 — 404 is expected now.
+  - [x] 3.8 Technology resolution helper (inside component):
     ```svelte
     function getTechByIds(techIds: string[]): Technology[] {
       return techIds
@@ -154,17 +154,17 @@ So that I can find relevant work samples quickly.
     }
     ```
 
-- [ ] Task 4: Create `src/pages/en/projects/index.astro` — Projects listing page EN (AC: #7)
-  - [ ] 4.1 Create directory `src/pages/en/projects/` and add `index.astro`
-  - [ ] 4.2 Same structure as ES version but import paths use `../../../` (three levels up from `src/pages/en/projects/`)
-  - [ ] 4.3 Verify `getLocaleFromUrl(Astro.url)` correctly returns `'en'` for this path
+- [x] Task 4: Create `src/pages/en/projects/index.astro` — Projects listing page EN (AC: #7)
+  - [x] 4.1 Create directory `src/pages/en/projects/` and add `index.astro`
+  - [x] 4.2 Same structure as ES version but import paths use `../../../` (three levels up from `src/pages/en/projects/`)
+  - [x] 4.3 Verify `getLocaleFromUrl(Astro.url)` correctly returns `'en'` for this path
 
-- [ ] Task 5: Unit tests (AC: all)
-  - [ ] 5.1 Verify all new i18n keys exist for both locales (existing dynamic test handles this)
-  - [ ] 5.2 Verify CI pipeline passes: `pnpm lint && pnpm type-check && pnpm test && pnpm build`
+- [x] Task 5: Unit tests (AC: all)
+  - [x] 5.1 Verify all new i18n keys exist for both locales (existing dynamic test handles this)
+  - [x] 5.2 Verify CI pipeline passes: `pnpm lint && pnpm type-check && pnpm test && pnpm build`
 
-- [ ] Task 6: E2E tests (AC: #1, #2, #3, #6, #7)
-  - [ ] 6.1 Create `tests/e2e/projects-page.spec.ts` (new file — this is a new page, not extending home-page tests):
+- [x] Task 6: E2E tests (AC: #1, #2, #3, #6, #7)
+  - [x] 6.1 Create `tests/e2e/projects-page.spec.ts` (new file — this is a new page, not extending home-page tests):
     ```typescript
     test.describe('Projects Page — ES', () => {
       test('page loads with intro text, filter dropdown, and project cards', ...);
@@ -178,8 +178,8 @@ So that I can find relevant work samples quickly.
       test('filter works correctly in English locale', ...);
     });
     ```
-  - [ ] 6.2 Test filter interaction: select a technology → verify card count changes → select "All" → verify all cards return
-  - [ ] 6.3 Verify project cards contain expected elements (name heading, description text, technology badges)
+  - [x] 6.2 Test filter interaction: select a technology → verify card count changes → select "All" → verify all cards return
+  - [x] 6.3 Verify project cards contain expected elements (name heading, description text, technology badges)
 
 ## Dev Notes
 
@@ -398,10 +398,31 @@ Pattern: semantic prefixes (`feat:`, `fix:`, `docs:`). Use `feat: implement stor
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.6 (1M context)
 
 ### Debug Log References
 
+- Lint fix: Added `(key)` expressions to all `{#each}` blocks in ProjectFilter.svelte (svelte/require-each-key rule)
+- E2E fix: Scoped `select` locator to `main select` to avoid conflict with Astro dev toolbar select element
+
 ### Completion Notes List
 
+- Task 1: Added 10 new i18n keys under `projects.*` namespace for both ES/EN locales. All 89 translation tests pass.
+- Task 2: Created `src/pages/projects/index.astro` with BaseLayout, Section, Container, intro text, and ProjectFilter Svelte island with `client:load`.
+- Task 3: Created `ProjectFilter.svelte` as Svelte 5 island using `$state`, `$derived`, `$props` runes. Includes filter dropdown, 2-col grid of expanded project cards with name, description, website/source links, technology chips (resolved from IDs), and screenshot thumbnails. No-results state implemented.
+- Task 4: Created `src/pages/en/projects/index.astro` with `../../../` import paths. `getLocaleFromUrl` correctly returns `'en'` (verified via E2E test).
+- Task 5: All 239 unit tests pass. Full CI pipeline passes: lint, type-check, test, build.
+- Task 6: Created 6 E2E tests (4 ES, 2 EN) covering: page load with intro/filter/cards, filter default state, filter interaction (select tech → count changes → reset), card content verification, EN locale.
+
+### Change Log
+
+- 2026-03-18: Implemented story 2.4 — Projects Listing y Filtro por Tecnología (all 6 tasks complete)
+
 ### File List
+
+- `src/lib/i18n/translations.ts` (modified — added projects.* keys)
+- `src/pages/projects/index.astro` (new — ES projects listing page)
+- `src/pages/en/projects/index.astro` (new — EN projects listing page)
+- `src/components/projects/ProjectFilter.svelte` (new — Svelte 5 interactive filter island)
+- `src/components/projects/.gitkeep` (deleted)
+- `tests/e2e/projects-page.spec.ts` (new — 6 E2E tests)

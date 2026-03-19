@@ -54,6 +54,27 @@ const translations: Record<string, Record<Locale, string>> = {
     en: "ChrisBP's Portfolio — Mobile app developer, web developer, and educational tech content creator.",
   },
 
+  // Projects page
+  'projects.meta.title': { es: 'Proyectos — ChrisBP', en: 'Projects — ChrisBP' },
+  'projects.meta.description': {
+    es: 'Proyectos personales y profesionales de ChrisBP',
+    en: "ChrisBP's personal and professional projects",
+  },
+  'projects.intro': {
+    es: 'Como desarrollador, he tenido la oportunidad de trabajar en diferentes proyectos, tanto personales como profesionales. A continuación algunos de los proyectos en los que he trabajado:',
+    en: "As a developer, I've had the opportunity to work on different projects, both personal and professional. Below are some of the projects I've worked on:",
+  },
+  'projects.filter.label': { es: 'Filter by:', en: 'Filter by:' },
+  'projects.filter.all': { es: 'Todos los Proyectos', en: 'All Projects' },
+  'projects.technologies': { es: 'Tecnologías', en: 'Technologies' },
+  'projects.website': { es: 'Website', en: 'Website' },
+  'projects.sourceCode': { es: 'Código Fuente', en: 'Source Code' },
+  'projects.screenshots': { es: 'Screenshots', en: 'Screenshots' },
+  'projects.noResults': {
+    es: 'No se encontraron proyectos con esta tecnología',
+    en: 'No projects found with this technology',
+  },
+
   // Social aria
   'social.tiktok': { es: 'Visitar perfil de TikTok', en: 'Visit TikTok profile' },
   'social.github': { es: 'Visitar perfil de GitHub', en: 'Visit GitHub profile' },
