@@ -42,6 +42,7 @@ So that I can deeply evaluate Christopher's work quality.
     import { getAllProjects, getAllTechnologies } from '../../lib/firebase/collections';
     import { getLocaleFromUrl } from '../../lib/i18n/config';
     import { t } from '../../lib/i18n/translations';
+    import { localizeHref } from '../../data/navigation';
     import type { Technology } from '../../lib/schemas/technology-schema';
 
     export async function getStaticPaths() {
@@ -56,9 +57,10 @@ So that I can deeply evaluate Christopher's work quality.
     const locale = getLocaleFromUrl(Astro.url);
     const allTechnologies = await getAllTechnologies(adminDb);
 
+    const techMap = new Map(allTechnologies.map((t) => [t.id, t]));
     function getTechByIds(techIds: string[]): Technology[] {
       return techIds
-        .map((id) => allTechnologies.find((t) => t.id === id))
+        .map((id) => techMap.get(id))
         .filter((t): t is Technology => t !== undefined);
     }
 
@@ -67,9 +69,9 @@ So that I can deeply evaluate Christopher's work quality.
     ```
   - [ ] 2.2 Page layout structure — use `Container variant="default"` (1200px max):
     - `BaseLayout` with `title={project.companyName[locale] + ' — ChrisBP'}`, `description={project.shortDescription[locale]}`, `currentPage="projects"`
-    - Back link at top: `<a>` with `t('projects.detail.backToProjects', locale)`, links to `/projects`
+    - Back link at top: `<a>` with `t('projects.detail.backToProjects', locale)`, links to `localizeHref('/projects', locale)`
     - `<h1>` with project name `{project.companyName[locale]}`
-    - Main image: `<img src={project.mainImage.url} alt={project.companyName[locale]} class="w-full rounded-xl object-cover max-h-96" />`
+    - Main image: `<img src={project.mainImage.url} alt={project.companyName[locale]} class="w-full rounded-xl object-cover max-h-96 aspect-video" />`
     - Description: `<p>{project.shortDescription[locale]}</p>`
     - Features list: `<ul>` iterating `project.features[locale]` as `<li>` items
     - Technologies section: heading + Badge.astro chips with tech icon + name
@@ -85,7 +87,7 @@ So that I can deeply evaluate Christopher's work quality.
       <Section variant="default">
         <Container variant="default">
           <!-- Back link -->
-          <a href={`/projects`} class="inline-flex items-center text-primary hover:underline text-body-sm mb-6">
+          <a href={localizeHref('/projects', locale)} class="inline-flex items-center text-primary hover:underline text-body-sm mb-6">
             {t('projects.detail.backToProjects', locale)}
           </a>
 
@@ -96,7 +98,7 @@ So that I can deeply evaluate Christopher's work quality.
           <img
             src={project.mainImage.url}
             alt={project.companyName[locale]}
-            class="w-full rounded-xl object-cover max-h-96 mb-8"
+            class="w-full rounded-xl object-cover max-h-96 aspect-video mb-8"
           />
 
           <!-- Description -->
@@ -144,8 +146,9 @@ So that I can deeply evaluate Christopher's work quality.
                   href={String(project.websiteUrl)}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label={`${t('projects.website', locale)} (${locale === 'es' ? 'abre en nueva pestaña' : 'opens in new tab'})`}
                 >
-                  {t('projects.website', locale)}
+                  {t('projects.website', locale)} ↗
                 </Button>
               )}
               {project.sourceCodeUrl && (
@@ -154,8 +157,9 @@ So that I can deeply evaluate Christopher's work quality.
                   href={String(project.sourceCodeUrl)}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label={`${t('projects.sourceCode', locale)} (${locale === 'es' ? 'abre en nueva pestaña' : 'opens in new tab'})`}
                 >
-                  {t('projects.sourceCode', locale)}
+                  {t('projects.sourceCode', locale)} ↗
                 </Button>
               )}
             </div>
@@ -172,12 +176,14 @@ So that I can deeply evaluate Christopher's work quality.
                   <button
                     type="button"
                     data-screenshot-index={index}
+                    aria-label={`${project.companyName[locale]} screenshot ${index + 1}`}
                     class="cursor-pointer rounded-lg overflow-hidden border border-border hover:border-primary transition-colors duration-200 focus:outline-2 focus:outline-primary focus:outline-offset-2"
                   >
                     <img
                       src={ss.url}
                       alt={`${project.companyName[locale]} screenshot ${index + 1}`}
                       loading="lazy"
+                      decoding="async"
                       class="w-full h-auto object-cover"
                     />
                   </button>
@@ -193,7 +199,7 @@ So that I can deeply evaluate Christopher's work quality.
 - [ ] Task 3: Create `src/pages/en/projects/[slug].astro` — Project detail page EN (AC: #4, #5)
   - [ ] 3.1 Create directory `src/pages/en/projects/` (already exists) and add `[slug].astro`
   - [ ] 3.2 Same structure as ES version but import paths use `../../../` (three levels up)
-  - [ ] 3.3 Back link href must point to `/en/projects` (not `/projects`)
+  - [ ] 3.3 Back link uses `localizeHref('/projects', locale)` — returns `/en/projects` automatically for EN locale. Import `localizeHref` from `../../../data/navigation`
   - [ ] 3.4 Verify `getLocaleFromUrl(Astro.url)` correctly returns `'en'` for this path
 
 - [ ] Task 4: Verify pipeline (AC: all)
@@ -208,9 +214,10 @@ So that I can deeply evaluate Christopher's work quality.
       test('page loads with project name, description, and main image', ...);
       test('displays features list when project has features', ...);
       test('displays technology chips with icons', ...);
-      test('displays external links when present', ...);
-      test('displays screenshot gallery', ...);
+      test('displays external links with target=_blank when present', ...);
+      test('displays screenshot gallery with data attributes', ...);
       test('back link navigates to projects listing', ...);
+      test('page title includes project name and ChrisBP', ...);
     });
 
     test.describe('Project Detail Page — EN', () => {
@@ -218,10 +225,13 @@ So that I can deeply evaluate Christopher's work quality.
       test('back link navigates to /en/projects', ...);
     });
     ```
-  - [ ] 5.2 Navigate to a known project slug (use first project from listing page or hardcode a slug from Firestore data)
-  - [ ] 5.3 Verify h1 exists with project name, main image exists, description text exists
+  - [ ] 5.2 Slug discovery strategy: navigate to `/projects`, locate the first project card link via `page.locator('main a[href*="/projects/"]').first()`, extract its `href`, then `page.goto(href)` to the detail page. This avoids hardcoding slugs that may change. Same pattern for EN: navigate `/en/projects`, find first card link
+  - [ ] 5.3 Verify h1 exists with project name, main image exists (no `loading="lazy"` on main image), description text exists
   - [ ] 5.4 Verify technologies section renders with Badge-style chips
-  - [ ] 5.5 Verify back link navigates correctly
+  - [ ] 5.5 Verify back link navigates correctly (check final URL matches `/projects` for ES, `/en/projects` for EN)
+  - [ ] 5.6 Verify external links have `target="_blank"` and `rel="noopener noreferrer"` attributes
+  - [ ] 5.7 Verify page title: `await expect(page).toHaveTitle(/.*— ChrisBP/)`
+  - [ ] 5.8 Verify screenshot gallery wrapper has `id="screenshot-gallery"` and buttons have `data-screenshot-index` attributes
 
 ## Dev Notes
 
@@ -252,6 +262,7 @@ Astro calls `getStaticPaths()` at build time and generates one HTML page per slu
 Story 2.6 (ImageViewer) is listed as a dependency but is NOT implemented yet. **Do not block this story.** Instead:
 - Render screenshots in a grid of `<button>` elements (not `<a>`)
 - Add `data-screenshot-index={index}` attributes to each button
+- Add `aria-label` to each button with descriptive text (e.g., `"ProjectName screenshot 1"`) for accessibility
 - Wrap the grid in a `<div id="screenshot-gallery">`
 - Story 2.6 will add the Svelte ImageViewer island that hooks into these elements
 - The buttons will be non-functional clicks until Story 2.6 — this is acceptable
@@ -327,11 +338,7 @@ Only add new keys for:
 
 ### Back Link Localization
 
-The back link must point to the correct locale prefix:
-- ES page: `href="/projects"`
-- EN page: `href="/en/projects"`
-
-Use `localizeHref('/projects', locale)` from `../../data/navigation` OR simply hardcode `/projects` in the ES page and `/en/projects` in the EN page (simpler since these are separate files).
+The back link must point to the correct locale prefix. Use `localizeHref('/projects', locale)` from `../../data/navigation` — it returns `/projects` for ES and `/en/projects` for EN automatically. This is the same pattern used in `ProjectsSection.astro` and other pages for consistency.
 
 ### Responsive Layout
 
@@ -346,8 +353,15 @@ The main content uses `Container variant="default"` (max 1200px). No sidebar nee
 
 - **DO NOT use Astro `<Image />`** — only works with local assets in `src/assets/`
 - Use plain `<img>` with `loading="lazy"` for Firebase Storage URLs
-- Main image: eager loading (above the fold), no `loading="lazy"`
-- Screenshots: `loading="lazy"` (below the fold)
+- Main image: eager loading (above the fold), no `loading="lazy"`. Add `aspect-video` class to prevent CLS (Cumulative Layout Shift)
+- Screenshots: `loading="lazy"` and `decoding="async"` (below the fold)
+
+### Accessibility — External Links (Lighthouse a11y)
+
+Story 2.4 had Lighthouse accessibility score drop to 0.86. To prevent similar issues:
+- External links with `target="_blank"` must include `aria-label` indicating they open in a new tab (WCAG G200)
+- Add visual indicator `↗` to external link button text
+- Screenshot buttons need `aria-label` with descriptive text since they wrap images
 
 ### Project Structure Notes
 
@@ -381,6 +395,8 @@ src/lib/i18n/translations.ts                 # Add projects.detail.* keys
 5. **DO NOT block on ImageViewer** — render screenshots as clickable buttons with data attributes for Story 2.6 to hook into
 6. **DO NOT use `project.technologies` as display names** — they are IDs, resolve to Technology objects
 7. **DO NOT add `loading="lazy"` to the main image** — it's above the fold
+8. **DO NOT omit `aria-label` on external links with `target="_blank"`** — required for Lighthouse accessibility (WCAG G200). Story 2.4 suffered a11y regression from missing labels
+9. **DO NOT omit `aspect-video` on the main image** — prevents CLS layout shift that penalizes Lighthouse Performance
 
 ### Previous Story Intelligence
 
