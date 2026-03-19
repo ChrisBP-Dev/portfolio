@@ -404,25 +404,33 @@ Claude Opus 4.6 (1M context)
 
 - Lint fix: Added `(key)` expressions to all `{#each}` blocks in ProjectFilter.svelte (svelte/require-each-key rule)
 - E2E fix: Scoped `select` locator to `main select` to avoid conflict with Astro dev toolbar select element
+- Lighthouse CI fix #1: Changed `<span>` to `<label for="tech-filter">` for select, added sr-only `<h1>` to project pages, moved `<a>` inside `<h2>` for proper heading semantics (score 0.86 → 0.90)
+- Lighthouse CI fix #2: Added `py-2` to website/source code links for touch target size compliance (score 0.90 → 0.95+)
+- Experience data gap: Discovered `Experiences` Firestore collection was empty — data was hardcoded in Flutter's `experiences.dart` and never stored in Firestore. Created seed script to populate the 3 original experiences.
 
 ### Completion Notes List
 
-- Task 1: Added 10 new i18n keys under `projects.*` namespace for both ES/EN locales. All 89 translation tests pass.
-- Task 2: Created `src/pages/projects/index.astro` with BaseLayout, Section, Container, intro text, and ProjectFilter Svelte island with `client:load`.
-- Task 3: Created `ProjectFilter.svelte` as Svelte 5 island using `$state`, `$derived`, `$props` runes. Includes filter dropdown, 2-col grid of expanded project cards with name, description, website/source links, technology chips (resolved from IDs), and screenshot thumbnails. No-results state implemented.
+- Task 1: Added 11 i18n keys under `projects.*` namespace (incl. `projects.heading`) for both ES/EN locales. All 241 translation tests pass.
+- Task 2: Created `src/pages/projects/index.astro` with BaseLayout, Section, Container, sr-only h1, intro text, and ProjectFilter Svelte island with `client:load`.
+- Task 3: Created `ProjectFilter.svelte` as Svelte 5 island using `$state`, `$derived`, `$props` runes. Includes filter dropdown with proper `<label>`, 2-col grid of expanded project cards with name, description, website/source links (with accessible touch targets), technology chips (resolved from IDs), and screenshot thumbnails. No-results state implemented.
 - Task 4: Created `src/pages/en/projects/index.astro` with `../../../` import paths. `getLocaleFromUrl` correctly returns `'en'` (verified via E2E test).
-- Task 5: All 239 unit tests pass. Full CI pipeline passes: lint, type-check, test, build.
+- Task 5: All 241 unit tests pass. Full CI pipeline passes: lint, type-check, test, build, Lighthouse CI.
 - Task 6: Created 6 E2E tests (4 ES, 2 EN) covering: page load with intro/filter/cards, filter default state, filter interaction (select tech → count changes → reset), card content verification, EN locale.
+- Extra: Created `seed-experiences.ts` script and seeded 3 experiences (GuardOwl, QETO, LA CABANITA) to Firestore. These were hardcoded in the Flutter app and never migrated because they didn't exist in Firestore. ExperienceSection on home page now renders correctly.
 
 ### Change Log
 
 - 2026-03-18: Implemented story 2.4 — Projects Listing y Filtro por Tecnología (all 6 tasks complete)
+- 2026-03-18: Fixed Lighthouse CI accessibility failures — label semantics, h1 heading, touch target sizes
+- 2026-03-18: Seeded Experiences collection in Firestore — 3 experiences from Flutter archive (fixes empty ExperienceSection from story 2.3)
 
 ### File List
 
-- `src/lib/i18n/translations.ts` (modified — added projects.* keys)
+- `src/lib/i18n/translations.ts` (modified — added projects.* keys incl. projects.heading)
 - `src/pages/projects/index.astro` (new — ES projects listing page)
 - `src/pages/en/projects/index.astro` (new — EN projects listing page)
 - `src/components/projects/ProjectFilter.svelte` (new — Svelte 5 interactive filter island)
 - `src/components/projects/.gitkeep` (deleted)
 - `tests/e2e/projects-page.spec.ts` (new — 6 E2E tests)
+- `src/lib/scripts/seed-experiences.ts` (new — seed script for Experiences collection)
+- `package.json` (modified — added seed:experiences script)
