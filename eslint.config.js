@@ -17,8 +17,11 @@ export default [
         document: 'readonly',
         HTMLElement: 'readonly',
         HTMLButtonElement: 'readonly',
+        HTMLDialogElement: 'readonly',
+        HTMLDivElement: 'readonly',
         Element: 'readonly',
         KeyboardEvent: 'readonly',
+        MouseEvent: 'readonly',
         NodeListOf: 'readonly',
       },
       parserOptions: {

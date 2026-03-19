@@ -1,6 +1,6 @@
 # Story 2.6: Image Viewer
 
-Status: ready-for-dev
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -25,15 +25,15 @@ So that I can see the details of Christopher's work clearly.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: i18n translations for ImageViewer (AC: #7)
-  - [ ] 1.1 Add translation keys to `src/lib/i18n/translations.ts`:
+- [x] Task 1: i18n translations for ImageViewer (AC: #7)
+  - [x] 1.1 Add translation keys to `src/lib/i18n/translations.ts`:
     - `imageViewer.close` — "Cerrar" / "Close"
     - `imageViewer.previous` — "Imagen anterior" / "Previous image"
     - `imageViewer.next` — "Siguiente imagen" / "Next image"
     - `imageViewer.counter` — "de" / "of" (for "3 de 5" / "3 of 5" counter)
 
-- [ ] Task 2: Create `src/components/projects/ImageViewer.svelte` (AC: #1, #2, #3, #4, #5, #6, #7)
-  - [ ] 2.1 Props interface:
+- [x] Task 2: Create `src/components/projects/ImageViewer.svelte` (AC: #1, #2, #3, #4, #5, #6, #7)
+  - [x] 2.1 Props interface:
     ```typescript
     interface Props {
       screenshots: { url: string; alt: string }[];
@@ -41,7 +41,7 @@ So that I can see the details of Christopher's work clearly.
     }
     ```
     Screenshots passed as serializable objects (URL already converted to string by Astro page).
-  - [ ] 2.2 State management with Svelte 5 runes:
+  - [x] 2.2 State management with Svelte 5 runes:
     ```typescript
     let { screenshots, locale }: Props = $props();
     let isOpen = $state(false);
@@ -49,17 +49,17 @@ So that I can see the details of Christopher's work clearly.
     let dialogRef = $state<HTMLDialogElement | null>(null);
     let currentImage = $derived(screenshots[currentIndex]);
     ```
-  - [ ] 2.3 Navigation functions:
+  - [x] 2.3 Navigation functions:
     - `open(index: number)` — sets `currentIndex`, calls `dialogRef.showModal()`, sets `isOpen = true`
     - `close()` — calls `dialogRef.close()`, sets `isOpen = false`
     - `next()` — `currentIndex = (currentIndex + 1) % screenshots.length`
     - `prev()` — `currentIndex = (currentIndex - 1 + screenshots.length) % screenshots.length`
-  - [ ] 2.4 Keyboard handling — use `<svelte:window>` for arrow keys:
+  - [x] 2.4 Keyboard handling — use `<svelte:window>` for arrow keys:
     ```svelte
     <svelte:window onkeydown={handleKeydown} />
     ```
     Handler: if `!isOpen` return early. ArrowRight → `next()`, ArrowLeft → `prev()`. Escape is handled natively by `<dialog>` (`cancel` event).
-  - [ ] 2.5 Body scroll lock via `$effect`:
+  - [x] 2.5 Body scroll lock via `$effect`:
     ```typescript
     $effect(() => {
       if (!isOpen) return;
@@ -68,14 +68,14 @@ So that I can see the details of Christopher's work clearly.
       return () => { document.body.style.overflow = original; };
     });
     ```
-  - [ ] 2.6 `prefers-reduced-motion` support:
+  - [x] 2.6 `prefers-reduced-motion` support:
     ```typescript
     const reducedMotion = typeof window !== 'undefined'
       ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
       : false;
     ```
     Skip fade/transition animations when true.
-  - [ ] 2.7 Template structure — renders the **gallery thumbnails** (replacing Astro-rendered buttons) AND the dialog overlay:
+  - [x] 2.7 Template structure — renders the **gallery thumbnails** (replacing Astro-rendered buttons) AND the dialog overlay:
     ```svelte
     <!-- Gallery grid (visible — enables client:visible hydration) -->
     <div id="screenshot-gallery" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -158,20 +158,20 @@ So that I can see the details of Christopher's work clearly.
       {/if}
     </dialog>
     ```
-  - [ ] 2.8 Backdrop click handler — close only when clicking the backdrop, not the image:
+  - [x] 2.8 Backdrop click handler — close only when clicking the backdrop, not the image:
     ```typescript
     function handleBackdropClick(e: MouseEvent) {
       if (e.target === dialogRef) close();
     }
     ```
-  - [ ] 2.9 Styling notes:
+  - [x] 2.9 Styling notes:
     - Dialog uses `backdrop:bg-black/80` for dark semi-transparent overlay (Tailwind `::backdrop` pseudo-element)
     - Nav buttons: `bg-black/50` semi-transparent circles, `min-h-11 min-w-11` for 44px touch target
     - Focus indicators: `focus:outline-2 focus:outline-primary focus:outline-offset-2` (same as all project components)
     - Image: `object-contain` to scale without cropping, padded from edges
 
-- [ ] Task 3: Integrate ImageViewer in project detail pages (AC: #5, #8)
-  - [ ] 3.1 Modify `src/pages/projects/[slug].astro`:
+- [x] Task 3: Integrate ImageViewer in project detail pages (AC: #5, #8)
+  - [x] 3.1 Modify `src/pages/projects/[slug].astro`:
     - Import ImageViewer: `import ImageViewer from '../../components/projects/ImageViewer.svelte';`
     - Replace the screenshot gallery section (lines 129–154) with:
       ```astro
@@ -192,16 +192,16 @@ So that I can see the details of Christopher's work clearly.
         </div>
       )}
       ```
-  - [ ] 3.2 Modify `src/pages/en/projects/[slug].astro` — same replacement with adjusted import path (`../../../components/projects/ImageViewer.svelte`)
-  - [ ] 3.3 **SSR rendering note:** Before hydration, the Svelte component SSR-renders the gallery grid with thumbnail buttons. The gallery is visible immediately. The overlay functionality activates only after hydration. This is progressive enhancement.
+  - [x] 3.2 Modify `src/pages/en/projects/[slug].astro` — same replacement with adjusted import path (`../../../components/projects/ImageViewer.svelte`)
+  - [x] 3.3 **SSR rendering note:** Before hydration, the Svelte component SSR-renders the gallery grid with thumbnail buttons. The gallery is visible immediately. The overlay functionality activates only after hydration. This is progressive enhancement.
 
-- [ ] Task 4: Pipeline verification (AC: all)
-  - [ ] 4.1 Run `pnpm lint && pnpm type-check && pnpm test && pnpm build`
-  - [ ] 4.2 Verify build generates HTML with screenshot gallery for each project in both locales
-  - [ ] 4.3 Verify existing E2E tests from Story 2.5 still pass (gallery attributes preserved)
+- [x] Task 4: Pipeline verification (AC: all)
+  - [x] 4.1 Run `pnpm lint && pnpm type-check && pnpm test && pnpm build`
+  - [x] 4.2 Verify build generates HTML with screenshot gallery for each project in both locales
+  - [x] 4.3 Verify existing E2E tests from Story 2.5 still pass (gallery attributes preserved)
 
-- [ ] Task 5: E2E tests (AC: #1, #2, #3, #4, #6, #7, #8)
-  - [ ] 5.1 Create `tests/e2e/image-viewer.spec.ts`:
+- [x] Task 5: E2E tests (AC: #1, #2, #3, #4, #6, #7, #8)
+  - [x] 5.1 Create `tests/e2e/image-viewer.spec.ts`:
     ```typescript
     test.describe('ImageViewer — ES', () => {
       test('opens fullscreen overlay when clicking a screenshot', async ({ page }) => {
@@ -237,11 +237,11 @@ So that I can see the details of Christopher's work clearly.
       });
     });
     ```
-  - [ ] 5.2 Slug discovery strategy: navigate to `/projects`, find first project card link, extract `href`, navigate to detail page. Same as Story 2.5 E2E pattern.
-  - [ ] 5.3 Verify the `<dialog>` element is in the DOM but not open initially: `await expect(page.locator('dialog')).toBeHidden()`
-  - [ ] 5.4 Open by clicking `button[data-screenshot-index="0"]`, verify dialog becomes visible: `await expect(page.locator('dialog')).toBeVisible()`
-  - [ ] 5.5 Verify existing Story 2.5 tests pass: `id="screenshot-gallery"` and `data-screenshot-index` attributes still present
-  - [ ] 5.6 For projects with 0-1 screenshots, skip navigation tests (use `test.skip` with descriptive message)
+  - [x] 5.2 Slug discovery strategy: navigate to `/projects`, find first project card link, extract `href`, navigate to detail page. Same as Story 2.5 E2E pattern.
+  - [x] 5.3 Verify the `<dialog>` element is in the DOM but not open initially: `await expect(page.locator('dialog')).toBeHidden()`
+  - [x] 5.4 Open by clicking `button[data-screenshot-index="0"]`, verify dialog becomes visible: `await expect(page.locator('dialog')).toBeVisible()`
+  - [x] 5.5 Verify existing Story 2.5 tests pass: `id="screenshot-gallery"` and `data-screenshot-index` attributes still present
+  - [x] 5.6 For projects with 0-1 screenshots, skip navigation tests (use `test.skip` with descriptive message)
 
 ## Dev Notes
 
@@ -383,10 +383,31 @@ Pattern: semantic prefixes (`feat:`, `fix:`). Use `feat: implement story 2.6 —
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.6 (1M context)
 
 ### Debug Log References
 
+- ESLint globals: `HTMLDialogElement`, `HTMLDivElement`, `MouseEvent` agregados para soporte de Svelte
+- E2E hidratación: `client:visible` requiere scroll al viewport + `data-hydrated` signal para tests estables
+
 ### Completion Notes List
 
+- Task 1: Agregadas 4 claves i18n para ImageViewer (`close`, `previous`, `next`, `counter`) en ES/EN
+- Task 2: Componente ImageViewer.svelte creado con: `<dialog>` nativo + `showModal()` para focus trap, navegación cíclica, keyboard handling (ArrowLeft/Right), body scroll lock vía `$effect`, `prefers-reduced-motion` support, backdrop click handler, `data-hydrated` signal para E2E
+- Task 3: Ambas páginas `[slug].astro` (ES/EN) actualizadas — gallery Astro reemplazada por `<ImageViewer client:visible />`
+- Task 4: Pipeline verificado — lint 0 errores, type-check 0 errores, 255 unit tests pasan, build exitoso con 16 páginas
+- Task 5: 9 E2E tests creados (8 ES + 1 EN): overlay, navegación por botones, Escape, X close, arrow keys, counter, ARIA labels. 33 tests E2E totales pasan (0 regresiones)
+- UX fix: Project cards en listing — card completa clickeable via stretched link (`after:absolute after:inset-0`), hover con `border-primary`, `cursor-pointer`. Links externos mantienen `relative z-10` para funcionar independientemente. Mejora crítica para mobile donde no hay hover feedback.
+
 ### File List
+
+Archivos creados:
+- src/components/projects/ImageViewer.svelte
+- tests/e2e/image-viewer.spec.ts
+
+Archivos modificados:
+- src/lib/i18n/translations.ts
+- src/pages/projects/[slug].astro
+- src/pages/en/projects/[slug].astro
+- src/components/projects/ProjectFilter.svelte
+- eslint.config.js

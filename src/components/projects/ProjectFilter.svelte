@@ -64,10 +64,10 @@
 {:else}
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
     {#each filteredProjects as project (project.id)}
-      <article class="bg-surface border border-border rounded-xl overflow-hidden hover:bg-surface-elevated transition-colors duration-200">
-        <!-- Project name -->
+      <article class="relative bg-surface border border-border rounded-xl overflow-hidden hover:bg-surface-elevated hover:border-primary transition-colors duration-200 cursor-pointer">
+        <!-- Project name with stretched link (covers entire card) -->
         <h2 class="text-heading-3 font-bold p-4 pb-0">
-          <a href={localizeHref('/projects/' + project.slug, locale)} class="hover:underline">
+          <a href={localizeHref('/projects/' + project.slug, locale)} class="hover:underline after:absolute after:inset-0">
             {project.companyName[locale]}
           </a>
         </h2>
@@ -83,7 +83,7 @@
             href={project.websiteUrl}
             target="_blank"
             rel="noopener noreferrer"
-            class="text-primary text-body-sm px-4 py-2 hover:underline block"
+            class="relative z-10 text-primary text-body-sm px-4 py-2 hover:underline block"
           >
             {websiteLabel}: {project.websiteUrl}
           </a>
@@ -95,7 +95,7 @@
             href={project.sourceCodeUrl}
             target="_blank"
             rel="noopener noreferrer"
-            class="text-primary text-body-sm px-4 py-2 hover:underline block"
+            class="relative z-10 text-primary text-body-sm px-4 py-2 hover:underline block"
           >
             {sourceCodeLabel}: {project.sourceCodeUrl}
           </a>

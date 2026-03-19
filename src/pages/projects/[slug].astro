@@ -4,6 +4,7 @@ import Section from '../../components/common/Section.astro';
 import Container from '../../components/common/Container.astro';
 import Badge from '../../components/common/Badge.astro';
 import Button from '../../components/common/Button.astro';
+import ImageViewer from '../../components/projects/ImageViewer.svelte';
 import { adminDb } from '../../lib/firebase/admin';
 import { getAllProjects, getAllTechnologies } from '../../lib/firebase/collections';
 import { getLocaleFromUrl } from '../../lib/i18n/config';
@@ -126,30 +127,20 @@ const resolvedTechs = getTechByIds(project.technologies);
         </div>
       )}
 
-      <!-- Screenshots gallery -->
+      <!-- Screenshots gallery + ImageViewer -->
       {project.screenshots.length > 0 && (
         <div class="mb-8">
           <h2 class="text-heading-2 font-semibold mb-4">
             {t('projects.screenshots', locale)}
           </h2>
-          <div id="screenshot-gallery" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            {project.screenshots.map((ss, index) => (
-              <button
-                type="button"
-                data-screenshot-index={index}
-                aria-label={`${project.companyName[locale]} screenshot ${index + 1}`}
-                class="cursor-pointer rounded-lg overflow-hidden border border-border hover:border-primary transition-colors duration-200 focus:outline-2 focus:outline-primary focus:outline-offset-2"
-              >
-                <img
-                  src={ss.url}
-                  alt={`${project.companyName[locale]} screenshot ${index + 1}`}
-                  loading="lazy"
-                  decoding="async"
-                  class="w-full h-auto object-cover"
-                />
-              </button>
-            ))}
-          </div>
+          <ImageViewer
+            client:visible
+            screenshots={project.screenshots.map((ss) => ({
+              url: String(ss.url),
+              alt: `${project.companyName[locale]} screenshot`,
+            }))}
+            locale={locale}
+          />
         </div>
       )}
     </Container>
