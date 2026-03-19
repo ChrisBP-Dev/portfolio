@@ -7,8 +7,8 @@ test.describe('Home Page — ES (default locale)', () => {
     const hero = page.locator('section').first();
     await expect(hero).toBeVisible();
 
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Yo programo y creo');
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('contenido');
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Yo construyo y creo');
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('experiencias');
 
     await expect(page.getByRole('link', { name: 'Contáctame' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Descargar CV' })).toBeVisible();
@@ -56,7 +56,7 @@ test.describe('Home Page — ES: Experience section', () => {
   test('experience section is visible with title', async ({ page }) => {
     await page.goto('/');
 
-    await expect(page.getByRole('heading', { name: 'EXPERIENCIA' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'EXPERIENCIA', exact: true })).toBeVisible();
   });
 });
 
@@ -64,8 +64,8 @@ test.describe('Home Page — EN', () => {
   test('hero section displays English translations', async ({ page }) => {
     await page.goto('/en/');
 
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('I code and create');
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('content');
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('I build and create');
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('experiences');
 
     await expect(page.getByRole('link', { name: 'Get in Touch' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Download Resume' })).toBeVisible();
@@ -92,6 +92,6 @@ test.describe('Home Page — EN', () => {
   test('experience section displays English title', async ({ page }) => {
     await page.goto('/en/');
 
-    await expect(page.getByRole('heading', { name: 'EXPERIENCE' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'EXPERIENCE', exact: true })).toBeVisible();
   });
 });

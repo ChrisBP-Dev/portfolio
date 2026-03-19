@@ -27,11 +27,11 @@ const translations: Record<string, Record<Locale, string>> = {
   'meta.description': { es: 'Portfolio de Christopher Bobadilla', en: "Christopher Bobadilla's Portfolio" },
 
   // Home — Hero
-  'home.hero.heading': { es: 'Yo programo y creo', en: 'I code and create' },
-  'home.hero.headingAccent': { es: 'contenido', en: 'content' },
+  'home.hero.heading': { es: 'Yo construyo y creo', en: 'I build and create' },
+  'home.hero.headingAccent': { es: 'experiencias', en: 'experiences' },
   'home.hero.description': {
-    es: 'Desarrollador apasionado por crear aplicaciones móviles, sitios web y contenido educativo sobre tecnología.',
-    en: 'Developer passionate about creating mobile apps, websites, and educational content about technology.',
+    es: 'Desarrollador móvil con +4 años en Flutter, expandiendo al desarrollo web full-stack con Astro, SvelteKit, TypeScript, entre otras tecnologías modernas. Apasionado por el desarrollo aumentado con inteligencia artificial — aplico el BMAD Method para planificar, implementar y validar software con estándares profesionales. Tengo proyectos de código abierto, documentados y construidos para durar.',
+    en: 'Mobile developer with 4+ years in Flutter, expanding into full-stack web development with Astro, SvelteKit, TypeScript, among other modern technologies. Passionate about AI-augmented development — I apply the BMAD Method to plan, implement, and validate software with professional standards. I have open-source projects, documented and built to last.',
   },
   'home.hero.cta.contact': { es: 'Contáctame', en: 'Get in Touch' },
   'home.hero.cta.resume': { es: 'Descargar CV', en: 'Download Resume' },
@@ -50,8 +50,8 @@ const translations: Record<string, Record<Locale, string>> = {
   // Home — Meta
   'home.meta.title': { es: 'Portfolio — ChrisBP', en: 'Portfolio — ChrisBP' },
   'home.meta.description': {
-    es: 'Portfolio de ChrisBP — Desarrollador de aplicaciones móviles, sitios web y creador de contenido educativo sobre tecnología.',
-    en: "ChrisBP's Portfolio — Mobile app developer, web developer, and educational tech content creator.",
+    es: 'Portfolio de ChrisBP — Desarrollador móvil con +4 años en Flutter, expandiendo al web full-stack con tecnologías modernas y desarrollo aumentado con IA.',
+    en: "ChrisBP's Portfolio — Mobile developer with 4+ years in Flutter, expanding into full-stack web with modern technologies and AI-augmented development.",
   },
 
   // Projects page

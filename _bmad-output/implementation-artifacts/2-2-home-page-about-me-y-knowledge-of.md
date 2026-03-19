@@ -328,7 +328,7 @@ Claude Sonnet 4.6 — Code Review (bmad-code-review: 3 capas paralelas)
 ### Code Review Record (2026-03-18)
 
 **Reviewer:** bmad-code-review (Blind Hunter + Edge Case Hunter + Acceptance Auditor)
-**Findings:** 4 patch, 4 defer, 9 reject
+**Findings:** 4 patch, 5 defer, 9 reject
 
 **Patches aplicados:**
 - P2: `HeroSection.astro` — reemplazado ternario manual por `localizeHref('/contact', locale)` de `src/data/navigation.ts` (helper canónico ya usado en Header/MobileMenu)
@@ -343,6 +343,7 @@ Claude Sonnet 4.6 — Code Review (bmad-code-review: 3 capas paralelas)
 - D2: Empty technologies array sin fallback visual
 - D3: contactHref ternary no extensible (mitigado con fix P2)
 - D4: URLs externas de imágenes sin domain allowlist
+- D5: Hero content hardcodeado en i18n translations — migrar a Firestore collection + Admin CMS CRUD para consistencia arquitectónica con Projects/Experience/Technologies. Destino: Epic 3 (Admin Dashboard)
 
 ### Completion Notes List
 
