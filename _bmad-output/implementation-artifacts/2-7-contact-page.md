@@ -103,7 +103,8 @@ And botón ocupa ancho completo
 - [ ] Task 3: Páginas Astro — Crear rutas ES/EN (AC: 1, 6, 7)
   - [ ] 3.1 Crear `src/pages/contact.astro` con BaseLayout, currentPage="contact"
   - [ ] 3.2 Crear `src/pages/en/contact.astro` con locale="en"
-  - [ ] 3.3 Ambas: Section + Container + heading + descripción + `<ContactForm client:load locale={locale} />`
+  - [ ] 3.3 Ambas: `Section variant="default"` + `Container variant="narrow"` + heading + descripción + `<ContactForm client:load locale={locale} />`
+  - [ ] 3.4 Agregar `PUBLIC_CONTACT_EMAIL` en `.env`, `.env.example` y `src/env.d.ts`
 - [ ] Task 4: Verificar footer social links (AC: 8)
   - [ ] 4.1 Verificar que Footer.astro tiene links sociales correctos con `target="_blank"` y `rel="noopener noreferrer"`
   - [ ] 4.2 Verificar aria-labels descriptivos en cada link social
@@ -111,21 +112,54 @@ And botón ocupa ancho completo
   - [ ] 5.1 Ejecutar `pnpm lint && pnpm type-check && pnpm build` — 0 errores
 - [ ] Task 6: E2E Tests (AC: all)
   - [ ] 6.1 Crear `tests/e2e/contact-page.spec.ts`
-  - [ ] 6.2 Tests ES: page load, form fields visibles, validación campos vacíos, validación email inválido, envío WhatsApp (verificar window.open URL), envío Email (verificar mailto href), country picker, responsive
+  - [ ] 6.2 Tests ES: page load, verificar hidratación del Svelte island, form fields visibles, validación campos vacíos, validación email inválido, envío WhatsApp (verificar window.open URL), envío Email (verificar mailto href), country picker, responsive
   - [ ] 6.3 Tests EN: page load /en/contact, labels en inglés, validación en inglés
-  - [ ] 6.4 Ejecutar `pnpm test:e2e` — 0 fallos, 0 regresiones
+  - [ ] 6.4 Usar selectores semánticos: `page.getByRole()`, `page.getByLabel()` — NO selectores CSS frágiles
+  - [ ] 6.5 Ejecutar `pnpm test:e2e` — 0 fallos, 0 regresiones
 
 ## Dev Notes
 
 ### Patrón Crítico: NO hay backend
 El formulario de contacto NO almacena datos en Firestore ni llama APIs. Es 100% client-side:
-- **WhatsApp**: Genera URL `https://wa.me/{phone}?text={message}` y abre con `window.open()`
-- **Email**: Genera link `mailto:` y abre con `window.open()` o `window.location.href`
+- **WhatsApp**: Genera URL `https://wa.me/{phone}?text={message}` y abre con `window.open()` (nueva pestaña)
+- **Email**: Genera link `mailto:` y abre con `window.location.href` (NO usar `window.open()` para mailto — algunos navegadores lo bloquean como popup)
 
 ### Componentes Existentes a Reutilizar
 - **NO reutilizar `Input.astro`** en el formulario. Input.astro es un componente Astro (server-side). ContactForm es un Svelte island (client-side). Crear inputs nativos HTML dentro del .svelte con los mismos patrones de accesibilidad y estilos Tailwind.
 - **NO reutilizar `Button.astro`** por la misma razón. Crear botones nativos `<button>` con clases Tailwind del mismo estilo.
 - Copiar los **estilos y patrones de accesibilidad** de Input.astro y Button.astro, pero implementarlos como HTML nativo dentro de Svelte.
+
+### Patrón de Página Astro (replicar de páginas existentes)
+```astro
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Section from '../../components/common/Section.astro';
+import Container from '../../components/common/Container.astro';
+import ContactForm from '../../components/contact/ContactForm.svelte';
+import { getLocaleFromUrl } from '../../lib/i18n/config';
+import { t } from '../../lib/i18n/translations';
+
+const locale = getLocaleFromUrl(Astro.url);
+---
+
+<BaseLayout
+  title={t('contact.meta.title', locale)}
+  description={t('contact.meta.description', locale)}
+  currentPage="contact"
+>
+  <Section variant="default">
+    <Container variant="narrow">
+      <h1 class="text-heading-2 font-bold text-text-primary mb-2">
+        {t('contact.heading', locale)}
+      </h1>
+      <p class="text-body text-text-secondary mb-8">
+        {t('contact.description', locale)}
+      </p>
+      <ContactForm client:load locale={locale} />
+    </Container>
+  </Section>
+</BaseLayout>
+```
 
 ### Svelte 5 Patterns (seguir codebase existente)
 ```typescript
@@ -145,10 +179,12 @@ onclick={handler}  // Svelte 5 syntax, NOT on:click
 ```
 
 ### Validación con Zod
-Definir schema inline en el componente (no en archivo separado — el formulario no persiste datos):
+Definir schema inline en el componente (no en archivo separado — el formulario no persiste datos).
+NO hardcodear mensajes de error en el schema — usar `t()` con locale para mensajes dinámicos:
 ```typescript
 import { z } from 'zod';
 
+// Schema sin mensajes (mensajes vienen de i18n)
 const contactSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
@@ -156,9 +192,12 @@ const contactSchema = z.object({
   message: z.string().min(10),
   channel: z.enum(['whatsapp', 'email']),
 });
-```
 
-Mensajes de error deben ser dinámicos según `locale` usando `t()`.
+// Mapear errores de Zod a mensajes i18n en handleSubmit:
+// result.error.flatten().fieldErrors → para cada campo con error,
+// asignar errors[field] = t('contact.validation.fieldRequired', locale)
+```
+Validar al submit y opcionalmente on blur. NUNCA en cada keystroke (patrón de arquitectura).
 
 ### Country Picker — Implementación Ligera
 NO instalar librerías externas para el country picker. Implementar un `<select>` nativo con las opciones más comunes:
@@ -187,60 +226,69 @@ function buildWhatsAppUrl(phone: string, countryCode: string, name: string, emai
   return `https://wa.me/${fullPhone}?text=${encodeURIComponent(text)}`;
 }
 
-// Email — usar email de Christopher desde variable de entorno o hardcoded
+// Email — usar variable de entorno PUBLIC_CONTACT_EMAIL
 function buildMailtoUrl(name: string, email: string, phone: string, message: string): string {
-  const to = 'christopher@example.com'; // Definir email real
+  const to = import.meta.env.PUBLIC_CONTACT_EMAIL;
   const subject = `Nuevo mensaje de ${name}`;
   const body = `De: ${name}\nEmail: ${email}\nTeléfono: ${phone}\n\n${message}`;
   return `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
+// IMPORTANTE: Agregar PUBLIC_CONTACT_EMAIL en .env, .env.example y src/env.d.ts
 ```
 
-### Estilos de Formulario (Tailwind tokens del proyecto)
+### Estilos de Formulario (clases EXACTAS del codebase — replicar de Input.astro y Button.astro)
 ```
-// Card contenedora
-bg-(--theme-surface) rounded-lg p-6 shadow-md
+// Card contenedora (replicar Card.astro: bg-surface border border-border rounded-xl p-4)
+bg-surface border border-border rounded-xl p-6
 
-// Input fields
-w-full rounded-md border border-(--theme-border) bg-(--theme-bg) px-4 py-3
-text-(--theme-text-primary) placeholder-(--theme-text-muted)
-focus:border-(--color-primary) focus:outline-none focus:ring-2 focus:ring-(--color-primary)/30
+// Label (de Input.astro)
+text-caption text-text-secondary font-medium
 
-// Error state
-border-(--color-error) focus:border-(--color-error) focus:ring-(--color-error)/30
+// Required asterisk (de Input.astro)
+text-error ml-0.5
 
-// Error text
-text-sm text-(--color-error) mt-1
+// Input fields (de Input.astro — EXACTAS)
+bg-surface border rounded-lg px-3 py-3 text-body text-text-primary w-full
+placeholder:text-text-muted
+focus:outline-2 focus:outline-offset-2 focus:outline-primary focus:border-primary
 
-// Label
-text-sm font-medium text-(--theme-text-secondary) mb-1
+// Error state input (de Input.astro)
+border-error focus:outline-error
 
-// Required asterisk
-text-(--color-error) ml-0.5
+// Error text (de Input.astro — usa role="alert")
+text-body-sm text-error mt-1
 
-// Primary button (gradient)
-bg-gradient-to-r from-(--color-primary) to-(--color-primary-dark) text-white font-medium
-px-6 py-3 rounded-lg min-h-11 min-w-11
-hover:shadow-lg hover:shadow-(--color-primary)/20 transition-all duration-200
+// Primary button (de Button.astro — variant="primary")
+min-h-11 min-w-11 px-6 py-3 rounded-lg font-semibold text-body-sm
+inline-flex items-center justify-center gap-2 transition-all duration-200
+focus:outline-2 focus:outline-offset-2 focus:outline-primary
+text-white [background:var(--brand-gradient)] shadow-md hover:shadow-lg hover:brightness-110
 
-// Secondary button (cancel/outline)
-border border-(--theme-border) text-(--theme-text-secondary) px-6 py-3 rounded-lg
-hover:bg-(--theme-surface) transition-all duration-200
+// Secondary button (de Button.astro — variant="secondary")
+min-h-11 min-w-11 px-6 py-3 rounded-lg font-semibold text-body-sm
+inline-flex items-center justify-center gap-2 transition-all duration-200
+focus:outline-2 focus:outline-offset-2 focus:outline-primary
+border-2 border-primary text-primary-dark hover:bg-primary/10
+
+// Disabled state (de Button.astro)
+opacity-50 pointer-events-none (+ aria-disabled="true")
 ```
 
 ### Responsive Layout
-- **Mobile (<450px)**: Form full-width, single column, botón full-width, padding 16px
-- **Tablet (450-900px)**: Form con max-width ~600px centrado, padding 24px
-- **Desktop (>900px)**: Form max-width 600px centrado en contenedor
+- Usar `Section variant="default"` + `Container variant="narrow"` (max-w-[45rem] ≈ 720px, coincide con UX spec)
+- **Mobile (<450px)**: Form full-width, single column, botón full-width
+- **Tablet (450-900px)**: Container centrado con padding responsive (px-4 sm:px-6)
+- **Desktop (>900px)**: Container narrow (720px) centrado automáticamente
 
 ### Accesibilidad Obligatoria
-- Cada `<input>` tiene `<label>` asociado (no solo placeholder)
-- Campos requeridos: asterisco visual + `aria-required="true"`
-- Errores: `aria-describedby` vinculando input con su mensaje de error, `role="alert"` en mensajes
+- Cada `<input>` tiene `<label for="id">` asociado (no solo placeholder)
+- Campos requeridos: asterisco visual `<span class="text-error ml-0.5">*</span>` + `aria-required="true"`
+- Errores: `aria-describedby="fieldId-error"` vinculando input con su `<p id="fieldId-error" role="alert">`, `aria-live="polite"` en contenedor de errores
 - `aria-invalid="true"` en campos con error
-- Focus indicators visibles (no eliminar outline sin reemplazo)
+- Focus indicators: `focus:outline-2 focus:outline-offset-2 focus:outline-primary` (patrón del codebase — NO usar focus:ring)
 - Touch targets mínimo 44x44px (`min-h-11 min-w-11`)
 - Country picker `<select>` nativo (no custom dropdown — mejor accesibilidad)
+- IDs de inputs: `input-name`, `input-email`, `input-phone`, `input-message`, `input-channel` (patrón de Input.astro: `input-${name}`)
 
 ### Project Structure Notes
 
