@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-03-16
-last_updated: 2026-03-18  # story 2-3 review
+last_updated: 2026-03-18  # story 2-3 done
 project: portfolio
 project_key: NOKEY
 tracking_system: file-system
@@ -60,7 +60,7 @@ development_status:
   epic-2: in-progress
   2-1-data-migration-script: done
   2-2-home-page-about-me-y-knowledge-of: done
-  2-3-home-page-projects-destacados-y-experience: review
+  2-3-home-page-projects-destacados-y-experience: done
   2-4-projects-listing-y-filtro-por-tecnologia: backlog
   2-5-project-detail-page: backlog
   2-6-image-viewer: backlog

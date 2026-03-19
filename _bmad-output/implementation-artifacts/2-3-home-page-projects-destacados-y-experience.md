@@ -1,6 +1,6 @@
 # Story 2.3: Home Page — Projects Destacados y Experience
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -441,6 +441,42 @@ Claude Opus 4.6 (1M context)
 ### Change Log
 
 - 2026-03-18: Implementación completa de Story 2.3 — Projects Destacados y Experience sections en home page
+- 2026-03-18: Code review completado — 0 patches, 7 deferred, story aprobada para done
+
+## Code Review Record
+
+### Reviewer
+
+Claude Sonnet 4.6 — `/bmad-code-review` skill (3 capas: Blind Hunter, Edge Case Hunter, Acceptance Auditor)
+
+### Review Date
+
+2026-03-18
+
+### Verdict
+
+**APROBADA** — 0 patch findings. Todos los ACs verificados. Implementación conforme a spec.
+
+### Findings Summary
+
+| ID | Clasificación | Título | Severidad |
+|----|--------------|--------|-----------|
+| D1 | defer | Sequential Firebase fetches en ambas páginas | Medium |
+| D2 | defer | Full collection fetch + slice client-side | Medium |
+| D3 | defer | E2E `.first()` sin verificación de count | Low |
+| D4 | defer | Sin empty state en ProjectsSection | Medium |
+| D5 | defer | Sin empty state en ExperienceSection | Medium |
+| D6 | defer | `gradient-text` invisible en forced-colors / high-contrast | Low |
+| D7 | defer | `formatExperienceDateRange` sin guard de Date inválido | Low |
+
+**14 hallazgos rechazados como ruido** — incluyendo falso positivo de import path (diff tenía artefacto en línea de contexto), `project.companyName[locale]` correcto según schema, `<ul>` sin `list-none` cubierto por Tailwind CSS v4 preflight.
+
+### Deferred — Destino Sugerido
+
+- D1, D2 → Story 5.4 (Performance Optimization & Bundle Audit)
+- D4, D5 → Story 2.8 (Responsive Polish & Contenido Bilingüe Completo)
+- D6 → Story 5.5 (Accessibility Audit & Compliance)
+- D3, D7 → Nice-to-have, no story asignada
 
 ### File List
 
