@@ -83,7 +83,7 @@
             href={project.websiteUrl}
             target="_blank"
             rel="noopener noreferrer"
-            class="text-primary text-body-sm px-4 hover:underline block"
+            class="text-primary text-body-sm px-4 py-2 hover:underline block"
           >
             {websiteLabel}: {project.websiteUrl}
           </a>
@@ -95,7 +95,7 @@
             href={project.sourceCodeUrl}
             target="_blank"
             rel="noopener noreferrer"
-            class="text-primary text-body-sm px-4 hover:underline block"
+            class="text-primary text-body-sm px-4 py-2 hover:underline block"
           >
             {sourceCodeLabel}: {project.sourceCodeUrl}
           </a>
