@@ -55,6 +55,7 @@ const translations: Record<string, Record<Locale, string>> = {
   },
 
   // Projects page
+  'projects.heading': { es: 'Proyectos', en: 'Projects' },
   'projects.meta.title': { es: 'Proyectos — ChrisBP', en: 'Projects — ChrisBP' },
   'projects.meta.description': {
     es: 'Proyectos personales y profesionales de ChrisBP',

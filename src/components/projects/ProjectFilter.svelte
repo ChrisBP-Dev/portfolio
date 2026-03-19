@@ -45,8 +45,9 @@
 
 <!-- Filter dropdown -->
 <div class="flex items-center justify-end gap-2 mb-6">
-  <span class="text-body-sm text-text-secondary">{filterLabel}</span>
+  <label for="tech-filter" class="text-body-sm text-text-secondary">{filterLabel}</label>
   <select
+    id="tech-filter"
     bind:value={selectedTech}
     class="bg-surface border border-border rounded-lg px-3 py-2 text-body-sm text-text-primary"
   >
@@ -65,9 +66,11 @@
     {#each filteredProjects as project (project.id)}
       <article class="bg-surface border border-border rounded-xl overflow-hidden hover:bg-surface-elevated transition-colors duration-200">
         <!-- Project name -->
-        <a href={localizeHref('/projects/' + project.slug, locale)} class="block p-4 pb-0">
-          <h2 class="text-heading-3 font-bold">{project.companyName[locale]}</h2>
-        </a>
+        <h2 class="text-heading-3 font-bold p-4 pb-0">
+          <a href={localizeHref('/projects/' + project.slug, locale)} class="hover:underline">
+            {project.companyName[locale]}
+          </a>
+        </h2>
 
         <!-- Description -->
         <p class="text-body-sm text-text-secondary px-4 py-2">
