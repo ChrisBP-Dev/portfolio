@@ -31,7 +31,7 @@ So that I can quickly evaluate Christopher's professional background.
   - [ ] 1.2 Existing dynamic i18n tests will automatically cover new keys — verify they pass
 
 - [ ] Task 2: Date formatting utility (AC: #5)
-  - [ ] 2.1 Create `src/lib/utils/format-date.ts` (directory exists with only `.gitkeep` — add real file, remove `.gitkeep`)
+  - [ ] 2.1 Create `src/lib/utils/format-date.ts` (directory exists with only `.gitkeep` — add real file, then run `git rm src/lib/utils/.gitkeep` to remove tracked `.gitkeep`)
   - [ ] 2.2 Implement `formatExperienceDateRange(startDate: Date, endDate: Date | null, locale: Locale, presentLabel: string): string`
   - [ ] 2.3 Use `Intl.DateTimeFormat` with `{ year: 'numeric' }` to extract years — matches visual reference format ("2024 – 2024")
   - [ ] 2.4 When `endDate` is null, use `presentLabel` parameter (passed by caller from i18n)
@@ -48,7 +48,24 @@ So that I can quickly evaluate Christopher's professional background.
 
 - [ ] Task 4: ProjectsSection.astro component (AC: #1, #3, #4)
   - [ ] 4.1 Create `src/components/home/ProjectsSection.astro`
-  - [ ] 4.2 Props: `projects: Project[]`, `locale: Locale`
+  - [ ] 4.2 Props and imports:
+    ```typescript
+    ---
+    import type { Project } from '../../lib/schemas/project-schema';
+    import type { Locale } from '../../lib/i18n/config';
+    import { t } from '../../lib/i18n/translations';
+    import { localizeHref } from '../../data/navigation';
+    import Button from '../common/Button.astro';
+    import Section from '../common/Section.astro';
+    import Container from '../common/Container.astro';
+
+    interface Props {
+      projects: Project[];
+      locale: Locale;
+    }
+    const { projects, locale } = Astro.props;
+    ---
+    ```
   - [ ] 4.3 Section title: "Projects" using global `.gradient-text` class, `text-heading-1`, `font-bold`, centered
   - [ ] 4.4 Grid layout: `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6`
   - [ ] 4.5 Each project card — DO NOT use Card.astro (its `p-4` base padding conflicts with edge-to-edge images). Build inline:
@@ -61,14 +78,30 @@ So that I can quickly evaluate Christopher's professional background.
         <h3> companyName[locale] — text-heading-3, font-semibold
         <p> shortDescription[locale] — text-body-sm, text-text-secondary, mt-1, line-clamp-2
     ```
-  - [ ] 4.6 Link: `href={localizeHref('/projects/' + project.slug, locale)}` — detail pages don't exist yet (Story 2.5), 404 is expected
+  - [ ] 4.6 Link: `` href={localizeHref(`/projects/${project.slug}`, locale)} `` — detail pages don't exist yet (Story 2.5), 404 is expected
   - [ ] 4.7 Images: `<img>` tag (NOT Astro `<Image />`), `loading="lazy"`, `alt={project.companyName[locale]}`
-  - [ ] 4.8 "See All" button: `<Button variant="secondary" href={localizeHref('/projects', locale)}>` centered below grid, `mt-8`
+  - [ ] 4.8 "See All" button: `<Button variant="secondary" href={localizeHref('/projects', locale)}>{t('home.projects.seeAll', locale)}</Button>` centered below grid, `mt-8`, wrapped in `<div class="mt-8 text-center">`
   - [ ] 4.9 Wrap in `Section variant="default"` + `Container variant="default"`
 
 - [ ] Task 5: ExperienceSection.astro component (AC: #2, #3, #5)
   - [ ] 5.1 Create `src/components/home/ExperienceSection.astro`
-  - [ ] 5.2 Props: `experiences: Experience[]`, `locale: Locale`
+  - [ ] 5.2 Props and imports:
+    ```typescript
+    ---
+    import type { Experience } from '../../lib/schemas/experience-schema';
+    import type { Locale } from '../../lib/i18n/config';
+    import { t } from '../../lib/i18n/translations';
+    import { formatExperienceDateRange } from '../../lib/utils/format-date';
+    import Section from '../common/Section.astro';
+    import Container from '../common/Container.astro';
+
+    interface Props {
+      experiences: Experience[];
+      locale: Locale;
+    }
+    const { experiences, locale } = Astro.props;
+    ---
+    ```
   - [ ] 5.3 Section title: "EXPERIENCE" bold centered — `text-heading-1`, `font-bold`, `uppercase`
   - [ ] 5.4 Experience list: NO Card.astro, NOT a timeline with visual line — flat list with separators (per visual reference)
   - [ ] 5.5 Each experience entry layout:
@@ -79,19 +112,37 @@ So that I can quickly evaluate Christopher's professional background.
     - **Row 2**: Job title badge — solid primary pill:
       `<span class="inline-block bg-primary text-white text-caption font-medium px-3 py-1 rounded-full mt-2">{exp.jobName[locale]}</span>`
     - **Row 3**: Responsibilities — `<ul class="mt-3 space-y-1">` with each item as `<li class="text-body text-text-secondary">` prefixed with "– " (en-dash, per visual reference)
-  - [ ] 5.6 Separator: `border-b border-border` between entries (not on last entry) — `{index < experiences.length - 1 && <hr>}` or conditional CSS `[&:not(:last-child)]:border-b`
+  - [ ] 5.6 Separator: `border-b border-border` between entries (not on last entry). Astro iteration pattern:
+    ```astro
+    {experiences.map((exp, index) => (
+      <div class="py-6">
+        {/* entry content here */}
+        {index < experiences.length - 1 && <hr class="border-border" />}
+      </div>
+    ))}
+    ```
   - [ ] 5.7 Entry spacing: `py-6` on each entry for vertical breathing room
   - [ ] 5.8 Wrap in `Section variant="default"` + `Container variant="default"`
 
 - [ ] Task 6: Wire up Home pages with data fetching (AC: all)
   - [ ] 6.1 Update `src/pages/index.astro`:
-    - Import `getAllProjects`, `getAllExperiences` from `../lib/firebase/collections` (already imported `getAllTechnologies` — add to existing import)
+    - Add component imports:
+      ```typescript
+      import ProjectsSection from '../components/home/ProjectsSection.astro';
+      import ExperienceSection from '../components/home/ExperienceSection.astro';
+      ```
+    - Extend existing collections import: `import { getAllTechnologies, getAllProjects, getAllExperiences } from '../lib/firebase/collections';`
     - Fetch in frontmatter: `const projects = await getAllProjects(adminDb)`
     - Fetch in frontmatter: `const experiences = await getAllExperiences(adminDb)`
     - Slice projects for preview: `const projectsPreview = projects.slice(0, 3)`
     - Add `<ProjectsSection projects={projectsPreview} locale={locale} />` after TechnologiesSection
     - Add `<ExperienceSection experiences={experiences} locale={locale} />` after ProjectsSection
-  - [ ] 6.2 Update `src/pages/en/index.astro` — same pattern with `../../lib/` imports (two levels up)
+  - [ ] 6.2 Update `src/pages/en/index.astro` — same pattern but paths use `../../` (two levels up):
+    ```typescript
+    import ProjectsSection from '../../components/home/ProjectsSection.astro';
+    import ExperienceSection from '../../components/home/ExperienceSection.astro';
+    import { getAllTechnologies, getAllProjects, getAllExperiences } from '../../lib/firebase/collections';
+    ```
   - [ ] 6.3 Verify `pnpm build` succeeds — validates SSG data fetching for all 3 collections
 
 - [ ] Task 7: Unit tests (AC: all)
@@ -301,12 +352,14 @@ tests/e2e/home-page.spec.ts     # Extend with Projects + Experience tests
 
 Files to remove:
 ```
-src/lib/utils/.gitkeep           # Remove after adding format-date.ts
+src/lib/utils/.gitkeep           # git rm src/lib/utils/.gitkeep after adding format-date.ts
 ```
 
 ### Testing Standards
 
 - **Vitest** for unit tests — test factories exist: `createProject()`, `createExperience()` in `src/test/factories/`
+  - Import: `import { createExperience } from '../../../test/factories';`
+  - Use `createExperience({ startDate: new Date('2022-03-01'), endDate: new Date('2024-06-15') })` to generate test fixtures
 - **Playwright** for E2E — extend existing `tests/e2e/home-page.spec.ts`
 - `formatExperienceDateRange()` must be tested for: both dates, null endDate, both locales
 - i18n keys: existing dynamic tests auto-cover new keys
