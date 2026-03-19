@@ -14,4 +14,12 @@
   }
   d.style.colorScheme = isLight ? 'light' : 'dark';
 })();
+document.addEventListener('astro:after-swap', () => {
+  const d = document.documentElement;
+  const stored = localStorage.getItem('theme');
+  const isLight = stored === 'light' || (!stored && window.matchMedia('(prefers-color-scheme: light)').matches);
+  if (isLight) d.classList.remove('dark');
+  else d.classList.add('dark');
+  d.style.colorScheme = isLight ? 'light' : 'dark';
+});
 </script>

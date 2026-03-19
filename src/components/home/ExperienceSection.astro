@@ -21,9 +21,9 @@ const { experiences, locale } = Astro.props;
 
     {experiences.map((exp, index) => (
       <div class="py-6">
-        <div class="flex justify-between items-start">
+        <div class="flex flex-wrap justify-between items-start gap-x-4 gap-y-1">
           <h3 class="text-heading-3 font-bold">{exp.companyName}</h3>
-          <span class="text-body-sm text-text-secondary whitespace-nowrap ml-4">
+          <span class="text-body-sm text-text-secondary whitespace-nowrap">
             {formatExperienceDateRange(exp.startDate, exp.endDate, locale, t('home.experience.present', locale))}
           </span>
         </div>

@@ -1,6 +1,6 @@
 # Story 2.8: Responsive Polish y Contenido Bilingüe Completo
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -89,68 +89,68 @@ And los botones tienen min-h-11 min-w-11
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: View Transitions API — Implementar ClientRouter (AC: 7)
-  - [ ] 1.1 Agregar `import { ClientRouter } from 'astro:transitions'` en `BaseLayout.astro`
-  - [ ] 1.2 Renderizar `<ClientRouter />` en `<head>` (después de `<title>`)
-  - [ ] 1.3 Agregar `transition:animate="fade"` en `<main>` para transición por defecto
-  - [ ] 1.4 Agregar `transition:persist` SOLO en `<ThemeToggle client:load>` — NO en LocaleToggle (ver nota en Dev Notes)
-  - [ ] 1.5 Verificar que `prefers-reduced-motion` desactiva animaciones automáticamente (Astro lo maneja nativo)
-  - [ ] 1.6 Verificar que Svelte islands con `client:load` y `client:visible` se rehidratan correctamente tras navegación
-  - [ ] 1.7 Agregar listener `astro:after-swap` en ThemeScript.astro para re-aplicar tema desde localStorage tras cada View Transition (previene FOUC)
-  - [ ] 1.8 Refactorizar LocaleToggle para usar `<a href>` en lugar de `window.location.href` para que View Transitions funcionen en cambio de idioma
+- [x] Task 1: View Transitions API — Implementar ClientRouter (AC: 7)
+  - [x] 1.1 Agregar `import { ClientRouter } from 'astro:transitions'` en `BaseLayout.astro`
+  - [x] 1.2 Renderizar `<ClientRouter />` en `<head>` (después de `<title>`)
+  - [x] 1.3 Agregar `transition:animate="fade"` en `<main>` para transición por defecto
+  - [x] 1.4 Agregar `transition:persist` SOLO en `<ThemeToggle client:load>` — NO en LocaleToggle (ver nota en Dev Notes)
+  - [x] 1.5 Verificar que `prefers-reduced-motion` desactiva animaciones automáticamente (Astro lo maneja nativo)
+  - [x] 1.6 Verificar que Svelte islands con `client:load` y `client:visible` se rehidratan correctamente tras navegación
+  - [x] 1.7 Agregar listener `astro:after-swap` en ThemeScript.astro para re-aplicar tema desde localStorage tras cada View Transition (previene FOUC)
+  - [x] 1.8 Refactorizar LocaleToggle para usar `<a href>` en lugar de `window.location.href` para que View Transitions funcionen en cambio de idioma
 
-- [ ] Task 2: Auditoría y polish responsive — Mobile (AC: 1, 8)
-  - [ ] 2.1 Verificar en viewport 375px: Home, Projects, Project Detail, Contact — todo single-column
-  - [ ] 2.2 **BUG CONOCIDO:** Corregir MobileMenu.svelte — usa `matchMedia('(min-width: 1024px)')` pero breakpoint `lg` es 900px. Cambiar a `(min-width: 56.25rem)` para alinear con Header.astro que usa `lg:flex`
-  - [ ] 2.3 Verificar touch targets 44x44px en botones, links, y elementos interactivos
-  - [ ] 2.4 Verificar tipografía escalada con `clamp()` es legible en mobile
-  - [ ] 2.5 Corregir cualquier overflow horizontal o elementos cortados en mobile
-  - [ ] 2.6 Verificar ExperienceSection: `whitespace-nowrap` en fechas puede causar overflow en viewports estrechos — considerar `truncate` o `text-wrap`
+- [x] Task 2: Auditoría y polish responsive — Mobile (AC: 1, 8)
+  - [x] 2.1 Verificar en viewport 375px: Home, Projects, Project Detail, Contact — todo single-column
+  - [x] 2.2 **BUG CONOCIDO:** Corregir MobileMenu.svelte — usa `matchMedia('(min-width: 1024px)')` pero breakpoint `lg` es 900px. Cambiar a `(min-width: 56.25rem)` para alinear con Header.astro que usa `lg:flex`
+  - [x] 2.3 Verificar touch targets 44x44px en botones, links, y elementos interactivos
+  - [x] 2.4 Verificar tipografía escalada con `clamp()` es legible en mobile
+  - [x] 2.5 Corregir cualquier overflow horizontal o elementos cortados en mobile
+  - [x] 2.6 Verificar ExperienceSection: `whitespace-nowrap` en fechas puede causar overflow en viewports estrechos — considerar `truncate` o `text-wrap`
 
-- [ ] Task 3: Auditoría y polish responsive — Tablet (AC: 2)
-  - [ ] 3.1 Verificar en viewport 768px: project grids muestran 2 columnas (sm:grid-cols-2)
-  - [ ] 3.2 Verificar menú en tablet: hamburger o nav compacta
-  - [ ] 3.3 Verificar Container padding responsive: px-4 → sm:px-6
+- [x] Task 3: Auditoría y polish responsive — Tablet (AC: 2)
+  - [x] 3.1 Verificar en viewport 768px: project grids muestran 2 columnas (sm:grid-cols-2)
+  - [x] 3.2 Verificar menú en tablet: hamburger o nav compacta
+  - [x] 3.3 Verificar Container padding responsive: px-4 → sm:px-6
 
-- [ ] Task 4: Auditoría y polish responsive — Desktop (AC: 3)
-  - [ ] 4.1 Verificar en viewport 1280px: project grids muestran 3 columnas (lg:grid-cols-3)
-  - [ ] 4.2 **BUG CONOCIDO:** `ProjectFilter.svelte:65` solo tiene `grid-cols-1 sm:grid-cols-2` — falta `lg:grid-cols-3` para cumplir AC 3. `ProjectsSection.astro` SÍ lo tiene correctamente
-  - [ ] 4.3 Verificar nav horizontal completo visible en desktop (lg:flex)
-  - [ ] 4.4 Verificar max-width 1200px del Container principal (max-w-[75rem])
-  - [ ] 4.5 Verificar Container padding: lg:px-8
+- [x] Task 4: Auditoría y polish responsive — Desktop (AC: 3)
+  - [x] 4.1 Verificar en viewport 1280px: project grids muestran 3 columnas (lg:grid-cols-3)
+  - [x] 4.2 **BUG CONOCIDO:** `ProjectFilter.svelte:65` solo tiene `grid-cols-1 sm:grid-cols-2` — falta `lg:grid-cols-3` para cumplir AC 3. `ProjectsSection.astro` SÍ lo tiene correctamente
+  - [x] 4.3 Verificar nav horizontal completo visible en desktop (lg:flex)
+  - [x] 4.4 Verificar max-width 1200px del Container principal (max-w-[75rem])
+  - [x] 4.5 Verificar Container padding: lg:px-8
 
-- [ ] Task 5: Auditoría i18n — Completitud de contenido bilingüe (AC: 4)
-  - [ ] 5.1 Verificar LocaleToggle cambia TODAS las traducciones en Home (hero, knowledge of, projects, experience)
-  - [ ] 5.2 Verificar datos de Firestore (projects, technologies, experiences) usan `field[locale]` correctamente
-  - [ ] 5.3 Verificar todas las páginas: /, /projects, /projects/[slug], /contact tienen versión ES (/es/...)
-  - [ ] 5.4 Verificar fechas formateadas con `Intl.DateTimeFormat` respetan el locale activo
-  - [ ] 5.5 Identificar y corregir cualquier string hardcodeada en templates que no use `t()` o `field[locale]`
+- [x] Task 5: Auditoría i18n — Completitud de contenido bilingüe (AC: 4)
+  - [x] 5.1 Verificar LocaleToggle cambia TODAS las traducciones en Home (hero, knowledge of, projects, experience)
+  - [x] 5.2 Verificar datos de Firestore (projects, technologies, experiences) usan `field[locale]` correctamente
+  - [x] 5.3 Verificar todas las páginas: /, /projects, /projects/[slug], /contact tienen versión ES (/es/...)
+  - [x] 5.4 Verificar fechas formateadas con `Intl.DateTimeFormat` respetan el locale activo
+  - [x] 5.5 Identificar y corregir cualquier string hardcodeada en templates que no use `t()` o `field[locale]`
 
-- [ ] Task 6: Verificar hreflang tags (AC: 5)
-  - [ ] 6.1 Verificar que BaseLayout.astro genera hreflang correctamente (ya implementado — lines 42-43)
-  - [ ] 6.2 Verificar URLs absolutas en hreflang (ya usa `new URL(..., Astro.url).href`)
-  - [ ] 6.3 Agregar `<link rel="alternate" hreflang="x-default" href={enHref} />` en BaseLayout.astro (falta actualmente — mejora SEO para Google)
-  - [ ] 6.4 Verificar hreflang en todas las rutas: /, /projects, /projects/[slug], /contact
+- [x] Task 6: Verificar hreflang tags (AC: 5)
+  - [x] 6.1 Verificar que BaseLayout.astro genera hreflang correctamente (ya implementado — lines 42-43)
+  - [x] 6.2 Verificar URLs absolutas en hreflang (ya usa `new URL(..., Astro.url).href`)
+  - [x] 6.3 Agregar `<link rel="alternate" hreflang="x-default" href={enHref} />` en BaseLayout.astro (falta actualmente — mejora SEO para Google)
+  - [x] 6.4 Verificar hreflang en todas las rutas: /, /projects, /projects/[slug], /contact
 
-- [ ] Task 7: Auditoría lazy loading de imágenes (AC: 6)
-  - [ ] 7.1 Verificar `loading="lazy"` en imágenes below-the-fold (gallery thumbnails, technology icons en secciones bajas)
-  - [ ] 7.2 Verificar imagen principal de proyecto usa `fetchpriority="high"` (above-the-fold)
-  - [ ] 7.3 Verificar `decoding="async"` en imágenes que lo soportan
-  - [ ] 7.4 Verificar avatar/mascota en hero: NO debe ser lazy (es above-the-fold)
-  - [ ] 7.5 Verificar ImageViewer.svelte: thumbnails del gallery sin `width`/`height` explícitos — agregar para prevenir CLS (NFR3: CLS <0.05)
+- [x] Task 7: Auditoría lazy loading de imágenes (AC: 6)
+  - [x] 7.1 Verificar `loading="lazy"` en imágenes below-the-fold (gallery thumbnails, technology icons en secciones bajas)
+  - [x] 7.2 Verificar imagen principal de proyecto usa `fetchpriority="high"` (above-the-fold)
+  - [x] 7.3 Verificar `decoding="async"` en imágenes que lo soportan
+  - [x] 7.4 Verificar avatar/mascota en hero: NO debe ser lazy (es above-the-fold)
+  - [x] 7.5 Verificar ImageViewer.svelte: thumbnails del gallery sin `width`/`height` explícitos — agregar para prevenir CLS (NFR3: CLS <0.05)
 
-- [ ] Task 8: Pipeline — Build y verificación (AC: all)
-  - [ ] 8.1 Ejecutar `pnpm lint && pnpm type-check && pnpm build` — 0 errores
-  - [ ] 8.2 Verificar que View Transitions no rompe el build SSG
+- [x] Task 8: Pipeline — Build y verificación (AC: all)
+  - [x] 8.1 Ejecutar `pnpm lint && pnpm type-check && pnpm build` — 0 errores
+  - [x] 8.2 Verificar que View Transitions no rompe el build SSG
 
-- [ ] Task 9: E2E Tests (AC: all)
-  - [ ] 9.1 Crear `tests/e2e/responsive-polish.spec.ts`
-  - [ ] 9.2 Tests responsive: verificar layout en viewports 375px, 768px, 1280px
-  - [ ] 9.3 Tests locale switching: verificar que TODO el contenido cambia al toggle
-  - [ ] 9.4 Tests hreflang: verificar presencia de ambos `<link rel="alternate">` tags
-  - [ ] 9.5 Tests lazy loading: verificar atributo `loading="lazy"` en imágenes below-the-fold
-  - [ ] 9.6 Tests View Transitions: verificar que `<meta name="astro-view-transitions-enabled" content="true">` está presente (Astro lo inyecta con ClientRouter)
-  - [ ] 9.7 Ejecutar `pnpm test:e2e` — 0 fallos, 0 regresiones en tests existentes (54 tests)
+- [x] Task 9: E2E Tests (AC: all)
+  - [x] 9.1 Crear `tests/e2e/responsive-polish.spec.ts`
+  - [x] 9.2 Tests responsive: verificar layout en viewports 375px, 768px, 1280px
+  - [x] 9.3 Tests locale switching: verificar que TODO el contenido cambia al toggle
+  - [x] 9.4 Tests hreflang: verificar presencia de ambos `<link rel="alternate">` tags
+  - [x] 9.5 Tests lazy loading: verificar atributo `loading="lazy"` en imágenes below-the-fold
+  - [x] 9.6 Tests View Transitions: verificar que `<meta name="astro-view-transitions-enabled" content="true">` está presente (Astro lo inyecta con ClientRouter)
+  - [x] 9.7 Ejecutar `pnpm test:e2e` — 0 fallos, 0 regresiones en tests existentes (54 tests)
 
 ## Dev Notes
 
@@ -361,9 +361,31 @@ Pipeline actual del proyecto:
 ## Dev Agent Record
 
 ### Agent Model Used
+Claude Opus 4.6 (1M context)
 
 ### Debug Log References
+- E2E test "switching from ES to EN" initially failed: aria-label in ES is "Cambiar a inglés" not "Switch to English". Fixed test regex.
 
 ### Completion Notes List
+- **Task 1 (View Transitions):** Implementado ClientRouter en BaseLayout.astro con transition:animate="fade" en main, transition:persist en ThemeToggle. Agregado astro:after-swap listener en ThemeScript.astro para FOUC prevention. Refactorizado LocaleToggle de `<button onclick>` a `<a href>` para que View Transitions funcionen en cambio de idioma.
+- **Task 2 (Mobile audit):** Corregido MobileMenu.svelte breakpoint de 1024px a 56.25rem (900px). Corregido ExperienceSection: agregado flex-wrap y gap-x-4 para prevenir overflow de fechas en viewports estrechos, removido ml-4 fijo. Touch targets verificados con E2E test.
+- **Task 3 (Tablet audit):** Verificado 2-column grid (sm:grid-cols-2) en 768px, hamburger menu activo en tablet, Container padding responsive correcto.
+- **Task 4 (Desktop audit):** Corregido ProjectFilter.svelte: agregado lg:grid-cols-3 para 3 columnas en desktop. Verificado nav horizontal lg:flex, Container max-w-[75rem] y padding lg:px-8.
+- **Task 5 (i18n audit):** Verificado que todas las traducciones cambian al toggle: hero, knowledge of, projects, experience. Datos Firestore usan field[locale] correctamente. 4 rutas × 2 locales = 8 páginas bilingües verificadas. Sin strings hardcodeadas encontradas.
+- **Task 6 (hreflang):** Agregado hreflang x-default apuntando a EN. Verificado URLs absolutas en todos los hreflang tags. E2E tests verifican presencia en /, /projects, /contact.
+- **Task 7 (Lazy loading):** Verificado loading="lazy" en gallery thumbnails y tech icons. Main image usa fetchpriority="high". Hero avatar no es lazy. Agregado width/height y aspect-video a ImageViewer thumbnails para CLS prevention.
+- **Task 8 (Pipeline):** lint 0 errores, type-check 0 errores/warnings, build exitoso (18 páginas SSG).
+- **Task 9 (E2E Tests):** Creados 17 nuevos tests en responsive-polish.spec.ts. Total: 71 E2E tests (54 existentes + 17 nuevos), 0 fallos, 0 regresiones. 311 unit tests pasan sin cambios.
 
 ### File List
+- `src/layouts/BaseLayout.astro` — Agregado ClientRouter, transition:animate, transition:persist en ThemeToggle, hreflang x-default
+- `src/components/layout/ThemeScript.astro` — Agregado listener astro:after-swap para FOUC prevention
+- `src/components/layout/MobileMenu.svelte` — FIX: breakpoint 1024px → 56.25rem
+- `src/components/layout/LocaleToggle.svelte` — FIX: refactorizado de `<button>` a `<a href>` para View Transitions
+- `src/components/projects/ProjectFilter.svelte` — FIX: agregado lg:grid-cols-3
+- `src/components/home/ExperienceSection.astro` — FIX: flex-wrap y gap para dates overflow en mobile
+- `src/components/projects/ImageViewer.svelte` — FIX: width/height y aspect-video en thumbnails para CLS
+- `tests/e2e/responsive-polish.spec.ts` — NUEVO: 17 E2E tests para responsive, locale, hreflang, lazy loading, view transitions
+
+### Change Log
+- 2026-03-19: Implementación completa de story 2.8 — View Transitions API, corrección de 3 bugs conocidos (MobileMenu breakpoint, ProjectFilter 3-cols, LocaleToggle full reload), auditoría responsive/i18n/hreflang/lazy loading, 17 nuevos E2E tests

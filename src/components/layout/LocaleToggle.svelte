@@ -12,25 +12,19 @@
 
   const flag = $derived(currentLocale === 'es' ? '🇪🇸' : '🇺🇸');
 
-  function getTargetUrl(): string {
+  const targetUrl = $derived.by(() => {
     if (currentLocale === 'en') {
-      // Currently on EN (default, no prefix) → go to ES (add /es prefix)
       return `/es${currentPath === '/' ? '/' : currentPath}`;
     }
-    // Currently on ES (/es/ prefix) → go to EN (remove /es prefix)
     const withoutPrefix = currentPath.replace(/^\/es(\/|$)/, '$1');
     return withoutPrefix || '/';
-  }
-
-  function switchLocale() {
-    window.location.href = getTargetUrl();
-  }
+  });
 </script>
 
-<button
+<a
+  href={targetUrl}
   class="fixed bottom-6 right-6 z-[55] min-h-11 min-w-11 flex items-center justify-center bg-surface border border-border rounded-full shadow-lg hover:shadow-xl active:scale-95 transition-all focus:outline-2 focus:outline-offset-2 focus:outline-primary"
   aria-label={ariaLabel}
-  onclick={switchLocale}
 >
   <span class="text-xl leading-none">{flag}</span>
-</button>
+</a>

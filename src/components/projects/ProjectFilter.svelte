@@ -62,7 +62,7 @@
 {#if filteredProjects.length === 0}
   <p class="text-body text-text-secondary text-center py-12">{noResultsLabel}</p>
 {:else}
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     {#each filteredProjects as project (project.id)}
       <article class="relative bg-surface border border-border rounded-xl overflow-hidden hover:bg-surface-elevated hover:border-primary transition-colors duration-200 cursor-pointer">
         <!-- Project name with stretched link (covers entire card) -->

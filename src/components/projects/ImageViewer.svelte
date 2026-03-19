@@ -94,7 +94,9 @@
         alt=""
         loading="lazy"
         decoding="async"
-        class="w-full h-auto object-cover"
+        width="400"
+        height="225"
+        class="w-full aspect-video object-cover"
       />
     </button>
   {/each}

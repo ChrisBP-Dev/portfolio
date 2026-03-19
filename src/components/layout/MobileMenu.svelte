@@ -46,7 +46,7 @@
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
 
-    const mq = window.matchMedia('(min-width: 1024px)');
+    const mq = window.matchMedia('(min-width: 56.25rem)');
     const handleResize = () => { if (mq.matches) close(); };
     mq.addEventListener('change', handleResize);
 
