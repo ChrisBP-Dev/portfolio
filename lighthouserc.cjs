@@ -19,7 +19,7 @@ module.exports = {
           },
         },
         {
-          matchingUrlPattern: '(?!.*/projects/[^/]+/).*',
+          matchingUrlPattern: '^(?!.*/projects/[^/]+/).*$',
           assertions: {
             'categories:performance': ['error', { minScore: 0.95 }],
             'categories:accessibility': ['error', { minScore: 0.95 }],
