@@ -80,13 +80,14 @@ So that I can find relevant work samples quickly.
     ```
 
 - [ ] Task 3: Create `src/components/projects/ProjectFilter.svelte` — Interactive filter island (AC: #1, #2, #3, #4, #5)
-  - [ ] 3.1 Create `src/components/projects/ProjectFilter.svelte` (remove `.gitkeep` from `src/components/projects/` if present: `git rm src/components/projects/.gitkeep`)
+  - [ ] 3.1 Create `src/components/projects/ProjectFilter.svelte` (directory already exists, no `.gitkeep` to remove)
   - [ ] 3.2 Props interface using Svelte 5 `$props()`:
     ```svelte
     <script lang="ts">
       import type { Project } from '../../lib/schemas/project-schema';
       import type { Technology } from '../../lib/schemas/technology-schema';
       import type { Locale } from '../../lib/i18n/config';
+      import { localizeHref } from '../../data/navigation';
 
       let {
         projects,
@@ -132,18 +133,18 @@ So that I can find relevant work samples quickly.
     - Bind: `bind:value={selectedTech}`
   - [ ] 3.5 Project cards grid:
     - `<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">`
-    - Each card: `bg-surface border border-border rounded-xl overflow-hidden` (same surface card pattern as visual reference)
+    - Each card: `<article class="bg-surface border border-border rounded-xl overflow-hidden hover:bg-surface-elevated transition-colors duration-200">` (semantic HTML + hover state established in Story 2.3)
     - Card content layout (per visual reference — expanded card with all info visible):
-      - **Project name**: `<h2 class="text-heading-3 font-bold p-4 pb-0">{project.companyName[locale]}</h2>`
+      - **Project name (linked)**: `<a href={localizeHref('/projects/' + project.slug, locale)} class="block p-4 pb-0"><h2 class="text-heading-3 font-bold">{project.companyName[locale]}</h2></a>` — links to detail page (Story 2.5, 404 expected now). Import `localizeHref` from `../../data/navigation` in the Svelte component.
       - **Description**: `<p class="text-body-sm text-text-secondary px-4 py-2">{project.shortDescription[locale]}</p>`
       - **Website link** (if exists): `<a href={project.websiteUrl} target="_blank" rel="noopener noreferrer" class="text-primary text-body-sm px-4 hover:underline">{websiteLabel}: {project.websiteUrl}</a>`
-      - **Source code link** (if exists): same pattern
+      - **Source code link** (if exists): same pattern with `sourceCodeLabel`
       - **Technologies section**: `<div class="px-4 py-2"><h3 class="text-body-sm font-semibold mb-2">{technologiesLabel}</h3>` + technology chips row
-      - **Technology chips**: For each `techId` in `project.technologies`, find matching technology in `technologies` array, render: `<span class="inline-flex items-center gap-1 bg-primary/10 text-primary border border-primary/30 rounded-full px-2 py-1 text-caption">{techImage} {techName}</span>` — same styling as Badge.astro technology variant
+      - **Technology chips**: For each `techId` in `project.technologies`, resolve via `getTechByIds()`, render: `<span class="inline-flex items-center gap-1 bg-primary/10 text-primary border border-primary/30 rounded-full px-2 py-1 text-caption"><img src={tech.image.url} alt={tech.name} class="w-4 h-4" /> {tech.name}</span>` — same styling as Badge.astro technology variant
       - **Screenshots section**: `<div class="px-4 py-2"><h3 class="text-body-sm font-semibold mb-2">{screenshotsLabel}</h3>` + horizontal scroll of screenshot thumbnails
-      - **Screenshot thumbnails**: `<div class="flex gap-2 overflow-x-auto px-4 pb-4">` with each screenshot as `<img src={ss.url} alt="Screenshot" loading="lazy" class="h-24 rounded-lg object-cover">`
+      - **Screenshot thumbnails**: `<div class="flex gap-2 overflow-x-auto px-4 pb-4">` with each screenshot as `<img src={ss.url} alt={project.companyName[locale] + ' screenshot'} loading="lazy" class="h-24 rounded-lg object-cover">`
   - [ ] 3.6 No results state: when `filteredProjects.length === 0`, show `<p class="text-body text-text-secondary text-center py-12">{noResultsLabel}</p>`
-  - [ ] 3.7 Project card links to detail page: wrap project name or add a link element — `href={locale === 'en' ? `/en/projects/${project.slug}` : `/projects/${project.slug}`}` (detail pages will be built in Story 2.5, 404 is expected now)
+  - [ ] 3.7 Project card links to detail page: the project name `<h2>` is wrapped in an `<a>` element using `href={localizeHref('/projects/' + project.slug, locale)}` (uses the canonical `localizeHref` helper imported from `../../data/navigation`). Detail pages will be built in Story 2.5 — 404 is expected now.
   - [ ] 3.8 Technology resolution helper (inside component):
     ```svelte
     function getTechByIds(techIds: string[]): Technology[] {
@@ -272,9 +273,11 @@ This is the established pattern — MobileMenu.svelte and other islands receive 
 
 ### URL Localization Inside Svelte
 
-`localizeHref()` is TypeScript — usable in Svelte. But for simplicity, pass `locale` as a prop and compute the URL inline:
+`localizeHref()` is TypeScript — usable in Svelte. Import and use it for consistency with the established pattern:
 ```svelte
-href={locale === 'en' ? `/en/projects/${project.slug}` : `/projects/${project.slug}`}
+import { localizeHref } from '../../data/navigation';
+// ...
+href={localizeHref('/projects/' + project.slug, locale)}
 ```
 
 ### Images — External Firebase Storage URLs
@@ -302,7 +305,7 @@ For `en/projects/index.astro`: same imports but paths use `../../../lib/` (three
 | Helper | Import From | Usage |
 |--------|-------------|-------|
 | `t(key, locale)` | `../../lib/i18n/translations` | Static UI strings in Astro pages |
-| `localizeHref(path, locale)` | `../../data/navigation` | URL prefix (use in Astro, not needed in Svelte) |
+| `localizeHref(path, locale)` | `../../data/navigation` | URL prefix — use in both Astro and Svelte |
 | `getLocaleFromUrl(url)` | `../../lib/i18n/config` | Extract locale from URL |
 | `item.field[locale]` | Direct indexing | Firestore localized data |
 
@@ -343,7 +346,7 @@ src/lib/i18n/translations.ts             # Add projects.* translation keys
 
 Files to remove:
 ```
-src/components/projects/.gitkeep         # git rm after adding ProjectFilter.svelte
+(none — .gitkeep already removed, directory exists empty)
 ```
 
 ### Testing Standards
@@ -367,29 +370,13 @@ src/components/projects/.gitkeep         # git rm after adding ProjectFilter.sve
 
 ### Previous Story Intelligence
 
-**De Story 2.3 (Projects Destacados & Experience):**
-- `getAllProjects()` and `getAllTechnologies()` validated and working for SSG
-- Project card pattern established: `bg-surface border border-border rounded-xl overflow-hidden`
-- `<img>` tags for Firebase Storage URLs (NOT Astro `<Image />`)
-- `.gradient-text` class available globally in `global.css` (extracted in Story 2.3)
-- `localizeHref()` from `src/data/navigation.ts` is canonical URL helper
-- E2E tests verify project cards at `/` — new page tests go in new file
-- Badge.astro technology variant: `bg-primary/10 text-primary border border-primary/30 rounded-full px-2 py-1 text-caption` — replicate in Svelte inline
-- Home page ProjectsSection.astro cards use simplified view (image + name + short description). Projects page cards need EXPANDED view (all info visible per visual reference)
-- Experiences Firestore collection was empty — projects collection has data (~4 projects visible in visual reference)
+**De Story 2.3:** Card pattern: `bg-surface border border-border rounded-xl overflow-hidden hover:bg-surface-elevated transition-colors duration-200`. Home cards use simplified view (image + name + desc); this page needs EXPANDED view (all info visible). Badge.astro tech variant: `bg-primary/10 text-primary border border-primary/30 rounded-full px-2 py-1 text-caption` — replicate inline in Svelte. Projects collection has data (~4 projects). `.gradient-text` available globally.
 
-**De Story 2.2:**
-- SSG data fetching validated: `adminDb` works in page frontmatter
-- Code review found sequential Firebase fetches as deferred item (D1) — acceptable for now
+**De Story 2.2:** SSG `adminDb` works. Sequential fetches acceptable (deferred D1).
 
-**De Epic 1 Retrospective:**
-- Validate Astro v6 APIs against docs before using
-- Code review mandatory after implementation
-- CI/CD verification (`pnpm build`) is part of Definition of Done
+**De Epic 1 Retro:** Validate Astro v6 APIs. Code review mandatory. `pnpm build` is Definition of Done.
 
-### project-context.md is OUTDATED
-
-`_bmad-output/project-context.md` describes the OLD Flutter/Dart project. **Ignore it** for tech decisions. Use `architecture.md` and `epics.md` as authoritative sources.
+**Note:** `_bmad-output/project-context.md` is OUTDATED (old Flutter project). Use `architecture.md` and `epics.md` as authoritative sources.
 
 ### Git Intelligence
 
