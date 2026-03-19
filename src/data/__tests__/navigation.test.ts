@@ -16,22 +16,22 @@ describe('navigation', () => {
   });
 
   describe('localizeHref', () => {
-    it('returns unchanged href for "es" locale', () => {
-      expect(localizeHref('/', 'es')).toBe('/');
-      expect(localizeHref('/projects', 'es')).toBe('/projects');
+    it('returns unchanged href for "en" locale (default)', () => {
+      expect(localizeHref('/', 'en')).toBe('/');
+      expect(localizeHref('/projects', 'en')).toBe('/projects');
     });
 
-    it('prefixes /en for "en" locale', () => {
-      expect(localizeHref('/projects', 'en')).toBe('/en/projects');
+    it('prefixes /es for "es" locale', () => {
+      expect(localizeHref('/projects', 'es')).toBe('/es/projects');
     });
 
-    it('handles root / correctly for "en" locale', () => {
-      expect(localizeHref('/', 'en')).toBe('/en/');
+    it('handles root / correctly for "es" locale', () => {
+      expect(localizeHref('/', 'es')).toBe('/es/');
     });
 
-    it('handles nested paths for "en" locale', () => {
-      expect(localizeHref('/experience', 'en')).toBe('/en/experience');
-      expect(localizeHref('/blog', 'en')).toBe('/en/blog');
+    it('handles nested paths for "es" locale', () => {
+      expect(localizeHref('/experience', 'es')).toBe('/es/experience');
+      expect(localizeHref('/blog', 'es')).toBe('/es/blog');
     });
   });
 });

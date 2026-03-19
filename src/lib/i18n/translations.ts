@@ -89,6 +89,41 @@ const translations: Record<string, Record<Locale, string>> = {
   'social.tiktok': { es: 'Visitar perfil de TikTok', en: 'Visit TikTok profile' },
   'social.github': { es: 'Visitar perfil de GitHub', en: 'Visit GitHub profile' },
   'social.linkedin': { es: 'Visitar perfil de LinkedIn', en: 'Visit LinkedIn profile' },
+
+  // Contact page
+  'contact.heading': { es: 'Contacto', en: 'Contact' },
+  'contact.description': {
+    es: 'Elige tu canal preferido y envíame un mensaje. Estaré encantado de conversar contigo.',
+    en: 'Choose your preferred channel and send me a message. I\'d love to hear from you.',
+  },
+  'contact.form.name': { es: 'Nombre', en: 'Name' },
+  'contact.form.email': { es: 'Email', en: 'Email' },
+  'contact.form.phone': { es: 'Teléfono', en: 'Phone' },
+  'contact.form.message': { es: 'Mensaje', en: 'Message' },
+  'contact.form.channel': { es: 'Canal de contacto', en: 'Contact channel' },
+  'contact.form.channel.whatsapp': { es: 'WhatsApp', en: 'WhatsApp' },
+  'contact.form.channel.email': { es: 'Email', en: 'Email' },
+  'contact.form.submit': { es: 'Enviar Mensaje', en: 'Send Message' },
+  'contact.form.countryCode': { es: 'Código de país', en: 'Country code' },
+  'contact.form.namePlaceholder': { es: 'Tu nombre completo', en: 'Your full name' },
+  'contact.form.emailPlaceholder': { es: 'tu@email.com', en: 'you@email.com' },
+  'contact.form.phonePlaceholder': { es: '123 456 789', en: '123 456 789' },
+  'contact.form.messagePlaceholder': {
+    es: 'Cuéntame sobre tu proyecto o idea...',
+    en: 'Tell me about your project or idea...',
+  },
+  'contact.validation.nameRequired': { es: 'Nombre es obligatorio', en: 'Name is required' },
+  'contact.validation.emailRequired': { es: 'Email es obligatorio', en: 'Email is required' },
+  'contact.validation.emailInvalid': { es: 'Email inválido', en: 'Invalid email' },
+  'contact.validation.messageRequired': { es: 'Mensaje es obligatorio', en: 'Message is required' },
+  'contact.validation.channelRequired': { es: 'Selecciona un canal', en: 'Select a channel' },
+  'contact.validation.nameMin': { es: 'El nombre debe tener al menos 2 caracteres', en: 'Name must be at least 2 characters' },
+  'contact.validation.messageMin': { es: 'El mensaje debe tener al menos 10 caracteres', en: 'Message must be at least 10 characters' },
+  'contact.meta.title': { es: 'Contacto — ChrisBP', en: 'Contact — ChrisBP' },
+  'contact.meta.description': {
+    es: 'Ponte en contacto conmigo por WhatsApp o Email.',
+    en: 'Get in touch with me via WhatsApp or Email.',
+  },
 };
 
 export function t(key: string, locale: Locale): string {

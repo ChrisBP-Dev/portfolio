@@ -10,8 +10,8 @@ export const navItems = [
 
 export type NavKey = (typeof navItems)[number]['key'];
 
-/** Prefix href with /en for English locale */
+/** Prefix href with /es for Spanish locale (non-default) */
 export function localizeHref(href: string, locale: Locale): string {
-  if (locale === 'en') return `/en${href}`;
+  if (locale === 'es') return `/es${href}`;
   return href;
 }

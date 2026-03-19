@@ -3,8 +3,8 @@ import { getLocaleFromUrl, defaultLocale, locales } from '../config';
 
 describe('i18n config', () => {
   describe('constants', () => {
-    it('defaultLocale is "es"', () => {
-      expect(defaultLocale).toBe('es');
+    it('defaultLocale is "en"', () => {
+      expect(defaultLocale).toBe('en');
     });
 
     it('locales contains es and en', () => {
@@ -13,28 +13,28 @@ describe('i18n config', () => {
   });
 
   describe('getLocaleFromUrl', () => {
-    it('returns "es" for root path /', () => {
-      expect(getLocaleFromUrl(new URL('https://example.com/'))).toBe('es');
+    it('returns "en" for root path /', () => {
+      expect(getLocaleFromUrl(new URL('https://example.com/'))).toBe('en');
     });
 
-    it('returns "en" for /en/', () => {
-      expect(getLocaleFromUrl(new URL('https://example.com/en/'))).toBe('en');
+    it('returns "es" for /es/', () => {
+      expect(getLocaleFromUrl(new URL('https://example.com/es/'))).toBe('es');
     });
 
-    it('returns "es" for /projects (no locale prefix)', () => {
-      expect(getLocaleFromUrl(new URL('https://example.com/projects'))).toBe('es');
+    it('returns "en" for /projects (no locale prefix)', () => {
+      expect(getLocaleFromUrl(new URL('https://example.com/projects'))).toBe('en');
     });
 
-    it('returns "en" for /en/projects', () => {
-      expect(getLocaleFromUrl(new URL('https://example.com/en/projects'))).toBe('en');
+    it('returns "es" for /es/projects', () => {
+      expect(getLocaleFromUrl(new URL('https://example.com/es/projects'))).toBe('es');
     });
 
-    it('returns "es" for unknown locale prefix like /fr/', () => {
-      expect(getLocaleFromUrl(new URL('https://example.com/fr/'))).toBe('es');
+    it('returns "en" for unknown locale prefix like /fr/', () => {
+      expect(getLocaleFromUrl(new URL('https://example.com/fr/'))).toBe('en');
     });
 
-    it('returns "es" for /en without trailing slash (en is a valid segment)', () => {
-      expect(getLocaleFromUrl(new URL('https://example.com/en'))).toBe('en');
+    it('returns "es" for /es without trailing slash', () => {
+      expect(getLocaleFromUrl(new URL('https://example.com/es'))).toBe('es');
     });
   });
 });

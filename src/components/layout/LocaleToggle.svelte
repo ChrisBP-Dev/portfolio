@@ -13,12 +13,12 @@
   const flag = $derived(currentLocale === 'es' ? '🇪🇸' : '🇺🇸');
 
   function getTargetUrl(): string {
-    if (currentLocale === 'es') {
-      // Add /en prefix
-      return `/en${currentPath === '/' ? '/' : currentPath}`;
+    if (currentLocale === 'en') {
+      // Currently on EN (default, no prefix) → go to ES (add /es prefix)
+      return `/es${currentPath === '/' ? '/' : currentPath}`;
     }
-    // Remove /en prefix
-    const withoutPrefix = currentPath.replace(/^\/en\/?/, '/');
+    // Currently on ES (/es/ prefix) → go to EN (remove /es prefix)
+    const withoutPrefix = currentPath.replace(/^\/es\/?/, '/');
     return withoutPrefix || '/';
   }
 

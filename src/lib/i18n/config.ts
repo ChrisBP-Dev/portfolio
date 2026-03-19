@@ -2,7 +2,7 @@ export type { Locale } from '../schemas/shared-schemas';
 export { localeSchema } from '../schemas/shared-schemas';
 import type { Locale } from '../schemas/shared-schemas';
 
-export const defaultLocale: Locale = 'es';
+export const defaultLocale: Locale = 'en';
 export const locales: Locale[] = ['es', 'en'];
 
 /** Extract locale from URL path. Returns defaultLocale if no locale prefix found. */

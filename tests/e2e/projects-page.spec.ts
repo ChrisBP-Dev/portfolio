@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Projects Page — ES', () => {
+test.describe('Projects Page — EN', () => {
   test('page loads with intro text, filter dropdown, and project cards', async ({ page }) => {
     await page.goto('/projects');
 
-    await expect(page.locator('p').filter({ hasText: 'Como desarrollador' })).toBeVisible();
+    await expect(page.locator('p').filter({ hasText: 'As a developer' })).toBeVisible();
 
     await expect(page.locator('main select')).toBeVisible();
 
@@ -12,7 +12,7 @@ test.describe('Projects Page — ES', () => {
     await expect(projectCards.first()).toBeVisible();
   });
 
-  test('filter dropdown shows "Todos los Proyectos" by default with technology options', async ({
+  test('filter dropdown shows "All Projects" by default with technology options', async ({
     page,
   }) => {
     await page.goto('/projects');
@@ -21,7 +21,7 @@ test.describe('Projects Page — ES', () => {
     await expect(select).toHaveValue('');
 
     const defaultOption = select.locator('option[value=""]');
-    await expect(defaultOption).toHaveText('Todos los Proyectos');
+    await expect(defaultOption).toHaveText('All Projects');
 
     const options = select.locator('option');
     const count = await options.count();
@@ -73,19 +73,19 @@ test.describe('Projects Page — ES', () => {
   });
 });
 
-test.describe('Projects Page — EN', () => {
-  test('page loads with English content at /en/projects', async ({ page }) => {
-    await page.goto('/en/projects');
+test.describe('Projects Page — ES', () => {
+  test('page loads with Spanish content at /es/projects', async ({ page }) => {
+    await page.goto('/es/projects');
 
-    await expect(page.locator('p').filter({ hasText: 'As a developer' })).toBeVisible();
+    await expect(page.locator('p').filter({ hasText: 'Como desarrollador' })).toBeVisible();
 
     const select = page.locator('main select');
     const defaultOption = select.locator('option[value=""]');
-    await expect(defaultOption).toHaveText('All Projects');
+    await expect(defaultOption).toHaveText('Todos los Proyectos');
   });
 
-  test('filter works correctly in English locale', async ({ page }) => {
-    await page.goto('/en/projects');
+  test('filter works correctly in Spanish locale', async ({ page }) => {
+    await page.goto('/es/projects');
 
     const allCards = page.locator('article');
     const initialCount = await allCards.count();

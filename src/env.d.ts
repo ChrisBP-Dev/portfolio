@@ -11,6 +11,9 @@ interface ImportMetaEnv {
   readonly PUBLIC_FIREBASE_APP_ID: string;
   readonly PUBLIC_ADMIN_UID: string;
 
+  // Contact
+  readonly PUBLIC_CONTACT_EMAIL: string;
+
   // Firebase Admin SDK (server/build only — NEVER in browser)
   readonly FIREBASE_ADMIN_PROJECT_ID: string;
   readonly FIREBASE_ADMIN_CLIENT_EMAIL: string;

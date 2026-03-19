@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Project Detail Page — ES', () => {
+test.describe('Project Detail Page — EN', () => {
   let detailUrl: string;
 
   test.beforeEach(async ({ page }) => {
@@ -25,7 +25,7 @@ test.describe('Project Detail Page — ES', () => {
   test('displays features list when project has features', async ({ page }) => {
     const featuresList = page.locator('ul.list-disc');
     const count = await featuresList.count();
-    test.skip(count === 0, 'El primer proyecto no tiene features — omitido condicionalmente');
+    test.skip(count === 0, 'First project has no features — skipped conditionally');
     await expect(featuresList.first()).toBeVisible();
     const items = featuresList.locator('li');
     expect(await items.count()).toBeGreaterThan(0);
@@ -39,7 +39,7 @@ test.describe('Project Detail Page — ES', () => {
   test('displays external links with target=_blank when present', async ({ page }) => {
     const externalLinks = page.locator('main a[target="_blank"][rel="noopener noreferrer"]');
     const count = await externalLinks.count();
-    test.skip(count === 0, 'El primer proyecto no tiene links externos — omitido condicionalmente');
+    test.skip(count === 0, 'First project has no external links — skipped conditionally');
     for (let i = 0; i < count; i++) {
       await expect(externalLinks.nth(i)).toHaveAttribute('target', '_blank');
       await expect(externalLinks.nth(i)).toHaveAttribute('rel', 'noopener noreferrer');
@@ -51,7 +51,7 @@ test.describe('Project Detail Page — ES', () => {
   test('displays screenshot gallery with data attributes', async ({ page }) => {
     const gallery = page.locator('#screenshot-gallery');
     const galleryCount = await gallery.count();
-    test.skip(galleryCount === 0, 'El primer proyecto no tiene screenshots — omitido condicionalmente');
+    test.skip(galleryCount === 0, 'First project has no screenshots — skipped conditionally');
     await expect(gallery).toBeVisible();
     const buttons = gallery.locator('button[data-screenshot-index]');
     expect(await buttons.count()).toBeGreaterThan(0);
@@ -59,7 +59,7 @@ test.describe('Project Detail Page — ES', () => {
   });
 
   test('back link navigates to projects listing', async ({ page }) => {
-    const backLink = page.locator('a', { hasText: '← Volver a Proyectos' });
+    const backLink = page.locator('a', { hasText: '← Back to Projects' });
     await expect(backLink).toBeVisible();
     await backLink.click();
     await expect(page).toHaveURL(/\/projects$/);
@@ -70,19 +70,19 @@ test.describe('Project Detail Page — ES', () => {
   });
 });
 
-test.describe('Project Detail Page — EN', () => {
+test.describe('Project Detail Page — ES', () => {
   let detailUrl: string;
 
   test.beforeEach(async ({ page }) => {
-    await page.goto('/en/projects');
-    const firstCardLink = page.locator('main a[href*="/en/projects/"]').first();
+    await page.goto('/es/projects');
+    const firstCardLink = page.locator('main a[href*="/es/projects/"]').first();
     await expect(firstCardLink).toBeVisible();
     detailUrl = (await firstCardLink.getAttribute('href'))!;
     await page.goto(detailUrl);
   });
 
-  test('page loads with English content at /en/projects/[slug]', async ({ page }) => {
-    await expect(page).toHaveURL(/\/en\/projects\/.+/);
+  test('page loads with Spanish content at /es/projects/[slug]', async ({ page }) => {
+    await expect(page).toHaveURL(/\/es\/projects\/.+/);
 
     const h1 = page.locator('h1');
     await expect(h1).toBeVisible();
@@ -90,10 +90,10 @@ test.describe('Project Detail Page — EN', () => {
     await expect(page).toHaveTitle(/.*— ChrisBP/);
   });
 
-  test('back link navigates to /en/projects', async ({ page }) => {
-    const backLink = page.locator('a', { hasText: '← Back to Projects' });
+  test('back link navigates to /es/projects', async ({ page }) => {
+    const backLink = page.locator('a', { hasText: '← Volver a Proyectos' });
     await expect(backLink).toBeVisible();
     await backLink.click();
-    await expect(page).toHaveURL(/\/en\/projects$/);
+    await expect(page).toHaveURL(/\/es\/projects$/);
   });
 });

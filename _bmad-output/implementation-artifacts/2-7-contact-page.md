@@ -1,6 +1,6 @@
 # Story 2.7: Contact Page
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -87,35 +87,35 @@ And botón ocupa ancho completo
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: i18n — Agregar keys de traducción (AC: 2, 5, 7)
-  - [ ] 1.1 Agregar keys en `src/lib/i18n/translations.ts`: contact.heading, contact.description, contact.form.name, contact.form.email, contact.form.phone, contact.form.message, contact.form.channel, contact.form.channel.whatsapp, contact.form.channel.email, contact.form.submit, contact.form.cancel, contact.form.countryCode, contact.validation.nameRequired, contact.validation.emailRequired, contact.validation.emailInvalid, contact.validation.messageRequired, contact.validation.channelRequired, contact.validation.nameMin, contact.validation.messageMin, contact.meta.title, contact.meta.description
-- [ ] Task 2: ContactForm.svelte — Componente interactivo (AC: 2, 3, 4, 5, 6)
-  - [ ] 2.1 Crear `src/components/contact/ContactForm.svelte` como Svelte 5 island
-  - [ ] 2.2 Props interface: `{ locale: 'es' | 'en' }`
-  - [ ] 2.3 Estado del formulario con `$state()`: name, email, phone, countryCode, message, channel, errors record, submitted
-  - [ ] 2.4 Country picker con dropdown (código de país + bandera emoji o label)
-  - [ ] 2.5 Channel selector dropdown: WhatsApp | Email
-  - [ ] 2.6 Validación inline on blur + on submit (Zod schema)
-  - [ ] 2.7 `handleSubmit()`: genera URL según channel seleccionado y abre en nueva pestaña
-  - [ ] 2.8 WhatsApp URL: `https://wa.me/{phone}?text={encodedMessage}`
-  - [ ] 2.9 mailto URL: `mailto:{christopherEmail}?subject={encodedSubject}&body={encodedBody}`
-  - [ ] 2.10 Accesibilidad: labels con `for`, `aria-required`, `aria-invalid`, `aria-describedby` para errores, `aria-live="polite"` en zona de errores
-- [ ] Task 3: Páginas Astro — Crear rutas ES/EN (AC: 1, 6, 7)
-  - [ ] 3.1 Crear `src/pages/contact.astro` con BaseLayout, currentPage="contact"
-  - [ ] 3.2 Crear `src/pages/en/contact.astro` con locale="en"
-  - [ ] 3.3 Ambas: `Section variant="default"` + `Container variant="narrow"` + heading + descripción + `<ContactForm client:load locale={locale} />`
-  - [ ] 3.4 Agregar `PUBLIC_CONTACT_EMAIL` en `.env`, `.env.example` y `src/env.d.ts`
-- [ ] Task 4: Verificar footer social links (AC: 8)
-  - [ ] 4.1 Verificar que Footer.astro tiene links sociales correctos con `target="_blank"` y `rel="noopener noreferrer"`
-  - [ ] 4.2 Verificar aria-labels descriptivos en cada link social
-- [ ] Task 5: Pipeline — Verificar build (AC: all)
-  - [ ] 5.1 Ejecutar `pnpm lint && pnpm type-check && pnpm build` — 0 errores
-- [ ] Task 6: E2E Tests (AC: all)
-  - [ ] 6.1 Crear `tests/e2e/contact-page.spec.ts`
-  - [ ] 6.2 Tests ES: page load, verificar hidratación del Svelte island, form fields visibles, validación campos vacíos, validación email inválido, envío WhatsApp (verificar window.open URL), envío Email (verificar mailto href), country picker, responsive
-  - [ ] 6.3 Tests EN: page load /en/contact, labels en inglés, validación en inglés
-  - [ ] 6.4 Usar selectores semánticos: `page.getByRole()`, `page.getByLabel()` — NO selectores CSS frágiles
-  - [ ] 6.5 Ejecutar `pnpm test:e2e` — 0 fallos, 0 regresiones
+- [x] Task 1: i18n — Agregar keys de traducción (AC: 2, 5, 7)
+  - [x] 1.1 Agregar keys en `src/lib/i18n/translations.ts`: contact.heading, contact.description, contact.form.name, contact.form.email, contact.form.phone, contact.form.message, contact.form.channel, contact.form.channel.whatsapp, contact.form.channel.email, contact.form.submit, contact.form.cancel, contact.form.countryCode, contact.validation.nameRequired, contact.validation.emailRequired, contact.validation.emailInvalid, contact.validation.messageRequired, contact.validation.channelRequired, contact.validation.nameMin, contact.validation.messageMin, contact.meta.title, contact.meta.description
+- [x] Task 2: ContactForm.svelte — Componente interactivo (AC: 2, 3, 4, 5, 6)
+  - [x] 2.1 Crear `src/components/contact/ContactForm.svelte` como Svelte 5 island
+  - [x] 2.2 Props interface: `{ locale: 'es' | 'en' }`
+  - [x] 2.3 Estado del formulario con `$state()`: name, email, phone, countryCode, message, channel, errors record, submitted
+  - [x] 2.4 Country picker con dropdown (código de país + bandera emoji o label)
+  - [x] 2.5 Channel selector dropdown: WhatsApp | Email
+  - [x] 2.6 Validación inline on blur + on submit (Zod schema)
+  - [x] 2.7 `handleSubmit()`: genera URL según channel seleccionado y abre en nueva pestaña
+  - [x] 2.8 WhatsApp URL: `https://wa.me/{phone}?text={encodedMessage}`
+  - [x] 2.9 mailto URL: `mailto:{christopherEmail}?subject={encodedSubject}&body={encodedBody}`
+  - [x] 2.10 Accesibilidad: labels con `for`, `aria-required`, `aria-invalid`, `aria-describedby` para errores, `aria-live="polite"` en zona de errores
+- [x] Task 3: Páginas Astro — Crear rutas ES/EN (AC: 1, 6, 7)
+  - [x] 3.1 Crear `src/pages/contact.astro` con BaseLayout, currentPage="contact"
+  - [x] 3.2 Crear `src/pages/en/contact.astro` con locale="en"
+  - [x] 3.3 Ambas: `Section variant="default"` + `Container variant="narrow"` + heading + descripción + `<ContactForm client:load locale={locale} />`
+  - [x] 3.4 Agregar `PUBLIC_CONTACT_EMAIL` en `.env`, `.env.example` y `src/env.d.ts`
+- [x] Task 4: Verificar footer social links (AC: 8)
+  - [x] 4.1 Verificar que Footer.astro tiene links sociales correctos con `target="_blank"` y `rel="noopener noreferrer"`
+  - [x] 4.2 Verificar aria-labels descriptivos en cada link social
+- [x] Task 5: Pipeline — Verificar build (AC: all)
+  - [x] 5.1 Ejecutar `pnpm lint && pnpm type-check && pnpm build` — 0 errores
+- [x] Task 6: E2E Tests (AC: all)
+  - [x] 6.1 Crear `tests/e2e/contact-page.spec.ts`
+  - [x] 6.2 Tests ES: page load, verificar hidratación del Svelte island, form fields visibles, validación campos vacíos, validación email inválido, envío WhatsApp (verificar window.open URL), envío Email (verificar mailto href), country picker, responsive
+  - [x] 6.3 Tests EN: page load /en/contact, labels en inglés, validación en inglés
+  - [x] 6.4 Usar selectores semánticos: `page.getByRole()`, `page.getByLabel()` — NO selectores CSS frágiles
+  - [x] 6.5 Ejecutar `pnpm test:e2e` — 0 fallos, 0 regresiones
 
 ## Dev Notes
 
@@ -359,9 +359,58 @@ feat: implement story 2.7 — Contact Page
 ## Dev Agent Record
 
 ### Agent Model Used
+Claude Opus 4.6 (1M context)
 
 ### Debug Log References
+- Hydration issue diagnosed: stale Vite dev server on port 4321 caused 504 errors during E2E, resolved by killing process and using fresh `pnpm preview`
+- ESLint fixes: removed unused `submitted` state, unused `contactSchema` variable, fixed destructuring pattern, added `{#each}` key
 
 ### Completion Notes List
+- Implemented ContactForm.svelte as Svelte 5 island with `$props()`, `$state()`, Zod email validation, i18n via `t()` function
+- Form supports WhatsApp (window.open) and Email (window.location.href = mailto:) channels
+- Country picker with 10 common countries, native `<select>` for accessibility, default USA (+1)
+- Validation on blur + on submit, inline error messages with `role="alert"` and `aria-describedby`
+- Created ES/EN Astro pages following existing page patterns (BaseLayout, Section, Container)
+- Added `PUBLIC_CONTACT_EMAIL` env var to `.env`, `.env.example`, `src/env.d.ts`
+- Footer social links verified: TikTok, GitHub, LinkedIn with correct `target="_blank"` and `rel="noopener noreferrer"`
+- 12 E2E tests covering: page load, form fields, validation (empty/invalid), WhatsApp URL generation, email submission, country picker, responsive, ES translations, footer social links
+- Full pipeline: 0 lint errors, 0 type errors, 303 unit tests pass, 54 E2E tests pass (0 regressions)
+
+#### Post-implementation: Default locale flip (EN as default)
+- Cambio solicitado por el usuario: el portfolio apunta primero al público americano (EN), con soporte ES
+- `defaultLocale` cambiado de `'es'` a `'en'` en `astro.config.mjs` y `src/lib/i18n/config.ts`
+- Directorio de páginas renombrado: `src/pages/en/` → `src/pages/es/` (Astro mapea el directorio al locale no-default)
+- URLs ahora: `/` = English (default), `/es/` = Spanish
+- Lógica de prefijo URL invertida en `navigation.ts` y `LocaleToggle.svelte`
+- Fallbacks actualizados en `BaseLayout.astro` y `AdminLayout.astro`
+- Country code default cambiado de España (+34) a USA (+1) en `ContactForm.svelte`
+- Todos los E2E tests (5 archivos) y unit tests (2 archivos) actualizados para reflejar las nuevas URLs
+- Pipeline completa: 0 lint, 0 type errors, 303 unit tests, 54 E2E tests (0 regressions)
 
 ### File List
+
+**Story 2.7 — Contact Page:**
+- `src/components/contact/ContactForm.svelte` (new) — Svelte 5 contact form island
+- `src/pages/contact.astro` (new) — Contact page (EN at root)
+- `src/pages/es/contact.astro` (new) — Contact page (ES prefixed)
+- `src/lib/i18n/translations.ts` (modified) — Added 20+ contact.* translation keys
+- `src/env.d.ts` (modified) — Added PUBLIC_CONTACT_EMAIL type
+- `.env` (modified) — Added PUBLIC_CONTACT_EMAIL value
+- `.env.example` (modified) — Added PUBLIC_CONTACT_EMAIL placeholder
+- `tests/e2e/contact-page.spec.ts` (new) — 12 E2E tests for contact page
+
+**Default locale flip (EN as default):**
+- `astro.config.mjs` (modified) — defaultLocale: 'es' → 'en'
+- `src/lib/i18n/config.ts` (modified) — defaultLocale: 'es' → 'en'
+- `src/data/navigation.ts` (modified) — Prefix logic inverted (es gets /es/ prefix)
+- `src/components/layout/LocaleToggle.svelte` (modified) — URL generation inverted
+- `src/layouts/BaseLayout.astro` (modified) — Fallback locale + routePath logic
+- `src/layouts/AdminLayout.astro` (modified) — lang="es" → lang="en"
+- `src/pages/en/` → `src/pages/es/` (renamed) — 4 page files moved
+- `src/lib/i18n/__tests__/config.test.ts` (modified) — Assertions flipped
+- `src/data/__tests__/navigation.test.ts` (modified) — Assertions flipped
+- `tests/e2e/home-page.spec.ts` (modified) — URLs flipped EN↔ES
+- `tests/e2e/projects-page.spec.ts` (modified) — URLs flipped EN↔ES
+- `tests/e2e/project-detail.spec.ts` (modified) — URLs flipped EN↔ES
+- `tests/e2e/image-viewer.spec.ts` (modified) — URLs flipped EN↔ES
+- `tests/e2e/contact-page.spec.ts` (modified) — URLs flipped EN↔ES
