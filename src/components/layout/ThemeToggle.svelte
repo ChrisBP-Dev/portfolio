@@ -9,13 +9,25 @@
   let { currentLocale }: Props = $props();
 
   let isDark = $state(true);
+  let domLocale = $state<'es' | 'en' | null>(null);
 
   onMount(() => {
     isDark = document.documentElement.classList.contains('dark');
   });
 
+  // Sync locale from <html lang> after View Transition swap (transition:persist keeps stale props)
+  $effect(() => {
+    const syncLocale = () => {
+      domLocale = (document.documentElement.lang || 'en') as 'es' | 'en';
+    };
+    document.addEventListener('astro:after-swap', syncLocale);
+    return () => document.removeEventListener('astro:after-swap', syncLocale);
+  });
+
+  const locale = $derived(domLocale ?? currentLocale);
+
   const ariaLabel = $derived(
-    isDark ? t('theme.toLight', currentLocale) : t('theme.toDark', currentLocale)
+    isDark ? t('theme.toLight', locale) : t('theme.toDark', locale)
   );
 
   const icon = $derived(isDark ? '☀️' : '🌙');

@@ -20,7 +20,7 @@
 
   function bodyPortal(node: Element) {
     document.body.appendChild(node);
-    return { destroy() {} };
+    return { destroy() { node.remove(); } };
   }
 
   function slideDown(_node: Element) {
@@ -39,6 +39,18 @@
     isOpen = false;
     triggerRef?.focus();
   }
+
+  // Close menu before View Transition swap to prevent scroll lock and orphaned overlay
+  $effect(() => {
+    const handleSwap = () => {
+      if (isOpen) {
+        isOpen = false;
+        document.body.style.overflow = '';
+      }
+    };
+    document.addEventListener('astro:before-swap', handleSwap);
+    return () => document.removeEventListener('astro:before-swap', handleSwap);
+  });
 
   $effect(() => {
     if (!isOpen) return;

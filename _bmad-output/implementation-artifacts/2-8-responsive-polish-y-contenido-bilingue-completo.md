@@ -1,6 +1,6 @@
 # Story 2.8: Responsive Polish y Contenido Bilingüe Completo
 
-Status: review
+Status: done
 
 ## Story
 
@@ -365,6 +365,12 @@ Claude Opus 4.6 (1M context)
 
 ### Debug Log References
 - E2E test "switching from ES to EN" initially failed: aria-label in ES is "Cambiar a inglés" not "Switch to English". Fixed test regex.
+- Code review found ThemeToggle stale locale with transition:persist — fixed with $effect + astro:after-swap listener syncing from document.documentElement.lang.
+- Code review found MobileMenu bodyPortal destroy was empty — orphaned portal nodes in DOM.
+- Code review found MobileMenu scroll lock during View Transitions — added astro:before-swap listener.
+- E2E tests rewritten: home page project cards are `<a>`, not `<article>` — selectors corrected.
+- Typography test: body text is 14px by design (text-body-sm clamp), adjusted threshold to ≥14px.
+- Touch target test: filtered to buttons and min-h-11 elements to avoid false positives from inline text links.
 
 ### Completion Notes List
 - **Task 1 (View Transitions):** Implementado ClientRouter en BaseLayout.astro con transition:animate="fade" en main, transition:persist en ThemeToggle. Agregado astro:after-swap listener en ThemeScript.astro para FOUC prevention. Refactorizado LocaleToggle de `<button onclick>` a `<a href>` para que View Transitions funcionen en cambio de idioma.
@@ -372,20 +378,23 @@ Claude Opus 4.6 (1M context)
 - **Task 3 (Tablet audit):** Verificado 2-column grid (sm:grid-cols-2) en 768px, hamburger menu activo en tablet, Container padding responsive correcto.
 - **Task 4 (Desktop audit):** Corregido ProjectFilter.svelte: agregado lg:grid-cols-3 para 3 columnas en desktop. Verificado nav horizontal lg:flex, Container max-w-[75rem] y padding lg:px-8.
 - **Task 5 (i18n audit):** Verificado que todas las traducciones cambian al toggle: hero, knowledge of, projects, experience. Datos Firestore usan field[locale] correctamente. 4 rutas × 2 locales = 8 páginas bilingües verificadas. Sin strings hardcodeadas encontradas.
-- **Task 6 (hreflang):** Agregado hreflang x-default apuntando a EN. Verificado URLs absolutas en todos los hreflang tags. E2E tests verifican presencia en /, /projects, /contact.
+- **Task 6 (hreflang):** Agregado hreflang x-default apuntando a EN. Verificado URLs absolutas en todos los hreflang tags. E2E tests verifican presencia en /, /projects, /contact, /es/.
 - **Task 7 (Lazy loading):** Verificado loading="lazy" en gallery thumbnails y tech icons. Main image usa fetchpriority="high". Hero avatar no es lazy. Agregado width/height y aspect-video a ImageViewer thumbnails para CLS prevention.
 - **Task 8 (Pipeline):** lint 0 errores, type-check 0 errores/warnings, build exitoso (18 páginas SSG).
-- **Task 9 (E2E Tests):** Creados 17 nuevos tests en responsive-polish.spec.ts. Total: 71 E2E tests (54 existentes + 17 nuevos), 0 fallos, 0 regresiones. 311 unit tests pasan sin cambios.
+- **Task 9 (E2E Tests):** 23 tests en responsive-polish.spec.ts. Total: 77 E2E tests (54 existentes + 23 nuevos), 0 fallos, 0 regresiones. 311 unit tests pasan sin cambios.
+- **Code Review Patches:** ThemeToggle stale locale fix (astro:after-swap sync), MobileMenu bodyPortal destroy fix, MobileMenu astro:before-swap close, ThemeScript DRY refactor (applyTheme function), BaseLayout canonical link, E2E tests reescritos con selectores semánticos y cobertura mejorada.
 
 ### File List
-- `src/layouts/BaseLayout.astro` — Agregado ClientRouter, transition:animate, transition:persist en ThemeToggle, hreflang x-default
-- `src/components/layout/ThemeScript.astro` — Agregado listener astro:after-swap para FOUC prevention
-- `src/components/layout/MobileMenu.svelte` — FIX: breakpoint 1024px → 56.25rem
+- `src/layouts/BaseLayout.astro` — Agregado ClientRouter, transition:animate, transition:persist en ThemeToggle, hreflang x-default, canonical link
+- `src/components/layout/ThemeScript.astro` — FOUC prevention con función applyTheme compartida (DRY)
+- `src/components/layout/ThemeToggle.svelte` — FIX: locale sync via astro:after-swap (stale prop con transition:persist)
+- `src/components/layout/MobileMenu.svelte` — FIX: breakpoint 1024px → 56.25rem, bodyPortal destroy, astro:before-swap close
 - `src/components/layout/LocaleToggle.svelte` — FIX: refactorizado de `<button>` a `<a href>` para View Transitions
 - `src/components/projects/ProjectFilter.svelte` — FIX: agregado lg:grid-cols-3
 - `src/components/home/ExperienceSection.astro` — FIX: flex-wrap y gap para dates overflow en mobile
 - `src/components/projects/ImageViewer.svelte` — FIX: width/height y aspect-video en thumbnails para CLS
-- `tests/e2e/responsive-polish.spec.ts` — NUEVO: 17 E2E tests para responsive, locale, hreflang, lazy loading, view transitions
+- `tests/e2e/responsive-polish.spec.ts` — 23 E2E tests: responsive, locale, hreflang, lazy loading, view transitions, canonical
 
 ### Change Log
 - 2026-03-19: Implementación completa de story 2.8 — View Transitions API, corrección de 3 bugs conocidos (MobileMenu breakpoint, ProjectFilter 3-cols, LocaleToggle full reload), auditoría responsive/i18n/hreflang/lazy loading, 17 nuevos E2E tests
+- 2026-03-19: Code review patches — 2 bugs de implementación (ThemeToggle stale locale, MobileMenu portal/scroll leak), 1 defer resuelto (ThemeScript DRY), 1 defer resuelto (canonical link), E2E tests reescritos con selectores semánticos y cobertura ampliada (17→23 tests, total 77)

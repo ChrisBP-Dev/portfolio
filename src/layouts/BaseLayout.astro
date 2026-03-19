@@ -40,6 +40,7 @@ const enHref = new URL(getRelativeLocaleUrl('en', routePath), Astro.url).href;
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
+    <link rel="canonical" href={locale === 'en' ? enHref : esHref} />
     <link rel="alternate" hreflang="es" href={esHref} />
     <link rel="alternate" hreflang="en" href={enHref} />
     <link rel="alternate" hreflang="x-default" href={enHref} />

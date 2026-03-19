@@ -6,20 +6,14 @@
 
 <script is:inline>
 (function() {
-  const d = document.documentElement;
-  const stored = localStorage.getItem('theme');
-  const isLight = stored === 'light' || (!stored && window.matchMedia('(prefers-color-scheme: light)').matches);
-  if (isLight) {
-    d.classList.remove('dark');
+  function applyTheme() {
+    const d = document.documentElement;
+    const stored = localStorage.getItem('theme');
+    const isLight = stored === 'light' || (!stored && window.matchMedia('(prefers-color-scheme: light)').matches);
+    d.classList.toggle('dark', !isLight);
+    d.style.colorScheme = isLight ? 'light' : 'dark';
   }
-  d.style.colorScheme = isLight ? 'light' : 'dark';
+  applyTheme();
+  document.addEventListener('astro:after-swap', applyTheme);
 })();
-document.addEventListener('astro:after-swap', () => {
-  const d = document.documentElement;
-  const stored = localStorage.getItem('theme');
-  const isLight = stored === 'light' || (!stored && window.matchMedia('(prefers-color-scheme: light)').matches);
-  if (isLight) d.classList.remove('dark');
-  else d.classList.add('dark');
-  d.style.colorScheme = isLight ? 'light' : 'dark';
-});
 </script>
