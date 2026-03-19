@@ -22,6 +22,7 @@ export default [
         Element: 'readonly',
         KeyboardEvent: 'readonly',
         MouseEvent: 'readonly',
+        MediaQueryListEvent: 'readonly',
         NodeListOf: 'readonly',
       },
       parserOptions: {

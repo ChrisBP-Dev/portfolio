@@ -80,7 +80,7 @@ const translations: Record<string, Record<Locale, string>> = {
   'projects.detail.externalLink.newTab': { es: 'abre en nueva pestaña', en: 'opens in new tab' },
 
   // ImageViewer
-  'imageViewer.close': { es: 'Cerrar', en: 'Close' },
+  'imageViewer.close': { es: 'Cerrar visor de imágenes', en: 'Close image viewer' },
   'imageViewer.previous': { es: 'Imagen anterior', en: 'Previous image' },
   'imageViewer.next': { es: 'Siguiente imagen', en: 'Next image' },
   'imageViewer.counter': { es: 'de', en: 'of' },

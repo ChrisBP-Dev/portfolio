@@ -11,13 +11,25 @@
   let currentIndex = $state(0);
   let dialogRef = $state<HTMLDialogElement | null>(null);
   let galleryRef = $state<HTMLDivElement | null>(null);
+  // P5: reactive — actualiza si el usuario cambia preferencia mientras la página está abierta
+  let reducedMotion = $state(false);
+  // P1: referencia al elemento que abrió el viewer para restaurar el foco al cerrar
+  let openerRef: HTMLElement | null = null;
   let currentImage = $derived(screenshots[currentIndex]);
 
-  const reducedMotion = typeof window !== 'undefined'
-    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    : false;
+  $effect(() => {
+    const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
+    reducedMotion = mql.matches;
+    const handler = (e: MediaQueryListEvent) => { reducedMotion = e.matches; };
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  });
 
   function open(index: number) {
+    // P2: guard contra showModal() sobre dialog ya abierto (lanzaría InvalidStateError)
+    if (isOpen) return;
+    // P1: guarda el elemento con foco para restaurarlo al cerrar
+    openerRef = document.activeElement as HTMLElement | null;
     currentIndex = index;
     dialogRef?.showModal();
     isOpen = true;
@@ -26,6 +38,9 @@
   function close() {
     dialogRef?.close();
     isOpen = false;
+    // P1: restaura el foco al thumbnail que abrió el viewer (WCAG 2.4.3)
+    openerRef?.focus();
+    openerRef = null;
   }
 
   function next() {
@@ -42,8 +57,10 @@
     if (e.key === 'ArrowLeft') prev();
   }
 
-  function handleBackdropClick(e: MouseEvent) {
-    if (e.target === dialogRef) close();
+  // P4: cierra solo cuando el click cae en el área de padding del contenedor,
+  // no sobre la imagen ni sobre los botones (que son siblings absolutos, no hijos de este div)
+  function handleContentAreaClick(e: MouseEvent) {
+    if (e.target === e.currentTarget) close();
   }
 
   $effect(() => {
@@ -62,7 +79,8 @@
 
 <!-- Gallery grid (visible — enables client:visible hydration) -->
 <div id="screenshot-gallery" bind:this={galleryRef} class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-  {#each screenshots as ss, index (index)}
+  <!-- P10: key por ss.url (estable) en lugar de index (posicional) -->
+  {#each screenshots as ss, index (ss.url)}
     <button
       type="button"
       data-screenshot-index={index}
@@ -70,9 +88,10 @@
       class="cursor-pointer rounded-lg overflow-hidden border border-border hover:border-primary transition-colors duration-200 focus:outline-2 focus:outline-primary focus:outline-offset-2"
       onclick={() => open(index)}
     >
+      <!-- P6: alt="" porque el botón padre ya tiene aria-label descriptivo -->
       <img
         src={ss.url}
-        alt={`${ss.alt} ${index + 1}`}
+        alt=""
         loading="lazy"
         decoding="async"
         class="w-full h-auto object-cover"
@@ -82,12 +101,12 @@
 </div>
 
 <!-- Fullscreen overlay dialog -->
+<!-- P4: onclick removido del dialog; el backdrop click se maneja en el div interno -->
 <dialog
   bind:this={dialogRef}
   class="fixed inset-0 w-full h-full max-w-none max-h-none m-0 p-0 bg-transparent backdrop:bg-black/80"
   class:no-transition={reducedMotion}
   oncancel={close}
-  onclick={handleBackdropClick}
   aria-label={`${currentImage?.alt ?? ''} — ${currentIndex + 1} ${t('imageViewer.counter', locale)} ${screenshots.length}`}
 >
   <!-- Close button -->
@@ -125,11 +144,16 @@
     </button>
   {/if}
 
-  <!-- Centered image -->
-  <div class="flex items-center justify-center w-full h-full p-8 sm:p-12">
+  <!-- P4: backdrop click → cierra cuando el click cae en el padding (e.target === e.currentTarget) -->
+  <!-- P8: loading="eager" — imagen principal del viewer debe cargarse inmediatamente -->
+  <div
+    class="flex items-center justify-center w-full h-full p-8 sm:p-12"
+    onclick={handleContentAreaClick}
+  >
     <img
       src={currentImage?.url}
       alt={`${currentImage?.alt ?? ''} ${currentIndex + 1}`}
+      loading="eager"
       class="max-w-full max-h-full object-contain"
     />
   </div>
@@ -141,3 +165,12 @@
     </div>
   {/if}
 </dialog>
+
+<!-- P3: define .no-transition para que prefers-reduced-motion tenga efecto real -->
+<style>
+  .no-transition,
+  .no-transition * {
+    transition: none !important;
+    animation: none !important;
+  }
+</style>

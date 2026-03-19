@@ -1,6 +1,6 @@
 # Story 2.6: Image Viewer
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -387,7 +387,7 @@ Claude Opus 4.6 (1M context)
 
 ### Debug Log References
 
-- ESLint globals: `HTMLDialogElement`, `HTMLDivElement`, `MouseEvent` agregados para soporte de Svelte
+- ESLint globals: `HTMLDialogElement`, `HTMLDivElement`, `MouseEvent`, `MediaQueryListEvent` agregados para soporte de Svelte
 - E2E hidratación: `client:visible` requiere scroll al viewport + `data-hydrated` signal para tests estables
 
 ### Completion Notes List
@@ -398,6 +398,27 @@ Claude Opus 4.6 (1M context)
 - Task 4: Pipeline verificado — lint 0 errores, type-check 0 errores, 255 unit tests pasan, build exitoso con 16 páginas
 - Task 5: 9 E2E tests creados (8 ES + 1 EN): overlay, navegación por botones, Escape, X close, arrow keys, counter, ARIA labels. 33 tests E2E totales pasan (0 regresiones)
 - UX fix: Project cards en listing — card completa clickeable via stretched link (`after:absolute after:inset-0`), hover con `border-primary`, `cursor-pointer`. Links externos mantienen `relative z-10` para funcionar independientemente. Mejora crítica para mobile donde no hay hover feedback.
+
+### Code Review Patches (2026-03-19)
+
+Correcciones aplicadas tras code review adversarial con 3 capas (Blind Hunter, Edge Case Hunter, Acceptance Auditor):
+
+- **P1 — Restauración de foco (WCAG 2.4.3):** `open()` guarda `document.activeElement`, `close()` lo restaura con `.focus()`.
+- **P2 — Guard en `open()` contra doble showModal():** `if (isOpen) return;` evita `InvalidStateError` si se llama mientras el dialog ya está abierto.
+- **P3 — Clase `.no-transition` definida:** Añadida regla CSS en `<style>` que desactiva `transition` y `animation` cuando `prefers-reduced-motion` está activo.
+- **P4 — Backdrop click cross-browser:** Removido `onclick` del `<dialog>`. Handler movido al div contenedor interno usando `e.target === e.currentTarget`, que detecta correctamente el área de padding alrededor de la imagen.
+- **P5 — `reducedMotion` reactivo:** Convertido de `const` estático a `$state` con listener `MediaQueryList.change` en `$effect`. Responde a cambios de preferencia en tiempo real.
+- **P6 — `alt=""` en thumbnails decorativos:** Las imágenes de thumbnail dentro de botones con `aria-label` ya descriptivo usan `alt=""` para evitar doble anuncio en lectores de pantalla.
+- **P7 — Suite EN completa:** Añadidos 7 tests conductuales al suite EN (espejando el suite ES). Ahora cubre: overlay, navegación botones, Escape, X close, arrow keys, counter, ARIA labels, restauración de foco.
+- **P8 — `loading="eager"` en imagen principal:** La imagen del overlay carga eager (contenido primario, no lazy).
+- **P9 — Labels de cierre descriptivos:** `imageViewer.close` actualizado a "Cerrar visor de imágenes" / "Close image viewer". Selectores E2E actualizados.
+- **P10 — Key estable en `{#each}`:** Cambiado de `(index)` a `(ss.url)` para evitar reuso de nodos DOM si el array cambia.
+- **D1 (parcial) — Tests no dependen del primer proyecto:** `beforeEach` ahora itera todos los proyectos del listing hasta encontrar uno con `#screenshot-gallery`, eliminando el riesgo de skip silencioso.
+- **ESLint:** Agregado `MediaQueryListEvent` a globals de Svelte.
+
+### Defers Pendientes
+
+- **D2 — Validación de `ss.url` / `ss.alt` vacíos:** Cobertura del Zod schema y tipos TypeScript protegen esto en la capa de datos. Validación en la UI es redundante. Defer genuino — revisar si se detecta algún caso en prod.
 
 ### File List
 
