@@ -39,6 +39,14 @@ const translations: Record<string, Record<Locale, string>> = {
   // Home — Knowledge Of
   'home.knowledgeOf.title': { es: 'CONOCIMIENTOS', en: 'KNOWLEDGE OF' },
 
+  // Home — Projects
+  'home.projects.title': { es: 'Proyectos', en: 'Projects' },
+  'home.projects.seeAll': { es: 'Ver Todos', en: 'See All' },
+
+  // Home — Experience
+  'home.experience.title': { es: 'EXPERIENCIA', en: 'EXPERIENCE' },
+  'home.experience.present': { es: 'Presente', en: 'Present' },
+
   // Home — Meta
   'home.meta.title': { es: 'Portfolio — ChrisBP', en: 'Portfolio — ChrisBP' },
   'home.meta.description': {

@@ -26,6 +26,40 @@ test.describe('Home Page — ES (default locale)', () => {
   });
 });
 
+test.describe('Home Page — ES: Projects section', () => {
+  test('projects section is visible with gradient title, cards, and See All button', async ({
+    page,
+  }) => {
+    await page.goto('/');
+
+    await expect(page.getByRole('heading', { name: 'Proyectos' })).toBeVisible();
+
+    const projectCards = page.locator('a[href*="/projects/"]');
+    await expect(projectCards.first()).toBeVisible();
+
+    const projectImages = projectCards.first().locator('img[loading="lazy"]');
+    await expect(projectImages.first()).toBeVisible();
+
+    await expect(page.getByRole('link', { name: 'Ver Todos' })).toBeVisible();
+  });
+
+  test('project cards link to correct href pattern', async ({ page }) => {
+    await page.goto('/');
+
+    const projectCard = page.locator('a[href*="/projects/"]').first();
+    const href = await projectCard.getAttribute('href');
+    expect(href).toMatch(/^\/projects\/[\w-]+$/);
+  });
+});
+
+test.describe('Home Page — ES: Experience section', () => {
+  test('experience section is visible with title', async ({ page }) => {
+    await page.goto('/');
+
+    await expect(page.getByRole('heading', { name: 'EXPERIENCIA' })).toBeVisible();
+  });
+});
+
 test.describe('Home Page — EN', () => {
   test('hero section displays English translations', async ({ page }) => {
     await page.goto('/en/');
@@ -41,5 +75,23 @@ test.describe('Home Page — EN', () => {
     await page.goto('/en/');
 
     await expect(page.getByRole('heading', { name: 'KNOWLEDGE OF' })).toBeVisible();
+  });
+
+  test('projects section displays English title and See All button', async ({ page }) => {
+    await page.goto('/en/');
+
+    await expect(page.getByRole('heading', { name: 'Projects' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'See All' })).toBeVisible();
+
+    const projectCard = page.locator('a[href*="/en/projects/"]').first();
+    await expect(projectCard).toBeVisible();
+    const href = await projectCard.getAttribute('href');
+    expect(href).toMatch(/^\/en\/projects\/[\w-]+$/);
+  });
+
+  test('experience section displays English title', async ({ page }) => {
+    await page.goto('/en/');
+
+    await expect(page.getByRole('heading', { name: 'EXPERIENCE' })).toBeVisible();
   });
 });

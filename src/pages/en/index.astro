@@ -2,13 +2,18 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import HeroSection from '../../components/home/HeroSection.astro';
 import TechnologiesSection from '../../components/home/TechnologiesSection.astro';
+import ProjectsSection from '../../components/home/ProjectsSection.astro';
+import ExperienceSection from '../../components/home/ExperienceSection.astro';
 import { adminDb } from '../../lib/firebase/admin';
-import { getAllTechnologies } from '../../lib/firebase/collections';
+import { getAllTechnologies, getAllProjects, getAllExperiences } from '../../lib/firebase/collections';
 import { getLocaleFromUrl } from '../../lib/i18n/config';
 import { t } from '../../lib/i18n/translations';
 
 const locale = getLocaleFromUrl(Astro.url);
 const technologies = await getAllTechnologies(adminDb);
+const projects = await getAllProjects(adminDb);
+const projectsPreview = projects.slice(0, 3);
+const experiences = await getAllExperiences(adminDb);
 ---
 
 <BaseLayout
@@ -18,4 +23,6 @@ const technologies = await getAllTechnologies(adminDb);
 >
   <HeroSection locale={locale} />
   <TechnologiesSection technologies={technologies} locale={locale} />
+  <ProjectsSection projects={projectsPreview} locale={locale} />
+  <ExperienceSection experiences={experiences} locale={locale} />
 </BaseLayout>
