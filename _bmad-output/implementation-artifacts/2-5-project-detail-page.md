@@ -1,6 +1,6 @@
 # Story 2.5: Project Detail Page
 
-Status: ready-for-dev
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -23,14 +23,14 @@ So that I can deeply evaluate Christopher's work quality.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: i18n translations for Project Detail page (AC: #4)
-  - [ ] 1.1 Add translation keys to `src/lib/i18n/translations.ts`:
+- [x] Task 1: i18n translations for Project Detail page (AC: #4)
+  - [x] 1.1 Add translation keys to `src/lib/i18n/translations.ts`:
     - `projects.detail.features` — "Características" / "Features"
     - `projects.detail.backToProjects` — "← Volver a Proyectos" / "← Back to Projects"
-  - [ ] 1.2 Verify existing keys already cover: `projects.technologies`, `projects.website`, `projects.sourceCode`, `projects.screenshots` (reuse from Story 2.4)
+  - [x] 1.2 Verify existing keys already cover: `projects.technologies`, `projects.website`, `projects.sourceCode`, `projects.screenshots` (reuse from Story 2.4)
 
-- [ ] Task 2: Create `src/pages/projects/[slug].astro` — Project detail page ES (AC: #1, #2, #3, #5, #6)
-  - [ ] 2.1 Frontmatter — `getStaticPaths()` + data fetching:
+- [x] Task 2: Create `src/pages/projects/[slug].astro` — Project detail page ES (AC: #1, #2, #3, #5, #6)
+  - [x] 2.1 Frontmatter — `getStaticPaths()` + data fetching:
     ```typescript
     ---
     import BaseLayout from '../../layouts/BaseLayout.astro';
@@ -67,7 +67,7 @@ So that I can deeply evaluate Christopher's work quality.
     const resolvedTechs = getTechByIds(project.technologies);
     ---
     ```
-  - [ ] 2.2 Page layout structure — use `Container variant="default"` (1200px max):
+  - [x] 2.2 Page layout structure — use `Container variant="default"` (1200px max):
     - `BaseLayout` with `title={project.companyName[locale] + ' — ChrisBP'}`, `description={project.shortDescription[locale]}`, `currentPage="projects"`
     - Back link at top: `<a>` with `t('projects.detail.backToProjects', locale)`, links to `localizeHref('/projects', locale)`
     - `<h1>` with project name `{project.companyName[locale]}`
@@ -77,7 +77,7 @@ So that I can deeply evaluate Christopher's work quality.
     - Technologies section: heading + Badge.astro chips with tech icon + name
     - External links section: Button.astro components for websiteUrl / sourceCodeUrl (conditional rendering)
     - Screenshots gallery section: grid of clickable images with `data-screenshot-index` attributes
-  - [ ] 2.3 Detailed HTML structure:
+  - [x] 2.3 Detailed HTML structure:
     ```astro
     <BaseLayout
       title={project.companyName[locale] + ' — ChrisBP'}
@@ -196,19 +196,19 @@ So that I can deeply evaluate Christopher's work quality.
     </BaseLayout>
     ```
 
-- [ ] Task 3: Create `src/pages/en/projects/[slug].astro` — Project detail page EN (AC: #4, #5)
-  - [ ] 3.1 Create directory `src/pages/en/projects/` (already exists) and add `[slug].astro`
-  - [ ] 3.2 Same structure as ES version but import paths use `../../../` (three levels up)
-  - [ ] 3.3 Back link uses `localizeHref('/projects', locale)` — returns `/en/projects` automatically for EN locale. Import `localizeHref` from `../../../data/navigation`
-  - [ ] 3.4 Verify `getLocaleFromUrl(Astro.url)` correctly returns `'en'` for this path
+- [x] Task 3: Create `src/pages/en/projects/[slug].astro` — Project detail page EN (AC: #4, #5)
+  - [x] 3.1 Create directory `src/pages/en/projects/` (already exists) and add `[slug].astro`
+  - [x] 3.2 Same structure as ES version but import paths use `../../../` (three levels up)
+  - [x] 3.3 Back link uses `localizeHref('/projects', locale)` — returns `/en/projects` automatically for EN locale. Import `localizeHref` from `../../../data/navigation`
+  - [x] 3.4 Verify `getLocaleFromUrl(Astro.url)` correctly returns `'en'` for this path
 
-- [ ] Task 4: Verify pipeline (AC: all)
-  - [ ] 4.1 Run `pnpm lint && pnpm type-check && pnpm test && pnpm build`
-  - [ ] 4.2 Verify build generates HTML files for each project slug in both locales
-  - [ ] 4.3 Verify existing tests pass (no regressions)
+- [x] Task 4: Verify pipeline (AC: all)
+  - [x] 4.1 Run `pnpm lint && pnpm type-check && pnpm test && pnpm build`
+  - [x] 4.2 Verify build generates HTML files for each project slug in both locales
+  - [x] 4.3 Verify existing tests pass (no regressions)
 
-- [ ] Task 5: E2E tests (AC: #1, #3, #4, #6)
-  - [ ] 5.1 Create `tests/e2e/project-detail.spec.ts`:
+- [x] Task 5: E2E tests (AC: #1, #3, #4, #6)
+  - [x] 5.1 Create `tests/e2e/project-detail.spec.ts`:
     ```typescript
     test.describe('Project Detail Page — ES', () => {
       test('page loads with project name, description, and main image', ...);
@@ -225,13 +225,13 @@ So that I can deeply evaluate Christopher's work quality.
       test('back link navigates to /en/projects', ...);
     });
     ```
-  - [ ] 5.2 Slug discovery strategy: navigate to `/projects`, locate the first project card link via `page.locator('main a[href*="/projects/"]').first()`, extract its `href`, then `page.goto(href)` to the detail page. This avoids hardcoding slugs that may change. Same pattern for EN: navigate `/en/projects`, find first card link
-  - [ ] 5.3 Verify h1 exists with project name, main image exists (no `loading="lazy"` on main image), description text exists
-  - [ ] 5.4 Verify technologies section renders with Badge-style chips
-  - [ ] 5.5 Verify back link navigates correctly (check final URL matches `/projects` for ES, `/en/projects` for EN)
-  - [ ] 5.6 Verify external links have `target="_blank"` and `rel="noopener noreferrer"` attributes
-  - [ ] 5.7 Verify page title: `await expect(page).toHaveTitle(/.*— ChrisBP/)`
-  - [ ] 5.8 Verify screenshot gallery wrapper has `id="screenshot-gallery"` and buttons have `data-screenshot-index` attributes
+  - [x] 5.2 Slug discovery strategy: navigate to `/projects`, locate the first project card link via `page.locator('main a[href*="/projects/"]').first()`, extract its `href`, then `page.goto(href)` to the detail page. This avoids hardcoding slugs that may change. Same pattern for EN: navigate `/en/projects`, find first card link
+  - [x] 5.3 Verify h1 exists with project name, main image exists (no `loading="lazy"` on main image), description text exists
+  - [x] 5.4 Verify technologies section renders with Badge-style chips
+  - [x] 5.5 Verify back link navigates correctly (check final URL matches `/projects` for ES, `/en/projects` for EN)
+  - [x] 5.6 Verify external links have `target="_blank"` and `rel="noopener noreferrer"` attributes
+  - [x] 5.7 Verify page title: `await expect(page).toHaveTitle(/.*— ChrisBP/)`
+  - [x] 5.8 Verify screenshot gallery wrapper has `id="screenshot-gallery"` and buttons have `data-screenshot-index` attributes
 
 ## Dev Notes
 
@@ -441,12 +441,29 @@ Pattern: semantic prefixes (`feat:`, `fix:`, `docs:`). Use `feat: implement stor
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.6
 
 ### Debug Log References
 
+- Button.astro Props interface was missing `target` and `rel` — added them to fix type-check errors for external links with `target="_blank"`
+
 ### Completion Notes List
+
+- Task 1: Added `projects.detail.features` and `projects.detail.backToProjects` translation keys. Verified existing keys from Story 2.4 are present.
+- Task 2: Created ES project detail page with `getStaticPaths()`, full layout (back link, h1, main image, description, features, technologies, external links, screenshot gallery). Uses all existing Astro components (Badge, Button, Section, Container).
+- Task 3: Created EN project detail page with identical structure, adjusted import paths to `../../../`.
+- Task 4: Full pipeline passing — 0 lint errors, 0 type errors, 245 unit tests pass, build generates 6 project detail pages per locale (12 total).
+- Task 5: Created 9 E2E tests (7 ES, 2 EN) using dynamic slug discovery pattern. All 24 E2E tests pass (including existing).
+- Minor fix: Added `target` and `rel` props to Button.astro interface to support external links.
 
 ### Change Log
 
+- 2026-03-19: feat: implement story 2.5 — Project Detail Page (all 5 tasks complete)
+
 ### File List
+
+- src/lib/i18n/translations.ts (modified — added 2 translation keys)
+- src/components/common/Button.astro (modified — added target/rel to Props)
+- src/pages/projects/[slug].astro (new — ES project detail page)
+- src/pages/en/projects/[slug].astro (new — EN project detail page)
+- tests/e2e/project-detail.spec.ts (new — 9 E2E tests)

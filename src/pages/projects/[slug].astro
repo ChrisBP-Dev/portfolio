@@ -1,0 +1,150 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Section from '../../components/common/Section.astro';
+import Container from '../../components/common/Container.astro';
+import Badge from '../../components/common/Badge.astro';
+import Button from '../../components/common/Button.astro';
+import { adminDb } from '../../lib/firebase/admin';
+import { getAllProjects, getAllTechnologies } from '../../lib/firebase/collections';
+import { getLocaleFromUrl } from '../../lib/i18n/config';
+import { t } from '../../lib/i18n/translations';
+import { localizeHref } from '../../data/navigation';
+import type { Technology } from '../../lib/schemas/technology-schema';
+
+export async function getStaticPaths() {
+  const projects = await getAllProjects(adminDb);
+  return projects.map((project) => ({
+    params: { slug: project.slug },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const locale = getLocaleFromUrl(Astro.url);
+const allTechnologies = await getAllTechnologies(adminDb);
+
+const techMap = new Map(allTechnologies.map((tech) => [tech.id, tech]));
+function getTechByIds(techIds: string[]): Technology[] {
+  return techIds
+    .map((id) => techMap.get(id))
+    .filter((tech): tech is Technology => tech !== undefined);
+}
+
+const resolvedTechs = getTechByIds(project.technologies);
+---
+
+<BaseLayout
+  title={project.companyName[locale] + ' — ChrisBP'}
+  description={project.shortDescription[locale]}
+  currentPage="projects"
+>
+  <Section variant="default">
+    <Container variant="default">
+      <!-- Back link -->
+      <a href={localizeHref('/projects', locale)} class="inline-flex items-center text-primary hover:underline text-body-sm mb-6">
+        {t('projects.detail.backToProjects', locale)}
+      </a>
+
+      <!-- Project name -->
+      <h1 class="text-heading-1 font-bold mb-6">{project.companyName[locale]}</h1>
+
+      <!-- Main image -->
+      <img
+        src={project.mainImage.url}
+        alt={project.companyName[locale]}
+        class="w-full rounded-xl object-cover max-h-96 aspect-video mb-8"
+      />
+
+      <!-- Description -->
+      <p class="text-body text-text-secondary mb-8">
+        {project.shortDescription[locale]}
+      </p>
+
+      <!-- Features list -->
+      {project.features[locale].length > 0 && (
+        <div class="mb-8">
+          <h2 class="text-heading-2 font-semibold mb-4">
+            {t('projects.detail.features', locale)}
+          </h2>
+          <ul class="list-disc list-inside space-y-2 text-body text-text-secondary">
+            {project.features[locale].map((feature) => (
+              <li>{feature}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <!-- Technologies -->
+      {resolvedTechs.length > 0 && (
+        <div class="mb-8">
+          <h2 class="text-heading-2 font-semibold mb-4">
+            {t('projects.technologies', locale)}
+          </h2>
+          <div class="flex flex-wrap gap-2">
+            {resolvedTechs.map((tech) => (
+              <Badge variant="technology">
+                <img src={tech.image.url} alt={tech.name} loading="lazy" class="w-4 h-4" />
+                {tech.name}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <!-- External links -->
+      {(project.websiteUrl || project.sourceCodeUrl) && (
+        <div class="flex flex-wrap gap-4 mb-8">
+          {project.websiteUrl && (
+            <Button
+              variant="secondary"
+              href={String(project.websiteUrl)}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${t('projects.website', locale)} (${locale === 'es' ? 'abre en nueva pestaña' : 'opens in new tab'})`}
+            >
+              {t('projects.website', locale)} ↗
+            </Button>
+          )}
+          {project.sourceCodeUrl && (
+            <Button
+              variant="secondary"
+              href={String(project.sourceCodeUrl)}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${t('projects.sourceCode', locale)} (${locale === 'es' ? 'abre en nueva pestaña' : 'opens in new tab'})`}
+            >
+              {t('projects.sourceCode', locale)} ↗
+            </Button>
+          )}
+        </div>
+      )}
+
+      <!-- Screenshots gallery -->
+      {project.screenshots.length > 0 && (
+        <div class="mb-8">
+          <h2 class="text-heading-2 font-semibold mb-4">
+            {t('projects.screenshots', locale)}
+          </h2>
+          <div id="screenshot-gallery" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            {project.screenshots.map((ss, index) => (
+              <button
+                type="button"
+                data-screenshot-index={index}
+                aria-label={`${project.companyName[locale]} screenshot ${index + 1}`}
+                class="cursor-pointer rounded-lg overflow-hidden border border-border hover:border-primary transition-colors duration-200 focus:outline-2 focus:outline-primary focus:outline-offset-2"
+              >
+                <img
+                  src={ss.url}
+                  alt={`${project.companyName[locale]} screenshot ${index + 1}`}
+                  loading="lazy"
+                  decoding="async"
+                  class="w-full h-auto object-cover"
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </Container>
+  </Section>
+</BaseLayout>

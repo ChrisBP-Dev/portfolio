@@ -75,6 +75,8 @@ const translations: Record<string, Record<Locale, string>> = {
     es: 'No se encontraron proyectos con esta tecnología',
     en: 'No projects found with this technology',
   },
+  'projects.detail.features': { es: 'Características', en: 'Features' },
+  'projects.detail.backToProjects': { es: '← Volver a Proyectos', en: '← Back to Projects' },
 
   // Social aria
   'social.tiktok': { es: 'Visitar perfil de TikTok', en: 'Visit TikTok profile' },
