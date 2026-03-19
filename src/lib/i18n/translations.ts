@@ -77,6 +77,7 @@ const translations: Record<string, Record<Locale, string>> = {
   },
   'projects.detail.features': { es: 'Características', en: 'Features' },
   'projects.detail.backToProjects': { es: '← Volver a Proyectos', en: '← Back to Projects' },
+  'projects.detail.externalLink.newTab': { es: 'abre en nueva pestaña', en: 'opens in new tab' },
 
   // Social aria
   'social.tiktok': { es: 'Visitar perfil de TikTok', en: 'Visit TikTok profile' },

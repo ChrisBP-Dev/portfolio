@@ -25,40 +25,37 @@ test.describe('Project Detail Page — ES', () => {
   test('displays features list when project has features', async ({ page }) => {
     const featuresList = page.locator('ul.list-disc');
     const count = await featuresList.count();
-    if (count > 0) {
-      await expect(featuresList.first()).toBeVisible();
-      const items = featuresList.locator('li');
-      expect(await items.count()).toBeGreaterThan(0);
-    }
+    test.skip(count === 0, 'El primer proyecto no tiene features — omitido condicionalmente');
+    await expect(featuresList.first()).toBeVisible();
+    const items = featuresList.locator('li');
+    expect(await items.count()).toBeGreaterThan(0);
   });
 
   test('displays technology chips with icons', async ({ page }) => {
-    const techChips = page.locator('span.inline-flex img[loading="lazy"]');
-    await expect(techChips.first()).toBeVisible();
+    const techIcons = page.locator('img[data-testid="tech-icon"]');
+    await expect(techIcons.first()).toBeVisible();
   });
 
   test('displays external links with target=_blank when present', async ({ page }) => {
-    const externalLinks = page.locator('a[target="_blank"][rel="noopener noreferrer"]');
+    const externalLinks = page.locator('main a[target="_blank"][rel="noopener noreferrer"]');
     const count = await externalLinks.count();
-    if (count > 0) {
-      for (let i = 0; i < count; i++) {
-        await expect(externalLinks.nth(i)).toHaveAttribute('target', '_blank');
-        await expect(externalLinks.nth(i)).toHaveAttribute('rel', 'noopener noreferrer');
-        const ariaLabel = await externalLinks.nth(i).getAttribute('aria-label');
-        expect(ariaLabel).toBeTruthy();
-      }
+    test.skip(count === 0, 'El primer proyecto no tiene links externos — omitido condicionalmente');
+    for (let i = 0; i < count; i++) {
+      await expect(externalLinks.nth(i)).toHaveAttribute('target', '_blank');
+      await expect(externalLinks.nth(i)).toHaveAttribute('rel', 'noopener noreferrer');
+      const ariaLabel = await externalLinks.nth(i).getAttribute('aria-label');
+      expect(ariaLabel).toBeTruthy();
     }
   });
 
   test('displays screenshot gallery with data attributes', async ({ page }) => {
     const gallery = page.locator('#screenshot-gallery');
     const galleryCount = await gallery.count();
-    if (galleryCount > 0) {
-      await expect(gallery).toBeVisible();
-      const buttons = gallery.locator('button[data-screenshot-index]');
-      expect(await buttons.count()).toBeGreaterThan(0);
-      await expect(buttons.first()).toHaveAttribute('data-screenshot-index', '0');
-    }
+    test.skip(galleryCount === 0, 'El primer proyecto no tiene screenshots — omitido condicionalmente');
+    await expect(gallery).toBeVisible();
+    const buttons = gallery.locator('button[data-screenshot-index]');
+    expect(await buttons.count()).toBeGreaterThan(0);
+    await expect(buttons.first()).toHaveAttribute('data-screenshot-index', '0');
   });
 
   test('back link navigates to projects listing', async ({ page }) => {
@@ -78,7 +75,7 @@ test.describe('Project Detail Page — EN', () => {
 
   test.beforeEach(async ({ page }) => {
     await page.goto('/en/projects');
-    const firstCardLink = page.locator('main a[href*="/projects/"]').first();
+    const firstCardLink = page.locator('main a[href*="/en/projects/"]').first();
     await expect(firstCardLink).toBeVisible();
     detailUrl = (await firstCardLink.getAttribute('href'))!;
     await page.goto(detailUrl);

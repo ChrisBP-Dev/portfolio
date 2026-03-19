@@ -12,16 +12,21 @@ import { localizeHref } from '../../data/navigation';
 import type { Technology } from '../../lib/schemas/technology-schema';
 
 export async function getStaticPaths() {
-  const projects = await getAllProjects(adminDb);
+  const [projects, allTechnologies] = await Promise.all([
+    getAllProjects(adminDb),
+    getAllTechnologies(adminDb),
+  ]);
+  if (projects.length === 0) {
+    console.warn('[getStaticPaths] No se encontraron proyectos — verifica la conexión a Firestore y el nombre de la colección');
+  }
   return projects.map((project) => ({
     params: { slug: project.slug },
-    props: { project },
+    props: { project, allTechnologies },
   }));
 }
 
-const { project } = Astro.props;
+const { project, allTechnologies } = Astro.props;
 const locale = getLocaleFromUrl(Astro.url);
-const allTechnologies = await getAllTechnologies(adminDb);
 
 const techMap = new Map(allTechnologies.map((tech) => [tech.id, tech]));
 function getTechByIds(techIds: string[]): Technology[] {
@@ -85,7 +90,7 @@ const resolvedTechs = getTechByIds(project.technologies);
           <div class="flex flex-wrap gap-2">
             {resolvedTechs.map((tech) => (
               <Badge variant="technology">
-                <img src={tech.image.url} alt={tech.name} loading="lazy" class="w-4 h-4" />
+                <img src={tech.image.url} alt={tech.name} loading="lazy" class="w-4 h-4" data-testid="tech-icon" />
                 {tech.name}
               </Badge>
             ))}
@@ -102,7 +107,7 @@ const resolvedTechs = getTechByIds(project.technologies);
               href={String(project.websiteUrl)}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label={`${t('projects.website', locale)} (${locale === 'es' ? 'abre en nueva pestaña' : 'opens in new tab'})`}
+              aria-label={`${t('projects.website', locale)} (${t('projects.detail.externalLink.newTab', locale)})`}
             >
               {t('projects.website', locale)} ↗
             </Button>
@@ -113,7 +118,7 @@ const resolvedTechs = getTechByIds(project.technologies);
               href={String(project.sourceCodeUrl)}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label={`${t('projects.sourceCode', locale)} (${locale === 'es' ? 'abre en nueva pestaña' : 'opens in new tab'})`}
+              aria-label={`${t('projects.sourceCode', locale)} (${t('projects.detail.externalLink.newTab', locale)})`}
             >
               {t('projects.sourceCode', locale)} ↗
             </Button>

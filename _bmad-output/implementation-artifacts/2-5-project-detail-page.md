@@ -1,6 +1,6 @@
 # Story 2.5: Project Detail Page
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -443,27 +443,40 @@ Pattern: semantic prefixes (`feat:`, `fix:`, `docs:`). Use `feat: implement stor
 
 Claude Opus 4.6
 
+### Agent Model Used (Code Review)
+
+Claude Sonnet 4.6
+
 ### Debug Log References
 
 - Button.astro Props interface was missing `target` and `rel` — added them to fix type-check errors for external links with `target="_blank"`
+- Code review patches (2026-03-19): aria-label i18n, getAllTechnologies deduplication, E2E test robustness, Button.astro target type narrowing
 
 ### Completion Notes List
 
 - Task 1: Added `projects.detail.features` and `projects.detail.backToProjects` translation keys. Verified existing keys from Story 2.4 are present.
 - Task 2: Created ES project detail page with `getStaticPaths()`, full layout (back link, h1, main image, description, features, technologies, external links, screenshot gallery). Uses all existing Astro components (Badge, Button, Section, Container).
 - Task 3: Created EN project detail page with identical structure, adjusted import paths to `../../../`.
-- Task 4: Full pipeline passing — 0 lint errors, 0 type errors, 245 unit tests pass, build generates 6 project detail pages per locale (12 total).
-- Task 5: Created 9 E2E tests (7 ES, 2 EN) using dynamic slug discovery pattern. All 24 E2E tests pass (including existing).
-- Minor fix: Added `target` and `rel` props to Button.astro interface to support external links.
+- Task 4: Full pipeline passing — 0 lint errors, 0 type errors, 247 unit tests pass, build generates 6 project detail pages per locale (12 total, 16 páginas totales).
+- Task 5: Created E2E tests (7 ES, 2 EN) using dynamic slug discovery pattern.
+- Code Review patches applied (2026-03-19):
+  - `projects.detail.externalLink.newTab` — nueva clave i18n para aria-label de links externos (P2)
+  - `getAllTechnologies` movido dentro de `getStaticPaths` con `Promise.all` — elimina N llamadas Firestore en build (D1)
+  - Console.warn en `getStaticPaths` si projects collection vacía (D3)
+  - `data-testid="tech-icon"` en imágenes de tecnologías para selectores E2E robustos (D6)
+  - E2E tests: guards `if (count > 0)` reemplazados por `test.skip` con mensaje explícito (P3)
+  - E2E test EN: selector corregido a `href*="/en/projects/"` para evitar match de links ES (P4)
+  - Button.astro: tipo de `target` narrowed a union literal (D7)
 
 ### Change Log
 
 - 2026-03-19: feat: implement story 2.5 — Project Detail Page (all 5 tasks complete)
+- 2026-03-19: fix: code review patches for story 2.5 — i18n aria-label, getStaticPaths dedup, E2E robustness, types
 
 ### File List
 
-- src/lib/i18n/translations.ts (modified — added 2 translation keys)
-- src/components/common/Button.astro (modified — added target/rel to Props)
+- src/lib/i18n/translations.ts (modified — added 3 translation keys total)
+- src/components/common/Button.astro (modified — added target/rel to Props; target type narrowed)
 - src/pages/projects/[slug].astro (new — ES project detail page)
 - src/pages/en/projects/[slug].astro (new — EN project detail page)
-- tests/e2e/project-detail.spec.ts (new — 9 E2E tests)
+- tests/e2e/project-detail.spec.ts (new — 9 E2E tests, mejorados en code review)
