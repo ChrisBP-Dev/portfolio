@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - uses: pnpm/action-setup@v4
         with:
@@ -27,8 +27,8 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       # Detect if only docs/config files changed (no build/deploy needed)
-      # Checks diff between current and previous commit for code-affecting files.
-      # workflow_dispatch always runs the full pipeline.
+      # Compares all commits in the push (github.event.before..HEAD), not just the last one.
+      # workflow_dispatch and first push to branch always run the full pipeline.
       - name: Check for code changes
         id: changes
         run: |
@@ -36,7 +36,17 @@ jobs:
             echo "has_code_changes=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          CODE_FILES=$(git diff --name-only HEAD~1 HEAD -- \
+
+          BEFORE="${{ github.event.before }}"
+
+          # First push to branch (before is all zeros) — always build
+          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            echo "has_code_changes=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Compare all commits in the push against the pre-push state
+          CODE_FILES=$(git diff --name-only "$BEFORE" HEAD -- \
             'src/**' 'public/**' 'tests/**' \
             'package.json' 'pnpm-lock.yaml' \
             'astro.config.*' 'tsconfig.json' \

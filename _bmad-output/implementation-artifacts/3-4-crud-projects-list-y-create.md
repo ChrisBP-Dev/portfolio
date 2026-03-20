@@ -368,15 +368,17 @@ Claude Opus 4.6 (1M context)
 
 **Bad Spec (1)**: BS-1 — Rule "ALL animations/transitions MUST be wrapped in motion media query" is too broad for user-initiated hover/focus transitions. Recommendation: amend to "Auto-play animations MUST use motion-safe: prefix. User-initiated transitions are exempt."
 
-**Deferred (2)**:
+**Deferred (1)**:
 - D-1: No max screenshot count (not in spec)
-- D-2: CI `HEAD~1` misses merge commit second-parent changes (pre-existing)
+
+**Post-review fix**: D-2 promoted from defer to patch — CI `HEAD~1` only compared last commit, causing build/deploy skip when multi-commit push ended with docs-only commit. Fix: `fetch-depth: 0` + `github.event.before..HEAD` compares all commits in the push. Handles edge cases: workflow_dispatch (always build), first push to branch (always build), force push (git diff compares trees correctly).
 
 ### Change Log
 
 - 2026-03-20: Implemented full story 3.4 — CRUD Projects List y Create (all 12 tasks)
 - 2026-03-20: CI/CD optimization — skip build/lighthouse/deploy for docs-only commits to prevent Firebase Storage bandwidth spikes
 - 2026-03-20: Code review patches — 14 fixes (Zod validation, schema parsing, a11y, memory leaks, motion queries, blur validation)
+- 2026-03-20: CI/CD fix — change detection now compares full push range (github.event.before..HEAD) instead of only last commit (HEAD~1)
 
 ### File List
 
