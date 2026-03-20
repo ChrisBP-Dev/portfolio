@@ -100,19 +100,21 @@ And un usuario autenticado con UID == ADMIN_UID puede escribir
 
 - [ ] Task 2: Actualizar AdminLayout.astro (AC: 4, 5)
   - [ ] 2.1 Agregar slot para auth state — el layout NO hace auth check, eso lo hace AuthGuard dentro de cada página protegida
-  - [ ] 2.2 Mantener sidebar comment placeholder ("sidebar — story 3.2") pero asegurar que el layout funcione con y sin sidebar
+  - [ ] 2.2 Agregar prop `showSidebar: boolean` (default `true`). Cuando `false`, NO renderizar el `<aside>`. login.astro pasa `showSidebar={false}`, index.astro lo omite (default `true`). El `<aside>` actual mantiene el comment placeholder ("sidebar — story 3.2")
   - [ ] 2.3 Importar `global.css`; no agregar `<ClientRouter>` (admin es SPA client-side, no usa View Transitions)
+  - [ ] 2.4 Agregar `<meta name="robots" content="noindex, nofollow" />` en el `<head>` — las páginas admin NO deben ser indexadas por buscadores
+  - [ ] 2.5 NOTA: AdminLayout usa `<slot />` de **Astro** (correcto). NO confundir con `<slot />` de Svelte 4 (prohibido). Son mecanismos diferentes: Astro slots son build-time, Svelte 5 usa `{@render children()}`
 
 - [ ] Task 3: Crear AuthGuard.svelte (AC: 1, 5, 6)
   - [ ] 3.1 Crear `src/components/admin/AuthGuard.svelte`
-  - [ ] 3.2 Usar `onAuthStateChanged(auth, callback)` de Firebase Auth
-  - [ ] 3.3 Estados: `checking` (spinner), `authenticated` (render children via snippet/slot), `unauthenticated` (redirect a `/admin/login`)
+  - [ ] 3.2 Usar `onAuthStateChanged(auth, callback)` de Firebase Auth **dentro de `$effect` con cleanup** para evitar memory leaks — el return de `$effect` debe llamar `unsubscribe()`
+  - [ ] 3.3 Estados: `checking` (spinner), `authenticated` (render children via snippet), `unauthenticated` (redirect a `/admin/login`)
   - [ ] 3.4 Redirect con `window.location.href = '/admin/login'` (no View Transitions en admin)
   - [ ] 3.5 Usar Svelte 5 runes: `$state` para `user` y `checking`
 
 - [ ] Task 4: Crear LoginForm.svelte (AC: 2, 3)
   - [ ] 4.1 Crear `src/components/admin/LoginForm.svelte`
-  - [ ] 4.2 Campos: email (type="email"), password (type="password"), botón submit
+  - [ ] 4.2 Campos: email (type="email", `autocomplete="email"`), password (type="password", `autocomplete="current-password"`), botón submit
   - [ ] 4.3 Usar `signInWithEmailAndPassword(auth, email, password)` de Firebase Auth
   - [ ] 4.4 On success: `window.location.href = '/admin'`
   - [ ] 4.5 On error: mapear Firebase error codes a mensajes bilingües con `getErrorMessage()`
@@ -121,7 +123,7 @@ And un usuario autenticado con UID == ADMIN_UID puede escribir
   - [ ] 4.8 Accesibilidad: labels visibles, aria-invalid en campos con error, aria-describedby para mensajes de error, aria-required
 
 - [ ] Task 5: Crear utilidad getErrorMessage (AC: 3)
-  - [ ] 5.1 Crear `src/lib/firebase/auth-errors.ts`
+  - [ ] 5.1 Crear `src/lib/firebase/auth-errors.ts` — NOTA: La architecture doc menciona `src/lib/utils/error-messages.ts` como utilidad centralizada de errores Firebase. Esa se creará en Story 3.8 (Feedback Systems). Por ahora creamos solo los auth errors en `src/lib/firebase/` porque es lo único que necesitamos
   - [ ] 5.2 Mapeo de Firebase error codes a mensajes bilingües (ES/EN):
     - `auth/wrong-password` → "Contraseña incorrecta" / "Wrong password"
     - `auth/user-not-found` → "Credenciales inválidas" / "Invalid credentials"
@@ -150,8 +152,9 @@ And un usuario autenticado con UID == ADMIN_UID puede escribir
     - `admin.dashboard.placeholder`: "Dashboard — próximamente" / "Dashboard — coming soon"
   - [ ] 7.2 NOTA: Admin UI usa locale fijo `'es'` por defecto (Christopher es hispanohablante) pero los mensajes de error soportan ambos idiomas
 
-- [ ] Task 8: Crear/verificar Security Rules (AC: 7, 8)
-  - [ ] 8.1 Crear/actualizar `firestore.rules` en raíz del proyecto:
+- [ ] Task 8: Actualizar Security Rules — REEMPLAZAR reglas inseguras (AC: 7, 8)
+  - [ ] 8.1 **CRÍTICO**: Los archivos `firestore.rules` y `storage.rules` YA EXISTEN pero tienen reglas **inseguras** de desarrollo (`allow read, write: if true` — cualquiera puede escribir). DEBEN ser REEMPLAZADOS con las reglas seguras:
+  - [ ] 8.2 Actualizar `firestore.rules` en raíz del proyecto:
     ```
     rules_version = '2';
     service cloud.firestore {
@@ -163,7 +166,7 @@ And un usuario autenticado con UID == ADMIN_UID puede escribir
       }
     }
     ```
-  - [ ] 8.2 Crear/actualizar `storage.rules` en raíz del proyecto:
+  - [ ] 8.3 Actualizar `storage.rules` en raíz del proyecto:
     ```
     rules_version = '2';
     service firebase.storage {
@@ -175,8 +178,8 @@ And un usuario autenticado con UID == ADMIN_UID puede escribir
       }
     }
     ```
-  - [ ] 8.3 NOTA: `ADMIN_UID` en las rules debe ser el UID real hardcodeado (no variable de entorno — Security Rules no soportan env vars). Obtener el UID de la consola Firebase Auth o del `.env` local (`PUBLIC_ADMIN_UID`)
-  - [ ] 8.4 Verificar que `firebase.json` referencia ambos archivos de rules
+  - [ ] 8.4 **ADMIN_UID — Instrucciones exactas**: Abrir el archivo `.env` local, copiar el valor de `PUBLIC_ADMIN_UID` (ej: `'abc123xyz456'`), y reemplazar el literal `'ADMIN_UID'` en AMBOS archivos de rules con ese valor real. Security Rules NO soportan variables de entorno — el UID DEBE estar hardcodeado como string literal. Si `PUBLIC_ADMIN_UID` no está en `.env`, obtenerlo de la consola Firebase > Authentication > Users > columna "User UID"
+  - [ ] 8.5 Verificar que `firebase.json` referencia ambos archivos de rules (ya verificado: `"rules": "firestore.rules"` y `"rules": "storage.rules"` están configurados)
 
 - [ ] Task 9: Tests unitarios (AC: 2, 3, 5)
   - [ ] 9.1 Crear `src/lib/firebase/__tests__/auth-errors.test.ts` — test de `getErrorMessage()` para cada error code y locale
@@ -190,6 +193,10 @@ And un usuario autenticado con UID == ADMIN_UID puede escribir
   - [ ] 10.4 Verificar manualmente: navegar a `/admin` redirige a login, login funciona con credenciales válidas, logout funciona
 
 ## Dev Notes
+
+### PREREQUISITO: Leer Project Context
+
+**ANTES de implementar**, leer `_bmad-output/project-context.md` — contiene las 68 reglas del proyecto (TypeScript strictest, Svelte 5 runes, imports relativos sin aliases, naming conventions, anti-patrones prohibidos, etc.). Todas las reglas aplican a esta story.
 
 ### Patrón de Auth en Admin — Client-Side Only
 
@@ -256,10 +263,14 @@ export function getErrorMessage(error: unknown, locale: Locale): string {
   let user = $state<User | null>(null);
   let checking = $state(true);
 
-  onAuthStateChanged(auth, (u) => {
-    user = u;
-    checking = false;
-    if (!u) window.location.href = '/admin/login';
+  // CRÍTICO: usar $effect con cleanup para unsubscribe y evitar memory leaks
+  $effect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
+      user = u;
+      checking = false;
+      if (!u) window.location.href = '/admin/login';
+    });
+    return () => unsubscribe();
   });
 </script>
 
@@ -304,6 +315,13 @@ export function getErrorMessage(error: unknown, locale: Locale): string {
     }
   }
 </script>
+
+<!-- IMPORTANTE: autocomplete attributes para UX y accesibilidad -->
+<input type="email" autocomplete="email" ... />
+<input type="password" autocomplete="current-password" ... />
+
+<!-- NOTA: usar e.preventDefault() manual en handleSubmit, NO event modifiers
+     de Svelte como onsubmit|preventDefault — no funcionan en Astro islands -->
 ```
 
 ### Locale en Admin
@@ -315,6 +333,24 @@ El admin usa locale fijo `'es'` (Christopher es hispanohablante). No se necesita
 Admin NO incluye `<ClientRouter />`. Cada navegación en admin es un full page load. Esto es correcto porque:
 - Admin es una SPA con Svelte islands — la navegación real es client-side dentro de cada island
 - View Transitions son solo para el sitio público
+
+### AdminLayout — Sidebar Condicional y Meta Tags
+
+AdminLayout necesita un prop `showSidebar` (default `true`):
+- `login.astro` pasa `showSidebar={false}` — login se centra en pantalla completa, sin sidebar
+- `index.astro` omite el prop — sidebar visible con placeholder para story 3.2
+- El `<aside>` actual del layout (líneas 22-24) solo se renderiza cuando `showSidebar` es `true`
+- Agregar `<meta name="robots" content="noindex, nofollow" />` en `<head>` para excluir admin de buscadores
+- NOTA: `<slot />` en AdminLayout.astro es **Astro slot** (build-time, correcto). No confundir con `<slot />` de Svelte 4 (prohibido). Son mecanismos completamente diferentes
+
+### AdminLayout — Dark Mode
+
+AdminLayout tiene `class="dark"` hardcodeado. Esto es intencional — el admin siempre usa dark mode. No implementar theme toggle en admin (story 3.2 puede revisitarlo si necesario).
+
+### Mejoras Futuras (fuera de scope de esta story)
+
+- **Redirect URL preservation**: Cuando AuthGuard redirige a login, no preserva la URL original (ej: `/admin/projects`). Tras login siempre va a `/admin`. Considerar `?returnTo=/admin/projects` en stories futuras
+- **Password visibility toggle**: Patrón UX común (ojo para mostrar/ocultar password). No crítico para single-admin pero mejora usabilidad
 
 ### Archivos Existentes — NO Modificar
 
@@ -335,15 +371,15 @@ Admin NO incluye `<ClientRouter />`. Cada navegación en admin es un full page l
 | `src/components/admin/AuthGuard.svelte` | Guard de autenticación |
 | `src/lib/firebase/auth-errors.ts` | Mapeo de errores Firebase → mensajes bilingües |
 | `src/lib/firebase/__tests__/auth-errors.test.ts` | Tests unitarios para auth-errors |
-| `firestore.rules` | Security Rules de Firestore (raíz del proyecto) |
-| `storage.rules` | Security Rules de Storage (raíz del proyecto) |
 
 ### Archivos a Modificar
 
 | Archivo | Cambio |
 |---------|--------|
-| `src/layouts/AdminLayout.astro` | Actualizar estructura para soportar login (sin sidebar) vs dashboard (con sidebar placeholder) |
+| `src/layouts/AdminLayout.astro` | Agregar prop `showSidebar`, meta noindex, sidebar condicional |
 | `src/lib/i18n/translations.ts` | Agregar keys `admin.login.*`, `admin.logout`, `admin.dashboard.*` |
+| `firestore.rules` | REEMPLAZAR reglas inseguras con restricción de escritura por ADMIN_UID |
+| `storage.rules` | REEMPLAZAR reglas inseguras con restricción de escritura por ADMIN_UID |
 
 ### Estilo Visual del Login
 
@@ -367,13 +403,17 @@ Seguir dirección "Technical Craft" del UX spec:
 - Focus trap: después de error, focus en el primer campo con error
 - `autocomplete="email"` y `autocomplete="current-password"` en inputs
 
-### Security Rules — ADMIN_UID
+### Security Rules — Estado Actual y ADMIN_UID
 
-En `firestore.rules` y `storage.rules`, reemplazar el literal `'ADMIN_UID'` con el valor real del UID del admin de Firebase. Este valor se obtiene de:
-1. La consola de Firebase Authentication
-2. O de la variable `PUBLIC_ADMIN_UID` en `.env`
+**ESTADO ACTUAL INSEGURO**: Los archivos `firestore.rules` y `storage.rules` que existen en el proyecto tienen `allow read, write: if true` — permiten que CUALQUIER usuario lea Y escriba datos. Esto es una configuración de desarrollo abierta que DEBE ser reemplazada con las reglas seguras de esta story.
 
-Las Security Rules NO soportan variables de entorno — el UID debe estar hardcodeado en los archivos de rules.
+**Cómo obtener el ADMIN_UID real**:
+1. Abrir el archivo `.env` en la raíz del proyecto
+2. Copiar el valor de `PUBLIC_ADMIN_UID` (ej: `'abc123xyz456'`)
+3. Reemplazar el literal `'ADMIN_UID'` en AMBOS archivos de rules con ese valor
+4. Si `PUBLIC_ADMIN_UID` no está en `.env`, ir a Firebase Console > Authentication > Users > columna "User UID"
+
+Las Security Rules NO soportan variables de entorno — el UID DEBE estar hardcodeado como string literal en los archivos de rules.
 
 ### Svelte 5 — Recordatorio de Syntax
 
