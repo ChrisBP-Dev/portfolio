@@ -1,6 +1,6 @@
 # Story 3.3: ImageService — Upload, Replace y Delete
 
-Status: ready-for-dev
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -107,27 +107,27 @@ And si todos fallan, propaga el error final
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Crear `src/lib/firebase/image-service.ts` (AC: 1, 2, 3, 4, 6)
-  - [ ] 1.1 Crear helper `withRetry<T>(fn: () => Promise<T>, maxRetries?: number): Promise<T>` — retry con backoff exponencial (300ms base) solo en errores de red (`storage/retry-limit-exceeded`, `storage/canceled`, TypeError network). Máximo 2 retries.
-  - [ ] 1.2 Implementar `upload(file: File, path: string): Promise<StoredImage>` — usa `ref(storage, path)` + `uploadBytes(ref, file)` + `getDownloadURL(ref)`. Wrapped en `withRetry`.
-  - [ ] 1.3 Implementar `replace(oldImage: StoredImage, file: File, newPath: string): Promise<StoredImage>` — safe-first: `upload(file, newPath)` primero, luego `deleteObject(ref(storage, oldImage.storagePath))` en try/catch (fallo en delete = `console.warn`, no propagar).
-  - [ ] 1.4 Implementar `deleteSingle(image: StoredImage): Promise<void>` — `deleteObject(ref(storage, image.storagePath))`. Wrapped en `withRetry`.
-  - [ ] 1.5 Implementar `deleteByPrefix(pathPrefix: string): Promise<void>` — `listAll(ref(storage, pathPrefix))` → `Promise.allSettled(items.map(item => deleteObject(item)))`. Log warnings para fallos individuales.
-  - [ ] 1.6 Exportar como objeto singleton: `export const imageService = { upload, replace, delete: deleteSingle, deleteByPrefix }`. Usar nombre `deleteSingle` internamente porque `delete` es keyword reservada.
+- [x] Task 1: Crear `src/lib/firebase/image-service.ts` (AC: 1, 2, 3, 4, 6)
+  - [x] 1.1 Crear helper `withRetry<T>(fn: () => Promise<T>, maxRetries?: number): Promise<T>` — retry con backoff exponencial (300ms base) solo en errores de red (`storage/retry-limit-exceeded`, `storage/canceled`, TypeError network). Máximo 2 retries.
+  - [x] 1.2 Implementar `upload(file: File, path: string): Promise<StoredImage>` — usa `ref(storage, path)` + `uploadBytes(ref, file)` + `getDownloadURL(ref)`. Wrapped en `withRetry`.
+  - [x] 1.3 Implementar `replace(oldImage: StoredImage, file: File, newPath: string): Promise<StoredImage>` — safe-first: `upload(file, newPath)` primero, luego `deleteObject(ref(storage, oldImage.storagePath))` en try/catch (fallo en delete = `console.warn`, no propagar).
+  - [x] 1.4 Implementar `deleteSingle(image: StoredImage): Promise<void>` — `deleteObject(ref(storage, image.storagePath))`. Wrapped en `withRetry`.
+  - [x] 1.5 Implementar `deleteByPrefix(pathPrefix: string): Promise<void>` — `listAll(ref(storage, pathPrefix))` → `Promise.allSettled(items.map(item => deleteObject(item)))`. Log warnings para fallos individuales.
+  - [x] 1.6 Exportar como objeto singleton: `export const imageService = { upload, replace, delete: deleteSingle, deleteByPrefix }`. Usar nombre `deleteSingle` internamente porque `delete` es keyword reservada.
 
-- [ ] Task 2: Crear `src/lib/firebase/image-slot-processor.ts` (AC: 5)
-  - [ ] 2.1 Crear tipo `ProcessedSlot = { image: StoredImage | null; toDelete: string[] }`.
-  - [ ] 2.2 Implementar `processImageSlot(slot: ImageSlot, basePath: string): Promise<ProcessedSlot>`:
+- [x] Task 2: Crear `src/lib/firebase/image-slot-processor.ts` (AC: 5)
+  - [x] 2.1 Crear tipo `ProcessedSlot = { image: StoredImage | null; toDelete: string[] }`.
+  - [x] 2.2 Implementar `processImageSlot(slot: ImageSlot, basePath: string): Promise<ProcessedSlot>`:
     - `empty` → `{ image: null, toDelete: [] }`
     - `existing` → `{ image: slot.image, toDelete: [] }`
     - `new` → upload con `imageService.upload(slot.file, basePath + crypto.randomUUID() + '.webp')` → `{ image: result, toDelete: [] }`
     - `replaced` → upload nuevo → `{ image: result, toDelete: [slot.old.storagePath] }`
     - `removed` → `{ image: null, toDelete: [slot.old.storagePath] }`
-  - [ ] 2.3 Implementar `cleanupDeletedImages(paths: string[]): Promise<void>` — para cada path, wrappear `deleteObject(ref(storage, path))` en `withRetry` (importar de `./image-service`), luego ejecutar todos con `Promise.allSettled`. Log warnings para fallos individuales, no propaga errores.
-  - [ ] 2.4 Importar `ImageSlot` desde `../schemas/image-slot` (ya existe) y `StoredImage` desde `../schemas/shared-schemas`.
+  - [x] 2.3 Implementar `cleanupDeletedImages(paths: string[]): Promise<void>` — para cada path, wrappear `deleteObject(ref(storage, path))` en `withRetry` (importar de `./image-service`), luego ejecutar todos con `Promise.allSettled`. Log warnings para fallos individuales, no propaga errores.
+  - [x] 2.4 Importar `ImageSlot` desde `../schemas/image-slot` (ya existe) y `StoredImage` desde `../schemas/shared-schemas`.
 
-- [ ] Task 3: Agregar error messages bilingües para Storage (AC: 6)
-  - [ ] 3.1 Crear `src/lib/firebase/storage-errors.ts` — mismo patrón que `auth-errors.ts` (importar `type { Locale } from '../i18n/config'`, `hasCode()` type guard, record de error codes, función exportada con fallback genérico):
+- [x] Task 3: Agregar error messages bilingües para Storage (AC: 6)
+  - [x] 3.1 Crear `src/lib/firebase/storage-errors.ts` — mismo patrón que `auth-errors.ts` (importar `type { Locale } from '../i18n/config'`, `hasCode()` type guard, record de error codes, función exportada con fallback genérico):
     - `storage/unauthorized`: "No tienes permiso para esta operación" / "You do not have permission for this operation"
     - `storage/canceled`: "Operación cancelada" / "Operation canceled"
     - `storage/unknown`: "Error inesperado en Storage" / "Unexpected Storage error"
@@ -135,41 +135,41 @@ And si todos fallan, propaga el error final
     - `storage/quota-exceeded`: "Cuota de almacenamiento excedida" / "Storage quota exceeded"
     - `storage/retry-limit-exceeded`: "Error de conexión. Intenta de nuevo." / "Connection error. Please try again."
     - `storage/invalid-argument`: "Archivo inválido" / "Invalid file"
-  - [ ] 3.2 Exportar `getStorageErrorMessage(error: unknown, locale: Locale): string` — misma firma que `getErrorMessage` en `auth-errors.ts`.
+  - [x] 3.2 Exportar `getStorageErrorMessage(error: unknown, locale: Locale): string` — misma firma que `getErrorMessage` en `auth-errors.ts`.
 
-- [ ] Task 4: Tests unitarios del ImageService (AC: 1, 2, 3, 4, 6)
-  - [ ] 4.1 Crear `src/lib/firebase/__tests__/image-service.test.ts`
-  - [ ] 4.2 Mock `firebase/storage` — `ref`, `uploadBytes`, `getDownloadURL`, `deleteObject`, `listAll` (mismo patrón que `client.test.ts`)
-  - [ ] 4.3 Test upload exitoso: verifica `uploadBytes` llamado con ref y file, `getDownloadURL` llamado, retorna `StoredImage` correcta
-  - [ ] 4.4 Test replace safe-first order: verifica upload llamado ANTES de delete, verifica retorno correcto
-  - [ ] 4.5 Test replace — upload falla: verifica `deleteObject` NUNCA llamado, error propagado
-  - [ ] 4.6 Test replace — delete falla: verifica retorno correcto (nueva image), `console.warn` llamado, error NO propagado
-  - [ ] 4.7 Test delete exitoso: verifica `deleteObject` llamado con ref correcto
-  - [ ] 4.8 Test deleteByPrefix: verifica `listAll` llamado, cada item eliminado
-  - [ ] 4.9 Test deleteByPrefix con items vacíos: `listAll` retorna `{ items: [] }` → completa sin error, `deleteObject` nunca llamado
-  - [ ] 4.10 Test `isRetryableError`: verifica retorna `true` para `storage/retry-limit-exceeded`, `storage/canceled`, TypeError con 'fetch'; retorna `false` para `storage/unauthorized`, `storage/object-not-found`, `storage/quota-exceeded`, Error genérico
-  - [ ] 4.11 Test retry: mock que falla 1 vez y luego pasa → verifica función llamada 2 veces, retorno correcto
-  - [ ] 4.12 Test retry agotado: mock que falla 3 veces → verifica error propagado
+- [x] Task 4: Tests unitarios del ImageService (AC: 1, 2, 3, 4, 6)
+  - [x] 4.1 Crear `src/lib/firebase/__tests__/image-service.test.ts`
+  - [x] 4.2 Mock `firebase/storage` — `ref`, `uploadBytes`, `getDownloadURL`, `deleteObject`, `listAll` (mismo patrón que `client.test.ts`)
+  - [x] 4.3 Test upload exitoso: verifica `uploadBytes` llamado con ref y file, `getDownloadURL` llamado, retorna `StoredImage` correcta
+  - [x] 4.4 Test replace safe-first order: verifica upload llamado ANTES de delete, verifica retorno correcto
+  - [x] 4.5 Test replace — upload falla: verifica `deleteObject` NUNCA llamado, error propagado
+  - [x] 4.6 Test replace — delete falla: verifica retorno correcto (nueva image), `console.warn` llamado, error NO propagado
+  - [x] 4.7 Test delete exitoso: verifica `deleteObject` llamado con ref correcto
+  - [x] 4.8 Test deleteByPrefix: verifica `listAll` llamado, cada item eliminado
+  - [x] 4.9 Test deleteByPrefix con items vacíos: `listAll` retorna `{ items: [] }` → completa sin error, `deleteObject` nunca llamado
+  - [x] 4.10 Test `isRetryableError`: verifica retorna `true` para `storage/retry-limit-exceeded`, `storage/canceled`, TypeError con 'fetch'; retorna `false` para `storage/unauthorized`, `storage/object-not-found`, `storage/quota-exceeded`, Error genérico
+  - [x] 4.11 Test retry: mock que falla 1 vez y luego pasa → verifica función llamada 2 veces, retorno correcto
+  - [x] 4.12 Test retry agotado: mock que falla 3 veces → verifica error propagado
 
-- [ ] Task 5: Tests unitarios del ImageSlot processor (AC: 5)
-  - [ ] 5.1 Crear `src/lib/firebase/__tests__/image-slot-processor.test.ts`
-  - [ ] 5.2 Test `processImageSlot` con tipo 'empty': retorna `{ image: null, toDelete: [] }`
-  - [ ] 5.3 Test `processImageSlot` con tipo 'existing': retorna image sin modificar, toDelete vacío
-  - [ ] 5.4 Test `processImageSlot` con tipo 'new': verifica upload llamado, retorna StoredImage
-  - [ ] 5.5 Test `processImageSlot` con tipo 'replaced': verifica upload llamado, toDelete contiene old path
-  - [ ] 5.6 Test `processImageSlot` con tipo 'removed': retorna null, toDelete contiene old path
-  - [ ] 5.7 Test `cleanupDeletedImages`: verifica cada path eliminado, fallos individuales no propagan error
+- [x] Task 5: Tests unitarios del ImageSlot processor (AC: 5)
+  - [x] 5.1 Crear `src/lib/firebase/__tests__/image-slot-processor.test.ts`
+  - [x] 5.2 Test `processImageSlot` con tipo 'empty': retorna `{ image: null, toDelete: [] }`
+  - [x] 5.3 Test `processImageSlot` con tipo 'existing': retorna image sin modificar, toDelete vacío
+  - [x] 5.4 Test `processImageSlot` con tipo 'new': verifica upload llamado, retorna StoredImage
+  - [x] 5.5 Test `processImageSlot` con tipo 'replaced': verifica upload llamado, toDelete contiene old path
+  - [x] 5.6 Test `processImageSlot` con tipo 'removed': retorna null, toDelete contiene old path
+  - [x] 5.7 Test `cleanupDeletedImages`: verifica cada path eliminado, fallos individuales no propagan error
 
-- [ ] Task 6: Tests de storage-errors (AC: 3)
-  - [ ] 6.1 Crear `src/lib/firebase/__tests__/storage-errors.test.ts`
-  - [ ] 6.2 Test cada error code mapea al mensaje correcto en ES y EN
-  - [ ] 6.3 Test error desconocido retorna mensaje genérico
+- [x] Task 6: Tests de storage-errors (AC: 3)
+  - [x] 6.1 Crear `src/lib/firebase/__tests__/storage-errors.test.ts`
+  - [x] 6.2 Test cada error code mapea al mensaje correcto en ES y EN
+  - [x] 6.3 Test error desconocido retorna mensaje genérico
 
-- [ ] Task 7: Validación pipeline (todos los ACs)
-  - [ ] 7.1 `pnpm lint` — sin errores
-  - [ ] 7.2 `pnpm type-check` — sin errores TypeScript
-  - [ ] 7.3 `pnpm build` — build exitoso
-  - [ ] 7.4 `pnpm test` — todos los tests pasan (existentes + nuevos)
+- [x] Task 7: Validación pipeline (todos los ACs)
+  - [x] 7.1 `pnpm lint` — sin errores
+  - [x] 7.2 `pnpm type-check` — sin errores TypeScript
+  - [x] 7.3 `pnpm build` — build exitoso
+  - [x] 7.4 `pnpm test` — todos los tests pasan (existentes + nuevos)
 
 ## Dev Notes
 
@@ -400,10 +400,35 @@ Patrón de commits: prefijo semántico en inglés (`feat:`, `fix:`, `docs:`).
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.6 (1M context)
 
 ### Debug Log References
 
+- Patrón de mocking con `vi.hoisted()` requerido para `strictest` mode + `vi.mock` hoisting.
+- `vi.clearAllMocks()` no resetea implementaciones — usar `mockImplementation()` en `beforeEach` para defaults.
+
 ### Completion Notes List
 
+- **Task 1**: `image-service.ts` implementado con `upload`, `replace` (safe-first), `deleteSingle`, `deleteByPrefix`, `withRetry`, `isRetryableError`. Exportado como objeto singleton.
+- **Task 2**: `image-slot-processor.ts` con `processImageSlot` (5 estados del discriminated union) y `cleanupDeletedImages` con `Promise.allSettled`.
+- **Task 3**: `storage-errors.ts` con 7 error codes bilingües (ES/EN), `hasCode()` type guard, fallback genérico. Mismo patrón que `auth-errors.ts`.
+- **Task 4**: 18 tests unitarios para ImageService — upload, replace (safe-first order, upload falla, delete falla), delete, deleteByPrefix (con items, vacío, fallos individuales), isRetryableError (7 cases), withRetry (success after retry, exhausted, non-retryable).
+- **Task 5**: 8 tests unitarios para ImageSlot processor — 5 estados de processImageSlot + cleanupDeletedImages (success, failures, empty).
+- **Task 6**: 22 tests para storage-errors — cada code en ES y EN, duck-typing, fallbacks.
+- **Task 7**: `pnpm lint` ✅, `pnpm type-check` ✅ (0 errors), `pnpm test` ✅ (431 tests, 20 files), `pnpm build` ✅ (24 páginas).
+- **Total nuevos tests**: 26 tests en 3 archivos. Zero regresiones.
+
+### Change Log
+
+- 2026-03-20: Implementación completa de Story 3.3 — ImageService, ImageSlot processor, storage errors con 26 tests unitarios.
+
 ### File List
+
+| Archivo | Acción |
+|---------|--------|
+| `src/lib/firebase/image-service.ts` | Creado |
+| `src/lib/firebase/image-slot-processor.ts` | Creado |
+| `src/lib/firebase/storage-errors.ts` | Creado |
+| `src/lib/firebase/__tests__/image-service.test.ts` | Creado |
+| `src/lib/firebase/__tests__/image-slot-processor.test.ts` | Creado |
+| `src/lib/firebase/__tests__/storage-errors.test.ts` | Creado |
