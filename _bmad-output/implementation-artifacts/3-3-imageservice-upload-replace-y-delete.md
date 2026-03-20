@@ -16,7 +16,7 @@ So that Storage never has orphaned files regardless of what I do.
 2. **Replace (safe-first order)** — `ImageService.replace(oldImage, newFile, newPath)` sube nuevo primero, luego elimina viejo (upload new → delete old). Si falla upload → nada cambia. Si falla delete → huérfano viejo (limpiable), sitio muestra imagen correcta.
 3. **Delete** — `ImageService.delete(image)` elimina archivo de Storage en `image.storagePath`.
 4. **Delete by prefix (cascade)** — `ImageService.deleteByPrefix(pathPrefix)` elimina todos los archivos bajo ese prefijo (para borrado cascada de entidades completas).
-5. **ImageSlot processing** — La función `processImageSlots` resuelve los 5 estados del discriminated union `ImageSlot`: `empty` (no-op), `existing` (no-op), `new` (upload), `replaced` (upload new + mark old for delete), `removed` (mark for delete). Retorna `StoredImage | null` + lista de paths a eliminar.
+5. **ImageSlot processing** — La función `processImageSlot` resuelve los 5 estados del discriminated union `ImageSlot`: `empty` (no-op), `existing` (no-op), `new` (upload), `replaced` (upload new + mark old for delete), `removed` (mark for delete). Retorna `StoredImage | null` + lista de paths a eliminar.
 6. **Retry en error de red** — Todas las operaciones de Storage reintentan en error de red (máximo 2 retries con backoff).
 7. **Ubicación** — ImageService vive en `src/lib/firebase/image-service.ts`.
 
@@ -123,11 +123,11 @@ And si todos fallan, propaga el error final
     - `new` → upload con `imageService.upload(slot.file, basePath + crypto.randomUUID() + '.webp')` → `{ image: result, toDelete: [] }`
     - `replaced` → upload nuevo → `{ image: result, toDelete: [slot.old.storagePath] }`
     - `removed` → `{ image: null, toDelete: [slot.old.storagePath] }`
-  - [ ] 2.3 Implementar `cleanupDeletedImages(paths: string[]): Promise<void>` — llama `deleteObject` para cada path con `Promise.allSettled`. Log warnings, no propaga errores.
-  - [ ] 2.4 Importar `ImageSlot` desde `../../lib/schemas/image-slot` (ya existe) y `StoredImage` desde `../../lib/schemas/shared-schemas`.
+  - [ ] 2.3 Implementar `cleanupDeletedImages(paths: string[]): Promise<void>` — para cada path, wrappear `deleteObject(ref(storage, path))` en `withRetry` (importar de `./image-service`), luego ejecutar todos con `Promise.allSettled`. Log warnings para fallos individuales, no propaga errores.
+  - [ ] 2.4 Importar `ImageSlot` desde `../schemas/image-slot` (ya existe) y `StoredImage` desde `../schemas/shared-schemas`.
 
 - [ ] Task 3: Agregar error messages bilingües para Storage (AC: 6)
-  - [ ] 3.1 Crear `src/lib/firebase/storage-errors.ts` — mismo patrón que `auth-errors.ts`:
+  - [ ] 3.1 Crear `src/lib/firebase/storage-errors.ts` — mismo patrón que `auth-errors.ts` (importar `type { Locale } from '../i18n/config'`, `hasCode()` type guard, record de error codes, función exportada con fallback genérico):
     - `storage/unauthorized`: "No tienes permiso para esta operación" / "You do not have permission for this operation"
     - `storage/canceled`: "Operación cancelada" / "Operation canceled"
     - `storage/unknown`: "Error inesperado en Storage" / "Unexpected Storage error"
@@ -146,8 +146,10 @@ And si todos fallan, propaga el error final
   - [ ] 4.6 Test replace — delete falla: verifica retorno correcto (nueva image), `console.warn` llamado, error NO propagado
   - [ ] 4.7 Test delete exitoso: verifica `deleteObject` llamado con ref correcto
   - [ ] 4.8 Test deleteByPrefix: verifica `listAll` llamado, cada item eliminado
-  - [ ] 4.9 Test retry: mock que falla 1 vez y luego pasa → verifica función llamada 2 veces, retorno correcto
-  - [ ] 4.10 Test retry agotado: mock que falla 3 veces → verifica error propagado
+  - [ ] 4.9 Test deleteByPrefix con items vacíos: `listAll` retorna `{ items: [] }` → completa sin error, `deleteObject` nunca llamado
+  - [ ] 4.10 Test `isRetryableError`: verifica retorna `true` para `storage/retry-limit-exceeded`, `storage/canceled`, TypeError con 'fetch'; retorna `false` para `storage/unauthorized`, `storage/object-not-found`, `storage/quota-exceeded`, Error genérico
+  - [ ] 4.11 Test retry: mock que falla 1 vez y luego pasa → verifica función llamada 2 veces, retorno correcto
+  - [ ] 4.12 Test retry agotado: mock que falla 3 veces → verifica error propagado
 
 - [ ] Task 5: Tests unitarios del ImageSlot processor (AC: 5)
   - [ ] 5.1 Crear `src/lib/firebase/__tests__/image-slot-processor.test.ts`
@@ -297,7 +299,9 @@ vi.mock('../client', () => ({
 
 ### Exportación como Objeto vs Clase
 
-La arquitectura define `class ImageService`, pero para este proyecto la implementación como objeto singleton es más idiomática en TypeScript/Svelte (no hay estado de instancia, no hay herencia). Exportar funciones agrupadas:
+La arquitectura define `class ImageService`, pero para este proyecto la implementación como objeto singleton es más idiomática en TypeScript/Svelte (no hay estado de instancia, no hay herencia). Exportar funciones agrupadas.
+
+**NOTA**: Exportar también `withRetry` e `isRetryableError` — `image-slot-processor.ts` necesita `withRetry` para `cleanupDeletedImages`, y los tests necesitan `isRetryableError` para validación directa.
 
 ```typescript
 export const imageService = {
@@ -358,7 +362,7 @@ Si `listAll()` retorna items vacíos (no hay archivos bajo el prefijo), la funci
 
 3. **ESLint globals para browser APIs**: Story 3.2 ya configuró `...globals.browser` en ESLint. `crypto.randomUUID()` es una browser API — ya estará cubierta.
 
-4. **Patrón de error handling con `auth-errors.ts`**: Seguir exactamente la misma estructura para `storage-errors.ts` — `hasCode()` helper + record de error codes + fallback genérico.
+4. **Patrón de error handling con `auth-errors.ts`**: Seguir exactamente la misma estructura para `storage-errors.ts` — `import type { Locale } from '../i18n/config'` + `hasCode()` helper + record de error codes + fallback genérico. La arquitectura sugiere centralizar errores en `src/lib/utils/error-messages.ts`, pero el patrón establecido en el código real es separación por feature (`auth-errors.ts`, `storage-errors.ts`) — seguir el patrón establecido.
 
 ### Git Intelligence
 
@@ -368,6 +372,15 @@ Commits recientes relevantes:
 - `41a679c` — Fix: `client:only` para admin components
 
 Patrón de commits: prefijo semántico en inglés (`feat:`, `fix:`, `docs:`).
+
+### Quick Sanity Checklist (antes de marcar como completo)
+
+- [ ] `pnpm lint` — sin errores
+- [ ] `pnpm type-check` — sin errores TypeScript
+- [ ] `pnpm test` — todos los tests pasan (existentes + nuevos)
+- [ ] Ningún import referencia `collections.ts` ni Admin SDK
+- [ ] `imageService` exportado como objeto singleton con `upload`, `replace`, `delete`, `deleteByPrefix`
+- [ ] `withRetry` e `isRetryableError` exportados para uso en `image-slot-processor.ts` y tests
 
 ### References
 
