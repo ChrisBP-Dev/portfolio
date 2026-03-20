@@ -4,7 +4,7 @@ import AuthGuard from '../../components/admin/AuthGuard.svelte';
 ---
 
 <AdminLayout title="Admin — Portfolio ChrisBP">
-  <AuthGuard client:load>
+  <AuthGuard client:only="svelte">
     <div class="p-8">
       <div class="flex items-center justify-between mb-8">
         <h1 class="text-2xl font-bold text-text-primary">Panel de Administración</h1>
