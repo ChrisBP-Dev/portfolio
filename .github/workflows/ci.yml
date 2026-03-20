@@ -54,7 +54,10 @@ jobs:
           FIREBASE_ADMIN_CLIENT_EMAIL: ${{ fromJson(secrets.FIREBASE_SERVICE_ACCOUNT).client_email }}
           FIREBASE_ADMIN_PRIVATE_KEY: ${{ fromJson(secrets.FIREBASE_SERVICE_ACCOUNT).private_key }}
 
-      # Lighthouse CI
+      # Lighthouse CI — exclude admin pages (client:only shells have no static content)
+      - name: Remove admin pages from Lighthouse scan
+        run: rm -rf dist/admin
+
       - name: Lighthouse CI
         run: pnpm exec lhci autorun
 
