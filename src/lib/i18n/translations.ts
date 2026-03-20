@@ -128,6 +128,16 @@ const translations: Record<string, Record<Locale, string>> = {
     es: 'Ponte en contacto conmigo por WhatsApp o Email.',
     en: 'Get in touch with me via WhatsApp or Email.',
   },
+
+  // Admin — Login
+  'admin.login.title': { es: 'Iniciar sesión', en: 'Sign in' },
+  'admin.login.email': { es: 'Correo electrónico', en: 'Email' },
+  'admin.login.password': { es: 'Contraseña', en: 'Password' },
+  'admin.login.submit': { es: 'Iniciar sesión', en: 'Sign in' },
+  'admin.login.loading': { es: 'Autenticando...', en: 'Authenticating...' },
+  'admin.logout': { es: 'Cerrar sesión', en: 'Sign out' },
+  'admin.dashboard.title': { es: 'Panel de Administración', en: 'Admin Panel' },
+  'admin.dashboard.placeholder': { es: 'Dashboard — próximamente', en: 'Dashboard — coming soon' },
 };
 
 export function t(key: string, locale: Locale): string {

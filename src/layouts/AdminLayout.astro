@@ -3,12 +3,13 @@ import '../styles/global.css';
 
 interface Props {
   title: string;
+  showSidebar?: boolean;
 }
 
-const { title } = Astro.props;
+const { title, showSidebar = true } = Astro.props;
 ---
 
-<html lang="en" class="dark">
+<html lang="es" class="dark">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -16,12 +17,15 @@ const { title } = Astro.props;
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content="Admin — Portfolio ChrisBP" />
+    <meta name="robots" content="noindex, nofollow" />
     <title>{title}</title>
   </head>
   <body class="bg-background text-text-primary min-h-screen flex">
-    <aside class="w-64 bg-surface border-r border-border min-h-screen">
-      <!-- sidebar — story 3.2 -->
-    </aside>
+    {showSidebar && (
+      <aside class="w-64 bg-surface border-r border-border min-h-screen">
+        <!-- sidebar — story 3.2 -->
+      </aside>
+    )}
     <main class="flex-1">
       <slot />
     </main>

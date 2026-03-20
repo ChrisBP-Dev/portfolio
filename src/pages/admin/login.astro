@@ -1,0 +1,8 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import LoginForm from '../../components/admin/LoginForm.svelte';
+---
+
+<AdminLayout title="Login — Admin ChrisBP" showSidebar={false}>
+  <LoginForm client:load />
+</AdminLayout>
