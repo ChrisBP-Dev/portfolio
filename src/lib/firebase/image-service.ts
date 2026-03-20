@@ -59,13 +59,18 @@ async function deleteSingle(image: StoredImage): Promise<void> {
 
 async function deleteByPrefix(pathPrefix: string): Promise<void> {
   const prefixRef = ref(storage, pathPrefix);
-  const result = await listAll(prefixRef);
-  const results = await Promise.allSettled(result.items.map((item) => deleteObject(item)));
-  for (const r of results) {
+  const result = await withRetry(() => listAll(prefixRef));
+  const deleteResults = await Promise.allSettled(
+    result.items.map((item) => withRetry(() => deleteObject(item))),
+  );
+  for (const r of deleteResults) {
     if (r.status === 'rejected') {
       console.warn('Failed to delete item during deleteByPrefix:', r.reason);
     }
   }
+  await Promise.allSettled(
+    result.prefixes.map((prefix) => deleteByPrefix(prefix.fullPath)),
+  );
 }
 
 export const imageService = {

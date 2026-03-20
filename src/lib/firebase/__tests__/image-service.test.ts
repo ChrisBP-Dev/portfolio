@@ -9,7 +9,10 @@ const { mockRef, mockUploadBytes, mockGetDownloadURL, mockDeleteObject, mockList
     ),
     mockDeleteObject: vi.fn((_ref: unknown) => Promise.resolve()),
     mockListAll: vi.fn((_ref: unknown) =>
-      Promise.resolve({ items: [] as { fullPath: string }[], prefixes: [] }),
+      Promise.resolve({
+        items: [] as { fullPath: string }[],
+        prefixes: [] as { fullPath: string }[],
+      }),
     ),
   }));
 
@@ -36,7 +39,10 @@ describe('ImageService', () => {
     );
     mockDeleteObject.mockImplementation((_ref: unknown) => Promise.resolve());
     mockListAll.mockImplementation((_ref: unknown) =>
-      Promise.resolve({ items: [] as { fullPath: string }[], prefixes: [] }),
+      Promise.resolve({
+        items: [] as { fullPath: string }[],
+        prefixes: [] as { fullPath: string }[],
+      }),
     );
   });
 
@@ -143,6 +149,25 @@ describe('ImageService', () => {
       expect(mockDeleteObject).toHaveBeenCalledTimes(2);
       expect(mockDeleteObject).toHaveBeenCalledWith(items[0]);
       expect(mockDeleteObject).toHaveBeenCalledWith(items[1]);
+    });
+
+    it('recurses into subdirectory prefixes', async () => {
+      const nestedItems = [{ fullPath: 'projects/abc123/main/uuid.webp' }];
+      mockListAll
+        .mockImplementationOnce(() =>
+          Promise.resolve({
+            items: [],
+            prefixes: [{ fullPath: 'projects/abc123/main/' }],
+          }),
+        )
+        .mockImplementationOnce(() =>
+          Promise.resolve({ items: nestedItems, prefixes: [] }),
+        );
+
+      await imageService.deleteByPrefix('projects/abc123/');
+
+      expect(mockListAll).toHaveBeenCalledTimes(2);
+      expect(mockDeleteObject).toHaveBeenCalledWith(nestedItems[0]);
     });
 
     it('completes without error when no items exist', async () => {

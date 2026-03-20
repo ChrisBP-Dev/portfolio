@@ -1,6 +1,6 @@
 # Story 3.3: ImageService — Upload, Replace y Delete
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -412,15 +412,16 @@ Claude Opus 4.6 (1M context)
 - **Task 1**: `image-service.ts` implementado con `upload`, `replace` (safe-first), `deleteSingle`, `deleteByPrefix`, `withRetry`, `isRetryableError`. Exportado como objeto singleton.
 - **Task 2**: `image-slot-processor.ts` con `processImageSlot` (5 estados del discriminated union) y `cleanupDeletedImages` con `Promise.allSettled`.
 - **Task 3**: `storage-errors.ts` con 7 error codes bilingües (ES/EN), `hasCode()` type guard, fallback genérico. Mismo patrón que `auth-errors.ts`.
-- **Task 4**: 18 tests unitarios para ImageService — upload, replace (safe-first order, upload falla, delete falla), delete, deleteByPrefix (con items, vacío, fallos individuales), isRetryableError (7 cases), withRetry (success after retry, exhausted, non-retryable).
+- **Task 4**: 19 tests unitarios para ImageService — upload, replace (safe-first order, upload falla, delete falla), delete, deleteByPrefix (con items, recursión en prefixes, vacío, fallos individuales), isRetryableError (7 cases), withRetry (success after retry, exhausted, non-retryable).
 - **Task 5**: 8 tests unitarios para ImageSlot processor — 5 estados de processImageSlot + cleanupDeletedImages (success, failures, empty).
 - **Task 6**: 22 tests para storage-errors — cada code en ES y EN, duck-typing, fallbacks.
-- **Task 7**: `pnpm lint` ✅, `pnpm type-check` ✅ (0 errors), `pnpm test` ✅ (431 tests, 20 files), `pnpm build` ✅ (24 páginas).
-- **Total nuevos tests**: 26 tests en 3 archivos. Zero regresiones.
+- **Task 7**: `pnpm lint` ✅, `pnpm type-check` ✅ (0 errors), `pnpm test` ✅ (432 tests, 20 files), `pnpm build` ✅ (24 páginas).
+- **Total nuevos tests**: 27 tests en 3 archivos. Zero regresiones.
 
 ### Change Log
 
 - 2026-03-20: Implementación completa de Story 3.3 — ImageService, ImageSlot processor, storage errors con 26 tests unitarios.
+- 2026-03-20: Code review patches — `deleteByPrefix` ahora recursa en subdirectory prefixes y usa `withRetry` en todas las operaciones (AC6). +1 test para recursión.
 
 ### File List
 
