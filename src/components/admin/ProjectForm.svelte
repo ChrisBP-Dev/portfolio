@@ -1,9 +1,14 @@
 <script lang="ts">
   import { tick } from 'svelte';
-  import { collection, addDoc, updateDoc, doc } from 'firebase/firestore';
+  import { collection, addDoc, updateDoc, doc, deleteField } from 'firebase/firestore';
   import { db } from '../../lib/firebase/client';
   import { imageService } from '../../lib/firebase/image-service';
+  import {
+    processImageSlot,
+    cleanupDeletedImages,
+  } from '../../lib/firebase/image-slot-processor';
   import { projectFormSchema } from '../../lib/schemas/project-schema';
+  import type { ProjectWithId } from '../../lib/schemas/project-schema';
   import { t } from '../../lib/i18n/translations';
   import { slugify } from '../../lib/utils/slugify';
   import { toastStore } from '../../lib/utils/toast-store.svelte';
@@ -18,11 +23,13 @@
   const PROJECTS_COLLECTION = 'Projects';
 
   interface Props {
+    mode?: 'create' | 'edit';
+    initialData?: ProjectWithId | null;
     onCancel: () => void;
     onSaved: () => void;
   }
 
-  let { onCancel, onSaved }: Props = $props();
+  let { mode = 'create', initialData = null, onCancel, onSaved }: Props = $props();
 
   // Form state
   let companyNameEs = $state('');
@@ -44,9 +51,37 @@
   // Validation errors
   let errors = $state<Record<string, string>>({});
 
-  // Auto-slug from companyName ES
+  // Edit mode initialization — flag guard prevents infinite loop
+  let initialized = false;
+
   $effect(() => {
-    if (!manualSlug) {
+    if (mode === 'edit' && initialData && !initialized) {
+      initialized = true;
+      companyNameEs = initialData.companyName.es;
+      companyNameEn = initialData.companyName.en;
+      shortDescriptionEs = initialData.shortDescription.es;
+      shortDescriptionEn = initialData.shortDescription.en;
+      featuresEs = [...(initialData.features?.es ?? [])];
+      featuresEn = [...(initialData.features?.en ?? [])];
+      mainImageSlot = initialData.mainImage
+        ? { type: 'existing', image: initialData.mainImage }
+        : { type: 'empty' };
+      screenshots = (initialData.screenshots ?? []).map((img) => ({
+        type: 'existing' as const,
+        image: img,
+      }));
+      selectedTechnologies = [...(initialData.technologies ?? [])];
+      websiteUrl = initialData.websiteUrl ?? '';
+      sourceCodeUrl = initialData.sourceCodeUrl ?? '';
+      slug = initialData.slug;
+      manualSlug = true;
+      hasChanges = false;
+    }
+  });
+
+  // Auto-slug from companyName ES (only in create mode)
+  $effect(() => {
+    if (!manualSlug && mode === 'create') {
       slug = slugify(companyNameEs);
     }
   });
@@ -68,8 +103,17 @@
       slug: slug.trim(),
     };
 
-    if (websiteUrl.trim()) data.websiteUrl = websiteUrl.trim();
-    if (sourceCodeUrl.trim()) data.sourceCodeUrl = sourceCodeUrl.trim();
+    if (websiteUrl.trim()) {
+      data.websiteUrl = websiteUrl.trim();
+    } else if (mode === 'edit') {
+      data.websiteUrl = deleteField();
+    }
+
+    if (sourceCodeUrl.trim()) {
+      data.sourceCodeUrl = sourceCodeUrl.trim();
+    } else if (mode === 'edit') {
+      data.sourceCodeUrl = deleteField();
+    }
 
     return data;
   }
@@ -78,8 +122,6 @@
     const newErrors = { ...errors };
     delete newErrors[field];
 
-    // Build partial data and validate the specific field with Zod-like checks
-    // Per-field blur validation uses the same rules as Zod schema
     switch (field) {
       case 'companyNameEs':
         if (!companyNameEs.trim()) newErrors.companyNameEs = t('admin.validation.required', locale);
@@ -88,14 +130,17 @@
         if (!companyNameEn.trim()) newErrors.companyNameEn = t('admin.validation.required', locale);
         break;
       case 'shortDescriptionEs':
-        if (!shortDescriptionEs.trim()) newErrors.shortDescriptionEs = t('admin.validation.required', locale);
+        if (!shortDescriptionEs.trim())
+          newErrors.shortDescriptionEs = t('admin.validation.required', locale);
         break;
       case 'shortDescriptionEn':
-        if (!shortDescriptionEn.trim()) newErrors.shortDescriptionEn = t('admin.validation.required', locale);
+        if (!shortDescriptionEn.trim())
+          newErrors.shortDescriptionEn = t('admin.validation.required', locale);
         break;
       case 'slug':
         if (!slug.trim()) newErrors.slug = t('admin.validation.required', locale);
-        else if (!projectFormSchema.shape.slug.safeParse(slug.trim()).success) newErrors.slug = t('admin.validation.slugInvalid', locale);
+        else if (!projectFormSchema.shape.slug.safeParse(slug.trim()).success)
+          newErrors.slug = t('admin.validation.slugInvalid', locale);
         break;
       case 'websiteUrl':
         if (websiteUrl.trim()) {
@@ -106,11 +151,13 @@
       case 'sourceCodeUrl':
         if (sourceCodeUrl.trim()) {
           const urlResult = projectFormSchema.shape.sourceCodeUrl.safeParse(sourceCodeUrl.trim());
-          if (!urlResult.success) newErrors.sourceCodeUrl = t('admin.validation.urlInvalid', locale);
+          if (!urlResult.success)
+            newErrors.sourceCodeUrl = t('admin.validation.urlInvalid', locale);
         }
         break;
       case 'mainImage':
-        if (mainImageSlot.type === 'empty') newErrors.mainImage = t('admin.validation.imageRequired', locale);
+        if (mainImageSlot.type === 'empty' || mainImageSlot.type === 'removed')
+          newErrors.mainImage = t('admin.validation.imageRequired', locale);
         break;
     }
 
@@ -120,31 +167,52 @@
   function validateAll(): boolean {
     const newErrors: Record<string, string> = {};
 
-    // Step 1: Validate with Zod projectFormSchema
     const formData = buildFormData();
-    const result = projectFormSchema.safeParse(formData);
+    // Remove deleteField sentinels before Zod validation
+    const zodData = { ...formData };
+    if (mode === 'edit') {
+      for (const key of ['websiteUrl', 'sourceCodeUrl'] as const) {
+        if (typeof zodData[key] !== 'string') {
+          delete zodData[key];
+        }
+      }
+    }
+    const result = projectFormSchema.safeParse(zodData);
 
     if (!result.success) {
       for (const issue of result.error.issues) {
         const path = issue.path.join('.');
         switch (path) {
-          case 'companyName.es': newErrors.companyNameEs = t('admin.validation.required', locale); break;
-          case 'companyName.en': newErrors.companyNameEn = t('admin.validation.required', locale); break;
-          case 'shortDescription.es': newErrors.shortDescriptionEs = t('admin.validation.required', locale); break;
-          case 'shortDescription.en': newErrors.shortDescriptionEn = t('admin.validation.required', locale); break;
-          case 'slug':
-            newErrors.slug = issue.code === 'too_small'
-              ? t('admin.validation.required', locale)
-              : t('admin.validation.slugInvalid', locale);
+          case 'companyName.es':
+            newErrors.companyNameEs = t('admin.validation.required', locale);
             break;
-          case 'websiteUrl': newErrors.websiteUrl = t('admin.validation.urlInvalid', locale); break;
-          case 'sourceCodeUrl': newErrors.sourceCodeUrl = t('admin.validation.urlInvalid', locale); break;
+          case 'companyName.en':
+            newErrors.companyNameEn = t('admin.validation.required', locale);
+            break;
+          case 'shortDescription.es':
+            newErrors.shortDescriptionEs = t('admin.validation.required', locale);
+            break;
+          case 'shortDescription.en':
+            newErrors.shortDescriptionEn = t('admin.validation.required', locale);
+            break;
+          case 'slug':
+            newErrors.slug =
+              issue.code === 'too_small'
+                ? t('admin.validation.required', locale)
+                : t('admin.validation.slugInvalid', locale);
+            break;
+          case 'websiteUrl':
+            newErrors.websiteUrl = t('admin.validation.urlInvalid', locale);
+            break;
+          case 'sourceCodeUrl':
+            newErrors.sourceCodeUrl = t('admin.validation.urlInvalid', locale);
+            break;
         }
       }
     }
 
-    // Main image validation (handled separately — not in schema)
-    if (mainImageSlot.type === 'empty') {
+    // Main image validation — reject empty AND removed
+    if (mainImageSlot.type === 'empty' || mainImageSlot.type === 'removed') {
       newErrors.mainImage = t('admin.validation.imageRequired', locale);
     }
 
@@ -158,28 +226,18 @@
     firstErrorEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
-  async function handleSubmit(): Promise<void> {
-    if (!validateAll()) {
-      scrollToFirstError();
-      return;
-    }
-
+  async function handleCreateSubmit(): Promise<void> {
     saving = true;
     try {
-      // Step 1: Prepare non-image data (no image placeholders per spec)
       const projectData = buildFormData();
-
-      // Step 2: addDoc to Firestore → get docId
       const docRef = await addDoc(collection(db, PROJECTS_COLLECTION), projectData);
       const docId = docRef.id;
 
-      // Step 3: Upload images
       try {
         if (mainImageSlot.type === 'new') {
           const mainPath = `projects/${docId}/main/${crypto.randomUUID()}.webp`;
           const mainStoredImage = await imageService.upload(mainImageSlot.file, mainPath);
 
-          // Screenshots
           const screenshotImages = await Promise.all(
             screenshots
               .filter((s): s is Extract<ImageSlot, { type: 'new' }> => s.type === 'new')
@@ -189,7 +247,6 @@
               }),
           );
 
-          // Step 4: updateDoc with image references
           await updateDoc(doc(db, PROJECTS_COLLECTION, docId), {
             mainImage: mainStoredImage,
             screenshots: screenshotImages,
@@ -202,13 +259,67 @@
         return;
       }
 
-      // Step 5: Success
       toastStore.success(t('admin.projects.form.successToast', locale));
       setTimeout(() => onSaved(), 1500);
     } catch (error) {
       console.error('Failed to save project:', error);
       toastStore.error(t('admin.projects.form.errorToast', locale));
       saving = false;
+    }
+  }
+
+  async function handleEditSubmit(): Promise<void> {
+    if (!initialData) return;
+    const docId = initialData.id;
+
+    saving = true;
+    try {
+      // Process main image
+      const mainProcessed = await processImageSlot(mainImageSlot, `projects/${docId}/main/`);
+
+      // Process each screenshot
+      const screenshotResults = await Promise.all(
+        screenshots.map((slot) => processImageSlot(slot, `projects/${docId}/screenshots/`)),
+      );
+
+      // Build update payload
+      const payload: Record<string, unknown> = {
+        ...buildFormData(),
+        mainImage: mainProcessed.image,
+        screenshots: screenshotResults.map((r) => r.image).filter(Boolean),
+      };
+
+      // Update Firestore
+      await updateDoc(doc(db, PROJECTS_COLLECTION, docId), payload);
+
+      // Cleanup deleted images AFTER document update succeeds
+      const allDeletePaths = [
+        ...mainProcessed.toDelete,
+        ...screenshotResults.flatMap((r) => r.toDelete),
+      ];
+      if (allDeletePaths.length > 0) {
+        await cleanupDeletedImages(allDeletePaths);
+      }
+
+      toastStore.success(t('admin.projects.editSuccessToast', locale));
+      setTimeout(() => onSaved(), 1500);
+    } catch (error) {
+      console.error('Failed to update project:', error);
+      toastStore.error(t('admin.projects.form.errorToast', locale));
+      saving = false;
+    }
+  }
+
+  async function handleSubmit(): Promise<void> {
+    if (!validateAll()) {
+      scrollToFirstError();
+      return;
+    }
+
+    if (mode === 'edit') {
+      await handleEditSubmit();
+    } else {
+      await handleCreateSubmit();
     }
   }
 
@@ -219,14 +330,27 @@
     }
     onCancel();
   }
+
+  // Derived labels for submit button based on mode
+  let saveLabel = $derived(
+    mode === 'edit' ? t('admin.projects.form.saveEdit', locale) : t('admin.projects.form.save', locale),
+  );
+  let savingLabel = $derived(
+    mode === 'edit'
+      ? t('admin.projects.form.savingEdit', locale)
+      : t('admin.projects.form.saving', locale),
+  );
 </script>
 
 <form
-  onsubmit={(e) => { e.preventDefault(); handleSubmit(); }}
+  onsubmit={(e) => {
+    e.preventDefault();
+    handleSubmit();
+  }}
   class="max-w-[700px] space-y-0"
   novalidate
 >
-  <!-- Section: Información Básica -->
+  <!-- Section: Informacion Basica -->
   <div class="border-b border-border pb-6 mb-6">
     <h2 class="text-lg font-semibold text-text-primary mb-4">
       {t('admin.projects.form.sectionBasic', locale)}
@@ -270,7 +394,7 @@
     </div>
   </div>
 
-  <!-- Section: Imágenes -->
+  <!-- Section: Imagenes -->
   <div class="border-b border-border pb-6 mb-6">
     <h2 class="text-lg font-semibold text-text-primary mb-4">
       {t('admin.projects.form.sectionImages', locale)}
@@ -282,17 +406,17 @@
         bind:slot={mainImageSlot}
         required
         error={errors.mainImage ?? ''}
-        onChange={() => { markDirty(); validateField('mainImage'); }}
+        onChange={() => {
+          markDirty();
+          validateField('mainImage');
+        }}
       />
 
       <div>
         <p class="text-sm font-medium text-text-primary mb-2">
           {t('admin.projects.form.screenshots', locale)}
         </p>
-        <ScreenshotManager
-          bind:screenshots
-          onChange={() => markDirty()}
-        />
+        <ScreenshotManager bind:screenshots onChange={() => markDirty()} />
       </div>
     </div>
   </div>
@@ -308,10 +432,7 @@
         <p class="text-sm font-medium text-text-primary mb-2">
           {t('admin.projects.form.technologies', locale)}
         </p>
-        <TechnologySelector
-          bind:selected={selectedTechnologies}
-          onChange={() => markDirty()}
-        />
+        <TechnologySelector bind:selected={selectedTechnologies} onChange={() => markDirty()} />
       </div>
 
       <div>
@@ -330,7 +451,9 @@
           placeholder="https://..."
         />
         {#if errors.websiteUrl}
-          <p id="websiteUrl-error" class="text-xs text-error mt-1" role="alert">{errors.websiteUrl}</p>
+          <p id="websiteUrl-error" class="text-xs text-error mt-1" role="alert">
+            {errors.websiteUrl}
+          </p>
         {/if}
       </div>
 
@@ -350,7 +473,9 @@
           placeholder="https://github.com/..."
         />
         {#if errors.sourceCodeUrl}
-          <p id="sourceCodeUrl-error" class="text-xs text-error mt-1" role="alert">{errors.sourceCodeUrl}</p>
+          <p id="sourceCodeUrl-error" class="text-xs text-error mt-1" role="alert">
+            {errors.sourceCodeUrl}
+          </p>
         {/if}
       </div>
 
@@ -361,11 +486,7 @@
             <span class="text-error" aria-hidden="true">*</span>
           </label>
           <label class="flex items-center gap-2 text-xs text-text-secondary cursor-pointer">
-            <input
-              type="checkbox"
-              bind:checked={manualSlug}
-              class="rounded border-border"
-            />
+            <input type="checkbox" bind:checked={manualSlug} class="rounded border-border" />
             {t('admin.projects.form.slugManual', locale)}
           </label>
         </div>
@@ -396,13 +517,24 @@
       class="px-6 py-3 rounded-lg font-semibold text-white [background:var(--brand-gradient)] min-h-11 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
     >
       {#if saving}
-        <svg class="w-4 h-4 motion-safe:animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        <svg
+          class="w-4 h-4 motion-safe:animate-spin"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+          ></path>
         </svg>
-        {t('admin.projects.form.saving', locale)}
+        {savingLabel}
       {:else}
-        {t('admin.projects.form.save', locale)}
+        {saveLabel}
       {/if}
     </button>
 

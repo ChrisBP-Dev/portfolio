@@ -15,16 +15,9 @@
 
   let fileInputRef = $state<HTMLInputElement | null>(null);
   let dragOver = $state(false);
-  let nextKeyId = $state(0);
-  let keys = $state<number[]>([]);
-
-  function getKey(): number {
-    return nextKeyId++;
-  }
 
   function addFiles(files: FileList): void {
     const newSlots: ImageSlot[] = [];
-    const newKeys: number[] = [];
     for (const file of files) {
       if (file.size > MAX_FILE_SIZE) {
         toastStore.error(t('admin.validation.fileTooLarge', locale));
@@ -32,11 +25,9 @@
       }
       if (!file.type.startsWith('image/')) continue;
       newSlots.push({ type: 'new', file, preview: URL.createObjectURL(file) });
-      newKeys.push(getKey());
     }
     if (newSlots.length > 0) {
       screenshots = [...screenshots, ...newSlots];
-      keys = [...keys, ...newKeys];
       onChange?.(screenshots);
     }
   }
@@ -47,7 +38,6 @@
       URL.revokeObjectURL(slot.preview);
     }
     screenshots = screenshots.filter((_, i) => i !== index);
-    keys = keys.filter((_, i) => i !== index);
     onChange?.(screenshots);
   }
 
@@ -74,13 +64,6 @@
     return null;
   }
 
-  const stableKeys = $derived.by(() => {
-    while (keys.length < screenshots.length) {
-      keys.push(getKey());
-    }
-    return keys;
-  });
-
   // Cleanup object URLs on component destroy
   $effect(() => {
     return () => {
@@ -95,7 +78,7 @@
 
 <div class="space-y-3">
   <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-    {#each screenshots as slot, index (stableKeys[index])}
+    {#each screenshots as slot, index (index)}
       {@const preview = getPreview(slot)}
       {#if preview}
         <div class="relative group">

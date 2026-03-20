@@ -21,22 +21,13 @@
   }: Props = $props();
 
   let activeTab = $state<'es' | 'en'>('es');
-  let nextKeyId = $state(0);
-  let keysEs = $state<number[]>([]);
-  let keysEn = $state<number[]>([]);
-
-  function getKey(): number {
-    return nextKeyId++;
-  }
 
   function addItem(lang: 'es' | 'en'): void {
     if (lang === 'es' && itemsEs.length < MAX_ITEMS) {
       itemsEs = [...itemsEs, ''];
-      keysEs = [...keysEs, getKey()];
       onChangeEs?.(itemsEs);
     } else if (lang === 'en' && itemsEn.length < MAX_ITEMS) {
       itemsEn = [...itemsEn, ''];
-      keysEn = [...keysEn, getKey()];
       onChangeEn?.(itemsEn);
     }
   }
@@ -44,11 +35,9 @@
   function removeItem(lang: 'es' | 'en', index: number): void {
     if (lang === 'es') {
       itemsEs = itemsEs.filter((_, i) => i !== index);
-      keysEs = keysEs.filter((_, i) => i !== index);
       onChangeEs?.(itemsEs);
     } else {
       itemsEn = itemsEn.filter((_, i) => i !== index);
-      keysEn = keysEn.filter((_, i) => i !== index);
       onChangeEn?.(itemsEn);
     }
   }
@@ -63,14 +52,6 @@
     }
   }
 
-  function getKeys(lang: 'es' | 'en', items: string[]): number[] {
-    const keys = lang === 'es' ? keysEs : keysEn;
-    while (keys.length < items.length) {
-      keys.push(getKey());
-    }
-    return keys;
-  }
-
   const labelSlug = $derived(label.toLowerCase().replace(/\s+/g, '-'));
   const tabEsId = $derived(`tab-arr-es-${labelSlug}`);
   const tabEnId = $derived(`tab-arr-en-${labelSlug}`);
@@ -79,9 +60,8 @@
 </script>
 
 {#snippet itemList(lang: 'es' | 'en', items: string[])}
-  {@const keys = getKeys(lang, items)}
   <div class="space-y-2">
-    {#each items as item, index (keys[index])}
+    {#each items as item, index (index)}
       <div class="flex gap-2">
         <input
           type="text"

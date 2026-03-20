@@ -2,20 +2,19 @@
   import { collection, getDocs, query, orderBy } from 'firebase/firestore';
   import { db } from '../../lib/firebase/client';
   import { projectFirestoreSchema } from '../../lib/schemas/project-schema';
-  import type { ProjectFirestoreData } from '../../lib/schemas/project-schema';
+  import type { ProjectWithId } from '../../lib/schemas/project-schema';
   import { t } from '../../lib/i18n/translations';
 
   const locale = 'es';
   const PROJECTS_COLLECTION = 'Projects';
 
-  type ProjectWithId = ProjectFirestoreData & { id: string };
-
   interface Props {
     onCreateNew: () => void;
     onEdit?: (project: ProjectWithId) => void;
+    onDelete?: (project: ProjectWithId) => void;
   }
 
-  let { onCreateNew, onEdit }: Props = $props();
+  let { onCreateNew, onEdit, onDelete }: Props = $props();
 
   let projects = $state<ProjectWithId[]>([]);
   let loading = $state(true);
@@ -134,9 +133,8 @@
             </button>
             <button
               type="button"
-              disabled
-              class="px-3 py-1.5 text-sm rounded-lg border border-border text-text-muted opacity-50 cursor-not-allowed"
-              title="Story 3.5"
+              onclick={() => onDelete?.(project)}
+              class="px-3 py-1.5 text-sm rounded-lg border border-error/30 text-error hover:bg-error/10 hover:border-error transition-colors"
             >
               {t('admin.projects.delete', locale)}
             </button>

@@ -1,6 +1,6 @@
 # Story 3.5: CRUD Projects — Edit y Delete
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -19,23 +19,23 @@ So that my portfolio stays current and Storage stays clean.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Extend ProjectsCrudPage for edit mode (AC: #1)
-  - [ ] 1.1 Extend `viewMode` state: `'list' | 'create' | 'edit'`
-  - [ ] 1.2 Add `editingProject` state: `$state<ProjectWithId | null>(null)`
-  - [ ] 1.3 Wire `onEdit` callback from `ProjectList` → sets `editingProject` + switches to `'edit'` mode
-  - [ ] 1.4 Render title conditionally: "Editar proyecto" for edit, "Crear proyecto" for create
-  - [ ] 1.5 Pass `initialData` and `mode` props to `ProjectForm` when in edit mode
+- [x] Task 1: Extend ProjectsCrudPage for edit mode (AC: #1)
+  - [x] 1.1 Extend `viewMode` state: `'list' | 'create' | 'edit'`
+  - [x] 1.2 Add `editingProject` state: `$state<ProjectWithId | null>(null)`
+  - [x] 1.3 Wire `onEdit` callback from `ProjectList` → sets `editingProject` + switches to `'edit'` mode
+  - [x] 1.4 Render title conditionally: "Editar proyecto" for edit, "Crear proyecto" for create
+  - [x] 1.5 Pass `initialData` and `mode` props to `ProjectForm` when in edit mode
 
-- [ ] Task 2: Extend ProjectForm for edit mode (AC: #1, #2, #3, #6)
-  - [ ] 2.1 Add optional props: `initialData?: ProjectWithId`, `mode?: 'create' | 'edit'` (default `'create'`)
-  - [ ] 2.2 Populate form state from `initialData` via `$effect` with `initialized` flag guard (see Init Pattern below)
+- [x] Task 2: Extend ProjectForm for edit mode (AC: #1, #2, #3, #6)
+  - [x] 2.1 Add optional props: `initialData?: ProjectWithId`, `mode?: 'create' | 'edit'` (default `'create'`)
+  - [x] 2.2 Populate form state from `initialData` via `$effect` with `initialized` flag guard (see Init Pattern below)
     - Text fields: `companyNameEs = initialData.companyName.es`, etc.
     - Main image: `mainImageSlot = initialData.mainImage ? { type: 'existing', image: initialData.mainImage } : { type: 'empty' }`
     - Screenshots: `screenshots = (initialData.screenshots ?? []).map(img => ({ type: 'existing' as const, image: img }))`
     - Technologies, URLs, slug from initialData
     - Set `manualSlug = true` in edit mode (slug already established — changing slug breaks existing URLs, consider warning user)
-  - [ ] 2.3 On edit mode mainImage validation: reject `empty` AND `removed` (accept `existing`, `new`, `replaced`)
-  - [ ] 2.4 Implement edit submit handler using `processImageSlot` + `cleanupDeletedImages`:
+  - [x] 2.3 On edit mode mainImage validation: reject `empty` AND `removed` (accept `existing`, `new`, `replaced`)
+  - [x] 2.4 Implement edit submit handler using `processImageSlot` + `cleanupDeletedImages`:
     1. Validate all fields with Zod `projectFormSchema`
     2. Disable button, show "Guardando..." + spinner
     3. Process main image via `processImageSlot(mainImageSlot, 'projects/{docId}/main/')`
@@ -46,31 +46,31 @@ So that my portfolio stays current and Storage stays clean.
     8. Show success toast "Proyecto guardado exitosamente"
     9. Return to list view after ~1.5s delay
     10. On failure: show error toast, re-enable button
-  - [ ] 2.5 Refactor `handleSubmit` to branch on `mode === 'edit'` vs `mode === 'create'`, keeping current create logic intact
-  - [ ] 2.6 `handleCancel()` already handles unsaved changes via `window.confirm()` — works for edit mode without changes
+  - [x] 2.5 Refactor `handleSubmit` to branch on `mode === 'edit'` vs `mode === 'create'`, keeping current create logic intact
+  - [x] 2.6 `handleCancel()` already handles unsaved changes via `window.confirm()` — works for edit mode without changes
 
-- [ ] Task 3: ConfirmDialog component (AC: #4, #5)
-  - [ ] 3.1 Create `ConfirmDialog.svelte` — reusable modal for destructive confirmations
-  - [ ] 3.2 Props: `open`, `title`, `message`, `confirmLabel`, `cancelLabel`, `confirming` (loading state), `onConfirm`, `onCancel`
-  - [ ] 3.3 Visual: centered overlay (`bg-black/50`), surface card, title + message + impact text, Cancel (secondary) left + Confirm (danger red) right
-  - [ ] 3.4 Danger button: `bg-error text-white hover:bg-error/90`, disabled + spinner while `confirming`
-  - [ ] 3.5 Keyboard: Escape closes, focus trap (tab cycles within dialog), auto-focus Cancel button on open
-  - [ ] 3.6 Accessibility: `role="alertdialog"`, `aria-modal="true"`, `aria-labelledby` title, `aria-describedby` message
-  - [ ] 3.7 Body scroll lock: `document.body.style.overflow = 'hidden'` in `$effect` with cleanup
-  - [ ] 3.8 `prefers-reduced-motion: reduce` — disable backdrop/entry animations
+- [x] Task 3: ConfirmDialog component (AC: #4, #5)
+  - [x] 3.1 Create `ConfirmDialog.svelte` — reusable modal for destructive confirmations
+  - [x] 3.2 Props: `open`, `title`, `message`, `confirmLabel`, `cancelLabel`, `confirming` (loading state), `onConfirm`, `onCancel`
+  - [x] 3.3 Visual: centered overlay (`bg-black/50`), surface card, title + message + impact text, Cancel (secondary) left + Confirm (danger red) right
+  - [x] 3.4 Danger button: `bg-error text-white hover:bg-error/90`, disabled + spinner while `confirming`
+  - [x] 3.5 Keyboard: Escape closes, focus trap (tab cycles within dialog), auto-focus Cancel button on open
+  - [x] 3.6 Accessibility: `role="alertdialog"`, `aria-modal="true"`, `aria-labelledby` title, `aria-describedby` message
+  - [x] 3.7 Body scroll lock: `document.body.style.overflow = 'hidden'` in `$effect` with cleanup
+  - [x] 3.8 `prefers-reduced-motion: reduce` — disable backdrop/entry animations
 
-- [ ] Task 4: Wire delete in ProjectList (AC: #4, #5, #6)
-  - [ ] 4.1 Add `onDelete` callback prop to `ProjectList`
-  - [ ] 4.2 Enable delete button (remove `disabled` attr and muted styling)
-  - [ ] 4.3 Delete button: danger styling `text-error border-error/30 hover:bg-error/10 hover:border-error`
-  - [ ] 4.4 Wire button click to call `onDelete(project)`
+- [x] Task 4: Wire delete in ProjectList (AC: #4, #5, #6)
+  - [x] 4.1 Add `onDelete` callback prop to `ProjectList`
+  - [x] 4.2 Enable delete button (remove `disabled` attr and muted styling)
+  - [x] 4.3 Delete button: danger styling `text-error border-error/30 hover:bg-error/10 hover:border-error`
+  - [x] 4.4 Wire button click to call `onDelete(project)`
 
-- [ ] Task 5: Delete flow in ProjectsCrudPage (AC: #4, #5, #6)
-  - [ ] 5.1 Add `deletingProject` state and `showDeleteDialog` state
-  - [ ] 5.2 Wire `onDelete` from `ProjectList` → sets `deletingProject` + opens ConfirmDialog
-  - [ ] 5.3 Compose ConfirmDialog message: "¿Eliminar '{name}'? Se eliminarán también {N} imágenes de Storage."
+- [x] Task 5: Delete flow in ProjectsCrudPage (AC: #4, #5, #6)
+  - [x] 5.1 Add `deletingProject` state and `showDeleteDialog` state
+  - [x] 5.2 Wire `onDelete` from `ProjectList` → sets `deletingProject` + opens ConfirmDialog
+  - [x] 5.3 Compose ConfirmDialog message: "¿Eliminar '{name}'? Se eliminarán también {N} imágenes de Storage."
     - Count: `(project.mainImage ? 1 : 0) + (project.screenshots?.length ?? 0)` — mainImage is optional in schema
-  - [ ] 5.4 Implement `handleConfirmDelete`:
+  - [x] 5.4 Implement `handleConfirmDelete`:
     1. Set `deleting = true` (confirming state on dialog)
     2. `imageService.deleteByPrefix(`projects/${projectId}/`)` — delete ALL storage files first
     3. `deleteDoc(doc(db, PROJECTS_COLLECTION, projectId))` — then remove document
@@ -78,8 +78,8 @@ So that my portfolio stays current and Storage stays clean.
     5. Call `listRef?.loadProjects()` to refresh list
     6. On failure: show error toast, close dialog, re-enable button
 
-- [ ] Task 6: i18n keys for edit/delete (AC: all)
-  - [ ] 6.1 Add keys to `translations.ts`:
+- [x] Task 6: i18n keys for edit/delete (AC: all)
+  - [x] 6.1 Add keys to `translations.ts`:
     - `admin.projects.editTitle`: "Editar proyecto" / "Edit project"
     - `admin.projects.form.saveEdit`: "Guardar cambios" / "Save changes" (edit mode submit button)
     - `admin.projects.form.savingEdit`: "Guardando cambios..." / "Saving changes..." (edit mode saving state)
@@ -91,11 +91,11 @@ So that my portfolio stays current and Storage stays clean.
     - `admin.confirm.cancel`: "Cancelar" / "Cancel"
     - `admin.confirm.deleting`: "Eliminando..." / "Deleting..."
 
-- [ ] Task 7: Unit tests (AC: all)
-  - [ ] 7.1 Tests for ConfirmDialog: open/close, Escape key, confirm callback, cancel callback, loading state, a11y attributes
-  - [ ] 7.2 Tests for delete flow: image count calculation, deleteByPrefix + deleteDoc order
-  - [ ] 7.3 Tests for edit form initialization: verify all fields populated from initialData
-  - [ ] 7.4 Tests for edit submit: processImageSlot called for each slot, cleanupDeletedImages called after updateDoc
+- [x] Task 7: Unit tests (AC: all)
+  - [x] 7.1 Tests for ConfirmDialog: open/close, Escape key, confirm callback, cancel callback, loading state, a11y attributes
+  - [x] 7.2 Tests for delete flow: image count calculation, deleteByPrefix + deleteDoc order
+  - [x] 7.3 Tests for edit form initialization: verify all fields populated from initialData
+  - [x] 7.4 Tests for edit submit: processImageSlot called for each slot, cleanupDeletedImages called after updateDoc
 
 ## Dev Notes
 
@@ -414,10 +414,45 @@ Recent commits show consistent patterns:
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.6 (1M context)
 
 ### Debug Log References
 
+- BilingualArrayField.svelte: `state_unsafe_mutation` — `getKey()` mutated `$state(nextKeyId)` inside `$derived`/template via `{@const keys = getKeys(lang, items)}`. Fix: removed key tracking entirely, use index-based `{#each}` keys. Pre-existing bug only triggered by edit mode populating items externally.
+- ScreenshotManager.svelte: Same pattern — `stableKeys` was `$derived.by()` calling `keys.push(getKey())` which mutated `$state` inside a derived. Fix: same approach, removed key tracking, use index-based keys.
+- Both fixes are safe for max 10 items lists with one-way `value={item}` bindings.
+
 ### Completion Notes List
 
+- Task 6: Added 10 i18n keys for edit/delete flows (editTitle, saveEdit, savingEdit, deleteConfirmTitle, deleteConfirmMessage, deleteConfirmButton, deleteSuccessToast, deleteErrorToast, editSuccessToast, confirm.cancel, confirm.deleting)
+- Task 1: Extended ProjectsCrudPage with 'edit' viewMode, editingProject state, handleEdit/handleDeleteRequest callbacks, conditional title rendering, passes mode/initialData props to ProjectForm
+- Task 3: Created ConfirmDialog.svelte — reusable alertdialog with focus trap, Escape/backdrop close, body scroll lock, a11y attrs, danger button with spinner, motion-safe animations
+- Task 4: Enabled delete button in ProjectList with danger styling (text-error, border-error/30, hover states), wired onDelete callback prop
+- Task 5: Implemented full delete flow — deletingProject/showDeleteDialog state, ConfirmDialog with dynamic message (image count), handleConfirmDelete with deleteByPrefix→deleteDoc order, toast feedback, list refresh
+- Task 2: Extended ProjectForm with mode/initialData props, $effect init with flag guard, mainImage validation rejects 'removed', edit submit using processImageSlot+cleanupDeletedImages, deleteField() for cleared URLs, Zod validation strips deleteField sentinels, derived save/saving labels per mode
+- Task 7: Added 33 unit tests across 3 files — confirm-dialog.test.ts (a11y, focus trap, button states), delete-flow.test.ts (image count, operation order, message template), edit-form.test.ts (initialization, mainImage validation, processImageSlot usage, deleteField logic)
+- Exported ProjectWithId type from project-schema.ts, updated ProjectList to import from shared location
+- Fixed pre-existing state_unsafe_mutation in BilingualArrayField.svelte and ScreenshotManager.svelte (key generation mutated $state inside $derived/template)
+- Added back-to-list button above form title in ProjectsCrudPage for navigation UX
+
+### Change Log
+
+- 2026-03-20: Implemented story 3.5 — Edit and Delete CRUD flows for Projects
+- 2026-03-20: Fixed state_unsafe_mutation in BilingualArrayField + ScreenshotManager (pre-existing, triggered by edit mode); added back-to-list navigation button
+
 ### File List
+
+**New files:**
+- src/components/admin/ConfirmDialog.svelte
+- src/components/admin/__tests__/confirm-dialog.test.ts
+- src/components/admin/__tests__/delete-flow.test.ts
+- src/components/admin/__tests__/edit-form.test.ts
+
+**Modified files:**
+- src/components/admin/ProjectsCrudPage.svelte
+- src/components/admin/ProjectForm.svelte
+- src/components/admin/ProjectList.svelte
+- src/components/admin/BilingualArrayField.svelte (fix: state_unsafe_mutation — removed key tracking, use index-based each keys)
+- src/components/admin/ScreenshotManager.svelte (fix: same state_unsafe_mutation pattern — removed $derived key generation)
+- src/lib/schemas/project-schema.ts
+- src/lib/i18n/translations.ts

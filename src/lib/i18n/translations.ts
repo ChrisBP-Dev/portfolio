@@ -169,6 +169,7 @@ const translations: Record<string, Record<Locale, string>> = {
   'admin.projects.loading': { es: 'Cargando proyectos...', en: 'Loading projects...' },
   'admin.projects.errorLoading': { es: 'Error al cargar los proyectos', en: 'Error loading projects' },
   'admin.projects.createTitle': { es: 'Crear proyecto', en: 'Create project' },
+  'admin.projects.editTitle': { es: 'Editar proyecto', en: 'Edit project' },
 
   // Admin — Project Form
   'admin.projects.form.sectionBasic': { es: 'Información Básica', en: 'Basic Information' },
@@ -186,6 +187,8 @@ const translations: Record<string, Record<Locale, string>> = {
   'admin.projects.form.slugManual': { es: 'Editar slug manualmente', en: 'Edit slug manually' },
   'admin.projects.form.save': { es: 'Guardar', en: 'Save' },
   'admin.projects.form.saving': { es: 'Guardando...', en: 'Saving...' },
+  'admin.projects.form.saveEdit': { es: 'Guardar cambios', en: 'Save changes' },
+  'admin.projects.form.savingEdit': { es: 'Guardando cambios...', en: 'Saving changes...' },
   'admin.projects.form.cancel': { es: 'Cancelar', en: 'Cancel' },
   'admin.projects.form.discardChanges': { es: '¿Descartar cambios?', en: 'Discard changes?' },
   'admin.projects.form.addFeature': { es: 'Agregar', en: 'Add' },
@@ -196,6 +199,14 @@ const translations: Record<string, Record<Locale, string>> = {
   'admin.projects.form.imageFormats': { es: 'PNG, JPG, WebP — máx. 5MB', en: 'PNG, JPG, WebP — max 5MB' },
   'admin.projects.form.successToast': { es: 'Proyecto guardado exitosamente', en: 'Project saved successfully' },
   'admin.projects.form.errorToast': { es: 'Error al guardar el proyecto', en: 'Error saving project' },
+  'admin.projects.deleteConfirmTitle': { es: 'Eliminar proyecto', en: 'Delete project' },
+  'admin.projects.deleteConfirmMessage': { es: "¿Eliminar '{name}'? Se eliminarán también {count} imágenes de Storage.", en: "Delete '{name}'? {count} images will also be deleted from Storage." },
+  'admin.projects.deleteConfirmButton': { es: 'Eliminar', en: 'Delete' },
+  'admin.projects.deleteSuccessToast': { es: 'Proyecto eliminado exitosamente', en: 'Project deleted successfully' },
+  'admin.projects.deleteErrorToast': { es: 'Error al eliminar el proyecto', en: 'Error deleting project' },
+  'admin.projects.editSuccessToast': { es: 'Proyecto guardado exitosamente', en: 'Project saved successfully' },
+  'admin.confirm.cancel': { es: 'Cancelar', en: 'Cancel' },
+  'admin.confirm.deleting': { es: 'Eliminando...', en: 'Deleting...' },
   'admin.projects.form.noTechnologies': { es: 'No hay tecnologías disponibles', en: 'No technologies available' },
 
   // Admin — Validation

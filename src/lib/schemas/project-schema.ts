@@ -24,6 +24,8 @@ export const projectFirestoreSchema = projectSchema.omit({ id: true }).extend({
 
 export type ProjectFirestoreData = z.infer<typeof projectFirestoreSchema>;
 
+export type ProjectWithId = ProjectFirestoreData & { id: string };
+
 /** For form validation before submit — excludes id and image fields (handled separately) */
 export const projectFormSchema = projectSchema.omit({
   id: true,
