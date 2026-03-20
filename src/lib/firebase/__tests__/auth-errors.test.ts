@@ -8,9 +8,9 @@ function createFirebaseError(code: string): FirebaseError {
 
 describe('getErrorMessage', () => {
   describe('Spanish locale', () => {
-    it('returns "Contraseña incorrecta" for auth/wrong-password', () => {
+    it('returns "Credenciales inválidas" for auth/wrong-password', () => {
       const error = createFirebaseError('auth/wrong-password');
-      expect(getErrorMessage(error, 'es')).toBe('Contraseña incorrecta');
+      expect(getErrorMessage(error, 'es')).toBe('Credenciales inválidas');
     });
 
     it('returns "Credenciales inválidas" for auth/user-not-found', () => {
@@ -56,9 +56,9 @@ describe('getErrorMessage', () => {
   });
 
   describe('English locale', () => {
-    it('returns "Wrong password" for auth/wrong-password', () => {
+    it('returns "Invalid credentials" for auth/wrong-password', () => {
       const error = createFirebaseError('auth/wrong-password');
-      expect(getErrorMessage(error, 'en')).toBe('Wrong password');
+      expect(getErrorMessage(error, 'en')).toBe('Invalid credentials');
     });
 
     it('returns "Invalid credentials" for auth/user-not-found', () => {
@@ -103,17 +103,35 @@ describe('getErrorMessage', () => {
     });
   });
 
-  describe('security: user-not-found and invalid-credential map to same message', () => {
+  describe('network error', () => {
+    it('returns connection error message for auth/network-request-failed (ES)', () => {
+      const error = createFirebaseError('auth/network-request-failed');
+      expect(getErrorMessage(error, 'es')).toBe('Error de conexión. Verifica tu internet.');
+    });
+
+    it('returns connection error message for auth/network-request-failed (EN)', () => {
+      const error = createFirebaseError('auth/network-request-failed');
+      expect(getErrorMessage(error, 'en')).toBe('Connection error. Check your internet.');
+    });
+  });
+
+  describe('security: all credential errors map to same generic message', () => {
     it('does not reveal whether email exists (ES)', () => {
+      const wrongPw = createFirebaseError('auth/wrong-password');
       const userNotFound = createFirebaseError('auth/user-not-found');
       const invalidCred = createFirebaseError('auth/invalid-credential');
-      expect(getErrorMessage(userNotFound, 'es')).toBe(getErrorMessage(invalidCred, 'es'));
+      const msg = getErrorMessage(invalidCred, 'es');
+      expect(getErrorMessage(wrongPw, 'es')).toBe(msg);
+      expect(getErrorMessage(userNotFound, 'es')).toBe(msg);
     });
 
     it('does not reveal whether email exists (EN)', () => {
+      const wrongPw = createFirebaseError('auth/wrong-password');
       const userNotFound = createFirebaseError('auth/user-not-found');
       const invalidCred = createFirebaseError('auth/invalid-credential');
-      expect(getErrorMessage(userNotFound, 'en')).toBe(getErrorMessage(invalidCred, 'en'));
+      const msg = getErrorMessage(invalidCred, 'en');
+      expect(getErrorMessage(wrongPw, 'en')).toBe(msg);
+      expect(getErrorMessage(userNotFound, 'en')).toBe(msg);
     });
   });
 });

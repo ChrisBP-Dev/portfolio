@@ -1,6 +1,6 @@
 # Story 3.1: Autenticación y Protección de Rutas
 
-Status: review
+Status: done
 
 ## Story
 
@@ -473,9 +473,22 @@ Claude Opus 4.6 (1M context)
 - ✅ Task 10: Pipeline validation — lint (0 errors), type-check (0 errors), build (20 pages), tests (346 pass)
 - Note: Task 10.4 (manual verification) left unchecked — requires running dev server and testing with real Firebase credentials
 
+### Code Review Patches (2026-03-20)
+
+Review performed by 3 parallel adversarial layers (Blind Hunter, Edge Case Hunter, Acceptance Auditor). 16 findings evaluated, 8 rejected as noise, 6 fixed, 2 deferred.
+
+- **BS-1 fix**: `auth/wrong-password` now maps to generic "Credenciales inválidas" to prevent user enumeration (was leaking email existence)
+- **BS-2 fix**: Firestore rules restored to `/{document=**}` recursive wildcard to cover subcollections
+- **IG-1 fix**: LoginForm now checks `onAuthStateChanged` and redirects authenticated users to `/admin`
+- **IG-2 fix**: Added `auth/network-request-failed` error mapping with network-specific user message
+- **P-1 fix**: Logout uses `closest('#logout-btn')` instead of `target.id`, added try/catch on `signOut`
+- **P-2 fix**: Dashboard uses `t()` translation keys instead of hardcoded Spanish strings
+- Tests updated: 350 tests pass (was 346), security tests now verify wrong-password + user-not-found + invalid-credential all map to same message
+
 ### Change Log
 
 - 2026-03-20: Implemented story 3-1 — Authentication and route protection for admin panel
+- 2026-03-20: Code review patches — 6 fixes (security, UX, consistency, Firestore rules)
 
 ### File List
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { signInWithEmailAndPassword } from 'firebase/auth';
+  import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
   import { auth } from '../../lib/firebase/client';
   import { getErrorMessage } from '../../lib/firebase/auth-errors';
   import { t } from '../../lib/i18n/translations';
@@ -10,6 +10,13 @@
   let loading = $state(false);
 
   const locale = 'es';
+
+  $effect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
+      if (u) window.location.href = '/admin';
+    });
+    return () => unsubscribe();
+  });
 
   async function handleSubmit(e: SubmitEvent) {
     e.preventDefault();
