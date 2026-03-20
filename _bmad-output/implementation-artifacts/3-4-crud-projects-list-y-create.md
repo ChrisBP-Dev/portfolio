@@ -326,6 +326,7 @@ Claude Opus 4.6 (1M context)
 - `$state` rune requires `.svelte.ts` extension — renamed `toast-store.ts` → `toast-store.svelte.ts`
 - Removed unnecessary `svelte-ignore a11y_no_static_element_interactions` comments (Svelte 5 dropped that warning for elements with role+tabindex)
 - **Firebase Storage billing spike**: 126 pushes a main en 5 días (Mar 17-20) generaron 12.87GB de bandwidth en Storage (free tier: 1GB/día). Causa: Lighthouse CI descarga todas las imágenes desde `firebasestorage.googleapis.com` en cada run. Fix: step "Check for code changes" en CI que salta Build/Lighthouse/Deploy cuando solo cambian docs (`_bmad-output/`, `docs/`, etc.)
+- **Svelte 5 `{@const}` placement**: `{@const}` solo es válido como hijo directo de `{#snippet}`, `{#each}`, `{#if}`, etc. — NO dentro de un `<div>`. En ScreenshotManager, `{@const stableKeys = getStableKeys()}` dentro de un `<div>` causó error de compilación. Fix: reemplazar con `$derived.by()` en el script block. BilingualArrayField no tuvo este problema porque su `{@const}` estaba dentro de `{#snippet}`.
 
 ### Completion Notes List
 
