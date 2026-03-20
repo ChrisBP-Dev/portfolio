@@ -48,8 +48,10 @@ Then la sidebar NO es visible por defecto
 And veo un botón hamburger en el header
 When hago click en el hamburger
 Then la sidebar aparece como drawer overlay
-When hago click fuera o en un item
+And el foco queda atrapado dentro del drawer (focus trap)
+When hago click fuera, en un item, o presiono Escape
 Then la sidebar se cierra
+And el foco regresa al botón hamburger
 ```
 
 ### Scenario 4: Sidebar responsive en tablet
@@ -105,8 +107,10 @@ And "Admin" es un link clickable que navega a /admin
   - [ ] 1.6 Desktop (>900px / `lg:`): sidebar visible 250px, items con icono + label
   - [ ] 1.7 Tablet (450-900px / `sm:` a `lg:`): sidebar colapsada ~64px (solo iconos), expand on hover con transición
   - [ ] 1.8 Mobile (<450px): sidebar oculta por defecto, toggle button muestra drawer overlay con backdrop
-  - [ ] 1.9 Logout item: al click ejecuta `signOut(auth)` y redirige a `/admin/login`
+  - [ ] 1.9 Logout item: al click ejecuta `signOut(auth)` con try/catch y redirige a `/admin/login` (si signOut falla, redirigir de todas formas)
   - [ ] 1.10 Accessibility: `<nav aria-label="Admin navigation">`, `aria-current="page"` en item activo, `aria-expanded` en mobile toggle
+  - [ ] 1.11 Mobile drawer: focus trap (atrapar Tab dentro del drawer), Escape cierra el drawer, al cerrar devolver foco al botón hamburger
+  - [ ] 1.12 Transiciones sidebar (hover expand tablet, drawer mobile): respetar `prefers-reduced-motion: reduce` — sin animaciones si el usuario lo prefiere
 
 - [ ] Task 2: Crear AdminDashboard.svelte (AC: 1, 5)
   - [ ] 2.1 Crear `src/components/admin/AdminDashboard.svelte`
@@ -117,21 +121,23 @@ And "Admin" es un link clickable que navega a /admin
   - [ ] 2.6 Estado error: si falla la consulta, mostrar contador como "—" y no bloquear la UI
   - [ ] 2.7 Navegación via `window.location.href` (full page load — no View Transitions en admin)
 
-- [ ] Task 3: Crear AdminBreadcrumb.svelte (AC: 6)
-  - [ ] 3.1 Crear `src/components/admin/AdminBreadcrumb.svelte`
+- [ ] Task 3: Crear AdminBreadcrumb.astro (AC: 6)
+  - [ ] 3.1 Crear `src/components/admin/AdminBreadcrumb.astro` — componente Astro puro (zero JS al browser, no necesita interactividad)
   - [ ] 3.2 Props: `currentPath: string`
   - [ ] 3.3 Parsear `currentPath` para generar segmentos: "Admin" siempre primero (link a `/admin`), luego sección actual
-  - [ ] 3.4 Mapeo de paths a labels: `/admin` → "Dashboard", `/admin/projects` → "Projects", etc.
+  - [ ] 3.4 Mapeo de paths a labels: `/admin` → "Dashboard", `/admin/projects` → "Projects", etc. Usar `t()` con locale `'es'` para labels
   - [ ] 3.5 Accessibility: `<nav aria-label="Breadcrumb">`, `<ol>` semántico con `aria-current="page"` en último item
   - [ ] 3.6 Separador visual entre segmentos (chevron `>` o `/`)
+  - [ ] 3.7 Exportar función de parseo `getBreadcrumbSegments(path)` para poder testearla unitariamente
 
 - [ ] Task 4: Actualizar AdminLayout.astro (AC: 2, 3, 4, 6)
   - [ ] 4.1 Reemplazar el `<aside>` placeholder (`<!-- sidebar — story 3.2 -->`) con `AdminSidebar` real
-  - [ ] 4.2 Agregar `AdminBreadcrumb` en el header del content area (dentro de `<main>`)
-  - [ ] 4.3 Pasar `currentPath` desde Astro.url.pathname a los componentes Svelte via props
+  - [ ] 4.2 Agregar `AdminBreadcrumb` (componente Astro) en el header del content area (dentro de `<main>`)
+  - [ ] 4.3 Pasar `currentPath` desde `Astro.url.pathname` a AdminSidebar (Svelte, `client:only`) y AdminBreadcrumb (Astro, sin directive)
   - [ ] 4.4 AdminSidebar usa `client:only="svelte"` (requiere Firebase Auth para logout)
-  - [ ] 4.5 AdminBreadcrumb puede ser `client:load` o un componente Astro estático si no necesita JS
+  - [ ] 4.5 AdminBreadcrumb es componente Astro puro — NO necesita hydration directive (zero JS)
   - [ ] 4.6 Mantener `showSidebar={false}` para login page (ya funciona)
+  - [ ] 4.7 El `<main>` necesita margin-left responsive para acomodar el sidebar: `sm:ml-16 lg:ml-64` (match sidebar widths). Sin margin en mobile (sidebar es overlay)
 
 - [ ] Task 5: Actualizar admin/index.astro (AC: 1)
   - [ ] 5.1 Reemplazar el contenido placeholder (título + logout button) con `AdminDashboard` component
@@ -164,9 +170,9 @@ And "Admin" es un link clickable que navega a /admin
   - [ ] 7.2 NOTA: Admin usa locale fijo `'es'` (Christopher es hispanohablante)
 
 - [ ] Task 8: Tests unitarios (AC: 1, 6)
-  - [ ] 8.1 Crear `src/components/admin/__tests__/admin-breadcrumb.test.ts` — test de lógica de parseo de breadcrumb paths
+  - [ ] 8.1 Crear `src/components/admin/__tests__/admin-breadcrumb.test.ts` — test de la función de parseo `getBreadcrumbSegments()` exportada desde AdminBreadcrumb.astro (o extraída a un util)
   - [ ] 8.2 Verificar que paths correctos producen labels correctos
-  - [ ] 8.3 Verificar path edge cases: `/admin`, `/admin/projects`, paths inválidos
+  - [ ] 8.3 Verificar path edge cases: `/admin`, `/admin/projects`, `/admin/`, paths inválidos, trailing slashes
 
 - [ ] Task 9: Validación pipeline (todos los ACs)
   - [ ] 9.1 `pnpm lint` — sin errores
@@ -200,35 +206,12 @@ Todos los componentes Svelte en admin usan `client:only="svelte"` (NO `client:lo
 
 ### Contadores del Dashboard — `getCountFromServer`
 
-Para obtener el count de documentos sin descargar todos los datos, usar `getCountFromServer` de Firebase Client SDK:
+Usar `getCountFromServer` de Firebase Client SDK para obtener counts sin descargar documentos. Ver sección "AdminDashboard — Svelte 5 Component Structure" para el código completo.
+
+**CRÍTICO — NO importar** desde `src/lib/firebase/collections.ts` — ese archivo tiene imports de `firebase-admin/firestore` que causan side-effects fatales en browser. Usar constantes locales:
 
 ```typescript
-import { collection, getCountFromServer } from 'firebase/firestore';
-import { db } from '../../lib/firebase/client';
-
-async function getCollectionCount(collectionName: string): Promise<number> {
-  const coll = collection(db, collectionName);
-  const snapshot = await getCountFromServer(coll);
-  return snapshot.data().count;
-}
-```
-
-**Nombres de colecciones** — Definidos en `src/lib/firebase/collections.ts`:
-```typescript
-export const COLLECTION_PATHS = {
-  projects: 'Projects',
-  technologies: 'Technologies',
-  experiences: 'Experiences',
-  blogPosts: 'BlogPosts',
-} as const;
-```
-
-**NO re-definir** estos paths en el dashboard — importar `COLLECTION_PATHS` directamente. Pero NOTA: `collections.ts` importa de `firebase-admin/firestore` (build-time only). El dashboard necesita usar el client SDK. Importar solo la constante `COLLECTION_PATHS`, NO las funciones `getAll*`.
-
-**SOLUCIÓN**: Extraer `COLLECTION_PATHS` a un archivo compartido o importar solo el export constante. Si el import causa problemas por side-effects del Admin SDK, duplicar las 4 strings directamente en AdminDashboard como constantes locales:
-
-```typescript
-// Si importar COLLECTION_PATHS causa side-effects del Admin SDK, usar constantes locales:
+// Constantes locales — NO importar de collections.ts (tiene side-effects de Admin SDK)
 const COLLECTIONS = {
   projects: 'Projects',
   technologies: 'Technologies',
@@ -277,13 +260,22 @@ Usar clases Tailwind con breakpoints custom del proyecto (`sm: 450px`, `lg: 900p
 
 <!-- Mobile drawer overlay -->
 {#if mobileOpen}
-  <div class="fixed inset-0 z-50 sm:hidden">
-    <div class="absolute inset-0 bg-black/50" onclick={() => mobileOpen = false}></div>
-    <nav class="relative w-64 h-full bg-surface">
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div class="fixed inset-0 z-50 sm:hidden" onkeydown={handleKeydown}>
+    <div class="absolute inset-0 bg-black/50" onclick={() => closeMobileDrawer()}></div>
+    <nav class="relative w-64 h-full bg-surface" role="dialog" aria-modal="true" aria-label="Admin navigation">
       <!-- Full sidebar content -->
+      <!-- Focus trap: first/last focusable elements cycle -->
     </nav>
   </div>
 {/if}
+
+<!-- Focus trap + Escape handler -->
+<!-- function handleKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape') closeMobileDrawer();
+  if (e.key === 'Tab') { /* trap focus within drawer */ }
+} -->
+<!-- function closeMobileDrawer() { mobileOpen = false; hamburgerButton.focus(); } -->
 ```
 
 ### AdminSidebar — Determinar Item Activo
@@ -336,15 +328,17 @@ Reemplazar el `<aside>` completo con:
 
 El `<aside>` landmark ahora vive DENTRO de AdminSidebar.svelte (es el componente quien decide la estructura HTML semántica).
 
-Agregar breadcrumb al inicio del `<main>`:
+Agregar breadcrumb al inicio del `<main>` y margin-left responsive:
 ```astro
-<main class="flex-1">
+<main class={`flex-1 ${showSidebar ? 'sm:ml-16 lg:ml-64' : ''}`}>
   {showSidebar && (
-    <AdminBreadcrumb client:only="svelte" currentPath={Astro.url.pathname} />
+    <AdminBreadcrumb currentPath={Astro.url.pathname} />
   )}
   <slot />
 </main>
 ```
+
+**NOTA**: AdminBreadcrumb es componente Astro puro — NO necesita `client:only` ni ningún hydration directive. Se renderiza en build time con zero JS.
 
 ### Páginas Admin Placeholder — Pattern Consistente
 
@@ -448,11 +442,13 @@ $: doubled = count * 2;
 - AdminSidebar: `<nav aria-label="Admin navigation">`, items son `<a>` semánticos
 - Item activo: `aria-current="page"`
 - Mobile toggle: `aria-expanded`, `aria-controls="admin-sidebar-drawer"`
+- Mobile drawer: **focus trap** obligatorio (Tab cicla dentro del drawer), **Escape** cierra el drawer, al cerrar devolver foco al botón hamburger
 - Breadcrumb: `<nav aria-label="Breadcrumb">` con `<ol>` semántico
-- Dashboard cards: pueden ser `<a>` links o `<button>` elements (links es más semántico)
+- Dashboard cards: `<a>` links (más semántico que buttons para navegación)
 - Skeleton loading: `aria-busy="true"` en el grid durante carga
-- Foco visible: outline `ring-2 ring-primary` en todos los elementos interactivos
+- Foco visible: usar `focus-visible:ring-2 focus-visible:ring-primary` (NO `focus:` — evita outline en clicks de mouse, solo muestra en navegación por teclado)
 - Sidebar Logout: no es `<a>` (no navega), es `<button>` con icono
+- Transiciones: respetar `prefers-reduced-motion: reduce` — envolver animaciones de sidebar (hover expand en tablet, slide del drawer mobile) con `@media (prefers-reduced-motion: reduce)` para desactivarlas
 
 ### Archivos Existentes — NO Modificar (excepto los listados en "Archivos a Modificar")
 
@@ -470,7 +466,7 @@ $: doubled = count * 2;
 |---------|----------|
 | `src/components/admin/AdminSidebar.svelte` | Sidebar con navegación, icons, responsive, logout |
 | `src/components/admin/AdminDashboard.svelte` | Dashboard con section cards y contadores de Firestore |
-| `src/components/admin/AdminBreadcrumb.svelte` | Breadcrumb para content area header |
+| `src/components/admin/AdminBreadcrumb.astro` | Breadcrumb para content area header (Astro puro, zero JS) |
 | `src/pages/admin/projects.astro` | Placeholder CRUD Projects |
 | `src/pages/admin/technologies.astro` | Placeholder CRUD Technologies |
 | `src/pages/admin/experiences.astro` | Placeholder CRUD Experiences |
@@ -504,7 +500,7 @@ Las páginas admin están excluidas del Lighthouse CI scan (ver `lighthouserc.cj
 
 2. **Event delegation para acciones en Astro pages**: Story 3.1 usó `document.addEventListener('click', ...)` con `target.closest('#logout-btn')` para manejar clicks en elementos dentro de Svelte islands desde scripts Astro. Sin embargo, para story 3.2 el logout se mueve a AdminSidebar.svelte donde se puede manejar directamente con `onclick` de Svelte.
 
-3. **`signOut` debe tener try/catch**: El logout de story 3.1 fue corregido en code review para usar try/catch en `signOut(auth)` — si falla, redirigir anyway.
+3. **`signOut` debe tener try/catch**: El logout de story 3.1 fue corregido en code review para usar try/catch en `signOut(auth)`. **Comportamiento en error**: si `signOut` falla, redirigir a `/admin/login` de todas formas (no bloquear al usuario en una página admin sin sesión funcional).
 
 4. **Traducción keys con `t()` siempre**: Story 3.1 code review corrigió strings hardcodeados en español por calls a `t()`. Aplicar consistentemente.
 
