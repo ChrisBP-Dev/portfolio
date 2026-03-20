@@ -1,42 +1,11 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import AuthGuard from '../../components/admin/AuthGuard.svelte';
-import { t } from '../../lib/i18n/translations';
-
-const locale = 'es';
+import AdminDashboard from '../../components/admin/AdminDashboard.svelte';
 ---
 
 <AdminLayout title="Admin — Portfolio ChrisBP">
   <AuthGuard client:only="svelte">
-    <div class="p-8">
-      <div class="flex items-center justify-between mb-8">
-        <h1 class="text-2xl font-bold text-text-primary">{t('admin.dashboard.title', locale)}</h1>
-        <button
-          id="logout-btn"
-          class="px-4 py-2 text-sm bg-surface border border-border rounded-md text-text-secondary hover:text-text-primary hover:border-red-500/50 transition-colors"
-        >
-          {t('admin.logout', locale)}
-        </button>
-      </div>
-      <p class="text-text-secondary">{t('admin.dashboard.placeholder', locale)}</p>
-    </div>
+    <AdminDashboard client:only="svelte" />
   </AuthGuard>
 </AdminLayout>
-
-<script>
-  import { signOut } from 'firebase/auth';
-  import { auth } from '../../lib/firebase/client';
-
-  document.addEventListener('click', async (e) => {
-    const target = e.target as HTMLElement;
-    const btn = target.closest('#logout-btn');
-    if (btn) {
-      try {
-        await signOut(auth);
-      } catch {
-        // signOut failed — redirect anyway to clear client state
-      }
-      window.location.href = '/admin/login';
-    }
-  });
-</script>

@@ -1,6 +1,6 @@
 # Story 3.2: Admin Dashboard y Sidebar Navigation
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -98,63 +98,63 @@ And "Admin" es un link clickable que navega a /admin
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Crear AdminSidebar.svelte (AC: 2, 3, 4, 7)
-  - [ ] 1.1 Crear `src/components/admin/AdminSidebar.svelte`
-  - [ ] 1.2 Props: `currentPath: string` (para determinar item activo)
-  - [ ] 1.3 Nav items array: Dashboard (`/admin`), Projects (`/admin/projects`), Technologies (`/admin/technologies`), Experiences (`/admin/experiences`), Blog (`/admin/blog`), Logout (acción)
-  - [ ] 1.4 Cada item: icono SVG inline + label de texto
-  - [ ] 1.5 Item activo: `bg-primary/10` (fondo con opacidad del primary)
-  - [ ] 1.6 Desktop (>900px / `lg:`): sidebar visible 250px, items con icono + label
-  - [ ] 1.7 Tablet (450-900px / `sm:` a `lg:`): sidebar colapsada ~64px (solo iconos), expand on hover con transición
-  - [ ] 1.8 Mobile (<450px): sidebar oculta por defecto, toggle button muestra drawer overlay con backdrop
-  - [ ] 1.9 Logout item: al click ejecuta `signOut(auth)` con try/catch y redirige a `/admin/login` (si signOut falla, redirigir de todas formas)
-  - [ ] 1.10 Accessibility: `<nav aria-label="Admin navigation">`, `aria-current="page"` en item activo, `aria-expanded` en mobile toggle
-  - [ ] 1.11 Mobile drawer: focus trap (atrapar Tab dentro del drawer), Escape cierra el drawer, al cerrar devolver foco al botón hamburger
-  - [ ] 1.12 Transiciones sidebar (hover expand tablet, drawer mobile): respetar `prefers-reduced-motion: reduce` — sin animaciones si el usuario lo prefiere
+- [x] Task 1: Crear AdminSidebar.svelte (AC: 2, 3, 4, 7)
+  - [x] 1.1 Crear `src/components/admin/AdminSidebar.svelte`
+  - [x] 1.2 Props: `currentPath: string` (para determinar item activo)
+  - [x] 1.3 Nav items array: Dashboard (`/admin`), Projects (`/admin/projects`), Technologies (`/admin/technologies`), Experiences (`/admin/experiences`), Blog (`/admin/blog`), Logout (acción)
+  - [x] 1.4 Cada item: icono SVG inline + label de texto
+  - [x] 1.5 Item activo: `bg-primary/10` (fondo con opacidad del primary)
+  - [x] 1.6 Desktop (>900px / `lg:`): sidebar visible 250px, items con icono + label
+  - [x] 1.7 Tablet (450-900px / `sm:` a `lg:`): sidebar colapsada ~64px (solo iconos), expand on hover con transición
+  - [x] 1.8 Mobile (<450px): sidebar oculta por defecto, toggle button muestra drawer overlay con backdrop
+  - [x] 1.9 Logout item: al click ejecuta `signOut(auth)` con try/catch y redirige a `/admin/login` (si signOut falla, redirigir de todas formas)
+  - [x] 1.10 Accessibility: `<nav aria-label="Admin navigation">`, `aria-current="page"` en item activo, `aria-expanded` en mobile toggle
+  - [x] 1.11 Mobile drawer: focus trap (atrapar Tab dentro del drawer), Escape cierra el drawer, al cerrar devolver foco al botón hamburger
+  - [x] 1.12 Transiciones sidebar (hover expand tablet, drawer mobile): respetar `prefers-reduced-motion: reduce` — sin animaciones si el usuario lo prefiere
 
-- [ ] Task 2: Crear AdminDashboard.svelte (AC: 1, 5)
-  - [ ] 2.1 Crear `src/components/admin/AdminDashboard.svelte`
-  - [ ] 2.2 Al montar, obtener contadores de las 4 colecciones via `getCountFromServer` del client SDK
-  - [ ] 2.3 Mostrar 4 section cards en grid responsive (1 col mobile, 2 cols tablet, 2 o 4 cols desktop)
-  - [ ] 2.4 Cada card: icono, nombre de sección, contador numérico, clickable para navegar
-  - [ ] 2.5 Estado loading: skeleton cards (4 cards con pulso gris) mientras se cargan los contadores
-  - [ ] 2.6 Estado error: si falla la consulta, mostrar contador como "—" y no bloquear la UI
-  - [ ] 2.7 Navegación via `window.location.href` (full page load — no View Transitions en admin)
+- [x] Task 2: Crear AdminDashboard.svelte (AC: 1, 5)
+  - [x] 2.1 Crear `src/components/admin/AdminDashboard.svelte`
+  - [x] 2.2 Al montar, obtener contadores de las 4 colecciones via `getCountFromServer` del client SDK
+  - [x] 2.3 Mostrar 4 section cards en grid responsive (1 col mobile, 2 cols tablet, 2 o 4 cols desktop)
+  - [x] 2.4 Cada card: icono, nombre de sección, contador numérico, clickable para navegar
+  - [x] 2.5 Estado loading: skeleton cards (4 cards con pulso gris) mientras se cargan los contadores
+  - [x] 2.6 Estado error: si falla la consulta, mostrar contador como "—" y no bloquear la UI
+  - [x] 2.7 Navegación via `window.location.href` (full page load — no View Transitions en admin)
 
-- [ ] Task 3: Crear AdminBreadcrumb.astro (AC: 6)
-  - [ ] 3.1 Crear `src/components/admin/AdminBreadcrumb.astro` — componente Astro puro (zero JS al browser, no necesita interactividad)
-  - [ ] 3.2 Props: `currentPath: string`
-  - [ ] 3.3 Parsear `currentPath` para generar segmentos: "Admin" siempre primero (link a `/admin`), luego sección actual
-  - [ ] 3.4 Mapeo de paths a labels: `/admin` → "Dashboard", `/admin/projects` → "Projects", etc. Usar `t()` con locale `'es'` para labels
-  - [ ] 3.5 Accessibility: `<nav aria-label="Breadcrumb">`, `<ol>` semántico con `aria-current="page"` en último item
-  - [ ] 3.6 Separador visual entre segmentos (chevron `>` o `/`)
-  - [ ] 3.7 Exportar función de parseo `getBreadcrumbSegments(path)` para poder testearla unitariamente
+- [x] Task 3: Crear AdminBreadcrumb.astro (AC: 6)
+  - [x] 3.1 Crear `src/components/admin/AdminBreadcrumb.astro` — componente Astro puro (zero JS al browser, no necesita interactividad)
+  - [x] 3.2 Props: `currentPath: string`
+  - [x] 3.3 Parsear `currentPath` para generar segmentos: "Admin" siempre primero (link a `/admin`), luego sección actual
+  - [x] 3.4 Mapeo de paths a labels: `/admin` → "Dashboard", `/admin/projects` → "Projects", etc. Usar `t()` con locale `'es'` para labels
+  - [x] 3.5 Accessibility: `<nav aria-label="Breadcrumb">`, `<ol>` semántico con `aria-current="page"` en último item
+  - [x] 3.6 Separador visual entre segmentos (chevron `>` o `/`)
+  - [x] 3.7 Exportar función de parseo `getBreadcrumbSegments(path)` para poder testearla unitariamente
 
-- [ ] Task 4: Actualizar AdminLayout.astro (AC: 2, 3, 4, 6)
-  - [ ] 4.1 Reemplazar el `<aside>` placeholder (`<!-- sidebar — story 3.2 -->`) con `AdminSidebar` real
-  - [ ] 4.2 Agregar `AdminBreadcrumb` (componente Astro) en el header del content area (dentro de `<main>`)
-  - [ ] 4.3 Pasar `currentPath` desde `Astro.url.pathname` a AdminSidebar (Svelte, `client:only`) y AdminBreadcrumb (Astro, sin directive)
-  - [ ] 4.4 AdminSidebar usa `client:only="svelte"` (requiere Firebase Auth para logout)
-  - [ ] 4.5 AdminBreadcrumb es componente Astro puro — NO necesita hydration directive (zero JS)
-  - [ ] 4.6 Mantener `showSidebar={false}` para login page (ya funciona)
-  - [ ] 4.7 El `<main>` necesita margin-left responsive para acomodar el sidebar: `sm:ml-16 lg:ml-64` (match sidebar widths). Sin margin en mobile (sidebar es overlay)
+- [x] Task 4: Actualizar AdminLayout.astro (AC: 2, 3, 4, 6)
+  - [x] 4.1 Reemplazar el `<aside>` placeholder (`<!-- sidebar — story 3.2 -->`) con `AdminSidebar` real
+  - [x] 4.2 Agregar `AdminBreadcrumb` (componente Astro) en el header del content area (dentro de `<main>`)
+  - [x] 4.3 Pasar `currentPath` desde `Astro.url.pathname` a AdminSidebar (Svelte, `client:only`) y AdminBreadcrumb (Astro, sin directive)
+  - [x] 4.4 AdminSidebar usa `client:only="svelte"` (requiere Firebase Auth para logout)
+  - [x] 4.5 AdminBreadcrumb es componente Astro puro — NO necesita hydration directive (zero JS)
+  - [x] 4.6 Mantener `showSidebar={false}` para login page (ya funciona)
+  - [x] 4.7 El `<main>` necesita margin-left responsive para acomodar el sidebar: `sm:ml-16 lg:ml-64` (match sidebar widths). Sin margin en mobile (sidebar es overlay)
 
-- [ ] Task 5: Actualizar admin/index.astro (AC: 1)
-  - [ ] 5.1 Reemplazar el contenido placeholder (título + logout button) con `AdminDashboard` component
-  - [ ] 5.2 AdminDashboard montado dentro de AuthGuard con `client:only="svelte"`
-  - [ ] 5.3 Remover el botón logout inline (ahora vive en AdminSidebar)
-  - [ ] 5.4 Remover el `<script>` de logout (ahora vive en AdminSidebar)
+- [x] Task 5: Actualizar admin/index.astro (AC: 1)
+  - [x] 5.1 Reemplazar el contenido placeholder (título + logout button) con `AdminDashboard` component
+  - [x] 5.2 AdminDashboard montado dentro de AuthGuard con `client:only="svelte"`
+  - [x] 5.3 Remover el botón logout inline (ahora vive en AdminSidebar)
+  - [x] 5.4 Remover el `<script>` de logout (ahora vive en AdminSidebar)
 
-- [ ] Task 6: Crear páginas admin placeholder (AC: 5)
-  - [ ] 6.1 Crear `src/pages/admin/projects.astro` — placeholder con AuthGuard + texto "Projects — próximamente"
-  - [ ] 6.2 Crear `src/pages/admin/technologies.astro` — placeholder con AuthGuard + texto "Technologies — próximamente"
-  - [ ] 6.3 Crear `src/pages/admin/experiences.astro` — placeholder con AuthGuard + texto "Experiences — próximamente"
-  - [ ] 6.4 Crear `src/pages/admin/blog.astro` — placeholder con AuthGuard + texto "Blog — próximamente"
-  - [ ] 6.5 Todas usan `AdminLayout` con `showSidebar={true}` (default)
-  - [ ] 6.6 Todas incluyen AuthGuard con `client:only="svelte"`
+- [x] Task 6: Crear páginas admin placeholder (AC: 5)
+  - [x] 6.1 Crear `src/pages/admin/projects.astro` — placeholder con AuthGuard + texto "Projects — próximamente"
+  - [x] 6.2 Crear `src/pages/admin/technologies.astro` — placeholder con AuthGuard + texto "Technologies — próximamente"
+  - [x] 6.3 Crear `src/pages/admin/experiences.astro` — placeholder con AuthGuard + texto "Experiences — próximamente"
+  - [x] 6.4 Crear `src/pages/admin/blog.astro` — placeholder con AuthGuard + texto "Blog — próximamente"
+  - [x] 6.5 Todas usan `AdminLayout` con `showSidebar={true}` (default)
+  - [x] 6.6 Todas incluyen AuthGuard con `client:only="svelte"`
 
-- [ ] Task 7: Agregar translation keys (AC: 1, 2, 6)
-  - [ ] 7.1 Agregar keys a `src/lib/i18n/translations.ts`:
+- [x] Task 7: Agregar translation keys (AC: 1, 2, 6)
+  - [x] 7.1 Agregar keys a `src/lib/i18n/translations.ts`:
     - `admin.sidebar.dashboard`: "Dashboard" / "Dashboard"
     - `admin.sidebar.projects`: "Proyectos" / "Projects"
     - `admin.sidebar.technologies`: "Tecnologías" / "Technologies"
@@ -167,19 +167,19 @@ And "Admin" es un link clickable que navega a /admin
     - `admin.dashboard.blog`: "Blog" / "Blog"
     - `admin.breadcrumb.admin`: "Admin" / "Admin"
     - `admin.placeholder.comingSoon`: "Próximamente" / "Coming soon"
-  - [ ] 7.2 NOTA: Admin usa locale fijo `'es'` (Christopher es hispanohablante)
+  - [x] 7.2 NOTA: Admin usa locale fijo `'es'` (Christopher es hispanohablante)
 
-- [ ] Task 8: Tests unitarios (AC: 1, 6)
-  - [ ] 8.1 Crear `src/components/admin/__tests__/admin-breadcrumb.test.ts` — test de la función de parseo `getBreadcrumbSegments()` exportada desde AdminBreadcrumb.astro (o extraída a un util)
-  - [ ] 8.2 Verificar que paths correctos producen labels correctos
-  - [ ] 8.3 Verificar path edge cases: `/admin`, `/admin/projects`, `/admin/`, paths inválidos, trailing slashes
+- [x] Task 8: Tests unitarios (AC: 1, 6)
+  - [x] 8.1 Crear `src/components/admin/__tests__/admin-breadcrumb.test.ts` — test de la función de parseo `getBreadcrumbSegments()` exportada desde AdminBreadcrumb.astro (o extraída a un util)
+  - [x] 8.2 Verificar que paths correctos producen labels correctos
+  - [x] 8.3 Verificar path edge cases: `/admin`, `/admin/projects`, `/admin/`, paths inválidos, trailing slashes
 
-- [ ] Task 9: Validación pipeline (todos los ACs)
-  - [ ] 9.1 `pnpm lint` — sin errores
-  - [ ] 9.2 `pnpm type-check` — sin errores TypeScript
-  - [ ] 9.3 `pnpm build` — build exitoso (nuevas páginas admin se generan correctamente)
-  - [ ] 9.4 `pnpm test` — todos los tests pasan
-  - [ ] 9.5 Verificar manualmente: sidebar visible, navegación funciona, contadores cargan, responsive correcto
+- [x] Task 9: Validación pipeline (todos los ACs)
+  - [x] 9.1 `pnpm lint` — sin errores
+  - [x] 9.2 `pnpm type-check` — sin errores TypeScript
+  - [x] 9.3 `pnpm build` — build exitoso (nuevas páginas admin se generan correctamente)
+  - [x] 9.4 `pnpm test` — todos los tests pasan
+  - [x] 9.5 Verificar manualmente: sidebar visible, navegación funciona, contadores cargan, responsive correcto
 
 ## Dev Notes
 
@@ -530,10 +530,44 @@ Patrón de commits: prefijo semántico en inglés (`feat:`, `fix:`, `docs:`).
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.6 (1M context)
 
 ### Debug Log References
 
+- Fixed breadcrumb bug: unknown paths caused `isCurrent: false` on Admin segment because initial value was based on path equality rather than being the default.
+- Fixed ESLint errors: added `requestAnimationFrame` to Svelte globals, added keyed `{#each}` blocks.
+
 ### Completion Notes List
 
+- AdminSidebar: Responsive sidebar with desktop (250px full), tablet (64px icon-only), mobile (drawer overlay with focus trap). Logout via signOut with try/catch. All accessibility attributes implemented.
+- AdminDashboard: 4 section cards with Firestore `getCountFromServer` counters, skeleton loading, error resilience ("—" on failure), responsive grid.
+- AdminBreadcrumb: Zero-JS Astro component with `<nav aria-label="Breadcrumb">`, semantic `<ol>`, `aria-current="page"`. Logic extracted to `breadcrumb-utils.ts` for testability.
+- AdminLayout: Replaced sidebar placeholder with real AdminSidebar (`client:only="svelte"`), added AdminBreadcrumb (Astro pure), responsive margin-left on `<main>`.
+- admin/index.astro: Replaced placeholder content with AdminDashboard, removed inline logout button and script.
+- 4 admin placeholder pages created (projects, technologies, experiences, blog) with AuthGuard.
+- 12 translation keys added for sidebar, dashboard, breadcrumb, and placeholders.
+- 9 unit tests for `getBreadcrumbSegments()` covering all paths, trailing slashes, and edge cases.
+- All validations pass: lint (0 errors), type-check (0 errors), test (383 passed), build (24 pages).
+
+### Change Log
+
+- 2026-03-20: Story 3.2 implementation complete — all 9 tasks done.
+
 ### File List
+
+**Created:**
+- src/components/admin/AdminSidebar.svelte
+- src/components/admin/AdminDashboard.svelte
+- src/components/admin/AdminBreadcrumb.astro
+- src/components/admin/breadcrumb-utils.ts
+- src/components/admin/__tests__/admin-breadcrumb.test.ts
+- src/pages/admin/projects.astro
+- src/pages/admin/technologies.astro
+- src/pages/admin/experiences.astro
+- src/pages/admin/blog.astro
+
+**Modified:**
+- src/layouts/AdminLayout.astro
+- src/pages/admin/index.astro
+- src/lib/i18n/translations.ts
+- eslint.config.js

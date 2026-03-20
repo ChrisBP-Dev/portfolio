@@ -138,6 +138,26 @@ const translations: Record<string, Record<Locale, string>> = {
   'admin.logout': { es: 'Cerrar sesión', en: 'Sign out' },
   'admin.dashboard.title': { es: 'Panel de Administración', en: 'Admin Panel' },
   'admin.dashboard.placeholder': { es: 'Dashboard — próximamente', en: 'Dashboard — coming soon' },
+
+  // Admin — Sidebar
+  'admin.sidebar.dashboard': { es: 'Dashboard', en: 'Dashboard' },
+  'admin.sidebar.projects': { es: 'Proyectos', en: 'Projects' },
+  'admin.sidebar.technologies': { es: 'Tecnologías', en: 'Technologies' },
+  'admin.sidebar.experiences': { es: 'Experiencias', en: 'Experiences' },
+  'admin.sidebar.blog': { es: 'Blog', en: 'Blog' },
+  'admin.sidebar.toggle': { es: 'Abrir menú', en: 'Open menu' },
+
+  // Admin — Dashboard cards
+  'admin.dashboard.projects': { es: 'Proyectos', en: 'Projects' },
+  'admin.dashboard.technologies': { es: 'Tecnologías', en: 'Technologies' },
+  'admin.dashboard.experiences': { es: 'Experiencias', en: 'Experiences' },
+  'admin.dashboard.blog': { es: 'Blog', en: 'Blog' },
+
+  // Admin — Breadcrumb
+  'admin.breadcrumb.admin': { es: 'Admin', en: 'Admin' },
+
+  // Admin — Placeholders
+  'admin.placeholder.comingSoon': { es: 'Próximamente', en: 'Coming soon' },
 };
 
 export function t(key: string, locale: Locale): string {

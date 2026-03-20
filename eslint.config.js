@@ -25,6 +25,7 @@ export default [
         SubmitEvent: 'readonly',
         MediaQueryListEvent: 'readonly',
         NodeListOf: 'readonly',
+        requestAnimationFrame: 'readonly',
       },
       parserOptions: {
         parser: tseslint.parser,

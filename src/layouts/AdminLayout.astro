@@ -1,5 +1,7 @@
 ---
 import '../styles/global.css';
+import AdminSidebar from '../components/admin/AdminSidebar.svelte';
+import AdminBreadcrumb from '../components/admin/AdminBreadcrumb.astro';
 
 interface Props {
   title: string;
@@ -22,11 +24,12 @@ const { title, showSidebar = true } = Astro.props;
   </head>
   <body class="bg-background text-text-primary min-h-screen flex">
     {showSidebar && (
-      <aside class="w-64 bg-surface border-r border-border min-h-screen">
-        <!-- sidebar — story 3.2 -->
-      </aside>
+      <AdminSidebar client:only="svelte" currentPath={Astro.url.pathname} />
     )}
-    <main class="flex-1">
+    <main class={`flex-1 ${showSidebar ? 'sm:ml-16 lg:ml-64' : ''}`}>
+      {showSidebar && (
+        <AdminBreadcrumb currentPath={Astro.url.pathname} />
+      )}
       <slot />
     </main>
   </body>
