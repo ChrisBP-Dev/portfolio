@@ -73,7 +73,7 @@ development_status:
   3-1-autenticacion-y-proteccion-de-rutas: done
   3-2-admin-dashboard-y-sidebar-navigation: done
   3-3-imageservice-upload-replace-y-delete: done
-  3-4-crud-projects-list-y-create: ready-for-dev
+  3-4-crud-projects-list-y-create: review
   3-5-crud-projects-edit-y-delete: backlog
   3-6-crud-technologies: backlog
   3-7-crud-experiences: backlog

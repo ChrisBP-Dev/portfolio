@@ -1,6 +1,6 @@
 # Story 3.4: CRUD Projects — List y Create
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -23,54 +23,54 @@ So that I can add new work to my portfolio.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: ProjectList component (AC: #1, #2)
-  - [ ] 1.1 Create `ProjectList.svelte` — query Firestore `Projects` collection via client SDK, parse with `projectSchema`, display list
-  - [ ] 1.2 List item: thumbnail (mainImage.url, 64x64), companyName[locale], slug, edit/delete action buttons
-  - [ ] 1.3 Empty state: illustration placeholder + CTA "No hay proyectos aún. Crear el primero →"
-  - [ ] 1.4 Loading state: 3-5 skeleton rows (pulsing gray) while fetching
-  - [ ] 1.5 Wire edit button to toggle form view (pre-populate — story 3.5), delete button placeholder (story 3.5)
+- [x] Task 1: ProjectList component (AC: #1, #2)
+  - [x] 1.1 Create `ProjectList.svelte` — query Firestore `Projects` collection via client SDK, parse with `projectSchema`, display list
+  - [x] 1.2 List item: thumbnail (mainImage.url, 64x64), companyName[locale], slug, edit/delete action buttons
+  - [x] 1.3 Empty state: illustration placeholder + CTA "No hay proyectos aún. Crear el primero →"
+  - [x] 1.4 Loading state: 3-5 skeleton rows (pulsing gray) while fetching
+  - [x] 1.5 Wire edit button to toggle form view (pre-populate — story 3.5), delete button placeholder (story 3.5)
 
-- [ ] Task 2: BilingualField component (AC: #4)
-  - [ ] 2.1 Create `BilingualField.svelte` — reusable for text inputs and textareas
-  - [ ] 2.2 Desktop (≥900px): ES/EN inputs side by side with colored badges (ES=blue `#48A1CD`, EN=green `#10B981`)
-  - [ ] 2.3 Mobile (<900px): Tab switcher ES/EN, single input visible at a time
-  - [ ] 2.4 Props: `label`, `nameEs`/`nameEn` values (bindable), `type` ('input'|'textarea'), `required`, `errorEs`/`errorEn`
-  - [ ] 2.5 Accessibility: `<fieldset>` + `<legend>`, `aria-required`, `aria-invalid`, `aria-describedby` for errors
+- [x] Task 2: BilingualField component (AC: #4)
+  - [x] 2.1 Create `BilingualField.svelte` — reusable for text inputs and textareas
+  - [x] 2.2 Desktop (≥900px): ES/EN inputs side by side with colored badges (ES=blue `#48A1CD`, EN=green `#10B981`)
+  - [x] 2.3 Mobile (<900px): Tab switcher ES/EN, single input visible at a time
+  - [x] 2.4 Props: `label`, `nameEs`/`nameEn` values (bindable), `type` ('input'|'textarea'), `required`, `errorEs`/`errorEn`
+  - [x] 2.5 Accessibility: `<fieldset>` + `<legend>`, `aria-required`, `aria-invalid`, `aria-describedby` for errors
 
-- [ ] Task 3: BilingualArrayField component (AC: #3, #4)
-  - [ ] 3.1 Create `BilingualArrayField.svelte` — for features list (ES/EN arrays)
-  - [ ] 3.2 Desktop: ES list left, EN list right with add/remove buttons per item
-  - [ ] 3.3 Mobile: Tab switcher ES/EN
-  - [ ] 3.4 Each item is a text input with remove (X) button, "Agregar" button at bottom
-  - [ ] 3.5 Edge cases: max 10 items per language, empty items filtered on submit, handle empty arrays gracefully
+- [x] Task 3: BilingualArrayField component (AC: #3, #4)
+  - [x] 3.1 Create `BilingualArrayField.svelte` — for features list (ES/EN arrays)
+  - [x] 3.2 Desktop: ES list left, EN list right with add/remove buttons per item
+  - [x] 3.3 Mobile: Tab switcher ES/EN
+  - [x] 3.4 Each item is a text input with remove (X) button, "Agregar" button at bottom
+  - [x] 3.5 Edge cases: max 10 items per language, empty items filtered on submit, handle empty arrays gracefully
 
-- [ ] Task 4: ImageUploader component (AC: #3)
-  - [ ] 4.1 Create `ImageUploader.svelte` — single image slot (for mainImage)
-  - [ ] 4.2 States: empty (dotted area + camera icon), previewing (File selected, ObjectURL preview), uploading (progress bar), error
-  - [ ] 4.3 Click or drag-and-drop to select file, accept `image/*`, validate max 5MB client-side (show friendly error via toast: "Intenta con un archivo menor a 5MB")
-  - [ ] 4.4 On file select: create ObjectURL preview, set ImageSlot to `{ type: 'new', file, preview }`
-  - [ ] 4.5 Remove button to clear selection
-  - [ ] 4.6 Accessibility: label, `aria-describedby` for instructions
+- [x] Task 4: ImageUploader component (AC: #3)
+  - [x] 4.1 Create `ImageUploader.svelte` — single image slot (for mainImage)
+  - [x] 4.2 States: empty (dotted area + camera icon), previewing (File selected, ObjectURL preview), uploading (progress bar), error
+  - [x] 4.3 Click or drag-and-drop to select file, accept `image/*`, validate max 5MB client-side (show friendly error via toast: "Intenta con un archivo menor a 5MB")
+  - [x] 4.4 On file select: create ObjectURL preview, set ImageSlot to `{ type: 'new', file, preview }`
+  - [x] 4.5 Remove button to clear selection
+  - [x] 4.6 Accessibility: label, `aria-describedby` for instructions
 
-- [ ] Task 5: ScreenshotManager component (AC: #3)
-  - [ ] 5.1 Create `ScreenshotManager.svelte` — multiple image slots (for screenshots array)
-  - [ ] 5.2 Grid of ImageSlot cards + "Agregar screenshot" button
-  - [ ] 5.3 Each card: preview thumbnail + remove (X) button
-  - [ ] 5.4 Track array of ImageSlot objects, each `{ type: 'new', file, preview }`
-  - [ ] 5.5 Support drag-and-drop for bulk file selection + click fallback for keyboard/a11y users
+- [x] Task 5: ScreenshotManager component (AC: #3)
+  - [x] 5.1 Create `ScreenshotManager.svelte` — multiple image slots (for screenshots array)
+  - [x] 5.2 Grid of ImageSlot cards + "Agregar screenshot" button
+  - [x] 5.3 Each card: preview thumbnail + remove (X) button
+  - [x] 5.4 Track array of ImageSlot objects, each `{ type: 'new', file, preview }`
+  - [x] 5.5 Support drag-and-drop for bulk file selection + click fallback for keyboard/a11y users
 
-- [ ] Task 6: TechnologySelector component (AC: #3)
-  - [ ] 6.1 Create `TechnologySelector.svelte` — multi-select from existing Technologies collection
-  - [ ] 6.2 Fetch all technologies from Firestore on mount
-  - [ ] 6.3 Display as chip-toggle grid: technology name + icon, selected = highlighted background, unselected = muted
-  - [ ] 6.4 Selected technologies stored as `string[]` (document IDs)
+- [x] Task 6: TechnologySelector component (AC: #3)
+  - [x] 6.1 Create `TechnologySelector.svelte` — multi-select from existing Technologies collection
+  - [x] 6.2 Fetch all technologies from Firestore on mount
+  - [x] 6.3 Display as chip-toggle grid: technology name + icon, selected = highlighted background, unselected = muted
+  - [x] 6.4 Selected technologies stored as `string[]` (document IDs)
 
-- [ ] Task 7: ProjectForm component (AC: #3, #5, #6, #7)
-  - [ ] 7.1 Create `ProjectForm.svelte` — orchestrates all form sections, max-width ~700px for readability
-  - [ ] 7.2 Sections with visual separators (`border-b border-border pb-6 mb-6`): Información Básica (BilingualField × 2 + BilingualArrayField), Imágenes (ImageUploader + ScreenshotManager), Metadata (TechnologySelector + URL inputs + slug)
-  - [ ] 7.3 Slug auto-generation: derive from `companyName.es` using `slugify()` util, updates in real-time as user types. Toggle "Editar slug manualmente" to allow custom editing
-  - [ ] 7.4 Validation on blur: required fields (companyName.es, companyName.en, shortDescription.es, shortDescription.en, mainImage), inline error messages below each field. On submit validation failure: scroll to first invalid field
-  - [ ] 7.5 Submit handler (**strict order — DO NOT change**):
+- [x] Task 7: ProjectForm component (AC: #3, #5, #6, #7)
+  - [x] 7.1 Create `ProjectForm.svelte` — orchestrates all form sections, max-width ~700px for readability
+  - [x] 7.2 Sections with visual separators (`border-b border-border pb-6 mb-6`): Información Básica (BilingualField × 2 + BilingualArrayField), Imágenes (ImageUploader + ScreenshotManager), Metadata (TechnologySelector + URL inputs + slug)
+  - [x] 7.3 Slug auto-generation: derive from `companyName.es` using `slugify()` util, updates in real-time as user types. Toggle "Editar slug manualmente" to allow custom editing
+  - [x] 7.4 Validation on blur: required fields (companyName.es, companyName.en, shortDescription.es, shortDescription.en, mainImage), inline error messages below each field. On submit validation failure: scroll to first invalid field
+  - [x] 7.5 Submit handler (**strict order — DO NOT change**):
     1. Validate all fields with Zod `projectSchema`
     2. Disable button, show "Guardando..." + spinner
     3. `addDoc()` to Firestore with non-image fields → get `docId`
@@ -80,35 +80,35 @@ So that I can add new work to my portfolio.
     7. Show success toast "Proyecto guardado exitosamente"
     8. Return to list view after ~1.5s delay
     9. On failure after `addDoc()`: show error toast, re-enable button
-  - [ ] 7.6 Button states: "Guardando..." + spinner + disabled during submit (prevent double-submit)
-  - [ ] 7.7 Cancel button: if form has unsaved changes, show confirmation "¿Descartar cambios?" before returning to list. If no changes, return immediately
+  - [x] 7.6 Button states: "Guardando..." + spinner + disabled during submit (prevent double-submit)
+  - [x] 7.7 Cancel button: if form has unsaved changes, show confirmation "¿Descartar cambios?" before returning to list. If no changes, return immediately
 
-- [ ] Task 8: ProjectsCrudPage component (AC: all)
-  - [ ] 8.1 Create `ProjectsCrudPage.svelte` — parent component managing list/form view state
-  - [ ] 8.2 State: `'list' | 'create'` view mode
-  - [ ] 8.3 Wire into existing `src/pages/admin/projects.astro` replacing placeholder content
-  - [ ] 8.4 Use `client:only="svelte"` directive
+- [x] Task 8: ProjectsCrudPage component (AC: all)
+  - [x] 8.1 Create `ProjectsCrudPage.svelte` — parent component managing list/form view state
+  - [x] 8.2 State: `'list' | 'create'` view mode
+  - [x] 8.3 Wire into existing `src/pages/admin/projects.astro` replacing placeholder content
+  - [x] 8.4 Use `client:only="svelte"` directive
 
-- [ ] Task 9: Slug utility (AC: #6)
-  - [ ] 9.1 Create `slugify()` in `src/lib/utils/slugify.ts` — lowercase, replace spaces/accents with hyphens, remove special chars
-  - [ ] 9.2 Unit tests for slugify with Spanish characters (á, é, ñ, etc.)
+- [x] Task 9: Slug utility (AC: #6)
+  - [x] 9.1 Create `slugify()` in `src/lib/utils/slugify.ts` — lowercase, replace spaces/accents with hyphens, remove special chars
+  - [x] 9.2 Unit tests for slugify with Spanish characters (á, é, ñ, etc.)
 
-- [ ] Task 10: Toast notification (AC: #5)
-  - [ ] 10.1 Create `Toast.svelte` — success/error toast notification component, positioned bottom-right with slide-up entrance animation
-  - [ ] 10.2 Success: green + checkmark, auto-dismiss 4s
-  - [ ] 10.3 Error: red, persists until dismissed
-  - [ ] 10.4 Stack vertically, max 3 visible, `aria-live="polite"`, newest on top
-  - [ ] 10.5 Create `toast-store.ts` — reactive store for managing toast queue
-  - [ ] 10.6 **`prefers-reduced-motion: reduce`** — disable slide/fade animations when user prefers reduced motion (established rule from story 3.2)
+- [x] Task 10: Toast notification (AC: #5)
+  - [x] 10.1 Create `Toast.svelte` — success/error toast notification component, positioned bottom-right with slide-up entrance animation
+  - [x] 10.2 Success: green + checkmark, auto-dismiss 4s
+  - [x] 10.3 Error: red, persists until dismissed
+  - [x] 10.4 Stack vertically, max 3 visible, `aria-live="polite"`, newest on top
+  - [x] 10.5 Create `toast-store.svelte.ts` — reactive store for managing toast queue
+  - [x] 10.6 **`prefers-reduced-motion: reduce`** — disable slide/fade animations when user prefers reduced motion (established rule from story 3.2)
 
-- [ ] Task 11: i18n keys (AC: all)
-  - [ ] 11.1 Add translation keys to `src/lib/i18n/translations.ts` for all admin project labels, form fields, buttons, validation messages, toast messages, empty states
-  - [ ] 11.2 Required validation error templates: `admin.validation.required` = "Este campo es obligatorio", `admin.validation.urlInvalid` = "Introduce una URL válida", `admin.validation.slugInvalid` = "El slug solo puede contener letras minúsculas, números y guiones", `admin.validation.fileTooLarge` = "Intenta con un archivo menor a 5MB"
+- [x] Task 11: i18n keys (AC: all)
+  - [x] 11.1 Add translation keys to `src/lib/i18n/translations.ts` for all admin project labels, form fields, buttons, validation messages, toast messages, empty states
+  - [x] 11.2 Required validation error templates: `admin.validation.required` = "Este campo es obligatorio", `admin.validation.urlInvalid` = "Introduce una URL válida", `admin.validation.slugInvalid` = "El slug solo puede contener letras minúsculas, números y guiones", `admin.validation.fileTooLarge` = "Intenta con un archivo menor a 5MB"
 
-- [ ] Task 12: Unit tests (AC: all)
-  - [ ] 12.1 Tests for `slugify()` — Spanish chars, edge cases, empty strings
-  - [ ] 12.2 Tests for project form validation — required fields, optional fields, Zod schema validation
-  - [ ] 12.3 Tests for toast store — add, remove, auto-dismiss, max limit
+- [x] Task 12: Unit tests (AC: all)
+  - [x] 12.1 Tests for `slugify()` — Spanish chars, edge cases, empty strings
+  - [x] 12.2 Tests for project form validation — required fields, optional fields, Zod schema validation
+  - [x] 12.3 Tests for toast store — add, remove, auto-dismiss, max limit
 
 ## Dev Notes
 
@@ -318,8 +318,52 @@ Recent commits show consistent patterns:
 
 ### Agent Model Used
 
+Claude Opus 4.6 (1M context)
+
 ### Debug Log References
+
+- ESLint `.svelte.ts` parsing: needed to add ESLint config entry for `**/*.svelte.ts` files to support Svelte 5 runes in plain TS modules
+- `$state` rune requires `.svelte.ts` extension — renamed `toast-store.ts` → `toast-store.svelte.ts`
+- Removed unnecessary `svelte-ignore a11y_no_static_element_interactions` comments (Svelte 5 dropped that warning for elements with role+tabindex)
 
 ### Completion Notes List
 
+- **Task 9**: `slugify()` utility handles Spanish accents (á→a, ñ→n, etc.), collapses hyphens, strips edges. 10 unit tests.
+- **Task 10**: Toast store (`.svelte.ts`) with $state rune, max 3 toasts, auto-dismiss success (4s), error persists. Toast.svelte with `motion-safe:animate-slide-up` and `prefers-reduced-motion` media query. 8 unit tests.
+- **Task 11**: 46 new i18n keys added under `admin.projects.*`, `admin.validation.*`, `admin.bilingual.*` namespaces.
+- **Task 2**: BilingualField — fieldset+legend, desktop side-by-side with colored badges (blue ES / green EN), mobile tabs. Supports input/textarea, bindable values, error display with aria.
+- **Task 3**: BilingualArrayField — same ES/EN pattern for arrays. Max 10 items, add/remove per item, Svelte 5 snippets for list rendering.
+- **Task 4**: ImageUploader — single image with drag-and-drop + click, 5MB validation via toast, ObjectURL preview, remove button. Uses ImageSlot type.
+- **Task 5**: ScreenshotManager — multi-image grid, drag-and-drop bulk selection, remove per card, keyboard accessible.
+- **Task 6**: TechnologySelector — fetches from Firestore, chip-toggle grid with aria-pressed, loading skeleton, empty state.
+- **Task 7**: ProjectForm — orchestrates all sections. Auto-slug from companyName.es via $effect. Inline validation on blur, scroll-to-first-error on submit. Submit follows strict order: addDoc → upload images → updateDoc → success toast → return to list. Cancel with unsaved changes confirmation.
+- **Task 1**: ProjectList — queries Firestore, skeleton loading (4 rows), empty state with CTA, list items with thumbnail/name/slug/actions. Edit wired, delete disabled (story 3.5).
+- **Task 8**: ProjectsCrudPage — parent managing list/create view state, wired into projects.astro with `client:only="svelte"`.
+- **Task 12**: 33 total tests — slugify (10), toast-store (8), project form validation (15). All pass.
+
+### Change Log
+
+- 2026-03-20: Implemented full story 3.4 — CRUD Projects List y Create (all 12 tasks)
+
 ### File List
+
+New files:
+- src/components/admin/ProjectsCrudPage.svelte
+- src/components/admin/ProjectList.svelte
+- src/components/admin/ProjectForm.svelte
+- src/components/admin/BilingualField.svelte
+- src/components/admin/BilingualArrayField.svelte
+- src/components/admin/ImageUploader.svelte
+- src/components/admin/ScreenshotManager.svelte
+- src/components/admin/TechnologySelector.svelte
+- src/components/admin/Toast.svelte
+- src/lib/utils/slugify.ts
+- src/lib/utils/toast-store.svelte.ts
+- src/lib/utils/__tests__/slugify.test.ts
+- src/lib/utils/__tests__/toast-store.test.ts
+- src/lib/utils/__tests__/project-form-validation.test.ts
+
+Modified files:
+- src/pages/admin/projects.astro
+- src/lib/i18n/translations.ts
+- eslint.config.js

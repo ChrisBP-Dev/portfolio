@@ -158,6 +158,55 @@ const translations: Record<string, Record<Locale, string>> = {
 
   // Admin — Placeholders
   'admin.placeholder.comingSoon': { es: 'Próximamente', en: 'Coming soon' },
+
+  // Admin — Projects
+  'admin.projects.title': { es: 'Proyectos', en: 'Projects' },
+  'admin.projects.createNew': { es: 'Crear nuevo', en: 'Create new' },
+  'admin.projects.empty': { es: 'No hay proyectos aún.', en: 'No projects yet.' },
+  'admin.projects.emptyCta': { es: 'Crear el primero →', en: 'Create the first one →' },
+  'admin.projects.edit': { es: 'Editar', en: 'Edit' },
+  'admin.projects.delete': { es: 'Eliminar', en: 'Delete' },
+  'admin.projects.loading': { es: 'Cargando proyectos...', en: 'Loading projects...' },
+  'admin.projects.errorLoading': { es: 'Error al cargar los proyectos', en: 'Error loading projects' },
+
+  // Admin — Project Form
+  'admin.projects.form.sectionBasic': { es: 'Información Básica', en: 'Basic Information' },
+  'admin.projects.form.sectionImages': { es: 'Imágenes', en: 'Images' },
+  'admin.projects.form.sectionMetadata': { es: 'Metadata', en: 'Metadata' },
+  'admin.projects.form.companyName': { es: 'Nombre del proyecto', en: 'Project name' },
+  'admin.projects.form.shortDescription': { es: 'Descripción corta', en: 'Short description' },
+  'admin.projects.form.features': { es: 'Características', en: 'Features' },
+  'admin.projects.form.mainImage': { es: 'Imagen principal', en: 'Main image' },
+  'admin.projects.form.screenshots': { es: 'Screenshots', en: 'Screenshots' },
+  'admin.projects.form.technologies': { es: 'Tecnologías', en: 'Technologies' },
+  'admin.projects.form.websiteUrl': { es: 'URL del sitio web', en: 'Website URL' },
+  'admin.projects.form.sourceCodeUrl': { es: 'URL del código fuente', en: 'Source code URL' },
+  'admin.projects.form.slug': { es: 'Slug', en: 'Slug' },
+  'admin.projects.form.slugManual': { es: 'Editar slug manualmente', en: 'Edit slug manually' },
+  'admin.projects.form.save': { es: 'Guardar', en: 'Save' },
+  'admin.projects.form.saving': { es: 'Guardando...', en: 'Saving...' },
+  'admin.projects.form.cancel': { es: 'Cancelar', en: 'Cancel' },
+  'admin.projects.form.discardChanges': { es: '¿Descartar cambios?', en: 'Discard changes?' },
+  'admin.projects.form.addFeature': { es: 'Agregar', en: 'Add' },
+  'admin.projects.form.removeFeature': { es: 'Eliminar característica', en: 'Remove feature' },
+  'admin.projects.form.addScreenshot': { es: 'Agregar screenshot', en: 'Add screenshot' },
+  'admin.projects.form.removeImage': { es: 'Eliminar imagen', en: 'Remove image' },
+  'admin.projects.form.dragOrClick': { es: 'Arrastra o haz clic para subir', en: 'Drag or click to upload' },
+  'admin.projects.form.imageFormats': { es: 'PNG, JPG, WebP — máx. 5MB', en: 'PNG, JPG, WebP — max 5MB' },
+  'admin.projects.form.successToast': { es: 'Proyecto guardado exitosamente', en: 'Project saved successfully' },
+  'admin.projects.form.errorToast': { es: 'Error al guardar el proyecto', en: 'Error saving project' },
+  'admin.projects.form.noTechnologies': { es: 'No hay tecnologías disponibles', en: 'No technologies available' },
+
+  // Admin — Validation
+  'admin.validation.required': { es: 'Este campo es obligatorio', en: 'This field is required' },
+  'admin.validation.urlInvalid': { es: 'Introduce una URL válida', en: 'Enter a valid URL' },
+  'admin.validation.slugInvalid': { es: 'El slug solo puede contener letras minúsculas, números y guiones', en: 'Slug can only contain lowercase letters, numbers and hyphens' },
+  'admin.validation.fileTooLarge': { es: 'Intenta con un archivo menor a 5MB', en: 'Try a file smaller than 5MB' },
+  'admin.validation.imageRequired': { es: 'La imagen principal es obligatoria', en: 'Main image is required' },
+
+  // Admin — Bilingual Field
+  'admin.bilingual.es': { es: 'ES', en: 'ES' },
+  'admin.bilingual.en': { es: 'EN', en: 'EN' },
 };
 
 export function t(key: string, locale: Locale): string {
