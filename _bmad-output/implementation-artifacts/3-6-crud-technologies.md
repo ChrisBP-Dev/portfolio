@@ -41,7 +41,7 @@ So that visitors see an accurate representation of my technical expertise.
   - [ ] 3.2 Props: `mode?: 'create' | 'edit'` (default `'create'`), `initialData?: TechnologyWithId | null`, `onCancel: () => void`, `onSaved: () => void`
   - [ ] 3.3 Form state: `name = $state('')`, `experienceYears = $state(0)`, `imageSlot = $state<ImageSlot>({ type: 'empty' })`, `errors = $state<Record<string, string>>({})`, `saving = $state(false)`, `hasChanges = $state(false)`
   - [ ] 3.4 Edit mode initialization via `$effect` with `initialized` flag guard (same pattern as ProjectForm — see Init Pattern below)
-  - [ ] 3.5 Validation: `validateField(field)` on blur + `validateAll()` on submit
+  - [ ] 3.5 Validation: `validateField(field)` on blur + `validateAll()` on submit + `scrollToFirstError()` after failed validation (same pattern as ProjectForm: `document.querySelector('[role="alert"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' })`)
     - `name`: required, min 1 char
     - `experienceYears`: required, integer ≥ 0 (reject negative, decimal, empty)
     - `imageSlot`: reject `empty` and `removed` types (image is required)
@@ -60,7 +60,7 @@ So that visitors see an accurate representation of my technical expertise.
     6. On failure: toast error, re-enable save button
   - [ ] 3.8 Cancel handler with `window.confirm()` if `hasChanges` is true
   - [ ] 3.9 `markDirty()` function called on every input change to track `hasChanges`
-  - [ ] 3.10 Derived save/saving button labels per mode (create: "Guardar" / "Guardando...", edit: "Guardar cambios" / "Guardando cambios...")
+  - [ ] 3.10 Derived save/saving button labels per mode (create: "Guardar tecnología" / "Guardando...", edit: "Guardar cambios" / "Guardando cambios...") — uses i18n keys `admin.technologies.form.save` / `admin.technologies.form.saving` / `admin.technologies.form.saveEdit` / `admin.technologies.form.savingEdit`
 
 - [ ] Task 4: TechnologiesCrudPage component (AC: all)
   - [ ] 4.1 Create `TechnologiesCrudPage.svelte` following `ProjectsCrudPage.svelte` pattern exactly
@@ -105,6 +105,7 @@ So that visitors see an accurate representation of my technical expertise.
     - `admin.technologies.deleteSuccessToast`: "Tecnología eliminada exitosamente" / "Technology deleted successfully"
     - `admin.technologies.deleteErrorToast`: "Error al eliminar la tecnología" / "Error deleting technology"
     - `admin.technologies.form.experienceYearsUnit`: "años" / "years" (for list badge display)
+    - `admin.technologies.form.discardChanges`: "¿Descartar los cambios sin guardar?" / "Discard unsaved changes?"
     - `admin.validation.numberRequired`: "Introduce un número válido" / "Enter a valid number"
     - `admin.validation.numberNonNegative`: "El valor debe ser mayor o igual a 0" / "Value must be 0 or greater"
 
@@ -168,6 +169,15 @@ import type { ImageSlot } from '../../lib/schemas/image-slot';
 import { t } from '../../lib/i18n/translations';
 import { toastStore } from '../../lib/utils/toast-store.svelte';
 import ImageUploader from './ImageUploader.svelte';
+```
+
+**Import paths** — from `src/components/admin/TechnologyList.svelte`:
+```typescript
+import { collection, query, orderBy, getDocs } from 'firebase/firestore';
+import { db } from '../../lib/firebase/client';
+import { technologyFirestoreSchema } from '../../lib/schemas/technology-schema';
+import type { TechnologyWithId } from '../../lib/schemas/technology-schema';
+import { t } from '../../lib/i18n/translations';
 ```
 
 ### Schema Extension Pattern
@@ -485,24 +495,9 @@ src/lib/i18n/translations.ts           # Add admin.technologies.* keys
 
 Recent commits follow pattern: `docs: create story X.Y` → `feat: implement story X.Y` → `fix: validate/code-review patches`
 
-### References
-
-- [Source: _bmad-output/planning-artifacts/epics.md — Story 3.6 lines 655-669]
-- [Source: _bmad-output/planning-artifacts/prd.md — FR23-FR26]
-- [Source: _bmad-output/planning-artifacts/architecture.md — Technology data model lines 215-218]
-- [Source: _bmad-output/planning-artifacts/architecture.md — Storage patterns lines 319-340]
-- [Source: _bmad-output/planning-artifacts/architecture.md — Admin component structure lines 937-948]
-- [Source: _bmad-output/planning-artifacts/ux-design-specification.md — Form patterns lines 815-847]
-- [Source: _bmad-output/planning-artifacts/ux-design-specification.md — CRUD consistency lines 667-677]
-- [Source: _bmad-output/project-context.md — Rules and conventions]
-
 ## Dev Agent Record
 
 ### Agent Model Used
-
-{{agent_model_name_version}}
-
-### Debug Log References
 
 ### Completion Notes List
 
