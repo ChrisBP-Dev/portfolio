@@ -209,6 +209,19 @@ const translations: Record<string, Record<Locale, string>> = {
   'admin.confirm.deleting': { es: 'Eliminando...', en: 'Deleting...' },
   'admin.projects.form.noTechnologies': { es: 'No hay tecnologías disponibles', en: 'No technologies available' },
 
+  // Admin — Image Status Badges
+  'admin.imageStatus.existing': { es: 'Subida', en: 'Uploaded' },
+  'admin.imageStatus.new': { es: 'Nueva', en: 'New' },
+  'admin.imageStatus.replaced': { es: 'Reemplazará', en: 'Will replace' },
+  'admin.imageStatus.removed': { es: 'Se eliminará', en: 'Will delete' },
+  'admin.imageStatus.undoRemove': { es: 'Deshacer eliminación', en: 'Undo removal' },
+
+  // Admin — Firestore Errors
+  'admin.error.permissionDenied': { es: 'Sin permisos para esta operación', en: 'No permission for this operation' },
+  'admin.error.notFound': { es: 'El recurso no fue encontrado', en: 'Resource not found' },
+  'admin.error.unavailable': { es: 'Servicio no disponible. Verifica tu conexión.', en: 'Service unavailable. Check your connection.' },
+  'admin.error.unknown': { es: 'Error inesperado', en: 'Unexpected error' },
+
   // Admin — Validation
   'admin.validation.required': { es: 'Este campo es obligatorio', en: 'This field is required' },
   'admin.validation.urlInvalid': { es: 'Introduce una URL válida', en: 'Enter a valid URL' },

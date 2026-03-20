@@ -42,7 +42,7 @@
   });
 
   function handleKeydown(e: KeyboardEvent): void {
-    if (e.key === 'Escape') {
+    if (e.key === 'Escape' && !confirming) {
       onCancel();
       return;
     }
@@ -61,7 +61,7 @@
   }
 
   function handleBackdropClick(e: MouseEvent): void {
-    if (e.target === e.currentTarget) {
+    if (e.target === e.currentTarget && !confirming) {
       onCancel();
     }
   }

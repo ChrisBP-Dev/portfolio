@@ -34,11 +34,31 @@
 
   function removeScreenshot(index: number): void {
     const slot = screenshots[index];
-    if (slot && (slot.type === 'new' || slot.type === 'replaced')) {
+    if (!slot) return;
+    if (slot.type === 'existing') {
+      screenshots = screenshots.map((s, i) =>
+        i === index ? { type: 'removed' as const, old: slot.image } : s,
+      );
+    } else if (slot.type === 'replaced') {
       URL.revokeObjectURL(slot.preview);
+      screenshots = screenshots.map((s, i) =>
+        i === index ? { type: 'removed' as const, old: slot.old } : s,
+      );
+    } else {
+      if (slot.type === 'new') URL.revokeObjectURL(slot.preview);
+      screenshots = screenshots.filter((_, i) => i !== index);
     }
-    screenshots = screenshots.filter((_, i) => i !== index);
     onChange?.(screenshots);
+  }
+
+  function undoRemoveScreenshot(index: number): void {
+    const slot = screenshots[index];
+    if (slot && slot.type === 'removed') {
+      screenshots = screenshots.map((s, i) =>
+        i === index ? { type: 'existing' as const, image: slot.old } : s,
+      );
+      onChange?.(screenshots);
+    }
   }
 
   function handleInputChange(e: Event): void {
@@ -80,13 +100,37 @@
   <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
     {#each screenshots as slot, index (index)}
       {@const preview = getPreview(slot)}
-      {#if preview}
+      {#if slot.type === 'removed'}
+        <div class="relative group">
+          <div class="w-full h-24 rounded-lg border-2 border-dashed border-error/50 bg-error/5 flex items-center justify-center">
+            <span class="px-2 py-0.5 text-xs font-semibold rounded bg-error text-white">{t('admin.imageStatus.removed', locale)}</span>
+          </div>
+          <button
+            type="button"
+            onclick={() => undoRemoveScreenshot(index)}
+            class="absolute top-1 right-1 p-1 bg-surface/90 border border-border rounded-full opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 hover:bg-primary/10 hover:text-primary transition-all"
+            aria-label="{t('admin.imageStatus.undoRemove', locale)} {index + 1}"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="1 4 1 10 7 10"></polyline>
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+            </svg>
+          </button>
+        </div>
+      {:else if preview}
         <div class="relative group">
           <img
             src={preview}
             alt="Screenshot {index + 1}"
             class="w-full h-24 object-cover rounded-lg border border-border"
           />
+          {#if slot.type === 'existing'}
+            <span class="absolute bottom-1 left-1 px-1.5 py-0.5 text-[10px] font-semibold rounded bg-blue-500 text-white">{t('admin.imageStatus.existing', locale)}</span>
+          {:else if slot.type === 'new'}
+            <span class="absolute bottom-1 left-1 px-1.5 py-0.5 text-[10px] font-semibold rounded bg-green-500 text-white">{t('admin.imageStatus.new', locale)}</span>
+          {:else if slot.type === 'replaced'}
+            <span class="absolute bottom-1 left-1 px-1.5 py-0.5 text-[10px] font-semibold rounded bg-orange-500 text-white">{t('admin.imageStatus.replaced', locale)}</span>
+          {/if}
           <button
             type="button"
             onclick={() => removeScreenshot(index)}

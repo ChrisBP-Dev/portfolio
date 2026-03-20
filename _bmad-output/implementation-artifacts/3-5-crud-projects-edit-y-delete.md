@@ -1,6 +1,6 @@
 # Story 3.5: CRUD Projects — Edit y Delete
 
-Status: review
+Status: done
 
 ## Story
 
@@ -434,11 +434,20 @@ Claude Opus 4.6 (1M context)
 - Exported ProjectWithId type from project-schema.ts, updated ProjectList to import from shared location
 - Fixed pre-existing state_unsafe_mutation in BilingualArrayField.svelte and ScreenshotManager.svelte (key generation mutated $state inside $derived/template)
 - Added back-to-list button above form title in ProjectsCrudPage for navigation UX
+- Code Review (3-layer adversarial): 2 bad_spec, 4 patch, 1 defer, 8 rejected as noise
+- CR-BS-1: ImageUploader.removeImage() now produces `removed` state (was `empty`), handleFile() produces `replaced` state (was `new`) for existing images. ScreenshotManager.removeScreenshot() marks existing slots as `removed` instead of filtering out. Added undoRemoveScreenshot() for UX recovery. Prevents orphaned Storage assets (AC#6)
+- CR-BS-2: Added visual status badges to ImageUploader (existing=blue, new=green, replaced=orange) and ScreenshotManager (same + removed=red placeholder). Added 5 i18n keys (imageStatus.existing/new/replaced/removed/undoRemove)
+- CR-P-1: ConfirmDialog Escape and backdrop click now blocked during confirming state (was unconditional)
+- CR-P-2: saving flag reset to false on success path before toast (was only in catch)
+- CR-P-3: initialized guard now tracks initialData.id — re-initializes when project changes without component destruction
+- CR-P-4: Added getFirestoreErrorMessage() with duck-typed code mapping (permission-denied, not-found, unavailable) in ProjectForm and ProjectsCrudPage. Added 4 i18n error keys
+- CR-Tests: Added 14 new tests (56 total) — Escape/backdrop blocking, ImageSlot state transitions, initialized ID tracking, FirebaseError code mapping
 
 ### Change Log
 
 - 2026-03-20: Implemented story 3.5 — Edit and Delete CRUD flows for Projects
 - 2026-03-20: Fixed state_unsafe_mutation in BilingualArrayField + ScreenshotManager (pre-existing, triggered by edit mode); added back-to-list navigation button
+- 2026-03-20: Code review fixes — BS-1: ImageSlot state transitions (removed/replaced) in ImageUploader+ScreenshotManager; BS-2: visual badges; P-1: Escape/backdrop blocked during confirming; P-2: saving reset on success; P-3: initialized guard tracks project ID; P-4: FirebaseError code mapping; 14 new tests (56 total)
 
 ### File List
 
@@ -453,6 +462,7 @@ Claude Opus 4.6 (1M context)
 - src/components/admin/ProjectForm.svelte
 - src/components/admin/ProjectList.svelte
 - src/components/admin/BilingualArrayField.svelte (fix: state_unsafe_mutation — removed key tracking, use index-based each keys)
-- src/components/admin/ScreenshotManager.svelte (fix: same state_unsafe_mutation pattern — removed $derived key generation)
+- src/components/admin/ScreenshotManager.svelte (fix: state_unsafe_mutation + CR: removeScreenshot marks as removed, undo support, visual badges)
+- src/components/admin/ImageUploader.svelte (CR: handleFile produces replaced, removeImage produces removed, visual badges)
 - src/lib/schemas/project-schema.ts
-- src/lib/i18n/translations.ts
+- src/lib/i18n/translations.ts (CR: imageStatus badges, Firestore error messages)

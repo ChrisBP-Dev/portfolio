@@ -22,6 +22,16 @@
   const locale = 'es';
   const PROJECTS_COLLECTION = 'Projects';
 
+  function getFirestoreErrorMessage(error: unknown): string {
+    if (typeof error === 'object' && error !== null && 'code' in error) {
+      const code = (error as { code: string }).code;
+      if (code === 'permission-denied') return t('admin.error.permissionDenied', locale);
+      if (code === 'not-found') return t('admin.error.notFound', locale);
+      if (code === 'unavailable') return t('admin.error.unavailable', locale);
+    }
+    return t('admin.error.unknown', locale);
+  }
+
   interface Props {
     mode?: 'create' | 'edit';
     initialData?: ProjectWithId | null;
@@ -53,10 +63,12 @@
 
   // Edit mode initialization — flag guard prevents infinite loop
   let initialized = false;
+  let initializedForId: string | null = null;
 
   $effect(() => {
-    if (mode === 'edit' && initialData && !initialized) {
+    if (mode === 'edit' && initialData && (!initialized || initializedForId !== initialData.id)) {
       initialized = true;
+      initializedForId = initialData.id;
       companyNameEs = initialData.companyName.es;
       companyNameEn = initialData.companyName.en;
       shortDescriptionEs = initialData.shortDescription.es;
@@ -259,11 +271,12 @@
         return;
       }
 
+      saving = false;
       toastStore.success(t('admin.projects.form.successToast', locale));
       setTimeout(() => onSaved(), 1500);
     } catch (error) {
       console.error('Failed to save project:', error);
-      toastStore.error(t('admin.projects.form.errorToast', locale));
+      toastStore.error(getFirestoreErrorMessage(error));
       saving = false;
     }
   }
@@ -301,11 +314,12 @@
         await cleanupDeletedImages(allDeletePaths);
       }
 
+      saving = false;
       toastStore.success(t('admin.projects.editSuccessToast', locale));
       setTimeout(() => onSaved(), 1500);
     } catch (error) {
       console.error('Failed to update project:', error);
-      toastStore.error(t('admin.projects.form.errorToast', locale));
+      toastStore.error(getFirestoreErrorMessage(error));
       saving = false;
     }
   }

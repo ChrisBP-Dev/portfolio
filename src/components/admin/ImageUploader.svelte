@@ -42,7 +42,11 @@
     }
 
     const objectUrl = URL.createObjectURL(file);
-    slot = { type: 'new', file, preview: objectUrl };
+    if (slot.type === 'existing') {
+      slot = { type: 'replaced', old: slot.image, file, preview: objectUrl };
+    } else {
+      slot = { type: 'new', file, preview: objectUrl };
+    }
     onChange?.(slot);
   }
 
@@ -73,7 +77,13 @@
     if (slot.type === 'new' || slot.type === 'replaced') {
       URL.revokeObjectURL(slot.preview);
     }
-    slot = { type: 'empty' };
+    if (slot.type === 'existing') {
+      slot = { type: 'removed', old: slot.image };
+    } else if (slot.type === 'replaced') {
+      slot = { type: 'removed', old: slot.old };
+    } else {
+      slot = { type: 'empty' };
+    }
     onChange?.(slot);
   }
 
@@ -101,6 +111,13 @@
         alt={label}
         class="w-full h-48 object-cover rounded-lg border border-border"
       />
+      {#if slot.type === 'existing'}
+        <span class="absolute top-2 left-2 px-2 py-0.5 text-xs font-semibold rounded bg-blue-500 text-white">{t('admin.imageStatus.existing', locale)}</span>
+      {:else if slot.type === 'new'}
+        <span class="absolute top-2 left-2 px-2 py-0.5 text-xs font-semibold rounded bg-green-500 text-white">{t('admin.imageStatus.new', locale)}</span>
+      {:else if slot.type === 'replaced'}
+        <span class="absolute top-2 left-2 px-2 py-0.5 text-xs font-semibold rounded bg-orange-500 text-white">{t('admin.imageStatus.replaced', locale)}</span>
+      {/if}
       <button
         type="button"
         onclick={removeImage}

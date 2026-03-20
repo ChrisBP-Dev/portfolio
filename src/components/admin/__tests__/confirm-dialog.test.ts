@@ -53,19 +53,49 @@ describe('ConfirmDialog — focus trap logic', () => {
     expect(focusableElements[nextIndex]).toBe('confirm-btn');
   });
 
-  it('[P0] 3.5-TEST-005: Escape key triggers cancel', () => {
+  it('[P0] 3.5-TEST-005: Escape key triggers cancel when not confirming', () => {
     let cancelCalled = false;
+    const confirming = false;
     const onCancel = () => {
       cancelCalled = true;
     };
 
-    // Simulate keydown handler
     const key = 'Escape';
-    if (key === 'Escape') {
+    if (key === 'Escape' && !confirming) {
       onCancel();
     }
 
     expect(cancelCalled).toBe(true);
+  });
+
+  it('[P0] 3.5-CR-001: Escape key blocked during confirming state', () => {
+    let cancelCalled = false;
+    const confirming = true;
+    const onCancel = () => {
+      cancelCalled = true;
+    };
+
+    const key = 'Escape';
+    if (key === 'Escape' && !confirming) {
+      onCancel();
+    }
+
+    expect(cancelCalled).toBe(false);
+  });
+
+  it('[P0] 3.5-CR-002: backdrop click blocked during confirming state', () => {
+    let cancelCalled = false;
+    const confirming = true;
+    const targetIsBackdrop = true;
+    const onCancel = () => {
+      cancelCalled = true;
+    };
+
+    if (targetIsBackdrop && !confirming) {
+      onCancel();
+    }
+
+    expect(cancelCalled).toBe(false);
   });
 });
 

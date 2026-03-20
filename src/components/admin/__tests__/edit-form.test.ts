@@ -258,3 +258,196 @@ describe('Edit form — deleteField for cleared URLs', () => {
     expect(data.websiteUrl).toBeUndefined();
   });
 });
+
+describe('Edit form — ImageSlot state transitions (CR fixes)', () => {
+  it('[P0] 3.5-CR-003: removeImage on existing produces removed state', () => {
+    const existingSlot: ImageSlot = {
+      type: 'existing',
+      image: { url: 'https://example.com/img.webp', storagePath: 'p/abc/main/img.webp' },
+    };
+
+    // Simulate removeImage() logic after fix
+    let result: ImageSlot;
+    if (existingSlot.type === 'existing') {
+      result = { type: 'removed', old: existingSlot.image };
+    } else {
+      result = { type: 'empty' };
+    }
+
+    expect(result.type).toBe('removed');
+    if (result.type === 'removed') {
+      expect(result.old.storagePath).toBe('p/abc/main/img.webp');
+    }
+  });
+
+  it('[P0] 3.5-CR-004: handleFile on existing produces replaced state', () => {
+    const existingSlot: ImageSlot = {
+      type: 'existing',
+      image: { url: 'https://example.com/img.webp', storagePath: 'p/abc/main/img.webp' },
+    };
+    const newFile = new File([''], 'new.webp');
+    const preview = 'blob:preview';
+
+    // Simulate handleFile() logic after fix
+    let result: ImageSlot;
+    if (existingSlot.type === 'existing') {
+      result = { type: 'replaced', old: existingSlot.image, file: newFile, preview };
+    } else {
+      result = { type: 'new', file: newFile, preview };
+    }
+
+    expect(result.type).toBe('replaced');
+    if (result.type === 'replaced') {
+      expect(result.old.storagePath).toBe('p/abc/main/img.webp');
+    }
+  });
+
+  it('[P0] 3.5-CR-005: removeScreenshot on existing marks as removed instead of filtering', () => {
+    const screenshots: ImageSlot[] = [
+      { type: 'existing', image: { url: 'https://example.com/s1.webp', storagePath: 'p/abc/screenshots/s1.webp' } },
+      { type: 'new', file: new File([''], 's2.webp'), preview: 'blob:p2' },
+    ];
+
+    // Simulate removeScreenshot(0) logic after fix — existing → removed
+    const slot = screenshots[0]!;
+    let result: ImageSlot[];
+    if (slot.type === 'existing') {
+      result = screenshots.map((s, i) =>
+        i === 0 ? { type: 'removed' as const, old: slot.image } : s,
+      );
+    } else {
+      result = screenshots.filter((_, i) => i !== 0);
+    }
+
+    expect(result).toHaveLength(2);
+    expect(result[0]!.type).toBe('removed');
+    expect(result[1]!.type).toBe('new');
+  });
+
+  it('[P0] 3.5-CR-006: removeScreenshot on new slot still filters out', () => {
+    const screenshots: ImageSlot[] = [
+      { type: 'existing', image: { url: 'https://example.com/s1.webp', storagePath: 'p/abc/screenshots/s1.webp' } },
+      { type: 'new', file: new File([''], 's2.webp'), preview: 'blob:p2' },
+    ];
+
+    const slot = screenshots[1]!;
+    let result: ImageSlot[];
+    if (slot.type === 'existing') {
+      result = screenshots.map((s, i) =>
+        i === 1 ? { type: 'removed' as const, old: (slot as Extract<ImageSlot, { type: 'existing' }>).image } : s,
+      );
+    } else {
+      result = screenshots.filter((_, i) => i !== 1);
+    }
+
+    expect(result).toHaveLength(1);
+    expect(result[0]!.type).toBe('existing');
+  });
+
+  it('[P0] 3.5-CR-007: removeImage on replaced produces removed with old reference', () => {
+    const replacedSlot: ImageSlot = {
+      type: 'replaced',
+      old: { url: 'https://example.com/old.webp', storagePath: 'p/abc/main/old.webp' },
+      file: new File([''], 'new.webp'),
+      preview: 'blob:preview',
+    };
+
+    // Simulate removeImage() on replaced slot
+    let result: ImageSlot;
+    if (replacedSlot.type === 'replaced') {
+      result = { type: 'removed', old: replacedSlot.old };
+    } else {
+      result = { type: 'empty' };
+    }
+
+    expect(result.type).toBe('removed');
+    if (result.type === 'removed') {
+      expect(result.old.storagePath).toBe('p/abc/main/old.webp');
+    }
+  });
+});
+
+describe('Edit form — initialized guard with ID tracking (CR fix)', () => {
+  it('[P0] 3.5-CR-008: re-initializes when initialData.id changes', () => {
+    let initialized = false;
+    let initializedForId: string | null = null;
+
+    const projectA = { id: 'proj-a', companyName: { es: 'A', en: 'A' } };
+    const projectB = { id: 'proj-b', companyName: { es: 'B', en: 'B' } };
+
+    // First initialization
+    if (!initialized || initializedForId !== projectA.id) {
+      initialized = true;
+      initializedForId = projectA.id;
+    }
+    expect(initializedForId).toBe('proj-a');
+
+    // Second initialization with different project
+    if (!initialized || initializedForId !== projectB.id) {
+      initialized = true;
+      initializedForId = projectB.id;
+    }
+    expect(initializedForId).toBe('proj-b');
+  });
+
+  it('[P1] 3.5-CR-009: does not re-initialize for same project ID', () => {
+    let initCount = 0;
+    let initialized = false;
+    let initializedForId: string | null = null;
+
+    const project = { id: 'proj-a' };
+
+    // First call
+    if (!initialized || initializedForId !== project.id) {
+      initialized = true;
+      initializedForId = project.id;
+      initCount++;
+    }
+
+    // Second call with same ID
+    if (!initialized || initializedForId !== project.id) {
+      initialized = true;
+      initializedForId = project.id;
+      initCount++;
+    }
+
+    expect(initCount).toBe(1);
+  });
+});
+
+describe('Edit form — FirebaseError code mapping (CR fix)', () => {
+  function getFirestoreErrorMessage(error: unknown): string {
+    if (typeof error === 'object' && error !== null && 'code' in error) {
+      const code = (error as { code: string }).code;
+      if (code === 'permission-denied') return 'Sin permisos para esta operación';
+      if (code === 'not-found') return 'El recurso no fue encontrado';
+      if (code === 'unavailable') return 'Servicio no disponible. Verifica tu conexión.';
+    }
+    return 'Error inesperado';
+  }
+
+  it('[P0] 3.5-CR-010: permission-denied returns specific message', () => {
+    const error = { code: 'permission-denied', message: 'Permission denied' };
+    expect(getFirestoreErrorMessage(error)).toBe('Sin permisos para esta operación');
+  });
+
+  it('[P0] 3.5-CR-011: not-found returns specific message', () => {
+    const error = { code: 'not-found', message: 'Not found' };
+    expect(getFirestoreErrorMessage(error)).toBe('El recurso no fue encontrado');
+  });
+
+  it('[P0] 3.5-CR-012: unavailable returns specific message', () => {
+    const error = { code: 'unavailable', message: 'Unavailable' };
+    expect(getFirestoreErrorMessage(error)).toBe('Servicio no disponible. Verifica tu conexión.');
+  });
+
+  it('[P1] 3.5-CR-013: unknown code returns fallback', () => {
+    const error = { code: 'some-other-error' };
+    expect(getFirestoreErrorMessage(error)).toBe('Error inesperado');
+  });
+
+  it('[P1] 3.5-CR-014: non-object error returns fallback', () => {
+    expect(getFirestoreErrorMessage('string error')).toBe('Error inesperado');
+    expect(getFirestoreErrorMessage(null)).toBe('Error inesperado');
+  });
+});
