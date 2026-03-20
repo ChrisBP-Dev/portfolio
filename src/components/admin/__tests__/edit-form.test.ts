@@ -387,6 +387,7 @@ describe('Edit form — initialized guard with ID tracking (CR fix)', () => {
       initialized = true;
       initializedForId = projectB.id;
     }
+    expect(initialized).toBe(true);
     expect(initializedForId).toBe('proj-b');
   });
 
@@ -404,7 +405,7 @@ describe('Edit form — initialized guard with ID tracking (CR fix)', () => {
       initCount++;
     }
 
-    // Second call with same ID
+    // Second call with same ID — guard prevents re-init
     if (!initialized || initializedForId !== project.id) {
       initialized = true;
       initializedForId = project.id;
@@ -412,6 +413,8 @@ describe('Edit form — initialized guard with ID tracking (CR fix)', () => {
     }
 
     expect(initCount).toBe(1);
+    expect(initialized).toBe(true);
+    expect(initializedForId).toBe('proj-a');
   });
 });
 
