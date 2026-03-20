@@ -11,6 +11,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
 
       - uses: pnpm/action-setup@v4
         with:
@@ -24,14 +26,38 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Quality gates
+      # Detect if only docs/config files changed (no build/deploy needed)
+      # Checks diff between current and previous commit for code-affecting files.
+      # workflow_dispatch always runs the full pipeline.
+      - name: Check for code changes
+        id: changes
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "has_code_changes=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          CODE_FILES=$(git diff --name-only HEAD~1 HEAD -- \
+            'src/**' 'public/**' 'tests/**' \
+            'package.json' 'pnpm-lock.yaml' \
+            'astro.config.*' 'tsconfig.json' \
+            'firebase.json' 'firestore.rules' 'storage.rules' \
+            'lighthouserc.cjs' 'eslint.config.js' \
+            '.github/workflows/**' | head -1)
+          if [ -n "$CODE_FILES" ]; then
+            echo "has_code_changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_code_changes=false" >> "$GITHUB_OUTPUT"
+            echo "⏭️ Only docs/config changed — skipping build, Lighthouse & deploy"
+          fi
+
+      # Quality gates — always run
       - name: Lint
         run: pnpm lint
 
       - name: Type check
         run: pnpm type-check
 
-      # Tests with Firebase emulators
+      # Tests with Firebase emulators — always run
       - uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
@@ -46,23 +72,25 @@ jobs:
       - name: Run tests with emulators
         run: pnpm exec firebase emulators:exec --only auth,firestore,storage "pnpm test"
 
-      # Build — Admin SDK needs service account credentials for SSG data fetching
+      # Build, Lighthouse & Deploy — only when code changes affect the built site
       - name: Build
+        if: steps.changes.outputs.has_code_changes == 'true'
         run: pnpm build
         env:
           FIREBASE_ADMIN_PROJECT_ID: ${{ fromJson(secrets.FIREBASE_SERVICE_ACCOUNT).project_id }}
           FIREBASE_ADMIN_CLIENT_EMAIL: ${{ fromJson(secrets.FIREBASE_SERVICE_ACCOUNT).client_email }}
           FIREBASE_ADMIN_PRIVATE_KEY: ${{ fromJson(secrets.FIREBASE_SERVICE_ACCOUNT).private_key }}
 
-      # Lighthouse CI — exclude admin pages (client:only shells have no static content)
       - name: Remove admin pages from Lighthouse scan
+        if: steps.changes.outputs.has_code_changes == 'true'
         run: rm -rf dist/admin
 
       - name: Lighthouse CI
+        if: steps.changes.outputs.has_code_changes == 'true'
         run: pnpm exec lhci autorun
 
-      # Deploy to Firebase Hosting
       - name: Deploy to Firebase Hosting
+        if: steps.changes.outputs.has_code_changes == 'true'
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
