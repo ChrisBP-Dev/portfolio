@@ -63,6 +63,9 @@ importers:
       firebase-tools:
         specifier: ^15.10.1
         version: 15.10.1(@types/node@25.5.0)(typescript@5.9.3)
+      globals:
+        specifier: ^17.4.0
+        version: 17.4.0
       playwright:
         specifier: ^1.58.2
         version: 1.58.2
@@ -3083,6 +3086,10 @@ packages:
 
   globals@16.5.0:
     resolution: {integrity: sha512-c/c15i26VrJ4IRt5Z89DnIzCGDn9EcebibhAOjw5ibqEHsE1wLUgkPn9RDmNcUKyU87GeaL633nyJ+pplFR2ZQ==}
+    engines: {node: '>=18'}
+
+  globals@17.4.0:
+    resolution: {integrity: sha512-hjrNztw/VajQwOLsMNT1cbJiH2muO3OROCHnbehc8eY5JyD2gqz4AcMHPqgaOR59DjgUjYAYLeH699g/eWi2jw==}
     engines: {node: '>=18'}
 
   google-auth-library@10.6.2:
@@ -9457,6 +9464,8 @@ snapshots:
       ini: 2.0.0
 
   globals@16.5.0: {}
+
+  globals@17.4.0: {}
 
   google-auth-library@10.6.2:
     dependencies:

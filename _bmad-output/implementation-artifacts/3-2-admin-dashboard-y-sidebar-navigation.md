@@ -1,6 +1,6 @@
 # Story 3.2: Admin Dashboard y Sidebar Navigation
 
-Status: review
+Status: done
 
 ## Story
 
@@ -552,6 +552,15 @@ Claude Opus 4.6 (1M context)
 ### Change Log
 
 - 2026-03-20: Story 3.2 implementation complete — all 9 tasks done.
+- 2026-03-20: Code review patches (5 fixes):
+  - P1 [HIGH] Tablet sidebar expand on hover — added `group`, `sm:hover:w-64`, `group-hover:inline` for labels, `overflow-x-hidden` for clipping during transition (AC4 compliance)
+  - P2 [MEDIUM] Removed `preventDefault` + `navigateTo` from `<a>` links — let native `<a href>` handle full-page navigation, preserves middle-click/right-click behavior
+  - P3 [MEDIUM] Fixed `isActive` prefix overlap — changed `startsWith(path)` to `startsWith(path + '/')` to prevent false matches on paths like `/admin/blog-settings`
+  - P4 [MEDIUM] Added body scroll lock on mobile drawer — `document.body.style.overflow = 'hidden'` via `$effect` cleanup pattern
+  - P5 [LOW] Added `aria-hidden="true"` to all decorative SVG icons in AdminSidebar and AdminDashboard
+  - P6 [DEFER→FIX] ESLint browser globals — replaced 10+ manual declarations with `...globals.browser` via `globals` package, preventing future stories from hitting the same issue
+  - Deferred: D2 (breadcrumb deep sub-paths — future stories 3.4+ will add nested routes)
+  - Rejected: 17 findings (noise/false positives/spec-compliant behavior)
 
 ### File List
 

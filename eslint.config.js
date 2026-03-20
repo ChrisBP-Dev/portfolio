@@ -2,6 +2,7 @@ import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import astro from 'eslint-plugin-astro';
 import svelte from 'eslint-plugin-svelte';
+import globals from 'globals';
 
 /** @type {import('typescript-eslint').ConfigArray} */
 export default [
@@ -13,19 +14,7 @@ export default [
     files: ['**/*.svelte'],
     languageOptions: {
       globals: {
-        window: 'readonly',
-        document: 'readonly',
-        HTMLElement: 'readonly',
-        HTMLButtonElement: 'readonly',
-        HTMLDialogElement: 'readonly',
-        HTMLDivElement: 'readonly',
-        Element: 'readonly',
-        KeyboardEvent: 'readonly',
-        MouseEvent: 'readonly',
-        SubmitEvent: 'readonly',
-        MediaQueryListEvent: 'readonly',
-        NodeListOf: 'readonly',
-        requestAnimationFrame: 'readonly',
+        ...globals.browser,
       },
       parserOptions: {
         parser: tseslint.parser,
