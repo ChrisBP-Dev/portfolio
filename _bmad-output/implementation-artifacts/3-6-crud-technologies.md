@@ -1,6 +1,6 @@
 # Story 3.6: CRUD Technologies
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -20,65 +20,65 @@ So that visitors see an accurate representation of my technical expertise.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Extend technology schema for form validation (AC: #3)
-  - [ ] 1.1 Add `technologyFormSchema` to `technology-schema.ts`: `technologySchema.omit({ id: true, image: true })` — validates name + experienceYears only (image handled via ImageSlot)
-  - [ ] 1.2 Add `TechnologyFirestoreData` type: `z.infer<typeof technologyFirestoreSchema>`
-  - [ ] 1.3 Add `TechnologyWithId` type: `TechnologyFirestoreData & { id: string }`
-  - [ ] 1.4 Export all new types
+- [x] Task 1: Extend technology schema for form validation (AC: #3)
+  - [x] 1.1 Add `technologyFormSchema` to `technology-schema.ts`: `technologySchema.omit({ id: true, image: true })` — validates name + experienceYears only (image handled via ImageSlot)
+  - [x] 1.2 Add `TechnologyFirestoreData` type: `z.infer<typeof technologyFirestoreSchema>`
+  - [x] 1.3 Add `TechnologyWithId` type: `TechnologyFirestoreData & { id: string }`
+  - [x] 1.4 Export all new types
 
-- [ ] Task 2: TechnologyList component (AC: #1, #2)
-  - [ ] 2.1 Create `TechnologyList.svelte` following `ProjectList.svelte` pattern exactly
-  - [ ] 2.2 Props: `onCreateNew`, `onEdit?: (tech: TechnologyWithId) => void`, `onDelete?: (tech: TechnologyWithId) => void`
-  - [ ] 2.3 Load technologies: `query(collection(db, TECHNOLOGIES_COLLECTION), orderBy('name'))` + `technologyFirestoreSchema.safeParse()`
-  - [ ] 2.4 Export `loadTechnologies()` method for parent to call after mutations
-  - [ ] 2.5 List item layout: icon (32x32 `object-contain rounded`), name, experience years badge ("N años"), edit + delete buttons
-  - [ ] 2.6 Skeleton loading: 4 rows with `motion-safe:animate-pulse`
-  - [ ] 2.7 Error state: red-tinted box with error message
-  - [ ] 2.8 Empty state: icon + "No hay tecnologías aún" + "Crear la primera" CTA link
+- [x] Task 2: TechnologyList component (AC: #1, #2)
+  - [x] 2.1 Create `TechnologyList.svelte` following `ProjectList.svelte` pattern exactly
+  - [x] 2.2 Props: `onCreateNew`, `onEdit?: (tech: TechnologyWithId) => void`, `onDelete?: (tech: TechnologyWithId) => void`
+  - [x] 2.3 Load technologies: `query(collection(db, TECHNOLOGIES_COLLECTION), orderBy('name'))` + `technologyFirestoreSchema.safeParse()`
+  - [x] 2.4 Export `loadTechnologies()` method for parent to call after mutations
+  - [x] 2.5 List item layout: icon (32x32 `object-contain rounded`), name, experience years badge ("N años"), edit + delete buttons
+  - [x] 2.6 Skeleton loading: 4 rows with `motion-safe:animate-pulse`
+  - [x] 2.7 Error state: red-tinted box with error message
+  - [x] 2.8 Empty state: icon + "No hay tecnologías aún" + "Crear la primera" CTA link
 
-- [ ] Task 3: TechnologyForm component (AC: #3, #4, #5)
-  - [ ] 3.1 Create `TechnologyForm.svelte` — simpler than ProjectForm (no bilingual fields, no screenshots, no slug, no URLs)
-  - [ ] 3.2 Props: `mode?: 'create' | 'edit'` (default `'create'`), `initialData?: TechnologyWithId | null`, `onCancel: () => void`, `onSaved: () => void`
-  - [ ] 3.3 Form state: `name = $state('')`, `experienceYears = $state(0)`, `imageSlot = $state<ImageSlot>({ type: 'empty' })`, `errors = $state<Record<string, string>>({})`, `saving = $state(false)`, `hasChanges = $state(false)`
-  - [ ] 3.4 Edit mode initialization via `$effect` with `initialized` flag guard (same pattern as ProjectForm — see Init Pattern below)
-  - [ ] 3.5 Validation: `validateField(field)` on blur + `validateAll()` on submit + `scrollToFirstError()` after failed validation (same pattern as ProjectForm: `document.querySelector('[role="alert"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' })`)
+- [x] Task 3: TechnologyForm component (AC: #3, #4, #5)
+  - [x] 3.1 Create `TechnologyForm.svelte` — simpler than ProjectForm (no bilingual fields, no screenshots, no slug, no URLs)
+  - [x] 3.2 Props: `mode?: 'create' | 'edit'` (default `'create'`), `initialData?: TechnologyWithId | null`, `onCancel: () => void`, `onSaved: () => void`
+  - [x] 3.3 Form state: `name = $state('')`, `experienceYears = $state(0)`, `imageSlot = $state<ImageSlot>({ type: 'empty' })`, `errors = $state<Record<string, string>>({})`, `saving = $state(false)`, `hasChanges = $state(false)`
+  - [x] 3.4 Edit mode initialization via `$effect` with `initialized` flag guard (same pattern as ProjectForm — see Init Pattern below)
+  - [x] 3.5 Validation: `validateField(field)` on blur + `validateAll()` on submit + `scrollToFirstError()` after failed validation (same pattern as ProjectForm: `document.querySelector('[role="alert"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' })`)
     - `name`: required, min 1 char
     - `experienceYears`: required, integer ≥ 0 (reject negative, decimal, empty)
     - `imageSlot`: reject `empty` and `removed` types (image is required)
-  - [ ] 3.6 Create submit handler:
+  - [x] 3.6 Create submit handler:
     1. Validate → build form data → `addDoc()` → get docId
     2. Upload image to `technologies/${docId}/` via `imageService.upload()`
     3. `updateDoc()` with image reference
     4. Toast success → call `onSaved()`
     5. On failure: clean up created doc if image upload fails, toast error
-  - [ ] 3.7 Edit submit handler:
+  - [x] 3.7 Edit submit handler:
     1. Validate → `processImageSlot(imageSlot, `technologies/${docId}/`)`
     2. Build payload: `{ name, experienceYears, image: processed.image }`
     3. `updateDoc()` with payload
     4. `cleanupDeletedImages(processed.toDelete)` after update succeeds
     5. Toast success → call `onSaved()`
     6. On failure: toast error, re-enable save button
-  - [ ] 3.8 Cancel handler with `window.confirm()` if `hasChanges` is true
-  - [ ] 3.9 `markDirty()` function called on every input change to track `hasChanges`
-  - [ ] 3.10 Derived save/saving button labels per mode (create: "Guardar tecnología" / "Guardando...", edit: "Guardar cambios" / "Guardando cambios...") — uses i18n keys `admin.technologies.form.save` / `admin.technologies.form.saving` / `admin.technologies.form.saveEdit` / `admin.technologies.form.savingEdit`
+  - [x] 3.8 Cancel handler with `window.confirm()` if `hasChanges` is true
+  - [x] 3.9 `markDirty()` function called on every input change to track `hasChanges`
+  - [x] 3.10 Derived save/saving button labels per mode (create: "Guardar tecnología" / "Guardando...", edit: "Guardar cambios" / "Guardando cambios...") — uses i18n keys `admin.technologies.form.save` / `admin.technologies.form.saving` / `admin.technologies.form.saveEdit` / `admin.technologies.form.savingEdit`
 
-- [ ] Task 4: TechnologiesCrudPage component (AC: all)
-  - [ ] 4.1 Create `TechnologiesCrudPage.svelte` following `ProjectsCrudPage.svelte` pattern exactly
-  - [ ] 4.2 State: `viewMode: 'list' | 'create' | 'edit'`, `editingTech: TechnologyWithId | null`, `deletingTech: TechnologyWithId | null`, `showDeleteDialog: boolean`, `deleting: boolean`
-  - [ ] 4.3 Delete flow: `handleDeleteRequest()` → `ConfirmDialog` → `handleConfirmDelete()`:
+- [x] Task 4: TechnologiesCrudPage component (AC: all)
+  - [x] 4.1 Create `TechnologiesCrudPage.svelte` following `ProjectsCrudPage.svelte` pattern exactly
+  - [x] 4.2 State: `viewMode: 'list' | 'create' | 'edit'`, `editingTech: TechnologyWithId | null`, `deletingTech: TechnologyWithId | null`, `showDeleteDialog: boolean`, `deleting: boolean`
+  - [x] 4.3 Delete flow: `handleDeleteRequest()` → `ConfirmDialog` → `handleConfirmDelete()`:
     1. `imageService.delete(deletingTech.image)` — single image, NOT `deleteByPrefix` (technology has exactly 1 image)
     2. `deleteDoc(doc(db, TECHNOLOGIES_COLLECTION, techId))`
     3. Toast success, close dialog, refresh list
-  - [ ] 4.4 Delete dialog message: "¿Eliminar '{name}'? Se eliminará también su imagen de Storage."
-  - [ ] 4.5 Back-to-list button above form title (same pattern as ProjectsCrudPage)
-  - [ ] 4.6 `getFirestoreErrorMessage()` with duck-typed code mapping (same pattern as ProjectsCrudPage)
+  - [x] 4.4 Delete dialog message: "¿Eliminar '{name}'? Se eliminará también su imagen de Storage."
+  - [x] 4.5 Back-to-list button above form title (same pattern as ProjectsCrudPage)
+  - [x] 4.6 `getFirestoreErrorMessage()` with duck-typed code mapping (same pattern as ProjectsCrudPage)
 
-- [ ] Task 5: Wire technologies.astro page (AC: #1)
-  - [ ] 5.1 Replace placeholder content in `src/pages/admin/technologies.astro` with `TechnologiesCrudPage client:only="svelte"`
-  - [ ] 5.2 Keep `AdminLayout` + `AuthGuard` wrapper (already in place)
+- [x] Task 5: Wire technologies.astro page (AC: #1)
+  - [x] 5.1 Replace placeholder content in `src/pages/admin/technologies.astro` with `TechnologiesCrudPage client:only="svelte"`
+  - [x] 5.2 Keep `AdminLayout` + `AuthGuard` wrapper (already in place)
 
-- [ ] Task 6: i18n keys (AC: all)
-  - [ ] 6.1 Add keys to `translations.ts`:
+- [x] Task 6: i18n keys (AC: all)
+  - [x] 6.1 Add keys to `translations.ts`:
     - `admin.technologies.title`: "Tecnologías" / "Technologies"
     - `admin.technologies.createTitle`: "Crear tecnología" / "Create technology"
     - `admin.technologies.editTitle`: "Editar tecnología" / "Edit technology"
@@ -109,10 +109,10 @@ So that visitors see an accurate representation of my technical expertise.
     - `admin.validation.numberRequired`: "Introduce un número válido" / "Enter a valid number"
     - `admin.validation.numberNonNegative`: "El valor debe ser mayor o igual a 0" / "Value must be 0 or greater"
 
-- [ ] Task 7: Unit tests (AC: all)
-  - [ ] 7.1 Tests for TechnologyList: loading skeleton, error state, empty state with CTA, renders tech list with icon/name/years, calls onEdit/onDelete callbacks
-  - [ ] 7.2 Tests for TechnologyForm: validates required name, validates experienceYears (non-negative integer), validates image required, rejects removed image in edit mode, create submit flow (addDoc → upload → updateDoc order), edit submit flow (processImageSlot → updateDoc → cleanup order), cancel with unsaved changes shows confirm
-  - [ ] 7.3 Tests for TechnologiesCrudPage: view mode transitions (list → create → list, list → edit → list), delete flow (delete dialog → confirm → imageService.delete + deleteDoc order), FirebaseError code mapping
+- [x] Task 7: Unit tests (AC: all)
+  - [x] 7.1 Tests for TechnologyList: loading skeleton, error state, empty state with CTA, renders tech list with icon/name/years, calls onEdit/onDelete callbacks
+  - [x] 7.2 Tests for TechnologyForm: validates required name, validates experienceYears (non-negative integer), validates image required, rejects removed image in edit mode, create submit flow (addDoc → upload → updateDoc order), edit submit flow (processImageSlot → updateDoc → cleanup order), cancel with unsaved changes shows confirm
+  - [x] 7.3 Tests for TechnologiesCrudPage: view mode transitions (list → create → list, list → edit → list), delete flow (delete dialog → confirm → imageService.delete + deleteDoc order), FirebaseError code mapping
 
 ## Dev Notes
 
@@ -499,6 +499,30 @@ Recent commits follow pattern: `docs: create story X.Y` → `feat: implement sto
 
 ### Agent Model Used
 
+Claude Opus 4.6 (1M context)
+
 ### Completion Notes List
 
+- Task 1: Extended technology-schema.ts with `technologyFormSchema`, `TechnologyFirestoreData`, `TechnologyWithId` types
+- Task 2: Created TechnologyList.svelte with load/empty/error/skeleton states, exported `loadTechnologies()`, ordered by name
+- Task 3: Created TechnologyForm.svelte with create/edit modes, ImageSlot validation, `$effect` init with `initializedId` guard, `scrollToFirstError()`, cancel confirmation, derived labels
+- Task 4: Created TechnologiesCrudPage.svelte with view mode orchestration, delete flow using `imageService.delete()` (single image), ConfirmDialog, `getFirestoreErrorMessage()`, back-to-list button
+- Task 5: Replaced technologies.astro placeholder with `TechnologiesCrudPage client:only="svelte"`
+- Task 6: Added 29 i18n keys to translations.ts including `discardChanges`, `numberRequired`, `numberNonNegative`
+- Task 7: Created 46 unit tests across 3 test files — all passing, 0 regressions (742 total)
+- All quality gates passed: 0 type errors, 0 lint errors, 742/742 tests green
+
 ### File List
+
+New files:
+- src/components/admin/TechnologiesCrudPage.svelte
+- src/components/admin/TechnologyList.svelte
+- src/components/admin/TechnologyForm.svelte
+- src/components/admin/__tests__/technology-list.test.ts
+- src/components/admin/__tests__/technology-form.test.ts
+- src/components/admin/__tests__/technology-crud.test.ts
+
+Modified files:
+- src/lib/schemas/technology-schema.ts
+- src/lib/i18n/translations.ts
+- src/pages/admin/technologies.astro
