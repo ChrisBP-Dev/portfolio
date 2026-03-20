@@ -28,25 +28,26 @@ So that my portfolio stays current and Storage stays clean.
 
 - [ ] Task 2: Extend ProjectForm for edit mode (AC: #1, #2, #3, #6)
   - [ ] 2.1 Add optional props: `initialData?: ProjectWithId`, `mode?: 'create' | 'edit'` (default `'create'`)
-  - [ ] 2.2 Populate form state from `initialData` via `$effect` on mount:
+  - [ ] 2.2 Populate form state from `initialData` via `$effect` with `initialized` flag guard (see Init Pattern below)
     - Text fields: `companyNameEs = initialData.companyName.es`, etc.
     - Main image: `mainImageSlot = initialData.mainImage ? { type: 'existing', image: initialData.mainImage } : { type: 'empty' }`
     - Screenshots: `screenshots = (initialData.screenshots ?? []).map(img => ({ type: 'existing' as const, image: img }))`
     - Technologies, URLs, slug from initialData
-    - Set `manualSlug = true` in edit mode (slug already established)
-  - [ ] 2.3 On edit mode mainImage validation: accept `existing`, `new`, `replaced` (only `empty` and `removed` fail)
+    - Set `manualSlug = true` in edit mode (slug already established — changing slug breaks existing URLs, consider warning user)
+  - [ ] 2.3 On edit mode mainImage validation: reject `empty` AND `removed` (accept `existing`, `new`, `replaced`)
   - [ ] 2.4 Implement edit submit handler using `processImageSlot` + `cleanupDeletedImages`:
     1. Validate all fields with Zod `projectFormSchema`
     2. Disable button, show "Guardando..." + spinner
     3. Process main image via `processImageSlot(mainImageSlot, 'projects/{docId}/main/')`
     4. Process each screenshot via `processImageSlot(slot, 'projects/{docId}/screenshots/')`
-    5. Build update payload from `buildFormData()` + processed images
+    5. Build update payload from `buildFormData()` + processed images + cleared optional fields via `deleteField()`
     6. `updateDoc(doc(db, PROJECTS_COLLECTION, docId), payload)`
     7. `cleanupDeletedImages(allDeletePaths)` — safe-last order
     8. Show success toast "Proyecto guardado exitosamente"
     9. Return to list view after ~1.5s delay
     10. On failure: show error toast, re-enable button
   - [ ] 2.5 Refactor `handleSubmit` to branch on `mode === 'edit'` vs `mode === 'create'`, keeping current create logic intact
+  - [ ] 2.6 `handleCancel()` already handles unsaved changes via `window.confirm()` — works for edit mode without changes
 
 - [ ] Task 3: ConfirmDialog component (AC: #4, #5)
   - [ ] 3.1 Create `ConfirmDialog.svelte` — reusable modal for destructive confirmations
@@ -68,7 +69,7 @@ So that my portfolio stays current and Storage stays clean.
   - [ ] 5.1 Add `deletingProject` state and `showDeleteDialog` state
   - [ ] 5.2 Wire `onDelete` from `ProjectList` → sets `deletingProject` + opens ConfirmDialog
   - [ ] 5.3 Compose ConfirmDialog message: "¿Eliminar '{name}'? Se eliminarán también {N} imágenes de Storage."
-    - Count: 1 (mainImage if exists) + screenshots.length
+    - Count: `(project.mainImage ? 1 : 0) + (project.screenshots?.length ?? 0)` — mainImage is optional in schema
   - [ ] 5.4 Implement `handleConfirmDelete`:
     1. Set `deleting = true` (confirming state on dialog)
     2. `imageService.deleteByPrefix(`projects/${projectId}/`)` — delete ALL storage files first
@@ -80,8 +81,10 @@ So that my portfolio stays current and Storage stays clean.
 - [ ] Task 6: i18n keys for edit/delete (AC: all)
   - [ ] 6.1 Add keys to `translations.ts`:
     - `admin.projects.editTitle`: "Editar proyecto" / "Edit project"
+    - `admin.projects.form.saveEdit`: "Guardar cambios" / "Save changes" (edit mode submit button)
+    - `admin.projects.form.savingEdit`: "Guardando cambios..." / "Saving changes..." (edit mode saving state)
     - `admin.projects.deleteConfirmTitle`: "Eliminar proyecto" / "Delete project"
-    - `admin.projects.deleteConfirmMessage`: Template with name + image count
+    - `admin.projects.deleteConfirmMessage`: Template with name + image count (use conditional count formula)
     - `admin.projects.deleteConfirmButton`: "Eliminar" / "Delete"
     - `admin.projects.deleteSuccessToast`: "Proyecto eliminado exitosamente" / "Project deleted successfully"
     - `admin.projects.deleteErrorToast`: "Error al eliminar el proyecto" / "Error deleting project"
@@ -121,7 +124,7 @@ So that my portfolio stays current and Storage stays clean.
 | ImageSlotProcessor | `src/lib/firebase/image-slot-processor.ts` | USE: `processImageSlot()` for edit submit, `cleanupDeletedImages()` post-save |
 | ImageService | `src/lib/firebase/image-service.ts` | USE: `deleteByPrefix()` for cascade delete on project delete |
 | ImageSlot type | `src/lib/schemas/image-slot.ts` | 5-state discriminated union: `empty`, `existing`, `new`, `replaced`, `removed` |
-| Project schemas | `src/lib/schemas/project-schema.ts` | `projectFormSchema` for validation, `projectFirestoreSchema` for parsing, `ProjectFirestoreData` type |
+| Project schemas | `src/lib/schemas/project-schema.ts` | `projectFormSchema` for validation, `projectFirestoreSchema` for parsing, `ProjectFirestoreData`, `ProjectWithId` types |
 | StoredImage schema | `src/lib/schemas/shared-schemas.ts` | `storedImageSchema`, `StoredImage` type |
 | Toast store | `src/lib/utils/toast-store.svelte.ts` | `toastStore.success()`, `toastStore.error()` |
 | Slugify | `src/lib/utils/slugify.ts` | Reuse — no changes needed |
@@ -130,19 +133,27 @@ So that my portfolio stays current and Storage stays clean.
 
 **Import paths are relative** — from `src/components/admin/ProjectForm.svelte`:
 ```typescript
-import { processImageSlot, cleanupDeletedImages } from '../../lib/firebase/image-slot-processor';
+import { processImageSlot, cleanupDeletedImages, type ProcessedSlot } from '../../lib/firebase/image-slot-processor';
 import { imageService } from '../../lib/firebase/image-service';
-import { doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { doc, updateDoc, deleteDoc, deleteField } from 'firebase/firestore';
+import type { ProjectWithId } from '../../lib/schemas/project-schema';
 ```
+
+`ProcessedSlot` type: `{ image: StoredImage | null; toDelete: string[] }` — returned by `processImageSlot()`.
 
 ### Edit Form — Initialization Pattern
 
-When entering edit mode, `ProjectsCrudPage` passes the existing `ProjectWithId` to `ProjectForm`. The form initializes from this data:
+When entering edit mode, `ProjectsCrudPage` passes the existing `ProjectWithId` to `ProjectForm`. The form initializes from this data.
+
+**CRITICAL**: The `$effect` writes to `$state` variables — without a guard, it re-runs infinitely. Use a boolean flag to ensure it runs exactly once:
 
 ```typescript
-// In ProjectForm — only run once on mount for edit mode
+// In ProjectForm — MUST use flag guard to prevent infinite loop
+let initialized = false;
+
 $effect(() => {
-  if (mode === 'edit' && initialData) {
+  if (mode === 'edit' && initialData && !initialized) {
+    initialized = true;
     companyNameEs = initialData.companyName.es;
     companyNameEn = initialData.companyName.en;
     shortDescriptionEs = initialData.shortDescription.es;
@@ -165,7 +176,39 @@ $effect(() => {
 });
 ```
 
-**CRITICAL**: Use `untrack()` or guard with a flag to prevent this `$effect` from re-running when form state changes. The initialization must only happen once.
+### Edit Form — mainImage Validation
+
+Current `validateAll()` only checks `type === 'empty'`. Edit mode also needs to reject `removed` state (user removed the main image):
+
+```typescript
+// Replaces the existing mainImage check in validateAll()
+if (mainImageSlot.type === 'empty' || mainImageSlot.type === 'removed') {
+  newErrors.mainImage = t('admin.validation.imageRequired', locale);
+}
+```
+
+Same fix applies to `validateField('mainImage')`.
+
+### Edit Form — Clearing Optional URL Fields
+
+`buildFormData()` omits `websiteUrl`/`sourceCodeUrl` when empty, but `updateDoc` preserves omitted fields. In edit mode, clearing a URL requires `deleteField()`:
+
+```typescript
+// In buildFormData() — edit mode must handle cleared optional fields
+if (websiteUrl.trim()) {
+  data.websiteUrl = websiteUrl.trim();
+} else if (mode === 'edit') {
+  data.websiteUrl = deleteField(); // Remove field from Firestore
+}
+
+if (sourceCodeUrl.trim()) {
+  data.sourceCodeUrl = sourceCodeUrl.trim();
+} else if (mode === 'edit') {
+  data.sourceCodeUrl = deleteField(); // Remove field from Firestore
+}
+```
+
+Requires: `import { deleteField } from 'firebase/firestore';`
 
 ### Edit Submit — Image Processing with processImageSlot
 
@@ -255,24 +298,24 @@ async function handleConfirmDelete(): Promise<void> {
 └──────────────────────────────────────────┘
 ```
 
-- Focus trap: tab cycles between Cancel and Confirm buttons only
-- On open: auto-focus Cancel button (safer default)
-- Escape closes without confirming
-- Click outside overlay closes without confirming
-- Body scroll lock via `$effect` cleanup
-- `role="alertdialog"` + `aria-modal="true"`
+- Focus trap via manual `keydown` handler (no library needed):
+  ```typescript
+  function handleKeydown(e: KeyboardEvent) {
+    if (e.key === 'Escape') { onCancel(); return; }
+    if (e.key !== 'Tab') return;
+    const focusable = dialogEl.querySelectorAll<HTMLElement>('button:not([disabled])');
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+  ```
+- On open: auto-focus Cancel button (safer default) via `$effect` with `dialogEl.querySelector`
+- Click outside overlay (on backdrop `onclick`) closes without confirming
+- Body scroll lock via `$effect` cleanup: `overflow = 'hidden'` → cleanup restores `overflow = ''`
+- `role="alertdialog"` + `aria-modal="true"` + `aria-labelledby` title + `aria-describedby` message
 
-### Image State Badges (Already Implemented in ImageUploader/ScreenshotManager)
-
-| State | Badge Color | Text | Action on Save |
-|-------|-------------|------|----------------|
-| `existing` | Blue (`primary`) | "Subida" | No-op — keep reference |
-| `new` | Green (`success`) | "Nueva" | Upload file, save reference |
-| `replaced` | Orange (`warning`) | "Reemplazará" | Upload new, update ref, delete old |
-| `removed` | Red (`error`) | "Se eliminará" | Remove ref, delete from Storage |
-| `empty` | — | — | No-op |
-
-These badges are already implemented in ImageUploader and ScreenshotManager from story 3.4. No changes needed.
+Image state badges (`existing`/`new`/`replaced`/`removed`/`empty`) are already implemented in ImageUploader and ScreenshotManager from story 3.4 — no changes needed.
 
 ### Responsive Design
 
@@ -286,22 +329,7 @@ These badges are already implemented in ImageUploader and ScreenshotManager from
 - Admin UI locale is fixed `'es'` — call `t(key, 'es')` for all UI strings
 - ConfirmDialog message uses project's `companyName.es` for the name
 
-### Firebase Client SDK Patterns
-
-```typescript
-import { doc, updateDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '../../lib/firebase/client';
-
-const PROJECTS_COLLECTION = 'Projects';
-
-// UPDATE
-await updateDoc(doc(db, PROJECTS_COLLECTION, projectId), payload);
-
-// DELETE
-await deleteDoc(doc(db, PROJECTS_COLLECTION, projectId));
-```
-
-**WARNING**: NEVER import from `collections.ts` in Svelte islands — Admin SDK side-effects crash in browser.
+Firebase `updateDoc`/`deleteDoc` patterns are shown in the Edit Submit and Delete Flow code examples above. **WARNING**: NEVER import from `collections.ts` in Svelte islands — Admin SDK side-effects crash in browser.
 
 ### Error Handling
 
@@ -333,21 +361,10 @@ Files to modify:
 ```
 src/components/admin/ProjectsCrudPage.svelte  # Add edit mode + delete flow
 src/components/admin/ProjectForm.svelte       # Add initialData/mode props, edit submit
-src/components/admin/ProjectList.svelte       # Enable delete button, add onDelete
+src/components/admin/ProjectList.svelte       # Enable delete button, add onDelete, import ProjectWithId
+src/lib/schemas/project-schema.ts             # Export ProjectWithId type
 src/lib/i18n/translations.ts                  # Add edit/delete i18n keys
 ```
-
-### References
-
-- [Source: _bmad-output/planning-artifacts/epics.md#Epic3-Story3.5]
-- [Source: _bmad-output/planning-artifacts/architecture.md#ImageSlotProcessor]
-- [Source: _bmad-output/planning-artifacts/architecture.md#ImageService]
-- [Source: _bmad-output/planning-artifacts/architecture.md#FirestoreCollections]
-- [Source: _bmad-output/planning-artifacts/ux-design-specification.md#UX-DR18-ConfirmDialog]
-- [Source: _bmad-output/planning-artifacts/ux-design-specification.md#UX-DR33-ImageStates]
-- [Source: _bmad-output/planning-artifacts/ux-design-specification.md#UX-DR32-CRUDPattern]
-- [Source: _bmad-output/planning-artifacts/prd.md#FR20-FR21]
-- [Source: _bmad-output/planning-artifacts/prd.md#FR38-FR41]
 
 ### Previous Story Intelligence
 
@@ -360,7 +377,7 @@ src/lib/i18n/translations.ts                  # Add edit/delete i18n keys
 - `projectFirestoreSchema` (with optional images) was added in code review for safe parsing of `doc.data()`
 - `hasChanges` tracking works for both create and edit — markDirty on any input change
 - Toast store, validation logic, slug generation — all reusable without changes
-- `ProjectWithId` type already defined in `ProjectList.svelte` — need to export or redefine in shared location
+- `ProjectWithId` type defined locally in `ProjectList.svelte` — MUST export from `project-schema.ts` as `export type ProjectWithId = ProjectFirestoreData & { id: string }`, then update `ProjectList.svelte` to import it from there
 
 **From Story 3.3 (ImageService):**
 - `processImageSlot()` handles all 5 ImageSlot states: empty→null, existing→keep, new→upload, replaced→upload+delete-old, removed→delete-old
