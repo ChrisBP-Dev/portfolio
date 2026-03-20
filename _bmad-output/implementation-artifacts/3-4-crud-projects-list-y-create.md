@@ -42,11 +42,12 @@ So that I can add new work to my portfolio.
   - [ ] 3.2 Desktop: ES list left, EN list right with add/remove buttons per item
   - [ ] 3.3 Mobile: Tab switcher ES/EN
   - [ ] 3.4 Each item is a text input with remove (X) button, "Agregar" button at bottom
+  - [ ] 3.5 Edge cases: max 10 items per language, empty items filtered on submit, handle empty arrays gracefully
 
 - [ ] Task 4: ImageUploader component (AC: #3)
   - [ ] 4.1 Create `ImageUploader.svelte` — single image slot (for mainImage)
-  - [ ] 4.2 States: empty (dotted area + camera icon), previewing (File selected, ObjectURL preview), error
-  - [ ] 4.3 Click or drag-and-drop to select file, accept `image/*`
+  - [ ] 4.2 States: empty (dotted area + camera icon), previewing (File selected, ObjectURL preview), uploading (progress bar), error
+  - [ ] 4.3 Click or drag-and-drop to select file, accept `image/*`, validate max 5MB client-side (show friendly error via toast: "Intenta con un archivo menor a 5MB")
   - [ ] 4.4 On file select: create ObjectURL preview, set ImageSlot to `{ type: 'new', file, preview }`
   - [ ] 4.5 Remove button to clear selection
   - [ ] 4.6 Accessibility: label, `aria-describedby` for instructions
@@ -56,22 +57,31 @@ So that I can add new work to my portfolio.
   - [ ] 5.2 Grid of ImageSlot cards + "Agregar screenshot" button
   - [ ] 5.3 Each card: preview thumbnail + remove (X) button
   - [ ] 5.4 Track array of ImageSlot objects, each `{ type: 'new', file, preview }`
-  - [ ] 5.5 Support drag-and-drop for bulk file selection
+  - [ ] 5.5 Support drag-and-drop for bulk file selection + click fallback for keyboard/a11y users
 
 - [ ] Task 6: TechnologySelector component (AC: #3)
   - [ ] 6.1 Create `TechnologySelector.svelte` — multi-select from existing Technologies collection
   - [ ] 6.2 Fetch all technologies from Firestore on mount
-  - [ ] 6.3 Display as checkbox list or chip-toggle grid with technology name + icon
+  - [ ] 6.3 Display as chip-toggle grid: technology name + icon, selected = highlighted background, unselected = muted
   - [ ] 6.4 Selected technologies stored as `string[]` (document IDs)
 
 - [ ] Task 7: ProjectForm component (AC: #3, #5, #6, #7)
-  - [ ] 7.1 Create `ProjectForm.svelte` — orchestrates all form sections
-  - [ ] 7.2 Sections: Información Básica (BilingualField × 2 + BilingualArrayField), Imágenes (ImageUploader + ScreenshotManager), Metadata (TechnologySelector + URL inputs + slug)
-  - [ ] 7.3 Slug auto-generation: derive from `companyName.es` using `slugify()` util, editable toggle
-  - [ ] 7.4 Validation on blur: required fields (companyName.es, companyName.en, shortDescription.es, shortDescription.en, mainImage), inline error messages
-  - [ ] 7.5 Submit handler: validate with Zod → upload images via ImageService → `addDoc()` to Firestore → toast success → return to list view
+  - [ ] 7.1 Create `ProjectForm.svelte` — orchestrates all form sections, max-width ~700px for readability
+  - [ ] 7.2 Sections with visual separators (`border-b border-border pb-6 mb-6`): Información Básica (BilingualField × 2 + BilingualArrayField), Imágenes (ImageUploader + ScreenshotManager), Metadata (TechnologySelector + URL inputs + slug)
+  - [ ] 7.3 Slug auto-generation: derive from `companyName.es` using `slugify()` util, updates in real-time as user types. Toggle "Editar slug manualmente" to allow custom editing
+  - [ ] 7.4 Validation on blur: required fields (companyName.es, companyName.en, shortDescription.es, shortDescription.en, mainImage), inline error messages below each field. On submit validation failure: scroll to first invalid field
+  - [ ] 7.5 Submit handler (**strict order — DO NOT change**):
+    1. Validate all fields with Zod `projectSchema`
+    2. Disable button, show "Guardando..." + spinner
+    3. `addDoc()` to Firestore with non-image fields → get `docId`
+    4. Generate storage paths: `projects/{docId}/main/{uuid}.webp`, `projects/{docId}/screenshots/{uuid}.webp` using `crypto.randomUUID()`
+    5. Upload images via `imageService.upload(file, path)` → get `StoredImage` references
+    6. `updateDoc()` to add `mainImage` and `screenshots` references
+    7. Show success toast "Proyecto guardado exitosamente"
+    8. Return to list view after ~1.5s delay
+    9. On failure after `addDoc()`: show error toast, re-enable button
   - [ ] 7.6 Button states: "Guardando..." + spinner + disabled during submit (prevent double-submit)
-  - [ ] 7.7 Cancel button returns to list without saving
+  - [ ] 7.7 Cancel button: if form has unsaved changes, show confirmation "¿Descartar cambios?" before returning to list. If no changes, return immediately
 
 - [ ] Task 8: ProjectsCrudPage component (AC: all)
   - [ ] 8.1 Create `ProjectsCrudPage.svelte` — parent component managing list/form view state
@@ -84,14 +94,16 @@ So that I can add new work to my portfolio.
   - [ ] 9.2 Unit tests for slugify with Spanish characters (á, é, ñ, etc.)
 
 - [ ] Task 10: Toast notification (AC: #5)
-  - [ ] 10.1 Create `Toast.svelte` — success/error toast notification component
+  - [ ] 10.1 Create `Toast.svelte` — success/error toast notification component, positioned bottom-right with slide-up entrance animation
   - [ ] 10.2 Success: green + checkmark, auto-dismiss 4s
   - [ ] 10.3 Error: red, persists until dismissed
-  - [ ] 10.4 Stack vertically, max 3 visible, `aria-live="polite"`
+  - [ ] 10.4 Stack vertically, max 3 visible, `aria-live="polite"`, newest on top
   - [ ] 10.5 Create `toast-store.ts` — reactive store for managing toast queue
+  - [ ] 10.6 **`prefers-reduced-motion: reduce`** — disable slide/fade animations when user prefers reduced motion (established rule from story 3.2)
 
 - [ ] Task 11: i18n keys (AC: all)
   - [ ] 11.1 Add translation keys to `src/lib/i18n/translations.ts` for all admin project labels, form fields, buttons, validation messages, toast messages, empty states
+  - [ ] 11.2 Required validation error templates: `admin.validation.required` = "Este campo es obligatorio", `admin.validation.urlInvalid` = "Introduce una URL válida", `admin.validation.slugInvalid` = "El slug solo puede contener letras minúsculas, números y guiones", `admin.validation.fileTooLarge` = "Intenta con un archivo menor a 5MB"
 
 - [ ] Task 12: Unit tests (AC: all)
   - [ ] 12.1 Tests for `slugify()` — Spanish chars, edge cases, empty strings
@@ -107,6 +119,7 @@ So that I can add new work to my portfolio.
 - **`client:only="svelte"` is MANDATORY** for ALL admin Svelte components — Firebase requires `window`, SSR will crash without this directive
 - **No API routes needed** — all CRUD uses Firebase client SDK directly from Svelte islands (`addDoc`, `getDocs`, `collection` from `firebase/firestore`)
 - **Zod schemas are source of truth** — types derived via `z.infer<>`, never manual interfaces
+- **`prefers-reduced-motion: reduce`** — ALL animations/transitions MUST be wrapped in motion media query (established rule from story 3.2 code review)
 
 ### Existing Code to Reuse (DO NOT Reinvent)
 
@@ -129,6 +142,8 @@ So that I can add new work to my portfolio.
 | Placeholder page | `src/pages/admin/projects.astro` | Already exists — replace placeholder content |
 | Input component | `src/components/common/Input.astro` | Reusable field (text, textarea, select, file) |
 | Button component | `src/components/common/Button.astro` | primary/secondary/danger/ghost variants |
+
+**Import paths are relative** — from `src/components/admin/ProjectForm.svelte`, import schemas as `import { projectSchema } from '../../lib/schemas/project-schema'`, firebase as `import { db } from '../../lib/firebase/client'`. NO path aliases (`@lib`, `$lib`).
 
 ### Firebase Client SDK Patterns (Browser Only)
 
@@ -153,16 +168,19 @@ const projects = snapshot.docs.map(doc => ({
 const docRef = await addDoc(collection(db, PROJECTS_COLLECTION), projectData);
 ```
 
-### Image Upload Flow
+### Image Upload Flow (Create Mode)
 
 1. User selects files → create `ObjectURL` previews → set ImageSlot to `{ type: 'new', file, preview }`
-2. On form submit: generate storage paths with `crypto.randomUUID()`:
-   - Main image: `projects/{docId}/main/{uuid}.webp`
-   - Screenshots: `projects/{docId}/screenshots/{uuid}.webp`
-3. Call `imageService.upload(file, path)` for each new slot → returns `StoredImage { url, storagePath }`
-4. Build project data with `StoredImage` references → `addDoc()` to Firestore
-5. **Path generation is caller responsibility** — ImageService only uses paths as provided
-6. **Important**: Create the Firestore document FIRST with `addDoc()` to get the `docId`, then upload images with the docId in the path, then `updateDoc()` to add image references. OR generate a UUID client-side for the path before creating the document.
+2. On form submit (after validation):
+   a. `addDoc()` to Firestore with all non-image fields → get `docId`
+   b. Generate storage paths with `crypto.randomUUID()`:
+      - Main image: `projects/{docId}/main/{uuid}.webp`
+      - Screenshots: `projects/{docId}/screenshots/{uuid}.webp`
+   c. `imageService.upload(file, path)` for each new slot → returns `StoredImage { url, storagePath }`
+   d. `updateDoc()` to add `mainImage` and `screenshots` StoredImage references
+3. **Path generation is caller responsibility** — ImageService only uses paths as provided
+4. **Rollback**: If image upload fails after `addDoc()`, show error toast and re-enable button. Orphaned partial documents can be cleaned manually or in a future story
+5. **File validation**: Reject files > 5MB client-side before upload attempt
 
 ### Slug Generation
 
@@ -180,7 +198,7 @@ const docRef = await addDoc(collection(db, PROJECTS_COLLECTION), projectData);
 | shortDescription.en | Yes | `string().min(1)` |
 | features.es | No | `string[]` (can be empty) |
 | features.en | No | `string[]` (can be empty) |
-| mainImage | Yes | Must have file selected |
+| mainImage | Yes | Must have file selected, max 5MB per file |
 | screenshots | No | `StoredImage[]` (can be empty) |
 | websiteUrl | No | `z.string().url().optional()` |
 | sourceCodeUrl | No | `z.string().url().optional()` |
