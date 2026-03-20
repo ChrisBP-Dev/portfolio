@@ -1,7 +1,7 @@
 <script lang="ts">
   import { collection, getDocs, query, orderBy } from 'firebase/firestore';
   import { db } from '../../lib/firebase/client';
-  import { technologySchema } from '../../lib/schemas/technology-schema';
+  import { technologyFirestoreSchema } from '../../lib/schemas/technology-schema';
   import { t } from '../../lib/i18n/translations';
   import type { Technology } from '../../lib/schemas/technology-schema';
 
@@ -27,10 +27,13 @@
     try {
       const q = query(collection(db, TECHNOLOGIES_COLLECTION), orderBy('name'));
       const snapshot = await getDocs(q);
-      technologies = snapshot.docs.map((doc) => ({
-        ...technologySchema.parse(doc.data()),
-        id: doc.id,
-      }));
+      technologies = snapshot.docs
+        .map((doc) => {
+          const result = technologyFirestoreSchema.safeParse(doc.data());
+          if (!result.success) return null;
+          return { ...result.data, id: doc.id };
+        })
+        .filter((t): t is Technology => t !== null);
     } catch {
       technologies = [];
     } finally {
@@ -52,7 +55,7 @@
   {#if loading}
     <div class="flex gap-2 flex-wrap">
       {#each Array(6) as _, i (i)}
-        <div class="h-9 w-20 bg-border rounded-lg animate-pulse"></div>
+        <div class="h-9 w-20 bg-border rounded-lg motion-safe:animate-pulse"></div>
       {/each}
     </div>
   {:else if technologies.length === 0}

@@ -1,21 +1,23 @@
 <script lang="ts">
   import { collection, getDocs, query, orderBy } from 'firebase/firestore';
   import { db } from '../../lib/firebase/client';
-  import { projectSchema } from '../../lib/schemas/project-schema';
+  import { projectFirestoreSchema } from '../../lib/schemas/project-schema';
+  import type { ProjectFirestoreData } from '../../lib/schemas/project-schema';
   import { t } from '../../lib/i18n/translations';
-  import type { Project } from '../../lib/schemas/project-schema';
 
   const locale = 'es';
   const PROJECTS_COLLECTION = 'Projects';
 
+  type ProjectWithId = ProjectFirestoreData & { id: string };
+
   interface Props {
     onCreateNew: () => void;
-    onEdit?: (project: Project) => void;
+    onEdit?: (project: ProjectWithId) => void;
   }
 
   let { onCreateNew, onEdit }: Props = $props();
 
-  let projects = $state<Project[]>([]);
+  let projects = $state<ProjectWithId[]>([]);
   let loading = $state(true);
   let error = $state(false);
 
@@ -29,10 +31,13 @@
     try {
       const q = query(collection(db, PROJECTS_COLLECTION), orderBy('slug'));
       const snapshot = await getDocs(q);
-      projects = snapshot.docs.map((doc) => ({
-        ...projectSchema.parse(doc.data()),
-        id: doc.id,
-      }));
+      projects = snapshot.docs
+        .map((doc) => {
+          const result = projectFirestoreSchema.safeParse(doc.data());
+          if (!result.success) return null;
+          return { ...result.data, id: doc.id };
+        })
+        .filter((p): p is ProjectWithId => p !== null);
     } catch {
       error = true;
     } finally {
@@ -59,7 +64,7 @@
     <!-- Skeleton loading -->
     <div class="space-y-3" aria-busy="true" aria-label={t('admin.projects.loading', locale)}>
       {#each Array(4) as _, i (i)}
-        <div class="flex items-center gap-4 bg-surface border border-border rounded-lg p-4 animate-pulse">
+        <div class="flex items-center gap-4 bg-surface border border-border rounded-lg p-4 motion-safe:animate-pulse">
           <div class="w-16 h-16 bg-border rounded-lg shrink-0"></div>
           <div class="flex-1 space-y-2">
             <div class="w-48 h-4 bg-border rounded"></div>

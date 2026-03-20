@@ -1,7 +1,9 @@
 <script lang="ts">
+  import { tick } from 'svelte';
   import { collection, addDoc, updateDoc, doc } from 'firebase/firestore';
   import { db } from '../../lib/firebase/client';
   import { imageService } from '../../lib/firebase/image-service';
+  import { projectFormSchema } from '../../lib/schemas/project-schema';
   import { t } from '../../lib/i18n/translations';
   import { slugify } from '../../lib/utils/slugify';
   import { toastStore } from '../../lib/utils/toast-store.svelte';
@@ -14,8 +16,6 @@
 
   const locale = 'es';
   const PROJECTS_COLLECTION = 'Projects';
-  const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-  const URL_REGEX = /^https?:\/\/.+/;
 
   interface Props {
     onCancel: () => void;
@@ -56,10 +56,30 @@
     hasChanges = true;
   }
 
+  function buildFormData(): Record<string, unknown> {
+    const filteredFeaturesEs = featuresEs.filter((f) => f.trim() !== '').map((f) => f.trim());
+    const filteredFeaturesEn = featuresEn.filter((f) => f.trim() !== '').map((f) => f.trim());
+
+    const data: Record<string, unknown> = {
+      companyName: { es: companyNameEs.trim(), en: companyNameEn.trim() },
+      shortDescription: { es: shortDescriptionEs.trim(), en: shortDescriptionEn.trim() },
+      features: { es: filteredFeaturesEs, en: filteredFeaturesEn },
+      technologies: selectedTechnologies,
+      slug: slug.trim(),
+    };
+
+    if (websiteUrl.trim()) data.websiteUrl = websiteUrl.trim();
+    if (sourceCodeUrl.trim()) data.sourceCodeUrl = sourceCodeUrl.trim();
+
+    return data;
+  }
+
   function validateField(field: string): void {
     const newErrors = { ...errors };
     delete newErrors[field];
 
+    // Build partial data and validate the specific field with Zod-like checks
+    // Per-field blur validation uses the same rules as Zod schema
     switch (field) {
       case 'companyNameEs':
         if (!companyNameEs.trim()) newErrors.companyNameEs = t('admin.validation.required', locale);
@@ -75,13 +95,19 @@
         break;
       case 'slug':
         if (!slug.trim()) newErrors.slug = t('admin.validation.required', locale);
-        else if (!SLUG_REGEX.test(slug)) newErrors.slug = t('admin.validation.slugInvalid', locale);
+        else if (!projectFormSchema.shape.slug.safeParse(slug.trim()).success) newErrors.slug = t('admin.validation.slugInvalid', locale);
         break;
       case 'websiteUrl':
-        if (websiteUrl.trim() && !URL_REGEX.test(websiteUrl)) newErrors.websiteUrl = t('admin.validation.urlInvalid', locale);
+        if (websiteUrl.trim()) {
+          const urlResult = projectFormSchema.shape.websiteUrl.safeParse(websiteUrl.trim());
+          if (!urlResult.success) newErrors.websiteUrl = t('admin.validation.urlInvalid', locale);
+        }
         break;
       case 'sourceCodeUrl':
-        if (sourceCodeUrl.trim() && !URL_REGEX.test(sourceCodeUrl)) newErrors.sourceCodeUrl = t('admin.validation.urlInvalid', locale);
+        if (sourceCodeUrl.trim()) {
+          const urlResult = projectFormSchema.shape.sourceCodeUrl.safeParse(sourceCodeUrl.trim());
+          if (!urlResult.success) newErrors.sourceCodeUrl = t('admin.validation.urlInvalid', locale);
+        }
         break;
       case 'mainImage':
         if (mainImageSlot.type === 'empty') newErrors.mainImage = t('admin.validation.imageRequired', locale);
@@ -92,14 +118,42 @@
   }
 
   function validateAll(): boolean {
-    const allFields = ['companyNameEs', 'companyNameEn', 'shortDescriptionEs', 'shortDescriptionEn', 'slug', 'websiteUrl', 'sourceCodeUrl', 'mainImage'];
-    for (const field of allFields) {
-      validateField(field);
+    const newErrors: Record<string, string> = {};
+
+    // Step 1: Validate with Zod projectFormSchema
+    const formData = buildFormData();
+    const result = projectFormSchema.safeParse(formData);
+
+    if (!result.success) {
+      for (const issue of result.error.issues) {
+        const path = issue.path.join('.');
+        switch (path) {
+          case 'companyName.es': newErrors.companyNameEs = t('admin.validation.required', locale); break;
+          case 'companyName.en': newErrors.companyNameEn = t('admin.validation.required', locale); break;
+          case 'shortDescription.es': newErrors.shortDescriptionEs = t('admin.validation.required', locale); break;
+          case 'shortDescription.en': newErrors.shortDescriptionEn = t('admin.validation.required', locale); break;
+          case 'slug':
+            newErrors.slug = issue.code === 'too_small'
+              ? t('admin.validation.required', locale)
+              : t('admin.validation.slugInvalid', locale);
+            break;
+          case 'websiteUrl': newErrors.websiteUrl = t('admin.validation.urlInvalid', locale); break;
+          case 'sourceCodeUrl': newErrors.sourceCodeUrl = t('admin.validation.urlInvalid', locale); break;
+        }
+      }
     }
-    return Object.keys(errors).length === 0;
+
+    // Main image validation (handled separately — not in schema)
+    if (mainImageSlot.type === 'empty') {
+      newErrors.mainImage = t('admin.validation.imageRequired', locale);
+    }
+
+    errors = newErrors;
+    return Object.keys(newErrors).length === 0;
   }
 
-  function scrollToFirstError(): void {
+  async function scrollToFirstError(): Promise<void> {
+    await tick();
     const firstErrorEl = document.querySelector('[role="alert"]');
     firstErrorEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
@@ -112,22 +166,8 @@
 
     saving = true;
     try {
-      // Step 1: Prepare non-image data
-      const filteredFeaturesEs = featuresEs.filter((f) => f.trim() !== '');
-      const filteredFeaturesEn = featuresEn.filter((f) => f.trim() !== '');
-
-      const projectData: Record<string, unknown> = {
-        companyName: { es: companyNameEs.trim(), en: companyNameEn.trim() },
-        shortDescription: { es: shortDescriptionEs.trim(), en: shortDescriptionEn.trim() },
-        features: { es: filteredFeaturesEs, en: filteredFeaturesEn },
-        technologies: selectedTechnologies,
-        slug: slug.trim(),
-        mainImage: { url: '', storagePath: '' },
-        screenshots: [],
-      };
-
-      if (websiteUrl.trim()) projectData.websiteUrl = websiteUrl.trim();
-      if (sourceCodeUrl.trim()) projectData.sourceCodeUrl = sourceCodeUrl.trim();
+      // Step 1: Prepare non-image data (no image placeholders per spec)
+      const projectData = buildFormData();
 
       // Step 2: addDoc to Firestore → get docId
       const docRef = await addDoc(collection(db, PROJECTS_COLLECTION), projectData);
@@ -135,7 +175,6 @@
 
       // Step 3: Upload images
       try {
-        // Main image
         if (mainImageSlot.type === 'new') {
           const mainPath = `projects/${docId}/main/${crypto.randomUUID()}.webp`;
           const mainStoredImage = await imageService.upload(mainImageSlot.file, mainPath);
@@ -201,8 +240,10 @@
         required
         errorEs={errors.companyNameEs ?? ''}
         errorEn={errors.companyNameEn ?? ''}
-        onChangeEs={() => { markDirty(); validateField('companyNameEs'); }}
-        onChangeEn={() => { markDirty(); validateField('companyNameEn'); }}
+        onChangeEs={() => markDirty()}
+        onChangeEn={() => markDirty()}
+        onBlurEs={() => validateField('companyNameEs')}
+        onBlurEn={() => validateField('companyNameEn')}
       />
 
       <BilingualField
@@ -213,8 +254,10 @@
         required
         errorEs={errors.shortDescriptionEs ?? ''}
         errorEn={errors.shortDescriptionEn ?? ''}
-        onChangeEs={() => { markDirty(); validateField('shortDescriptionEs'); }}
-        onChangeEn={() => { markDirty(); validateField('shortDescriptionEn'); }}
+        onChangeEs={() => markDirty()}
+        onChangeEn={() => markDirty()}
+        onBlurEs={() => validateField('shortDescriptionEs')}
+        onBlurEn={() => validateField('shortDescriptionEn')}
       />
 
       <BilingualArrayField
@@ -353,7 +396,7 @@
       class="px-6 py-3 rounded-lg font-semibold text-white [background:var(--brand-gradient)] min-h-11 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
     >
       {#if saving}
-        <svg class="w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+        <svg class="w-4 h-4 motion-safe:animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
         </svg>

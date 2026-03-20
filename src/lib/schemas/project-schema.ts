@@ -15,3 +15,18 @@ export const projectSchema = z.object({
 });
 
 export type Project = z.infer<typeof projectSchema>;
+
+/** For parsing Firestore doc.data() — id comes from doc.id, images may be missing on orphaned docs */
+export const projectFirestoreSchema = projectSchema.omit({ id: true }).extend({
+  mainImage: storedImageSchema.optional(),
+  screenshots: z.array(storedImageSchema).optional(),
+});
+
+export type ProjectFirestoreData = z.infer<typeof projectFirestoreSchema>;
+
+/** For form validation before submit — excludes id and image fields (handled separately) */
+export const projectFormSchema = projectSchema.omit({
+  id: true,
+  mainImage: true,
+  screenshots: true,
+});

@@ -9,3 +9,6 @@ export const technologySchema = z.object({
 });
 
 export type Technology = z.infer<typeof technologySchema>;
+
+/** For parsing Firestore doc.data() — id comes from doc.id */
+export const technologyFirestoreSchema = technologySchema.omit({ id: true });

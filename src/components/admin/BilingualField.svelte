@@ -13,6 +13,8 @@
     errorEn?: string;
     onChangeEs?: (value: string) => void;
     onChangeEn?: (value: string) => void;
+    onBlurEs?: () => void;
+    onBlurEn?: () => void;
   }
 
   let {
@@ -25,14 +27,21 @@
     errorEn = '',
     onChangeEs,
     onChangeEn,
+    onBlurEs,
+    onBlurEn,
   }: Props = $props();
 
   let activeTab = $state<'es' | 'en'>('es');
 
-  const esId = $derived(`field-es-${label.toLowerCase().replace(/\s+/g, '-')}`);
-  const enId = $derived(`field-en-${label.toLowerCase().replace(/\s+/g, '-')}`);
+  const labelSlug = $derived(label.toLowerCase().replace(/\s+/g, '-'));
+  const esId = $derived(`field-es-${labelSlug}`);
+  const enId = $derived(`field-en-${labelSlug}`);
   const esErrorId = $derived(`${esId}-error`);
   const enErrorId = $derived(`${enId}-error`);
+  const tabEsId = $derived(`tab-es-${labelSlug}`);
+  const tabEnId = $derived(`tab-en-${labelSlug}`);
+  const panelEsId = $derived(`panel-es-${labelSlug}`);
+  const panelEnId = $derived(`panel-en-${labelSlug}`);
 </script>
 
 <fieldset class="space-y-2">
@@ -47,7 +56,9 @@
       <button
         type="button"
         role="tab"
+        id={tabEsId}
         aria-selected={activeTab === 'es'}
+        aria-controls={panelEsId}
         class="px-3 py-1 rounded text-xs font-semibold transition-colors {activeTab === 'es' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : 'bg-surface text-text-muted'}"
         onclick={() => (activeTab = 'es')}
       >
@@ -56,8 +67,10 @@
       <button
         type="button"
         role="tab"
+        id={tabEnId}
         aria-selected={activeTab === 'en'}
-        class="px-3 py-1 rounded text-xs font-semibold transition-colors {activeTab === 'en' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-surface text-text-muted'}"
+        aria-controls={panelEnId}
+        class="px-3 py-1 rounded text-xs font-semibold transition-colors {activeTab === 'en' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200' : 'bg-surface text-text-muted'}"
         onclick={() => (activeTab = 'en')}
       >
         {t('admin.bilingual.en', locale)}
@@ -65,12 +78,13 @@
     </div>
 
     {#if activeTab === 'es'}
-      <div>
+      <div role="tabpanel" id={panelEsId} aria-labelledby={tabEsId}>
         {#if type === 'textarea'}
           <textarea
             id={esId}
             bind:value={nameEs}
             oninput={() => onChangeEs?.(nameEs)}
+            onblur={() => onBlurEs?.()}
             aria-required={required}
             aria-invalid={!!errorEs}
             aria-describedby={errorEs ? esErrorId : undefined}
@@ -83,6 +97,7 @@
             type="text"
             bind:value={nameEs}
             oninput={() => onChangeEs?.(nameEs)}
+            onblur={() => onBlurEs?.()}
             aria-required={required}
             aria-invalid={!!errorEs}
             aria-describedby={errorEs ? esErrorId : undefined}
@@ -94,12 +109,13 @@
         {/if}
       </div>
     {:else}
-      <div>
+      <div role="tabpanel" id={panelEnId} aria-labelledby={tabEnId}>
         {#if type === 'textarea'}
           <textarea
             id={enId}
             bind:value={nameEn}
             oninput={() => onChangeEn?.(nameEn)}
+            onblur={() => onBlurEn?.()}
             aria-required={required}
             aria-invalid={!!errorEn}
             aria-describedby={errorEn ? enErrorId : undefined}
@@ -112,6 +128,7 @@
             type="text"
             bind:value={nameEn}
             oninput={() => onChangeEn?.(nameEn)}
+            onblur={() => onBlurEn?.()}
             aria-required={required}
             aria-invalid={!!errorEn}
             aria-describedby={errorEn ? enErrorId : undefined}
@@ -136,6 +153,7 @@
           id={esId}
           bind:value={nameEs}
           oninput={() => onChangeEs?.(nameEs)}
+          onblur={() => onBlurEs?.()}
           aria-required={required}
           aria-invalid={!!errorEs}
           aria-describedby={errorEs ? esErrorId : undefined}
@@ -148,6 +166,7 @@
           type="text"
           bind:value={nameEs}
           oninput={() => onChangeEs?.(nameEs)}
+          onblur={() => onBlurEs?.()}
           aria-required={required}
           aria-invalid={!!errorEs}
           aria-describedby={errorEs ? esErrorId : undefined}
@@ -160,7 +179,7 @@
     </div>
 
     <div>
-      <span class="inline-block px-2 py-0.5 rounded text-xs font-semibold mb-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+      <span class="inline-block px-2 py-0.5 rounded text-xs font-semibold mb-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
         {t('admin.bilingual.en', locale)}
       </span>
       {#if type === 'textarea'}
@@ -168,6 +187,7 @@
           id={enId}
           bind:value={nameEn}
           oninput={() => onChangeEn?.(nameEn)}
+          onblur={() => onBlurEn?.()}
           aria-required={required}
           aria-invalid={!!errorEn}
           aria-describedby={errorEn ? enErrorId : undefined}
@@ -180,6 +200,7 @@
           type="text"
           bind:value={nameEn}
           oninput={() => onChangeEn?.(nameEn)}
+          onblur={() => onBlurEn?.()}
           aria-required={required}
           aria-invalid={!!errorEn}
           aria-describedby={errorEn ? enErrorId : undefined}

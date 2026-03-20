@@ -21,13 +21,22 @@
   }: Props = $props();
 
   let activeTab = $state<'es' | 'en'>('es');
+  let nextKeyId = $state(0);
+  let keysEs = $state<number[]>([]);
+  let keysEn = $state<number[]>([]);
+
+  function getKey(): number {
+    return nextKeyId++;
+  }
 
   function addItem(lang: 'es' | 'en'): void {
     if (lang === 'es' && itemsEs.length < MAX_ITEMS) {
       itemsEs = [...itemsEs, ''];
+      keysEs = [...keysEs, getKey()];
       onChangeEs?.(itemsEs);
     } else if (lang === 'en' && itemsEn.length < MAX_ITEMS) {
       itemsEn = [...itemsEn, ''];
+      keysEn = [...keysEn, getKey()];
       onChangeEn?.(itemsEn);
     }
   }
@@ -35,9 +44,11 @@
   function removeItem(lang: 'es' | 'en', index: number): void {
     if (lang === 'es') {
       itemsEs = itemsEs.filter((_, i) => i !== index);
+      keysEs = keysEs.filter((_, i) => i !== index);
       onChangeEs?.(itemsEs);
     } else {
       itemsEn = itemsEn.filter((_, i) => i !== index);
+      keysEn = keysEn.filter((_, i) => i !== index);
       onChangeEn?.(itemsEn);
     }
   }
@@ -51,11 +62,26 @@
       onChangeEn?.(itemsEn);
     }
   }
+
+  function getKeys(lang: 'es' | 'en', items: string[]): number[] {
+    const keys = lang === 'es' ? keysEs : keysEn;
+    while (keys.length < items.length) {
+      keys.push(getKey());
+    }
+    return keys;
+  }
+
+  const labelSlug = $derived(label.toLowerCase().replace(/\s+/g, '-'));
+  const tabEsId = $derived(`tab-arr-es-${labelSlug}`);
+  const tabEnId = $derived(`tab-arr-en-${labelSlug}`);
+  const panelEsId = $derived(`panel-arr-es-${labelSlug}`);
+  const panelEnId = $derived(`panel-arr-en-${labelSlug}`);
 </script>
 
 {#snippet itemList(lang: 'es' | 'en', items: string[])}
+  {@const keys = getKeys(lang, items)}
   <div class="space-y-2">
-    {#each items as item, index (index)}
+    {#each items as item, index (keys[index])}
       <div class="flex gap-2">
         <input
           type="text"
@@ -98,7 +124,9 @@
       <button
         type="button"
         role="tab"
+        id={tabEsId}
         aria-selected={activeTab === 'es'}
+        aria-controls={panelEsId}
         class="px-3 py-1 rounded text-xs font-semibold transition-colors {activeTab === 'es' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : 'bg-surface text-text-muted'}"
         onclick={() => (activeTab = 'es')}
       >
@@ -107,17 +135,23 @@
       <button
         type="button"
         role="tab"
+        id={tabEnId}
         aria-selected={activeTab === 'en'}
-        class="px-3 py-1 rounded text-xs font-semibold transition-colors {activeTab === 'en' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-surface text-text-muted'}"
+        aria-controls={panelEnId}
+        class="px-3 py-1 rounded text-xs font-semibold transition-colors {activeTab === 'en' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200' : 'bg-surface text-text-muted'}"
         onclick={() => (activeTab = 'en')}
       >
         {t('admin.bilingual.en', locale)}
       </button>
     </div>
     {#if activeTab === 'es'}
-      {@render itemList('es', itemsEs)}
+      <div role="tabpanel" id={panelEsId} aria-labelledby={tabEsId}>
+        {@render itemList('es', itemsEs)}
+      </div>
     {:else}
-      {@render itemList('en', itemsEn)}
+      <div role="tabpanel" id={panelEnId} aria-labelledby={tabEnId}>
+        {@render itemList('en', itemsEn)}
+      </div>
     {/if}
   </div>
 
@@ -130,7 +164,7 @@
       {@render itemList('es', itemsEs)}
     </div>
     <div>
-      <span class="inline-block px-2 py-0.5 rounded text-xs font-semibold mb-2 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+      <span class="inline-block px-2 py-0.5 rounded text-xs font-semibold mb-2 bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
         {t('admin.bilingual.en', locale)}
       </span>
       {@render itemList('en', itemsEn)}

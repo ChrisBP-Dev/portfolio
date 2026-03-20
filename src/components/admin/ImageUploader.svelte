@@ -36,6 +36,11 @@
     }
     if (!file.type.startsWith('image/')) return;
 
+    // Revoke previous object URL to prevent memory leak
+    if (slot.type === 'new' || slot.type === 'replaced') {
+      URL.revokeObjectURL(slot.preview);
+    }
+
     const objectUrl = URL.createObjectURL(file);
     slot = { type: 'new', file, preview: objectUrl };
     onChange?.(slot);
@@ -71,6 +76,15 @@
     slot = { type: 'empty' };
     onChange?.(slot);
   }
+
+  // Cleanup object URLs on component destroy
+  $effect(() => {
+    return () => {
+      if (slot.type === 'new' || slot.type === 'replaced') {
+        URL.revokeObjectURL(slot.preview);
+      }
+    };
+  });
 </script>
 
 <div class="space-y-1">

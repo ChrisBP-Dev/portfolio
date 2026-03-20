@@ -2,6 +2,9 @@
   import ProjectList from './ProjectList.svelte';
   import ProjectForm from './ProjectForm.svelte';
   import Toast from './Toast.svelte';
+  import { t } from '../../lib/i18n/translations';
+
+  const locale = 'es';
 
   let viewMode = $state<'list' | 'create'>('list');
   let listRef = $state<ProjectList | null>(null);
@@ -21,7 +24,7 @@
   {:else}
     <div class="mb-6">
       <h1 class="text-2xl font-bold text-text-primary">
-        Crear proyecto
+        {t('admin.projects.createTitle', locale)}
       </h1>
     </div>
     <ProjectForm

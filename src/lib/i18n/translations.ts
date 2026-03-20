@@ -168,6 +168,7 @@ const translations: Record<string, Record<Locale, string>> = {
   'admin.projects.delete': { es: 'Eliminar', en: 'Delete' },
   'admin.projects.loading': { es: 'Cargando proyectos...', en: 'Loading projects...' },
   'admin.projects.errorLoading': { es: 'Error al cargar los proyectos', en: 'Error loading projects' },
+  'admin.projects.createTitle': { es: 'Crear proyecto', en: 'Create project' },
 
   // Admin — Project Form
   'admin.projects.form.sectionBasic': { es: 'Información Básica', en: 'Basic Information' },

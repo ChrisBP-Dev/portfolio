@@ -1,6 +1,6 @@
 # Story 3.4: CRUD Projects — List y Create
 
-Status: review
+Status: done
 
 ## Story
 
@@ -342,10 +342,40 @@ Claude Opus 4.6 (1M context)
 - **Task 8**: ProjectsCrudPage — parent managing list/create view state, wired into projects.astro with `client:only="svelte"`.
 - **Task 12**: 33 total tests — slugify (10), toast-store (8), project form validation (15). All pass.
 
+### Code Review Record
+
+**Review Date**: 2026-03-20
+**Reviewer Model**: Claude Opus 4.6 (1M context)
+**Review Method**: 3-layer parallel adversarial (Blind Hunter + Edge Case Hunter + Acceptance Auditor)
+**Result**: 14 patches applied, 1 bad-spec noted, 2 deferred, 10 rejected as noise
+
+**Patches Applied (14)**:
+1. **[CRITICAL] P-1**: `projectSchema.parse(doc.data())` failed — schema required `id` but Firestore `doc.data()` doesn't include it. Fix: added `projectFirestoreSchema` (omits id) with `safeParse` + per-doc error handling
+2. **[HIGH] P-2**: Validation bypassed Zod schema — used hand-rolled regex. Fix: `validateAll()` now uses `projectFormSchema.safeParse()`, per-field blur validation uses schema shape accessors
+3. **[HIGH] P-3**: Initial `addDoc` included `mainImage: { url: '', storagePath: '' }` placeholder that broke `storedImageSchema` on orphaned docs. Fix: omitted image fields from initial write
+4. **[MEDIUM] P-4**: BilingualField validated on `oninput` instead of `onblur`. Fix: added `onBlurEs`/`onBlurEn` props, moved `validateField` calls to blur handlers
+5. **[MEDIUM] P-5**: `animate-spin` on save spinner lacked `prefers-reduced-motion`. Fix: `motion-safe:animate-spin`
+6. **[MEDIUM] P-6**: `animate-pulse` on skeletons lacked `prefers-reduced-motion`. Fix: `motion-safe:animate-pulse`
+7. **[MEDIUM] P-7**: Object URL memory leak when replacing image without removing first. Fix: revoke previous URL in `handleFile` before creating new one
+8. **[MEDIUM] P-8**: Object URLs not revoked on component destroy. Fix: added `$effect` cleanup in ImageUploader and ScreenshotManager
+9. **[MEDIUM] P-9**: Index used as `{#each}` key caused DOM reuse bugs. Fix: unique key tracking arrays in BilingualArrayField and ScreenshotManager
+10. **[LOW] P-10**: Hardcoded "Crear proyecto" bypassed `t()`. Fix: added `admin.projects.createTitle` i18n key
+11. **[LOW] P-11**: `scrollToFirstError` called before DOM updated. Fix: `await tick()` before `querySelector`
+12. **[LOW] P-12**: Tabs missing `aria-controls` and `role="tabpanel"`. Fix: added WAI-ARIA tabs pattern to BilingualField and BilingualArrayField
+13. **[LOW] P-13**: EN badge colors used `green-*` instead of `emerald-*` (spec: #10B981 = emerald-500). Fix: changed to `emerald-*` classes
+14. **[LOW] P-14**: Feature array items not trimmed before save. Fix: added `.map(f => f.trim())` after filter
+
+**Bad Spec (1)**: BS-1 — Rule "ALL animations/transitions MUST be wrapped in motion media query" is too broad for user-initiated hover/focus transitions. Recommendation: amend to "Auto-play animations MUST use motion-safe: prefix. User-initiated transitions are exempt."
+
+**Deferred (2)**:
+- D-1: No max screenshot count (not in spec)
+- D-2: CI `HEAD~1` misses merge commit second-parent changes (pre-existing)
+
 ### Change Log
 
 - 2026-03-20: Implemented full story 3.4 — CRUD Projects List y Create (all 12 tasks)
 - 2026-03-20: CI/CD optimization — skip build/lighthouse/deploy for docs-only commits to prevent Firebase Storage bandwidth spikes
+- 2026-03-20: Code review patches — 14 fixes (Zod validation, schema parsing, a11y, memory leaks, motion queries, blur validation)
 
 ### File List
 
@@ -368,5 +398,7 @@ New files:
 Modified files:
 - src/pages/admin/projects.astro
 - src/lib/i18n/translations.ts
+- src/lib/schemas/project-schema.ts
+- src/lib/schemas/technology-schema.ts
 - eslint.config.js
 - .github/workflows/ci.yml
