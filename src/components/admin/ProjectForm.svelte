@@ -12,6 +12,7 @@
   import { t } from '../../lib/i18n/translations';
   import { slugify } from '../../lib/utils/slugify';
   import { toastStore } from '../../lib/utils/toast-store.svelte';
+  import { getFirestoreErrorMessage } from '../../lib/utils/error-messages';
   import type { ImageSlot } from '../../lib/schemas/image-slot';
   import BilingualField from './BilingualField.svelte';
   import BilingualArrayField from './BilingualArrayField.svelte';
@@ -21,16 +22,6 @@
 
   const locale = 'es';
   const PROJECTS_COLLECTION = 'Projects';
-
-  function getFirestoreErrorMessage(error: unknown): string {
-    if (typeof error === 'object' && error !== null && 'code' in error) {
-      const code = (error as { code: string }).code;
-      if (code === 'permission-denied') return t('admin.error.permissionDenied', locale);
-      if (code === 'not-found') return t('admin.error.notFound', locale);
-      if (code === 'unavailable') return t('admin.error.unavailable', locale);
-    }
-    return t('admin.error.unknown', locale);
-  }
 
   interface Props {
     mode?: 'create' | 'edit';
@@ -57,6 +48,7 @@
   let manualSlug = $state(false);
   let saving = $state(false);
   let hasChanges = $state(false);
+  let mainImageProgress = $state<number | null>(null);
 
   // Validation errors
   let errors = $state<Record<string, string>>({});
@@ -248,7 +240,12 @@
       try {
         if (mainImageSlot.type === 'new') {
           const mainPath = `projects/${docId}/main/${crypto.randomUUID()}.webp`;
-          const mainStoredImage = await imageService.upload(mainImageSlot.file, mainPath);
+          const mainStoredImage = await imageService.upload(
+            mainImageSlot.file,
+            mainPath,
+            (p) => { mainImageProgress = p; },
+          );
+          mainImageProgress = null;
 
           const screenshotImages = await Promise.all(
             screenshots
@@ -267,6 +264,7 @@
       } catch (uploadError) {
         console.error('Image upload failed after document creation:', uploadError);
         toastStore.error(t('admin.projects.form.errorToast', locale));
+        mainImageProgress = null;
         saving = false;
         return;
       }
@@ -276,7 +274,7 @@
       setTimeout(() => onSaved(), 1500);
     } catch (error) {
       console.error('Failed to save project:', error);
-      toastStore.error(getFirestoreErrorMessage(error));
+      toastStore.error(getFirestoreErrorMessage(error, locale));
       saving = false;
     }
   }
@@ -288,7 +286,12 @@
     saving = true;
     try {
       // Process main image
-      const mainProcessed = await processImageSlot(mainImageSlot, `projects/${docId}/main/`);
+      const mainProcessed = await processImageSlot(
+        mainImageSlot,
+        `projects/${docId}/main/`,
+        (p) => { mainImageProgress = p; },
+      );
+      mainImageProgress = null;
 
       // Process each screenshot
       const screenshotResults = await Promise.all(
@@ -319,12 +322,13 @@
       setTimeout(() => onSaved(), 1500);
     } catch (error) {
       console.error('Failed to update project:', error);
-      toastStore.error(getFirestoreErrorMessage(error));
+      toastStore.error(getFirestoreErrorMessage(error, locale));
       saving = false;
     }
   }
 
   async function handleSubmit(): Promise<void> {
+    if (saving) return;
     if (!validateAll()) {
       scrollToFirstError();
       return;
@@ -420,6 +424,7 @@
         bind:slot={mainImageSlot}
         required
         error={errors.mainImage ?? ''}
+        uploadProgress={mainImageProgress}
         onChange={() => {
           markDirty();
           validateField('mainImage');
@@ -528,6 +533,7 @@
     <button
       type="submit"
       disabled={saving}
+      aria-busy={saving ? 'true' : undefined}
       class="px-6 py-3 rounded-lg font-semibold text-white [background:var(--brand-gradient)] min-h-11 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
     >
       {#if saving}

@@ -72,4 +72,22 @@ describe('toast-store', () => {
     toastStore.clear();
     expect(toastStore.toasts).toHaveLength(0);
   });
+
+  it('[P0] 3.8-TEST-006: warning auto-dismisses after 6s', () => {
+    toastStore.warning('Cuidado');
+    expect(toastStore.toasts).toHaveLength(1);
+    vi.advanceTimersByTime(6000);
+    expect(toastStore.toasts).toHaveLength(0);
+  });
+
+  it('[P0] 3.8-TEST-007: warning is dismissible', () => {
+    toastStore.warning('Cuidado');
+    expect(toastStore.toasts[0]?.dismissible).toBe(true);
+  });
+
+  it('[P0] 3.8-TEST-008: warning does NOT dismiss at 4s', () => {
+    toastStore.warning('Cuidado');
+    vi.advanceTimersByTime(4000);
+    expect(toastStore.toasts).toHaveLength(1);
+  });
 });

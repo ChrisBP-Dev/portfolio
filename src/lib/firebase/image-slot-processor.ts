@@ -12,6 +12,7 @@ export type ProcessedSlot = {
 export async function processImageSlot(
   slot: ImageSlot,
   basePath: string,
+  onProgress?: (percent: number) => void,
 ): Promise<ProcessedSlot> {
   switch (slot.type) {
     case 'empty':
@@ -22,6 +23,7 @@ export async function processImageSlot(
       const image = await imageService.upload(
         slot.file,
         basePath + crypto.randomUUID() + '.webp',
+        onProgress,
       );
       return { image, toDelete: [] };
     }
@@ -29,6 +31,7 @@ export async function processImageSlot(
       const image = await imageService.upload(
         slot.file,
         basePath + crypto.randomUUID() + '.webp',
+        onProgress,
       );
       return { image, toDelete: [slot.old.storagePath] };
     }

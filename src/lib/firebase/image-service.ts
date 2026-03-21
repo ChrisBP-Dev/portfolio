@@ -1,4 +1,4 @@
-import { ref, uploadBytes, getDownloadURL, deleteObject, listAll } from 'firebase/storage';
+import { ref, uploadBytesResumable, getDownloadURL, deleteObject, listAll } from 'firebase/storage';
 import { storage } from './client';
 import type { StoredImage } from '../schemas/shared-schemas';
 
@@ -30,10 +30,27 @@ export async function withRetry<T>(fn: () => Promise<T>, maxRetries = MAX_RETRIE
   throw lastError;
 }
 
-async function upload(file: File, path: string): Promise<StoredImage> {
+async function upload(
+  file: File,
+  path: string,
+  onProgress?: (percent: number) => void,
+): Promise<StoredImage> {
   return withRetry(async () => {
     const storageRef = ref(storage, path);
-    await uploadBytes(storageRef, file);
+    const task = uploadBytesResumable(storageRef, file);
+
+    await new Promise<void>((resolve, reject) => {
+      task.on(
+        'state_changed',
+        (snapshot) => {
+          const percent = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+          onProgress?.(percent);
+        },
+        (error) => reject(error),
+        () => resolve(),
+      );
+    });
+
     const url = await getDownloadURL(storageRef);
     return { url, storagePath: path };
   });
@@ -43,8 +60,9 @@ async function replace(
   oldImage: StoredImage,
   file: File,
   newPath: string,
+  onProgress?: (percent: number) => void,
 ): Promise<StoredImage> {
-  const newImage = await upload(file, newPath);
+  const newImage = await upload(file, newPath, onProgress);
   try {
     await withRetry(() => deleteObject(ref(storage, oldImage.storagePath)));
   } catch (error) {

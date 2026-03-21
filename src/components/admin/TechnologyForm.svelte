@@ -12,20 +12,11 @@
   import type { ImageSlot } from '../../lib/schemas/image-slot';
   import { t } from '../../lib/i18n/translations';
   import { toastStore } from '../../lib/utils/toast-store.svelte';
+  import { getFirestoreErrorMessage } from '../../lib/utils/error-messages';
   import ImageUploader from './ImageUploader.svelte';
 
   const locale = 'es';
   const TECHNOLOGIES_COLLECTION = 'Technologies';
-
-  function getFirestoreErrorMessage(error: unknown): string {
-    if (typeof error === 'object' && error !== null && 'code' in error) {
-      const code = (error as { code: string }).code;
-      if (code === 'permission-denied') return t('admin.error.permissionDenied', locale);
-      if (code === 'not-found') return t('admin.error.notFound', locale);
-      if (code === 'unavailable') return t('admin.error.unavailable', locale);
-    }
-    return t('admin.error.unknown', locale);
-  }
 
   interface Props {
     mode?: 'create' | 'edit';
@@ -43,6 +34,7 @@
   let errors = $state<Record<string, string>>({});
   let saving = $state(false);
   let hasChanges = $state(false);
+  let imageProgress = $state<number | null>(null);
 
   // Edit mode initialization — track by id to re-init when switching items
   let initializedId = $state('');
@@ -157,7 +149,12 @@
 
       if (imageSlot.type === 'new') {
         const imagePath = `technologies/${docId}/${crypto.randomUUID()}.webp`;
-        const storedImage = await imageService.upload(imageSlot.file, imagePath);
+        const storedImage = await imageService.upload(
+          imageSlot.file,
+          imagePath,
+          (p) => { imageProgress = p; },
+        );
+        imageProgress = null;
         await updateDoc(doc(db, TECHNOLOGIES_COLLECTION, docId), { image: storedImage });
       }
 
@@ -166,7 +163,8 @@
       onSaved();
     } catch (error) {
       console.error('Failed to create technology:', error);
-      toastStore.error(getFirestoreErrorMessage(error));
+      toastStore.error(getFirestoreErrorMessage(error, locale));
+      imageProgress = null;
       saving = false;
     }
   }
@@ -177,7 +175,12 @@
 
     saving = true;
     try {
-      const processed = await processImageSlot(imageSlot, `technologies/${docId}/`);
+      const processed = await processImageSlot(
+        imageSlot,
+        `technologies/${docId}/`,
+        (p) => { imageProgress = p; },
+      );
+      imageProgress = null;
       const payload = {
         name: name.trim(),
         experienceYears,
@@ -195,12 +198,14 @@
       onSaved();
     } catch (error) {
       console.error('Failed to update technology:', error);
-      toastStore.error(getFirestoreErrorMessage(error));
+      toastStore.error(getFirestoreErrorMessage(error, locale));
+      imageProgress = null;
       saving = false;
     }
   }
 
   async function handleSubmit(): Promise<void> {
+    if (saving) return;
     if (!validateAll()) {
       scrollToFirstError();
       return;
@@ -297,6 +302,7 @@
     bind:slot={imageSlot}
     required
     error={errors.image ?? ''}
+    uploadProgress={imageProgress}
     onChange={() => {
       markDirty();
       validateField('image');
@@ -308,6 +314,7 @@
     <button
       type="submit"
       disabled={saving}
+      aria-busy={saving ? 'true' : undefined}
       class="px-6 py-3 rounded-lg font-semibold text-white [background:var(--brand-gradient)] min-h-11 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
     >
       {#if saving}

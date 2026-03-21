@@ -1,7 +1,8 @@
 const MAX_TOASTS = 3;
 const AUTO_DISMISS_MS = 4000;
+const WARNING_DISMISS_MS = 6000;
 
-export type ToastType = 'success' | 'error';
+export type ToastType = 'success' | 'error' | 'warning';
 
 export interface Toast {
   id: string;
@@ -16,12 +17,15 @@ const timers = new Map<string, ReturnType<typeof setTimeout>>();
 
 function add(message: string, type: ToastType): string {
   const id = crypto.randomUUID();
-  const toast: Toast = { id, message, type, dismissible: type === 'error' };
+  const toast: Toast = { id, message, type, dismissible: type !== 'success' };
 
   toasts = [toast, ...toasts].slice(0, MAX_TOASTS);
 
   if (type === 'success') {
     const timer = setTimeout(() => remove(id), AUTO_DISMISS_MS);
+    timers.set(id, timer);
+  } else if (type === 'warning') {
+    const timer = setTimeout(() => remove(id), WARNING_DISMISS_MS);
     timers.set(id, timer);
   }
 
@@ -51,6 +55,7 @@ export const toastStore = {
   },
   success: (message: string) => add(message, 'success'),
   error: (message: string) => add(message, 'error'),
+  warning: (message: string) => add(message, 'warning'),
   remove,
   clear,
 };

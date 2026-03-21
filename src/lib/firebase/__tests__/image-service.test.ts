@@ -1,9 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-const { mockRef, mockUploadBytes, mockGetDownloadURL, mockDeleteObject, mockListAll } =
+const { mockRef, mockUploadBytesResumable, mockGetDownloadURL, mockDeleteObject, mockListAll } =
   vi.hoisted(() => ({
     mockRef: vi.fn((_storage: unknown, _path: string) => ({ fullPath: _path })),
-    mockUploadBytes: vi.fn((_ref: unknown, _file: unknown) => Promise.resolve()),
+    mockUploadBytesResumable: vi.fn((_ref: unknown, _file: unknown) => ({
+      on: (_event: string, _next: unknown, _error: unknown, complete: () => void) => {
+        complete();
+      },
+    })),
     mockGetDownloadURL: vi.fn((_ref: unknown) =>
       Promise.resolve('https://storage.example.com/file.webp'),
     ),
@@ -18,7 +22,7 @@ const { mockRef, mockUploadBytes, mockGetDownloadURL, mockDeleteObject, mockList
 
 vi.mock('firebase/storage', () => ({
   ref: mockRef,
-  uploadBytes: mockUploadBytes,
+  uploadBytesResumable: mockUploadBytesResumable,
   getDownloadURL: mockGetDownloadURL,
   deleteObject: mockDeleteObject,
   listAll: mockListAll,
@@ -33,7 +37,11 @@ import { imageService, isRetryableError, withRetry } from '../image-service';
 describe('ImageService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUploadBytes.mockImplementation((_ref: unknown, _file: unknown) => Promise.resolve());
+    mockUploadBytesResumable.mockImplementation((_ref: unknown, _file: unknown) => ({
+      on: (_event: string, _next: unknown, _error: unknown, complete: () => void) => {
+        complete();
+      },
+    }));
     mockGetDownloadURL.mockImplementation((_ref: unknown) =>
       Promise.resolve('https://storage.example.com/file.webp'),
     );
@@ -54,7 +62,7 @@ describe('ImageService', () => {
       const result = await imageService.upload(file, path);
 
       expect(mockRef).toHaveBeenCalledWith({ name: 'storage-mock' }, path);
-      expect(mockUploadBytes).toHaveBeenCalledWith({ fullPath: path }, file);
+      expect(mockUploadBytesResumable).toHaveBeenCalledWith({ fullPath: path }, file);
       expect(mockGetDownloadURL).toHaveBeenCalledWith({ fullPath: path });
       expect(result).toEqual({
         url: 'https://storage.example.com/file.webp',
@@ -74,10 +82,12 @@ describe('ImageService', () => {
       const newPath = 'projects/abc123/main/new-uuid.webp';
       const callOrder: string[] = [];
 
-      mockUploadBytes.mockImplementation(() => {
-        callOrder.push('upload');
-        return Promise.resolve();
-      });
+      mockUploadBytesResumable.mockImplementation(() => ({
+        on: (_event: string, _next: unknown, _error: unknown, complete: () => void) => {
+          callOrder.push('upload');
+          complete();
+        },
+      }));
       mockDeleteObject.mockImplementation(() => {
         callOrder.push('delete');
         return Promise.resolve();
@@ -97,7 +107,11 @@ describe('ImageService', () => {
       const file = new File(['new'], 'new.webp', { type: 'image/webp' });
       const newPath = 'projects/abc123/main/new-uuid.webp';
 
-      mockUploadBytes.mockImplementation(() => Promise.reject(new Error('Upload failed')));
+      mockUploadBytesResumable.mockImplementation(() => ({
+        on: (_event: string, _next: unknown, errorCb: unknown) => {
+          (errorCb as (e: Error) => void)(new Error('Upload failed'));
+        },
+      }));
 
       await expect(imageService.replace(oldImage, file, newPath)).rejects.toThrow('Upload failed');
       expect(mockDeleteObject).not.toHaveBeenCalled();

@@ -6,21 +6,12 @@
   import type { ExperienceWithId } from '../../lib/schemas/experience-schema';
   import { t } from '../../lib/i18n/translations';
   import { toastStore } from '../../lib/utils/toast-store.svelte';
+  import { getFirestoreErrorMessage } from '../../lib/utils/error-messages';
   import BilingualField from './BilingualField.svelte';
   import BilingualArrayField from './BilingualArrayField.svelte';
 
   const locale = 'es';
   const EXPERIENCES_COLLECTION = 'Experiences';
-
-  function getFirestoreErrorMessage(error: unknown): string {
-    if (typeof error === 'object' && error !== null && 'code' in error) {
-      const code = (error as { code: string }).code;
-      if (code === 'permission-denied') return t('admin.error.permissionDenied', locale);
-      if (code === 'not-found') return t('admin.error.notFound', locale);
-      if (code === 'unavailable') return t('admin.error.unavailable', locale);
-    }
-    return t('admin.error.unknown', locale);
-  }
 
   interface Props {
     mode?: 'create' | 'edit';
@@ -230,7 +221,7 @@
       onSaved();
     } catch (error) {
       console.error('Failed to create experience:', error);
-      toastStore.error(getFirestoreErrorMessage(error));
+      toastStore.error(getFirestoreErrorMessage(error, locale));
       saving = false;
     }
   }
@@ -246,12 +237,13 @@
       onSaved();
     } catch (error) {
       console.error('Failed to update experience:', error);
-      toastStore.error(getFirestoreErrorMessage(error));
+      toastStore.error(getFirestoreErrorMessage(error, locale));
       saving = false;
     }
   }
 
   async function handleSubmit(): Promise<void> {
+    if (saving) return;
     if (!validateAll()) {
       scrollToFirstError();
       return;
@@ -424,6 +416,7 @@
     <button
       type="submit"
       disabled={saving}
+      aria-busy={saving ? 'true' : undefined}
       class="px-6 py-3 rounded-lg font-semibold text-white [background:var(--brand-gradient)] min-h-11 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
     >
       {#if saving}

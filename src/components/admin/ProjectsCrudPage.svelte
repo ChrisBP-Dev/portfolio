@@ -5,6 +5,7 @@
   import type { ProjectWithId } from '../../lib/schemas/project-schema';
   import { t } from '../../lib/i18n/translations';
   import { toastStore } from '../../lib/utils/toast-store.svelte';
+  import { getFirestoreErrorMessage } from '../../lib/utils/error-messages';
   import ProjectList from './ProjectList.svelte';
   import ProjectForm from './ProjectForm.svelte';
   import ConfirmDialog from './ConfirmDialog.svelte';
@@ -12,16 +13,6 @@
 
   const locale = 'es';
   const PROJECTS_COLLECTION = 'Projects';
-
-  function getFirestoreErrorMessage(error: unknown): string {
-    if (typeof error === 'object' && error !== null && 'code' in error) {
-      const code = (error as { code: string }).code;
-      if (code === 'permission-denied') return t('admin.error.permissionDenied', locale);
-      if (code === 'not-found') return t('admin.error.notFound', locale);
-      if (code === 'unavailable') return t('admin.error.unavailable', locale);
-    }
-    return t('admin.projects.deleteErrorToast', locale);
-  }
 
   let viewMode = $state<'list' | 'create' | 'edit'>('list');
   let listRef = $state<ProjectList | null>(null);
@@ -65,7 +56,7 @@
       listRef?.loadProjects();
     } catch (error) {
       console.error('Failed to delete project:', error);
-      toastStore.error(getFirestoreErrorMessage(error));
+      toastStore.error(getFirestoreErrorMessage(error, locale));
       showDeleteDialog = false;
       deletingProject = null;
     } finally {

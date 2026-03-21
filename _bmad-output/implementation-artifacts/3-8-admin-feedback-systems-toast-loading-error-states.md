@@ -1,6 +1,6 @@
 # Story 3.8: Admin Feedback Systems — Toast, Loading, Error States
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -21,52 +21,52 @@ so that I always know the status of my operations and never feel uncertain.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Create centralized `error-messages.ts` utility (AC: #2, #8)
-  - [ ] 1.1 Create `src/lib/utils/error-messages.ts` with a single unified `getFirestoreErrorMessage(error: unknown, locale: Locale): string` that handles BOTH Firestore AND Storage error codes via combined lookup (`FIRESTORE_ERROR_MAP[code] ?? STORAGE_ERROR_MAP[code]`). Do NOT create a separate `getStorageErrorMessage` — one function handles all Firebase errors.
-  - [ ] 1.2 Map Firestore error codes: `permission-denied`, `not-found`, `unavailable`, `unauthenticated`, `resource-exhausted`, `deadline-exceeded`, `already-exists` — fallback to `admin.error.unknown`
-  - [ ] 1.3 Map Storage error codes in the same file: `storage/unauthorized`, `storage/canceled`, `storage/unknown`, `storage/object-not-found`, `storage/quota-exceeded`, `storage/retry-limit-exceeded` — these are looked up by the same `getFirestoreErrorMessage()` function
-  - [ ] 1.4 Add missing i18n keys: `admin.error.unauthenticated`, `admin.error.resourceExhausted`, `admin.error.deadlineExceeded`, `admin.error.alreadyExists`, `admin.error.storageFull`, `admin.error.uploadFailed`
+- [x] Task 1: Create centralized `error-messages.ts` utility (AC: #2, #8)
+  - [x] 1.1 Create `src/lib/utils/error-messages.ts` with a single unified `getFirestoreErrorMessage(error: unknown, locale: Locale): string` that handles BOTH Firestore AND Storage error codes via combined lookup (`FIRESTORE_ERROR_MAP[code] ?? STORAGE_ERROR_MAP[code]`). Do NOT create a separate `getStorageErrorMessage` — one function handles all Firebase errors.
+  - [x] 1.2 Map Firestore error codes: `permission-denied`, `not-found`, `unavailable`, `unauthenticated`, `resource-exhausted`, `deadline-exceeded`, `already-exists` — fallback to `admin.error.unknown`
+  - [x] 1.3 Map Storage error codes in the same file: `storage/unauthorized`, `storage/canceled`, `storage/unknown`, `storage/object-not-found`, `storage/quota-exceeded`, `storage/retry-limit-exceeded` — these are looked up by the same `getFirestoreErrorMessage()` function
+  - [x] 1.4 Add missing i18n keys: `admin.error.unauthenticated`, `admin.error.resourceExhausted`, `admin.error.deadlineExceeded`, `admin.error.alreadyExists`, `admin.error.storageFull`, `admin.error.uploadFailed`
 
-- [ ] Task 2: Refactor all CRUD pages/forms to use centralized error utility (AC: #2, #8)
-  - [ ] 2.1 Replace `getFirestoreErrorMessage()` in `TechnologiesCrudPage.svelte` — import from `error-messages.ts`, fix wrong fallback `admin.technologies.deleteErrorToast` → generic
-  - [ ] 2.2 Replace `getFirestoreErrorMessage()` in `TechnologyForm.svelte` — import from `error-messages.ts`
-  - [ ] 2.3 Replace `getFirestoreErrorMessage()` in `ProjectsCrudPage.svelte` — import from `error-messages.ts`, fix wrong fallback `admin.projects.deleteErrorToast` → generic
-  - [ ] 2.4 Replace `getFirestoreErrorMessage()` in `ProjectForm.svelte` — import from `error-messages.ts`
-  - [ ] 2.5 Replace `getFirestoreErrorMessage()` in `ExperiencesCrudPage.svelte` — import from `error-messages.ts`
-  - [ ] 2.6 Replace `getFirestoreErrorMessage()` in `ExperienceForm.svelte` — import from `error-messages.ts`
+- [x] Task 2: Refactor all CRUD pages/forms to use centralized error utility (AC: #2, #8)
+  - [x] 2.1 Replace `getFirestoreErrorMessage()` in `TechnologiesCrudPage.svelte` — import from `error-messages.ts`, fix wrong fallback `admin.technologies.deleteErrorToast` → generic
+  - [x] 2.2 Replace `getFirestoreErrorMessage()` in `TechnologyForm.svelte` — import from `error-messages.ts`
+  - [x] 2.3 Replace `getFirestoreErrorMessage()` in `ProjectsCrudPage.svelte` — import from `error-messages.ts`, fix wrong fallback `admin.projects.deleteErrorToast` → generic
+  - [x] 2.4 Replace `getFirestoreErrorMessage()` in `ProjectForm.svelte` — import from `error-messages.ts`
+  - [x] 2.5 Replace `getFirestoreErrorMessage()` in `ExperiencesCrudPage.svelte` — import from `error-messages.ts`
+  - [x] 2.6 Replace `getFirestoreErrorMessage()` in `ExperienceForm.svelte` — import from `error-messages.ts`
 
-- [ ] Task 3: Add upload progress to ImageUploader (AC: #3)
-  - [ ] 3.1 Add `uploadProgress` prop to `ImageUploader.svelte`: `uploadProgress?: number | null` (null = not uploading, 0-100 = percentage)
-  - [ ] 3.2 Render progress bar UI inside ImageUploader when `uploadProgress !== null` — bar over preview image, percentage text
-  - [ ] 3.3 Modify `imageService.upload()` to accept `onProgress?: (percent: number) => void` callback — switch from `uploadBytes` to `uploadBytesResumable` for progress tracking
-  - [ ] 3.4 Modify `imageService.replace()` to pass `onProgress` through to upload
-  - [ ] 3.5 Update `ProjectForm.svelte` to track upload progress per ImageSlot and pass to ImageUploader
-  - [ ] 3.6 Update `TechnologyForm.svelte` to track upload progress for single image and pass to ImageUploader (see "TechnologyForm upload progress" pattern in Dev Notes)
+- [x] Task 3: Add upload progress to ImageUploader (AC: #3)
+  - [x] 3.1 Add `uploadProgress` prop to `ImageUploader.svelte`: `uploadProgress?: number | null` (null = not uploading, 0-100 = percentage)
+  - [x] 3.2 Render progress bar UI inside ImageUploader when `uploadProgress !== null` — bar over preview image, percentage text
+  - [x] 3.3 Modify `imageService.upload()` to accept `onProgress?: (percent: number) => void` callback — switch from `uploadBytes` to `uploadBytesResumable` for progress tracking
+  - [x] 3.4 Modify `imageService.replace()` to pass `onProgress` through to upload
+  - [x] 3.5 Update `ProjectForm.svelte` to track upload progress per ImageSlot and pass to ImageUploader
+  - [x] 3.6 Update `TechnologyForm.svelte` to track upload progress for single image and pass to ImageUploader (see "TechnologyForm upload progress" pattern in Dev Notes)
 
-- [ ] Task 4: Add double-submit prevention guard (AC: #5)
-  - [ ] 4.1 In `ProjectForm.svelte` `handleSubmit()`: add early return if `saving` is already true
-  - [ ] 4.2 In `TechnologyForm.svelte` `handleSubmit()`: add early return if `saving` is already true
-  - [ ] 4.3 In `ExperienceForm.svelte` `handleSubmit()`: add early return if `saving` is already true
-  - [ ] 4.4 Add `aria-busy={saving ? 'true' : undefined}` on submit buttons in all 3 forms
+- [x] Task 4: Add double-submit prevention guard (AC: #5)
+  - [x] 4.1 In `ProjectForm.svelte` `handleSubmit()`: add early return if `saving` is already true
+  - [x] 4.2 In `TechnologyForm.svelte` `handleSubmit()`: add early return if `saving` is already true
+  - [x] 4.3 In `ExperienceForm.svelte` `handleSubmit()`: add early return if `saving` is already true
+  - [x] 4.4 Add `aria-busy={saving ? 'true' : undefined}` on submit buttons in all 3 forms
 
-- [ ] Task 5: Expand toast system with `warning` type (AC: #1, #6)
-  - [ ] 5.1 Add `'warning'` to `ToastType` union in `toast-store.svelte.ts`
-  - [ ] 5.2 Warning behavior: auto-dismiss 6s (per UX spec), dismissible
-  - [ ] 5.3 Update `Toast.svelte`: add orange/amber styling for warning type — `bg-amber-50 border-amber-200 dark:bg-amber-950 dark:border-amber-800`, `!` icon, `text-amber-800 dark:text-amber-200`
-  - [ ] 5.4 Export `toastStore.warning(message)` method
+- [x] Task 5: Expand toast system with `warning` type (AC: #1, #6)
+  - [x] 5.1 Add `'warning'` to `ToastType` union in `toast-store.svelte.ts`
+  - [x] 5.2 Warning behavior: auto-dismiss 6s (per UX spec), dismissible
+  - [x] 5.3 Update `Toast.svelte`: add orange/amber styling for warning type — `bg-amber-50 border-amber-200 dark:bg-amber-950 dark:border-amber-800`, `!` icon, `text-amber-800 dark:text-amber-200`
+  - [x] 5.4 Export `toastStore.warning(message)` method
 
-- [ ] Task 6: Add i18n keys for new error messages (AC: #2)
-  - [ ] 6.1 Add `admin.error.unauthenticated` (es: "Sesión expirada. Inicia sesión nuevamente.", en: "Session expired. Please sign in again.")
-  - [ ] 6.2 Add `admin.error.resourceExhausted` (es: "Límite de operaciones alcanzado. Intenta más tarde.", en: "Operation limit reached. Try again later.")
-  - [ ] 6.3 Add `admin.error.deadlineExceeded` (es: "La operación tardó demasiado. Intenta nuevamente.", en: "Operation timed out. Please try again.")
-  - [ ] 6.4 Add `admin.error.alreadyExists` (es: "El recurso ya existe", en: "Resource already exists")
-  - [ ] 6.5 Add `admin.error.storageFull` (es: "Almacenamiento lleno. Elimina archivos antes de subir más.", en: "Storage full. Delete files before uploading more.")
-  - [ ] 6.6 Add `admin.error.uploadFailed` (es: "No se pudo subir la imagen. Intenta nuevamente.", en: "Image upload failed. Please try again.")
+- [x] Task 6: Add i18n keys for new error messages (AC: #2)
+  - [x] 6.1 Add `admin.error.unauthenticated` (es: "Sesión expirada. Inicia sesión nuevamente.", en: "Session expired. Please sign in again.")
+  - [x] 6.2 Add `admin.error.resourceExhausted` (es: "Límite de operaciones alcanzado. Intenta más tarde.", en: "Operation limit reached. Try again later.")
+  - [x] 6.3 Add `admin.error.deadlineExceeded` (es: "La operación tardó demasiado. Intenta nuevamente.", en: "Operation timed out. Please try again.")
+  - [x] 6.4 Add `admin.error.alreadyExists` (es: "El recurso ya existe", en: "Resource already exists")
+  - [x] 6.5 Add `admin.error.storageFull` (es: "Almacenamiento lleno. Elimina archivos antes de subir más.", en: "Storage full. Delete files before uploading more.")
+  - [x] 6.6 Add `admin.error.uploadFailed` (es: "No se pudo subir la imagen. Intenta nuevamente.", en: "Image upload failed. Please try again.")
 
-- [ ] Task 7: Unit tests (AC: all)
-  - [ ] 7.1 `error-messages.test.ts`: test all Firebase error code mappings (Firestore + Storage), locale switch, unknown error fallback, non-object error handling
-  - [ ] 7.2 `toast-store.test.ts`: EXTEND existing file (has 8 tests from 3.4) — add warning type auto-dismiss at 6s, warning is dismissible, clear timers. Follow existing `vi.resetModules()` + dynamic import pattern.
-  - [ ] 7.3 `image-upload-progress.test.ts`: test `uploadBytesResumable` called, onProgress callback fires, progress percentage forwarded
+- [x] Task 7: Unit tests (AC: all)
+  - [x] 7.1 `error-messages.test.ts`: test all Firebase error code mappings (Firestore + Storage), locale switch, unknown error fallback, non-object error handling
+  - [x] 7.2 `toast-store.test.ts`: EXTEND existing file (has 8 tests from 3.4) — add warning type auto-dismiss at 6s, warning is dismissible, clear timers. Follow existing `vi.resetModules()` + dynamic import pattern.
+  - [x] 7.3 `image-upload-progress.test.ts`: test `uploadBytesResumable` called, onProgress callback fires, progress percentage forwarded
 
 ## Dev Notes
 
@@ -594,10 +594,46 @@ Recent commits show:
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.6 (1M context)
 
 ### Debug Log References
 
 ### Completion Notes List
 
+- Centralized `getFirestoreErrorMessage()` into `src/lib/utils/error-messages.ts` with 7 Firestore + 6 Storage error code mappings, locale parameter support
+- Deleted local copies from all 6 CRUD components, fixed wrong fallbacks in TechnologiesCrudPage and ProjectsCrudPage
+- Added 6 new i18n keys for auth/storage/quota errors in `translations.ts`
+- Switched `imageService.upload()` from `uploadBytes` to `uploadBytesResumable` with optional `onProgress` callback; updated `replace()` and `processImageSlot()` to pass through
+- Added `uploadProgress` prop to `ImageUploader.svelte` with overlay progress bar UI
+- Connected upload progress tracking in `ProjectForm` (main image) and `TechnologyForm` (single image)
+- Screenshot progress not tracked per-item because `ScreenshotManager` doesn't expose per-slot `uploadProgress` (out of scope)
+- Added `if (saving) return;` guard at top of `handleSubmit()` in all 3 forms
+- Added `aria-busy={saving ? 'true' : undefined}` on submit buttons in all 3 forms
+- Extended toast store with `'warning'` type: 6s auto-dismiss, dismissible, `toastStore.warning()` method
+- Added amber/orange warning styling to `Toast.svelte` with triangle-alert icon and color-matched dismiss button
+- Updated existing `image-service.test.ts` and `image-slot-processor.test.ts` mocks from `uploadBytes` to `uploadBytesResumable`
+- Tests: 9 error-messages tests, 3 warning toast tests, 4 upload progress tests — all 879 tests pass, 0 lint errors, 0 type errors
+
 ### File List
+
+**New files:**
+- `src/lib/utils/error-messages.ts`
+- `src/lib/utils/__tests__/error-messages.test.ts`
+- `src/lib/firebase/__tests__/image-upload-progress.test.ts`
+
+**Modified files:**
+- `src/lib/i18n/translations.ts` — 6 new admin.error.* keys
+- `src/lib/utils/toast-store.svelte.ts` — warning type, 6s timer, dismissible
+- `src/components/admin/Toast.svelte` — warning styling (amber)
+- `src/components/admin/ImageUploader.svelte` — uploadProgress prop + bar UI
+- `src/lib/firebase/image-service.ts` — uploadBytesResumable + onProgress
+- `src/lib/firebase/image-slot-processor.ts` — onProgress passthrough
+- `src/components/admin/TechnologiesCrudPage.svelte` — centralized error import
+- `src/components/admin/TechnologyForm.svelte` — centralized error, double-submit guard, aria-busy, upload progress
+- `src/components/admin/ProjectsCrudPage.svelte` — centralized error import
+- `src/components/admin/ProjectForm.svelte` — centralized error, double-submit guard, aria-busy, upload progress
+- `src/components/admin/ExperiencesCrudPage.svelte` — centralized error import
+- `src/components/admin/ExperienceForm.svelte` — centralized error, double-submit guard, aria-busy
+- `src/lib/utils/__tests__/toast-store.test.ts` — 3 new warning tests
+- `src/lib/firebase/__tests__/image-service.test.ts` — mocks updated to uploadBytesResumable
+- `src/lib/firebase/__tests__/image-slot-processor.test.ts` — mocks updated to uploadBytesResumable

@@ -1,17 +1,23 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-const { mockRef, mockDeleteObject, mockUploadBytes, mockGetDownloadURL } = vi.hoisted(() => ({
-  mockRef: vi.fn((_storage: unknown, _path: string) => ({ fullPath: _path })),
-  mockDeleteObject: vi.fn((_ref: unknown) => Promise.resolve()),
-  mockUploadBytes: vi.fn((_ref: unknown, _file: unknown) => Promise.resolve()),
-  mockGetDownloadURL: vi.fn((_ref: unknown) =>
-    Promise.resolve('https://storage.example.com/file.webp'),
-  ),
-}));
+const { mockRef, mockDeleteObject, mockUploadBytesResumable, mockGetDownloadURL } = vi.hoisted(
+  () => ({
+    mockRef: vi.fn((_storage: unknown, _path: string) => ({ fullPath: _path })),
+    mockDeleteObject: vi.fn((_ref: unknown) => Promise.resolve()),
+    mockUploadBytesResumable: vi.fn((_ref: unknown, _file: unknown) => ({
+      on: (_event: string, _next: unknown, _error: unknown, complete: () => void) => {
+        complete();
+      },
+    })),
+    mockGetDownloadURL: vi.fn((_ref: unknown) =>
+      Promise.resolve('https://storage.example.com/file.webp'),
+    ),
+  }),
+);
 
 vi.mock('firebase/storage', () => ({
   ref: mockRef,
-  uploadBytes: mockUploadBytes,
+  uploadBytesResumable: mockUploadBytesResumable,
   getDownloadURL: mockGetDownloadURL,
   deleteObject: mockDeleteObject,
   listAll: vi.fn((_ref: unknown) => Promise.resolve({ items: [], prefixes: [] })),
@@ -32,7 +38,11 @@ import type { StoredImage } from '../../schemas/shared-schemas';
 describe('processImageSlot', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUploadBytes.mockImplementation((_ref: unknown, _file: unknown) => Promise.resolve());
+    mockUploadBytesResumable.mockImplementation((_ref: unknown, _file: unknown) => ({
+      on: (_event: string, _next: unknown, _error: unknown, complete: () => void) => {
+        complete();
+      },
+    }));
     mockGetDownloadURL.mockImplementation((_ref: unknown) =>
       Promise.resolve('https://storage.example.com/file.webp'),
     );
@@ -44,7 +54,7 @@ describe('processImageSlot', () => {
     const result = await processImageSlot(slot, 'projects/abc/');
 
     expect(result).toEqual({ image: null, toDelete: [] });
-    expect(mockUploadBytes).not.toHaveBeenCalled();
+    expect(mockUploadBytesResumable).not.toHaveBeenCalled();
   });
 
   it('returns existing image unchanged for existing slot', async () => {
@@ -56,7 +66,7 @@ describe('processImageSlot', () => {
     const result = await processImageSlot(slot, 'projects/abc/');
 
     expect(result).toEqual({ image, toDelete: [] });
-    expect(mockUploadBytes).not.toHaveBeenCalled();
+    expect(mockUploadBytesResumable).not.toHaveBeenCalled();
   });
 
   it('uploads file and returns new StoredImage for new slot', async () => {
@@ -66,7 +76,7 @@ describe('processImageSlot', () => {
 
     const result = await processImageSlot(slot, basePath);
 
-    expect(mockUploadBytes).toHaveBeenCalled();
+    expect(mockUploadBytesResumable).toHaveBeenCalled();
     expect(result.image).toEqual({
       url: 'https://storage.example.com/file.webp',
       storagePath: `${basePath}${MOCK_UUID}.webp`,
@@ -90,7 +100,7 @@ describe('processImageSlot', () => {
 
     const result = await processImageSlot(slot, basePath);
 
-    expect(mockUploadBytes).toHaveBeenCalled();
+    expect(mockUploadBytesResumable).toHaveBeenCalled();
     expect(result.image).toEqual({
       url: 'https://storage.example.com/file.webp',
       storagePath: `${basePath}${MOCK_UUID}.webp`,
@@ -108,7 +118,7 @@ describe('processImageSlot', () => {
     const result = await processImageSlot(slot, 'projects/abc/');
 
     expect(result).toEqual({ image: null, toDelete: [oldImage.storagePath] });
-    expect(mockUploadBytes).not.toHaveBeenCalled();
+    expect(mockUploadBytesResumable).not.toHaveBeenCalled();
   });
 });
 

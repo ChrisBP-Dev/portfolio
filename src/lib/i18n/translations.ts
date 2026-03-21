@@ -284,6 +284,12 @@ const translations: Record<string, Record<Locale, string>> = {
   'admin.error.notFound': { es: 'El recurso no fue encontrado', en: 'Resource not found' },
   'admin.error.unavailable': { es: 'Servicio no disponible. Verifica tu conexión.', en: 'Service unavailable. Check your connection.' },
   'admin.error.unknown': { es: 'Error inesperado', en: 'Unexpected error' },
+  'admin.error.unauthenticated': { es: 'Sesión expirada. Inicia sesión nuevamente.', en: 'Session expired. Please sign in again.' },
+  'admin.error.resourceExhausted': { es: 'Límite de operaciones alcanzado. Intenta más tarde.', en: 'Operation limit reached. Try again later.' },
+  'admin.error.deadlineExceeded': { es: 'La operación tardó demasiado. Intenta nuevamente.', en: 'Operation timed out. Please try again.' },
+  'admin.error.alreadyExists': { es: 'El recurso ya existe', en: 'Resource already exists' },
+  'admin.error.storageFull': { es: 'Almacenamiento lleno. Elimina archivos antes de subir más.', en: 'Storage full. Delete files before uploading more.' },
+  'admin.error.uploadFailed': { es: 'No se pudo subir la imagen. Intenta nuevamente.', en: 'Image upload failed. Please try again.' },
 
   // Admin — Validation
   'admin.validation.required': { es: 'Este campo es obligatorio', en: 'This field is required' },

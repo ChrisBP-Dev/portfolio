@@ -7,12 +7,18 @@
 <div class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm" aria-live="polite">
   {#each toasts as toast (toast.id)}
     <div
-      class="flex items-start gap-3 px-4 py-3 rounded-lg border shadow-lg motion-safe:animate-slide-up {toast.type === 'success' ? 'bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800' : 'bg-red-50 border-red-200 dark:bg-red-950 dark:border-red-800'}"
+      class="flex items-start gap-3 px-4 py-3 rounded-lg border shadow-lg motion-safe:animate-slide-up {toast.type === 'success' ? 'bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800' : toast.type === 'warning' ? 'bg-amber-50 border-amber-200 dark:bg-amber-950 dark:border-amber-800' : 'bg-red-50 border-red-200 dark:bg-red-950 dark:border-red-800'}"
       role={toast.type === 'error' ? 'alert' : 'status'}
     >
       {#if toast.type === 'success'}
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600 dark:text-green-400 shrink-0 mt-0.5" aria-hidden="true">
           <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      {:else if toast.type === 'warning'}
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" aria-hidden="true">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
         </svg>
       {:else}
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-600 dark:text-red-400 shrink-0 mt-0.5" aria-hidden="true">
@@ -22,7 +28,7 @@
         </svg>
       {/if}
 
-      <p class="text-sm font-medium {toast.type === 'success' ? 'text-green-800 dark:text-green-200' : 'text-red-800 dark:text-red-200'}">
+      <p class="text-sm font-medium {toast.type === 'success' ? 'text-green-800 dark:text-green-200' : toast.type === 'warning' ? 'text-amber-800 dark:text-amber-200' : 'text-red-800 dark:text-red-200'}">
         {toast.message}
       </p>
 
@@ -30,7 +36,7 @@
         <button
           type="button"
           onclick={() => toastStore.remove(toast.id)}
-          class="ml-auto shrink-0 p-0.5 rounded hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+          class="ml-auto shrink-0 p-0.5 rounded hover:bg-black/5 dark:hover:bg-white/5 transition-colors {toast.type === 'success' ? 'text-green-800 dark:text-green-200' : toast.type === 'warning' ? 'text-amber-800 dark:text-amber-200' : 'text-red-800 dark:text-red-200'}"
           aria-label="Cerrar"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

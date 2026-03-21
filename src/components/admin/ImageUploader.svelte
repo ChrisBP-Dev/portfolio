@@ -11,10 +11,11 @@
     slot: ImageSlot;
     required?: boolean;
     error?: string;
+    uploadProgress?: number | null;
     onChange?: (slot: ImageSlot) => void;
   }
 
-  let { label, slot = $bindable(), required = false, error = '', onChange }: Props = $props();
+  let { label, slot = $bindable(), required = false, error = '', uploadProgress = null, onChange }: Props = $props();
 
   let dragOver = $state(false);
   let fileInputRef = $state<HTMLInputElement | null>(null);
@@ -117,6 +118,19 @@
         <span class="absolute top-2 left-2 px-2 py-0.5 text-xs font-semibold rounded bg-green-500 text-white">{t('admin.imageStatus.new', locale)}</span>
       {:else if slot.type === 'replaced'}
         <span class="absolute top-2 left-2 px-2 py-0.5 text-xs font-semibold rounded bg-orange-500 text-white">{t('admin.imageStatus.replaced', locale)}</span>
+      {/if}
+      {#if uploadProgress !== null}
+        <div class="absolute bottom-0 left-0 right-0 bg-black/60 rounded-b-lg px-3 py-2">
+          <div class="flex items-center gap-2">
+            <div class="flex-1 h-2 bg-white/20 rounded-full overflow-hidden">
+              <div
+                class="h-full bg-primary rounded-full transition-[width] duration-200"
+                style="width: {uploadProgress}%"
+              ></div>
+            </div>
+            <span class="text-xs text-white font-medium tabular-nums">{uploadProgress}%</span>
+          </div>
+        </div>
       {/if}
       <button
         type="button"
