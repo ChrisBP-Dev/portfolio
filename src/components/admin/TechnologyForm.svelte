@@ -17,6 +17,16 @@
   const locale = 'es';
   const TECHNOLOGIES_COLLECTION = 'Technologies';
 
+  function getFirestoreErrorMessage(error: unknown): string {
+    if (typeof error === 'object' && error !== null && 'code' in error) {
+      const code = (error as { code: string }).code;
+      if (code === 'permission-denied') return t('admin.error.permissionDenied', locale);
+      if (code === 'not-found') return t('admin.error.notFound', locale);
+      if (code === 'unavailable') return t('admin.error.unavailable', locale);
+    }
+    return t('admin.error.unknown', locale);
+  }
+
   interface Props {
     mode?: 'create' | 'edit';
     initialData?: TechnologyWithId | null;
@@ -156,7 +166,7 @@
       onSaved();
     } catch (error) {
       console.error('Failed to create technology:', error);
-      toastStore.error(t('admin.technologies.createErrorToast', locale));
+      toastStore.error(getFirestoreErrorMessage(error));
       saving = false;
     }
   }
@@ -185,7 +195,7 @@
       onSaved();
     } catch (error) {
       console.error('Failed to update technology:', error);
-      toastStore.error(t('admin.technologies.createErrorToast', locale));
+      toastStore.error(getFirestoreErrorMessage(error));
       saving = false;
     }
   }

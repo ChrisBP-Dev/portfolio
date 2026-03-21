@@ -1,6 +1,6 @@
 # Story 3.6: CRUD Technologies
 
-Status: review
+Status: done
 
 ## Story
 
@@ -526,3 +526,45 @@ Modified files:
 - src/lib/schemas/technology-schema.ts
 - src/lib/i18n/translations.ts
 - src/pages/admin/technologies.astro
+
+## Code Review Record
+
+### Review Date
+2026-03-20
+
+### Reviewer Model
+Claude Opus 4.6 (1M context)
+
+### Review Layers
+- Blind Hunter: completed
+- Edge Case Hunter: completed
+- Acceptance Auditor: completed
+
+### Findings Summary
+
+| Categoría | Cantidad |
+|-----------|----------|
+| Patch | 1 |
+| Bad Spec | 1 |
+| Defer | 3 |
+| Reject | 10 |
+| **Total** | **15** |
+
+### Patches Applied
+
+**CR-T-1 (patch): Error toast en edit/create usaba key específica en vez de error contextual**
+- Ubicación: `TechnologyForm.svelte` catch blocks (create y edit)
+- Fix: Agregada función `getFirestoreErrorMessage()` local (mismo patrón que ProjectForm) y usada en ambos catch blocks para mapear errores de Firestore a mensajes contextuales
+- Validación: 0 type errors, 0 lint errors, 742/742 tests green
+
+### Bad Spec (no acción requerida en código)
+
+**CR-T-2: Documento huérfano en Firestore si falla imagen en create**
+- El spec reconoce explícitamente esta limitación (línea 430): "orphaned empty doc (minor — can be cleaned manually)"
+- Considerar agregar rollback en futuras stories con patrón document-first
+
+### Deferred (pre-existentes)
+
+**CR-T-3:** Delete no-atómico — imagen borrada antes del doc (patrón pre-existente de ProjectsCrudPage)
+**CR-T-4:** Tests usan patrones imperativos en vez de component rendering (enfoque establecido en story 3.5)
+**CR-T-5:** Race condition double-submit por fire-and-forget async (patrón pre-existente de ProjectForm)
