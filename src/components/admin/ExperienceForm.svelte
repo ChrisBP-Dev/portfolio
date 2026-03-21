@@ -336,16 +336,17 @@
     label={t('admin.experiences.form.responsibilities', locale)}
     bind:itemsEs={responsibilitiesEs}
     bind:itemsEn={responsibilitiesEn}
+    required
     onChangeEs={() => markDirty()}
     onChangeEn={() => markDirty()}
   />
   {#if errors.responsibilitiesEs}
-    <p class="text-xs text-error -mt-4" role="alert">
+    <p id="exp-responsibilitiesEs-error" class="text-xs text-error -mt-4" role="alert">
       {errors.responsibilitiesEs}
     </p>
   {/if}
   {#if errors.responsibilitiesEn}
-    <p class="text-xs text-error -mt-4" role="alert">
+    <p id="exp-responsibilitiesEn-error" class="text-xs text-error -mt-4" role="alert">
       {errors.responsibilitiesEn}
     </p>
   {/if}

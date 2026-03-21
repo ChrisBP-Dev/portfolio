@@ -19,7 +19,7 @@
       if (code === 'not-found') return t('admin.error.notFound', locale);
       if (code === 'unavailable') return t('admin.error.unavailable', locale);
     }
-    return t('admin.experiences.deleteErrorToast', locale);
+    return t('admin.error.unknown', locale);
   }
 
   let viewMode = $state<'list' | 'create' | 'edit'>('list');

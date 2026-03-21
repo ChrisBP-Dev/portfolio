@@ -8,6 +8,7 @@
     label: string;
     itemsEs: string[];
     itemsEn: string[];
+    required?: boolean;
     onChangeEs?: (items: string[]) => void;
     onChangeEn?: (items: string[]) => void;
   }
@@ -16,6 +17,7 @@
     label,
     itemsEs = $bindable(),
     itemsEn = $bindable(),
+    required = false,
     onChangeEs,
     onChangeEn,
   }: Props = $props();
@@ -96,7 +98,10 @@
 {/snippet}
 
 <fieldset class="space-y-2">
-  <legend class="text-sm font-medium text-text-primary">{label}</legend>
+  <legend class="text-sm font-medium text-text-primary">
+    {label}
+    {#if required}<span class="text-error" aria-hidden="true">*</span>{/if}
+  </legend>
 
   <!-- Mobile: Tabs (<900px) -->
   <div class="lg:hidden">

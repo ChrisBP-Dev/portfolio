@@ -1,6 +1,6 @@
 # Story 3.7: CRUD Experiences
 
-Status: review
+Status: done
 
 ## Story
 
@@ -416,3 +416,47 @@ Claude Opus 4.6 (1M context)
 - `src/lib/schemas/experience-schema.ts`
 - `src/lib/i18n/translations.ts`
 - `src/pages/admin/experiences.astro`
+
+## Code Review Record
+
+### Review Date
+
+2026-03-20
+
+### Review Model
+
+Claude Opus 4.6 (1M context) — 3-layer adversarial review (Blind Hunter, Edge Case Hunter, Acceptance Auditor)
+
+### Findings Summary
+
+| Category | Count |
+|----------|-------|
+| Patch (fixed) | 2 |
+| Bad Spec (fixed) | 1 |
+| Defer | 4 |
+| Rejected (noise) | 10 |
+
+### Patches Applied
+
+1. **P-1: `getFirestoreErrorMessage` fallback in ExperiencesCrudPage** — Changed from `admin.experiences.deleteErrorToast` to `admin.error.unknown`. Violated spec constraint from 3.6 code review lesson: "Do NOT use specific error toast keys."
+2. **P-2: Responsibilities error elements missing `id` attributes** — Added `id="exp-responsibilitiesEs-error"` and `id="exp-responsibilitiesEn-error"` to match the `exp-{fieldname}-error` convention.
+3. **BS-1: BilingualArrayField missing `required` asterisk** — Added optional `required` prop to `BilingualArrayField.svelte` (backward-compatible), renders asterisk in legend. Passed `required` from `ExperienceForm`.
+
+### Deferred Items (pre-existing, not caused by this story)
+
+1. **D-1: Date timezone offset** — `new Date('YYYY-MM-DD')` parsed as UTC midnight. Consistent round-trip in admin context but could cause off-by-one in negative timezone displays. Project-wide pattern.
+2. **D-2: Back button bypasses unsaved-changes guard** — CrudPage back button sets `viewMode='list'` without checking `hasChanges`. Same pattern as `TechnologiesCrudPage`.
+3. **D-3: Possible double submit on rapid clicks** — No guard in `handleSubmit` before entering `handleCreateSubmit`/`handleEditSubmit`. Same pattern as `TechnologyForm`.
+4. **D-4: BilingualField IDs don't follow `exp-{fieldname}` pattern** — Shared component generates `field-es-{slug}` IDs. Changing would affect all consumers.
+
+### Files Changed in Review
+
+- `src/components/admin/ExperiencesCrudPage.svelte` (P-1)
+- `src/components/admin/ExperienceForm.svelte` (P-2, BS-1)
+- `src/components/admin/BilingualArrayField.svelte` (BS-1)
+
+### Quality Gates
+
+- 47 tests passing, 0 regressions
+- 0 lint errors
+- 0 new TypeScript errors
