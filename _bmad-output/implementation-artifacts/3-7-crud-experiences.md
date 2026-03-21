@@ -1,6 +1,6 @@
 # Story 3.7: CRUD Experiences
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -20,57 +20,57 @@ so that my professional history stays current.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Extend experience schema with form validation types (AC: #4)
-  - [ ] 1.1 Add `experienceFormSchema` — omit `id`, keep `companyName`, `jobName`, `responsibilities`, `startDate`, `endDate` with `.refine()` for date range validation
-  - [ ] 1.2 Add `ExperienceFirestoreData` type — omit `id` from base schema
-  - [ ] 1.3 Add `ExperienceWithId` type — `ExperienceFirestoreData & { id: string }`
-  - [ ] 1.4 Export all new types from `experience-schema.ts`
+- [x] Task 1: Extend experience schema with form validation types (AC: #4)
+  - [x] 1.1 Add `experienceFormSchema` — omit `id`, keep `companyName`, `jobName`, `responsibilities`, `startDate`, `endDate` with `.refine()` for date range validation
+  - [x] 1.2 Add `ExperienceFirestoreData` type — omit `id` from base schema
+  - [x] 1.3 Add `ExperienceWithId` type — `ExperienceFirestoreData & { id: string }`
+  - [x] 1.4 Export all new types from `experience-schema.ts`
 
-- [ ] Task 2: Create ExperienceList component (AC: #1, #2)
-  - [ ] 2.1 Create `ExperienceList.svelte` with Props: `onCreateNew`, `onEdit`, `onDelete`
-  - [ ] 2.2 State: `experiences: ExperienceWithId[]`, `loading`, `error` — same pattern as TechnologyList
-  - [ ] 2.3 `$effect()` calls `loadExperiences()` on mount
-  - [ ] 2.4 Export `loadExperiences()` for parent to call after save/delete
-  - [ ] 2.5 Query: `getDocs(query(collection(db, 'Experiences'), orderBy('startDate', 'desc')))`
-  - [ ] 2.6 Parse each doc via `experienceFirestoreSchema.safeParse()` with date conversion — filter nulls
-  - [ ] 2.7 Loading state: 4 skeleton rows with `motion-safe:animate-pulse`
-  - [ ] 2.8 Error state: red banner with error message
-  - [ ] 2.9 Empty state: illustration SVG + CTA
-  - [ ] 2.10 List item layout: company name (bold), job title (locale 'es'), date range (formatted), Edit + Delete buttons
-  - [ ] 2.11 Date display: `new Intl.DateTimeFormat('es', { year: 'numeric', month: 'short' }).format(date)` — admin locale is always `'es'`. Show `t('admin.experiences.present', locale)` for null endDate
+- [x] Task 2: Create ExperienceList component (AC: #1, #2)
+  - [x] 2.1 Create `ExperienceList.svelte` with Props: `onCreateNew`, `onEdit`, `onDelete`
+  - [x] 2.2 State: `experiences: ExperienceWithId[]`, `loading`, `error` — same pattern as TechnologyList
+  - [x] 2.3 `$effect()` calls `loadExperiences()` on mount
+  - [x] 2.4 Export `loadExperiences()` for parent to call after save/delete
+  - [x] 2.5 Query: `getDocs(query(collection(db, 'Experiences'), orderBy('startDate', 'desc')))`
+  - [x] 2.6 Parse each doc via `experienceFirestoreSchema.safeParse()` with date conversion — filter nulls
+  - [x] 2.7 Loading state: 4 skeleton rows with `motion-safe:animate-pulse`
+  - [x] 2.8 Error state: red banner with error message
+  - [x] 2.9 Empty state: illustration SVG + CTA
+  - [x] 2.10 List item layout: company name (bold), job title (locale 'es'), date range (formatted), Edit + Delete buttons
+  - [x] 2.11 Date display: `new Intl.DateTimeFormat('es', { year: 'numeric', month: 'short' }).format(date)` — admin locale is always `'es'`. Show `t('admin.experiences.present', locale)` for null endDate
 
-- [ ] Task 3: Create ExperienceForm component (AC: #3, #4, #5, #7)
-  - [ ] 3.1 Create `ExperienceForm.svelte` with Props: `mode`, `initialData`, `onCancel`, `onSaved`
-  - [ ] 3.2 Form state: `companyName`, `jobNameEs`, `jobNameEn`, `responsibilitiesEs: string[]`, `responsibilitiesEn: string[]`, `startDate: string` (HTML date input value), `endDate: string`, `currentlyWorking: boolean`
-  - [ ] 3.3 Edit initialization via `$effect` with `initializedId` guard pattern (same as TechnologyForm)
-  - [ ] 3.4 Date conversion: HTML `<input type="date">` gives `YYYY-MM-DD` string → `new Date(value)` for Zod, `Timestamp.fromDate()` for Firestore
-  - [ ] 3.5 "Actualmente trabajando" checkbox: when checked, disable endDate input and set endDate to null on submit. When unchecked, require endDate.
-  - [ ] 3.6 Use `BilingualField` for `jobName` (type="input")
-  - [ ] 3.7 Use `BilingualArrayField` for `responsibilities`
-  - [ ] 3.8 Validation on blur for all fields; `validateAll()` + `scrollToFirstError()` on submit
-  - [ ] 3.9 Date range validation: if endDate provided and `endDate < startDate`, set error on endDate field
-  - [ ] 3.10 Create submit: `addDoc(collection(db, 'Experiences'), payload)` — payload includes `Timestamp.fromDate()` for dates
-  - [ ] 3.11 Edit submit: `updateDoc(doc(db, 'Experiences', id), payload)`
-  - [ ] 3.12 `markDirty()` + `handleCancel()` with discard confirmation
-  - [ ] 3.13 Save/cancel buttons with spinner + disabled state while saving
-  - [ ] 3.14 Error mapping via `getFirestoreErrorMessage()` — contextual toast on error
+- [x] Task 3: Create ExperienceForm component (AC: #3, #4, #5, #7)
+  - [x] 3.1 Create `ExperienceForm.svelte` with Props: `mode`, `initialData`, `onCancel`, `onSaved`
+  - [x] 3.2 Form state: `companyName`, `jobNameEs`, `jobNameEn`, `responsibilitiesEs: string[]`, `responsibilitiesEn: string[]`, `startDate: string` (HTML date input value), `endDate: string`, `currentlyWorking: boolean`
+  - [x] 3.3 Edit initialization via `$effect` with `initializedId` guard pattern (same as TechnologyForm)
+  - [x] 3.4 Date conversion: HTML `<input type="date">` gives `YYYY-MM-DD` string → `new Date(value)` for Zod, `Timestamp.fromDate()` for Firestore
+  - [x] 3.5 "Actualmente trabajando" checkbox: when checked, disable endDate input and set endDate to null on submit. When unchecked, require endDate.
+  - [x] 3.6 Use `BilingualField` for `jobName` (type="input")
+  - [x] 3.7 Use `BilingualArrayField` for `responsibilities`
+  - [x] 3.8 Validation on blur for all fields; `validateAll()` + `scrollToFirstError()` on submit
+  - [x] 3.9 Date range validation: if endDate provided and `endDate < startDate`, set error on endDate field
+  - [x] 3.10 Create submit: `addDoc(collection(db, 'Experiences'), payload)` — payload includes `Timestamp.fromDate()` for dates
+  - [x] 3.11 Edit submit: `updateDoc(doc(db, 'Experiences', id), payload)`
+  - [x] 3.12 `markDirty()` + `handleCancel()` with discard confirmation
+  - [x] 3.13 Save/cancel buttons with spinner + disabled state while saving
+  - [x] 3.14 Error mapping via `getFirestoreErrorMessage()` — contextual toast on error
 
-- [ ] Task 4: Create ExperiencesCrudPage orchestrator (AC: #6)
-  - [ ] 4.1 Create `ExperiencesCrudPage.svelte` with view state: `'list' | 'create' | 'edit'`
-  - [ ] 4.2 State: `listRef`, `editingExp`, `deletingExp`, `showDeleteDialog`, `deleting`
-  - [ ] 4.3 `handleSaved()`: reset to list, call `listRef?.loadExperiences()`
-  - [ ] 4.4 `handleEdit()`: set editingExp, switch to edit view
-  - [ ] 4.5 `handleDeleteRequest()` / `handleConfirmDelete()`: delete Firestore doc only (no images), toast, refresh list
-  - [ ] 4.6 Delete dialog message with `{name}` replacement (use companyName)
-  - [ ] 4.7 Back-to-list button + breadcrumb title in form views
-  - [ ] 4.8 `getFirestoreErrorMessage()` for delete errors
+- [x] Task 4: Create ExperiencesCrudPage orchestrator (AC: #6)
+  - [x] 4.1 Create `ExperiencesCrudPage.svelte` with view state: `'list' | 'create' | 'edit'`
+  - [x] 4.2 State: `listRef`, `editingExp`, `deletingExp`, `showDeleteDialog`, `deleting`
+  - [x] 4.3 `handleSaved()`: reset to list, call `listRef?.loadExperiences()`
+  - [x] 4.4 `handleEdit()`: set editingExp, switch to edit view
+  - [x] 4.5 `handleDeleteRequest()` / `handleConfirmDelete()`: delete Firestore doc only (no images), toast, refresh list
+  - [x] 4.6 Delete dialog message with `{name}` replacement (use companyName)
+  - [x] 4.7 Back-to-list button + breadcrumb title in form views
+  - [x] 4.8 `getFirestoreErrorMessage()` for delete errors
 
-- [ ] Task 5: Wire experiences.astro page (AC: all)
-  - [ ] 5.1 Replace placeholder content with `ExperiencesCrudPage client:only="svelte"`
-  - [ ] 5.2 Keep existing `AdminLayout` and `AuthGuard` wrapper
+- [x] Task 5: Wire experiences.astro page (AC: all)
+  - [x] 5.1 Replace placeholder content with `ExperiencesCrudPage client:only="svelte"`
+  - [x] 5.2 Keep existing `AdminLayout` and `AuthGuard` wrapper
 
-- [ ] Task 6: Add i18n translation keys
-  - [ ] 6.1 Add `admin.experiences.*` keys following technology pattern:
+- [x] Task 6: Add i18n translation keys
+  - [x] 6.1 Add `admin.experiences.*` keys following technology pattern:
     - `title`, `createTitle`, `editTitle`, `createNew`, `empty`, `emptyCta`
     - `loading`, `errorLoading`, `edit`, `delete`
     - `form.companyName`, `form.jobName`, `form.responsibilities`, `form.startDate`, `form.endDate`, `form.currentlyWorking`
@@ -80,10 +80,10 @@ so that my professional history stays current.
     - `form.dateRangeError` (es: "La fecha de fin debe ser posterior a la de inicio", en: "End date must be after start date")
     - `present` (es: "Presente", en: "Present") — used in ExperienceList for null endDate display, NOT a form field
 
-- [ ] Task 7: Unit tests
-  - [ ] 7.1 `experience-form.test.ts`: Schema validation tests (companyName required, jobName bilingual required, responsibilities arrays, date range validation, nullable endDate)
-  - [ ] 7.2 `experience-crud.test.ts`: Create flow (addDoc called with Timestamp dates), edit flow (updateDoc), delete flow (deleteDoc only, no image service), error handling (toast on failure)
-  - [ ] 7.3 `experience-list.test.ts`: Load with date parsing, empty state, error state, ordering by startDate desc
+- [x] Task 7: Unit tests
+  - [x] 7.1 `experience-form.test.ts`: Schema validation tests (companyName required, jobName bilingual required, responsibilities arrays, date range validation, nullable endDate)
+  - [x] 7.2 `experience-crud.test.ts`: Create flow (addDoc called with Timestamp dates), edit flow (updateDoc), delete flow (deleteDoc only, no image service), error handling (toast on failure)
+  - [x] 7.3 `experience-list.test.ts`: Load with date parsing, empty state, error state, ordering by startDate desc
 
 ## Dev Notes
 
@@ -386,8 +386,33 @@ Recent commits show consistent patterns:
 
 ### Agent Model Used
 
+Claude Opus 4.6 (1M context)
+
 ### Debug Log References
+
+- Tests 3.7-TEST-015/016 initially failed: `localizedStringArray` schema allows empty arrays at schema level. Fixed tests to validate at form level (matching actual component behavior).
 
 ### Completion Notes List
 
+- Task 1: Extended `experience-schema.ts` — exported `experienceBaseSchema`, added `experienceFirestoreSchema`, `experienceFormSchema` (with date range refinement targeting `endDate` path), `ExperienceFirestoreData`, `ExperienceWithId` types.
+- Task 2: Created `ExperienceList.svelte` — loads from Firestore with client SDK, Timestamp→Date conversion, `Intl.DateTimeFormat('es')` formatting, skeleton loading, empty state with briefcase SVG, error state.
+- Task 3: Created `ExperienceForm.svelte` — bilingual fields (jobName via BilingualField, responsibilities via BilingualArrayField), date inputs with "Actualmente trabajando" checkbox, `Timestamp.fromDate()` for writes, field-level and full validation, `scrollToFirstError()`, `initializedId` guard pattern.
+- Task 4: Created `ExperiencesCrudPage.svelte` — orchestrator with view mode state machine, delete flow (deleteDoc only, no image cleanup), ConfirmDialog with companyName, `getFirestoreErrorMessage()` for contextual errors.
+- Task 5: Wired `experiences.astro` — replaced placeholder with `ExperiencesCrudPage client:only="svelte"`.
+- Task 6: Added 30 i18n keys under `admin.experiences.*` in translations.ts.
+- Task 7: Created 47 tests across 3 files (23 form, 13 crud, 11 list) — all passing with 0 regressions.
+
 ### File List
+
+**New files:**
+- `src/components/admin/ExperiencesCrudPage.svelte`
+- `src/components/admin/ExperienceList.svelte`
+- `src/components/admin/ExperienceForm.svelte`
+- `src/components/admin/__tests__/experience-form.test.ts`
+- `src/components/admin/__tests__/experience-crud.test.ts`
+- `src/components/admin/__tests__/experience-list.test.ts`
+
+**Modified files:**
+- `src/lib/schemas/experience-schema.ts`
+- `src/lib/i18n/translations.ts`
+- `src/pages/admin/experiences.astro`
