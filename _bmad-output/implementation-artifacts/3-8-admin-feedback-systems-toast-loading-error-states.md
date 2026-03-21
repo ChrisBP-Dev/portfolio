@@ -1,6 +1,6 @@
 # Story 3.8: Admin Feedback Systems — Toast, Loading, Error States
 
-Status: review
+Status: done
 
 ## Story
 
@@ -613,6 +613,33 @@ Claude Opus 4.6 (1M context)
 - Added amber/orange warning styling to `Toast.svelte` with triangle-alert icon and color-matched dismiss button
 - Updated existing `image-service.test.ts` and `image-slot-processor.test.ts` mocks from `uploadBytes` to `uploadBytesResumable`
 - Tests: 9 error-messages tests, 3 warning toast tests, 4 upload progress tests — all 879 tests pass, 0 lint errors, 0 type errors
+
+### Code Review Record
+
+**Reviewed by:** Claude Opus 4.6 (1M context)
+**Date:** 2026-03-20
+**Diff scope:** `061ac7e..HEAD` (3 commits, 20 files, +1015 / -110 lines)
+**Review layers:** Blind Hunter, Edge Case Hunter, Acceptance Auditor — all 3 completed
+
+#### Findings Summary
+
+| Categoria | Cantidad |
+|---|---|
+| intent_gap | 0 |
+| bad_spec | 0 |
+| patch (fixed) | 2 |
+| defer | 2 |
+| reject (noise) | 18 |
+
+#### Patches Applied
+
+- **P-1 (AC#2, AC#8):** `ProjectForm.svelte:266` — inner catch for image upload errors used hardcoded `t('admin.projects.form.errorToast', locale)` instead of centralized `getFirestoreErrorMessage(uploadError, locale)`. Fixed.
+- **P-2:** `ProjectForm.svelte:323-327` — `handleEditSubmit()` catch block did not reset `mainImageProgress = null`, leaving progress bar visible after error. Fixed.
+
+#### Deferred Items
+
+- **D-1: Upload task not cancelled on component teardown** — `uploadBytesResumable` returns an `UploadTask` that is never cancelled if the user navigates away mid-upload. Introduced by this story's switch to resumable uploads. Resolution: requires exposing `UploadTask` reference and adding `$effect` cleanup in form components. Scope for a future upload lifecycle story.
+- **D-2: Multi-image upload atomicity for screenshots** — `Promise.all` for screenshot uploads has no rollback on partial failure. Pre-existing from story 3.4/3.5, not modified by this story. Resolution: requires transactional upload pattern or cleanup-on-failure strategy. Scope for future architectural improvement.
 
 ### File List
 

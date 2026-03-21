@@ -263,7 +263,7 @@
         }
       } catch (uploadError) {
         console.error('Image upload failed after document creation:', uploadError);
-        toastStore.error(t('admin.projects.form.errorToast', locale));
+        toastStore.error(getFirestoreErrorMessage(uploadError, locale));
         mainImageProgress = null;
         saving = false;
         return;
@@ -323,6 +323,7 @@
     } catch (error) {
       console.error('Failed to update project:', error);
       toastStore.error(getFirestoreErrorMessage(error, locale));
+      mainImageProgress = null;
       saving = false;
     }
   }
