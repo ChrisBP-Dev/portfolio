@@ -22,9 +22,9 @@ so that I always know the status of my operations and never feel uncertain.
 ## Tasks / Subtasks
 
 - [ ] Task 1: Create centralized `error-messages.ts` utility (AC: #2, #8)
-  - [ ] 1.1 Create `src/lib/utils/error-messages.ts` with `getFirestoreErrorMessage(error: unknown, locale: Locale): string`
-  - [ ] 1.2 Map Firebase error codes: `permission-denied`, `not-found`, `unavailable`, `unauthenticated`, `resource-exhausted`, `deadline-exceeded`, `already-exists` — fallback to `admin.error.unknown`
-  - [ ] 1.3 Also export `getStorageErrorMessage(error: unknown, locale: Locale): string` for Storage-specific codes: `storage/unauthorized`, `storage/canceled`, `storage/unknown`, `storage/object-not-found`, `storage/quota-exceeded`, `storage/retry-limit-exceeded`
+  - [ ] 1.1 Create `src/lib/utils/error-messages.ts` with a single unified `getFirestoreErrorMessage(error: unknown, locale: Locale): string` that handles BOTH Firestore AND Storage error codes via combined lookup (`FIRESTORE_ERROR_MAP[code] ?? STORAGE_ERROR_MAP[code]`). Do NOT create a separate `getStorageErrorMessage` — one function handles all Firebase errors.
+  - [ ] 1.2 Map Firestore error codes: `permission-denied`, `not-found`, `unavailable`, `unauthenticated`, `resource-exhausted`, `deadline-exceeded`, `already-exists` — fallback to `admin.error.unknown`
+  - [ ] 1.3 Map Storage error codes in the same file: `storage/unauthorized`, `storage/canceled`, `storage/unknown`, `storage/object-not-found`, `storage/quota-exceeded`, `storage/retry-limit-exceeded` — these are looked up by the same `getFirestoreErrorMessage()` function
   - [ ] 1.4 Add missing i18n keys: `admin.error.unauthenticated`, `admin.error.resourceExhausted`, `admin.error.deadlineExceeded`, `admin.error.alreadyExists`, `admin.error.storageFull`, `admin.error.uploadFailed`
 
 - [ ] Task 2: Refactor all CRUD pages/forms to use centralized error utility (AC: #2, #8)
@@ -41,6 +41,7 @@ so that I always know the status of my operations and never feel uncertain.
   - [ ] 3.3 Modify `imageService.upload()` to accept `onProgress?: (percent: number) => void` callback — switch from `uploadBytes` to `uploadBytesResumable` for progress tracking
   - [ ] 3.4 Modify `imageService.replace()` to pass `onProgress` through to upload
   - [ ] 3.5 Update `ProjectForm.svelte` to track upload progress per ImageSlot and pass to ImageUploader
+  - [ ] 3.6 Update `TechnologyForm.svelte` to track upload progress for single image and pass to ImageUploader (see "TechnologyForm upload progress" pattern in Dev Notes)
 
 - [ ] Task 4: Add double-submit prevention guard (AC: #5)
   - [ ] 4.1 In `ProjectForm.svelte` `handleSubmit()`: add early return if `saving` is already true
@@ -64,7 +65,7 @@ so that I always know the status of my operations and never feel uncertain.
 
 - [ ] Task 7: Unit tests (AC: all)
   - [ ] 7.1 `error-messages.test.ts`: test all Firebase error code mappings (Firestore + Storage), locale switch, unknown error fallback, non-object error handling
-  - [ ] 7.2 `toast-store.test.ts`: test warning type auto-dismiss at 6s, max 3 stacking, success auto-dismiss at 4s, error persistence, remove/clear
+  - [ ] 7.2 `toast-store.test.ts`: EXTEND existing file (has 8 tests from 3.4) — add warning type auto-dismiss at 6s, warning is dismissible, clear timers. Follow existing `vi.resetModules()` + dynamic import pattern.
   - [ ] 7.3 `image-upload-progress.test.ts`: test `uploadBytesResumable` called, onProgress callback fires, progress percentage forwarded
 
 ## Dev Notes
@@ -78,23 +79,9 @@ so that I always know the status of my operations and never feel uncertain.
 - Admin locale fixed to `'es'` — call `t(key, 'es')`
 - NEVER hardcode UI strings — always in `translations.ts`
 
-### Current State Analysis — What Already Works
-
-| Feature | Status | Location |
-|---|---|---|
-| Toast success (green, 4s auto-dismiss) | DONE | `toast-store.svelte.ts` + `Toast.svelte` |
-| Toast error (red, persist until dismiss) | DONE | `toast-store.svelte.ts` + `Toast.svelte` |
-| Max 3 toasts stacking | DONE | `toast-store.svelte.ts` MAX_TOASTS=3 |
-| `aria-live="polite"` on toast container | DONE | `Toast.svelte` |
-| `role="alert"` on error toasts | DONE | `Toast.svelte` |
-| Skeleton loading rows (4 pulsing) | DONE | TechnologyList, ProjectList, ExperienceList |
-| Spinner + "Guardando..." on button | DONE | All 3 Form components |
-| ConfirmDialog for delete | DONE | All 3 CrudPage components |
-| Field-level validation with `role="alert"` | DONE | All 3 Form components |
-| Slide-up animation on toast | DONE | `Toast.svelte` CSS |
-| `prefers-reduced-motion` respected | DONE | `Toast.svelte` media query |
-
 ### What This Story ADDS or FIXES
+
+**Already working (DO NOT recreate):** Toast success/error, max 3 stacking, `aria-live`, `role="alert"`, skeleton rows, spinner+Guardando button, ConfirmDialog, field validation, slide-up animation, `prefers-reduced-motion`.
 
 | Change | Why |
 |---|---|
@@ -128,6 +115,7 @@ const FIRESTORE_ERROR_MAP: Record<string, string> = {
 /** Firebase Storage error code → i18n key */
 const STORAGE_ERROR_MAP: Record<string, string> = {
   'storage/unauthorized': 'admin.error.permissionDenied',
+  'storage/object-not-found': 'admin.error.notFound',
   'storage/quota-exceeded': 'admin.error.storageFull',
   'storage/retry-limit-exceeded': 'admin.error.uploadFailed',
   'storage/canceled': 'admin.error.uploadFailed',
@@ -276,7 +264,30 @@ mainImageProgress = null;
 />
 ```
 
-**IMPORTANT:** TechnologyForm also uses ImageUploader but only for a single image. Apply the same progress tracking pattern there.
+**IMPORTANT: TechnologyForm upload progress** — TechnologyForm also uses ImageUploader for a single image. Apply this pattern:
+
+```typescript
+// In TechnologyForm.svelte:
+let imageProgress = $state<number | null>(null);
+
+// In handleCreate/handleEdit, when processing the image slot:
+const result = await processImageSlot(
+  imageSlot, path,
+  (p) => { imageProgress = p; }
+);
+imageProgress = null;
+```
+
+```svelte
+<ImageUploader
+  label={t('admin.technologies.form.image', locale)}
+  bind:slot={imageSlot}
+  required
+  error={errors.image}
+  uploadProgress={imageProgress}
+  onChange={handleImageChange}
+/>
+```
 
 **NOTE:** ExperienceForm has NO images — do NOT add upload progress there.
 
@@ -343,12 +354,16 @@ export const toastStore = {
     <line x1="12" y1="17" x2="12.01" y2="17"></line>
   </svg>
 
-<!-- Warning text color: -->
+<!-- Warning text color (applies to message text AND close button): -->
 {toast.type === 'success'
   ? 'text-green-800 dark:text-green-200'
   : toast.type === 'warning'
     ? 'text-amber-800 dark:text-amber-200'
     : 'text-red-800 dark:text-red-200'}
+
+<!-- IMPORTANT: The close button (dismiss X) is shown for dismissible toasts.
+     Warning toasts ARE dismissible, so the close button must also use amber colors.
+     Apply the same text color conditional to the close button's hover/focus states. -->
 ```
 
 ### aria-busy on Submit Buttons
@@ -390,54 +405,46 @@ Add to ALL 3 form submit buttons:
 
 ### Refactoring Pattern — Per File
 
-**Before (in each Svelte component `<script>`):**
-```typescript
-function getFirestoreErrorMessage(error: unknown): string {
-  if (typeof error === 'object' && error !== null && 'code' in error) {
-    const code = (error as { code: string }).code;
-    if (code === 'permission-denied') return t('admin.error.permissionDenied', locale);
-    if (code === 'not-found') return t('admin.error.notFound', locale);
-    if (code === 'unavailable') return t('admin.error.unavailable', locale);
-  }
-  return t('admin.error.unknown', locale); // or wrong entity-specific key
-}
-```
+In each of the 6 components: **delete** the local `function getFirestoreErrorMessage(error: unknown): string { ... }` entirely. Replace with:
 
-**After:**
 ```typescript
 import { getFirestoreErrorMessage } from '../../lib/utils/error-messages';
-// Delete the local function entirely
 // At call sites: getFirestoreErrorMessage(error) → getFirestoreErrorMessage(error, locale)
 ```
 
-### `uploadBytesResumable` API — Firebase Reference
+### `uploadBytesResumable` Notes
 
-```typescript
-import { uploadBytesResumable } from 'firebase/storage';
+`uploadBytesResumable` is from `firebase/storage` (same package as `uploadBytes`). Just change the import — no new dependency. The API is shown in the Step 1 code block above.
 
-const task = uploadBytesResumable(storageRef, file);
-
-task.on('state_changed',
-  (snapshot) => {
-    // snapshot.bytesTransferred: number
-    // snapshot.totalBytes: number
-    // snapshot.state: 'running' | 'paused' | 'success' | 'error' | 'canceled'
-  },
-  (error) => { /* handle error */ },
-  () => { /* complete */ }
-);
-```
-
-**CRITICAL:** `uploadBytesResumable` is from `firebase/storage` (same package as `uploadBytes`). Just change the import — no new dependency.
-
-**withRetry caveat:** `uploadBytesResumable` returns an `UploadTask` (not a Promise). The Promise wrapper in the upload function handles this. If the upload fails with a retryable error, `withRetry` will re-execute the entire upload.
+**withRetry caveat:** `uploadBytesResumable` returns an `UploadTask` (not a Promise). The Promise wrapper in the upload function handles this. If the upload fails with a retryable error, `withRetry` will re-execute the entire upload — the `onProgress` callback will naturally reset to 0% as the new `state_changed` listener starts from `bytesTransferred: 0`.
 
 ### Testing Requirements
 
 - Test naming: `[P0] 3.8-TEST-NNN: description`
 - Mock pattern: `vi.hoisted()` + `vi.mock()`
 - Co-located in `src/lib/utils/__tests__/` for error-messages and `src/lib/firebase/__tests__/` for image progress
-- Toast store tests: `src/lib/utils/__tests__/toast-store.test.ts`
+
+#### Toast Store Test Pattern — CRITICAL
+
+The file `src/lib/utils/__tests__/toast-store.test.ts` ALREADY EXISTS with 8 tests from story 3.4. It uses a specific Svelte 5 rune reset pattern that MUST be followed:
+
+```typescript
+let toastStore: typeof import('../toast-store.svelte').toastStore;
+
+beforeEach(async () => {
+  vi.useFakeTimers();
+  vi.resetModules();  // Required to reset $state rune between tests
+  const mod = await import('../toast-store.svelte');
+  toastStore = mod.toastStore;
+  toastStore.clear();
+});
+```
+
+ADD new warning tests inside the existing `describe('toast-store', ...)` block. Do NOT create a new file or overwrite the existing 8 tests.
+
+#### Image Service Tests — Existing File Reference
+
+`src/lib/firebase/__tests__/image-service.test.ts` already exists with mocks for `firebase/storage`. The new `image-upload-progress.test.ts` is a SEPARATE file — reuse consistent mock patterns from the existing test file (e.g., `vi.hoisted()` + `vi.mock('firebase/storage', ...)` structure).
 
 #### error-messages.test.ts
 
@@ -477,17 +484,28 @@ describe('[P0] error-messages', () => {
 });
 ```
 
-#### toast-store.test.ts
+#### toast-store.test.ts — EXTEND existing file
+
+**IMPORTANT:** The existing file already has tests `3.4-TEST-011` through `3.4-TEST-018` covering: add success, add error, remove by id, success auto-dismiss 4s, error no auto-dismiss, max 3 toasts, newest first, clear all. Do NOT duplicate these — only add the NEW warning-specific tests:
 
 ```typescript
-describe('[P0] toast-store', () => {
-  it('3.8-TEST-006: warning auto-dismisses after 6s', async () => { ... });
-  it('3.8-TEST-007: success auto-dismisses after 4s', async () => { ... });
-  it('3.8-TEST-008: error does NOT auto-dismiss', async () => { ... });
-  it('3.8-TEST-009: max 3 toasts visible', () => { ... });
-  it('3.8-TEST-010: warning is dismissible', () => { ... });
-  it('3.8-TEST-011: success is NOT dismissible', () => { ... });
-  it('3.8-TEST-012: clear() removes all toasts and timers', () => { ... });
+// ADD these tests to the existing describe('toast-store', ...) block:
+it('[P0] 3.8-TEST-006: warning auto-dismisses after 6s', () => {
+  toastStore.warning('Cuidado');
+  expect(toastStore.toasts).toHaveLength(1);
+  vi.advanceTimersByTime(6000);
+  expect(toastStore.toasts).toHaveLength(0);
+});
+
+it('[P0] 3.8-TEST-007: warning is dismissible', () => {
+  toastStore.warning('Cuidado');
+  expect(toastStore.toasts[0]?.dismissible).toBe(true);
+});
+
+it('[P0] 3.8-TEST-008: warning does NOT dismiss at 4s', () => {
+  toastStore.warning('Cuidado');
+  vi.advanceTimersByTime(4000);
+  expect(toastStore.toasts).toHaveLength(1); // still visible, dismissed at 6s
 });
 ```
 
@@ -530,10 +548,10 @@ const mockUploadBytesResumable = vi.fn(() => mockUploadTask);
 **New files:**
 - `src/lib/utils/error-messages.ts`
 - `src/lib/utils/__tests__/error-messages.test.ts`
-- `src/lib/utils/__tests__/toast-store.test.ts`
 - `src/lib/firebase/__tests__/image-upload-progress.test.ts`
 
-**Modified files:**
+**Modified files (EXTEND, do NOT overwrite):**
+- `src/lib/utils/__tests__/toast-store.test.ts` — ALREADY EXISTS with 8 tests from story 3.4 (TEST-011 to TEST-018). ADD new warning tests to the existing file. See "Toast Store Test Pattern" below.
 - `src/lib/utils/toast-store.svelte.ts` — add warning type + 6s timer
 - `src/components/admin/Toast.svelte` — add warning styling
 - `src/components/admin/ImageUploader.svelte` — add uploadProgress prop + progress bar UI
