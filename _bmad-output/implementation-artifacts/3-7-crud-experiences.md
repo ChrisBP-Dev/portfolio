@@ -37,7 +37,7 @@ so that my professional history stays current.
   - [ ] 2.8 Error state: red banner with error message
   - [ ] 2.9 Empty state: illustration SVG + CTA
   - [ ] 2.10 List item layout: company name (bold), job title (locale 'es'), date range (formatted), Edit + Delete buttons
-  - [ ] 2.11 Date display: `Intl.DateTimeFormat(locale, { year: 'numeric', month: 'short' })` — show "Presente" / "Present" for null endDate
+  - [ ] 2.11 Date display: `new Intl.DateTimeFormat('es', { year: 'numeric', month: 'short' }).format(date)` — admin locale is always `'es'`. Show `t('admin.experiences.present', locale)` for null endDate
 
 - [ ] Task 3: Create ExperienceForm component (AC: #3, #4, #5, #7)
   - [ ] 3.1 Create `ExperienceForm.svelte` with Props: `mode`, `initialData`, `onCancel`, `onSaved`
@@ -75,10 +75,10 @@ so that my professional history stays current.
     - `loading`, `errorLoading`, `edit`, `delete`
     - `form.companyName`, `form.jobName`, `form.responsibilities`, `form.startDate`, `form.endDate`, `form.currentlyWorking`
     - `form.save`, `form.saving`, `form.saveEdit`, `form.savingEdit`, `form.cancel`, `form.discardChanges`
-    - `createSuccessToast`, `editSuccessToast`, `createErrorToast`
+    - `createSuccessToast`, `editSuccessToast`
     - `deleteConfirmTitle`, `deleteConfirmMessage`, `deleteConfirmButton`, `deleteSuccessToast`, `deleteErrorToast`
     - `form.dateRangeError` (es: "La fecha de fin debe ser posterior a la de inicio", en: "End date must be after start date")
-    - `form.present` (es: "Presente", en: "Present")
+    - `present` (es: "Presente", en: "Present") — used in ExperienceList for null endDate display, NOT a form field
 
 - [ ] Task 7: Unit tests
   - [ ] 7.1 `experience-form.test.ts`: Schema validation tests (companyName required, jobName bilingual required, responsibilities arrays, date range validation, nullable endDate)
@@ -110,6 +110,8 @@ so that my professional history stays current.
 
 **Key differences from Technologies:** Bilingual fields, array fields, date handling, NO images.
 **Key differences from Projects:** No images, no slug, no URLs, no screenshots. But shares bilingual pattern.
+
+**DO NOT copy from TechnologyForm:** `ImageUploader` import/component, `ImageSlot` state/type, `processImageSlot()`, `cleanupDeletedImages()`, `imageService` import, image path generation (`technologies/{docId}/{uuid}.webp`), image validation (`validateImage()`). Experiences has ZERO image logic.
 
 ### Existing Code to Reuse — DO NOT Reinvent
 
@@ -149,7 +151,7 @@ export type ExperienceFirestoreData = z.infer<typeof experienceFirestoreSchema>;
 export type ExperienceWithId = ExperienceFirestoreData & { id: string };
 ```
 
-**CRITICAL:** The `.refine()` already exists on `experienceSchema`. For `experienceFormSchema`, add `path: ['endDate']` so validation errors target the correct field. The `experienceBaseSchema` is not exported — make it available or restructure.
+**CRITICAL:** `experienceBaseSchema` is currently a local `const` (not exported). You MUST add `export` to it: `export const experienceBaseSchema = z.object({...})`. This is required because `.omit()` only works on `ZodObject` — it CANNOT be called on `experienceSchema` which is a `ZodEffects` (result of `.refine()`). Also, the existing `.refine()` on `experienceSchema` lacks `path: ['endDate']` — the new `experienceFormSchema` MUST include `path: ['endDate']` so validation errors target the correct form field.
 
 ### Date Handling Pattern
 
@@ -277,6 +279,8 @@ Each row: card with `bg-surface border border-border rounded-lg p-4`, hover bord
 
 Form max-width: `max-w-lg`. Responsive: stacked on mobile, same width on all breakpoints (no side-by-side layout needed for non-bilingual fields).
 
+**Form field IDs:** Use `exp-{fieldname}` pattern (e.g., `exp-companyName`, `exp-startDate`), error IDs: `exp-{fieldname}-error`. Follows TechnologyForm's `tech-{fieldname}` convention.
+
 ### Validation Rules
 
 | Field | Rule | Error key |
@@ -284,8 +288,8 @@ Form max-width: `max-w-lg`. Responsive: stacked on mobile, same width on all bre
 | companyName | Required, min 1 after trim | `admin.validation.required` |
 | jobName.es | Required, min 1 after trim | `admin.validation.required` |
 | jobName.en | Required, min 1 after trim | `admin.validation.required` |
-| responsibilities.es | At least 1 non-empty item | `admin.validation.required` |
-| responsibilities.en | At least 1 non-empty item | `admin.validation.required` |
+| responsibilities.es | At least 1 non-empty item after trim: `responsibilitiesEs.filter(s => s.trim()).length === 0` → error | `admin.validation.required` |
+| responsibilities.en | At least 1 non-empty item after trim: `responsibilitiesEn.filter(s => s.trim()).length === 0` → error | `admin.validation.required` |
 | startDate | Required, valid date | `admin.validation.required` |
 | endDate | Required if `!currentlyWorking`, must be >= startDate | `admin.experiences.form.dateRangeError` |
 
@@ -305,23 +309,11 @@ Form max-width: `max-w-lg`. Responsive: stacked on mobile, same width on all bre
 
 ### Collection String Constant
 
-Use string literal `'Experiences'` directly in Svelte components. NEVER import from `collections.ts` — that file uses Admin SDK types (`firebase-admin/firestore`) which cannot be imported in client-side Svelte islands.
+Define a local constant `const EXPERIENCES_COLLECTION = 'Experiences'` in each Svelte component (CrudPage and Form), same pattern as `const TECHNOLOGIES_COLLECTION = 'Technologies'` in TechnologiesCrudPage. NEVER import from `collections.ts` — that file uses Admin SDK types (`firebase-admin/firestore`) which cannot be imported in client-side Svelte islands.
 
 ### Error Handling Pattern
 
-```typescript
-function getFirestoreErrorMessage(error: unknown): string {
-  if (typeof error === 'object' && error !== null && 'code' in error) {
-    const code = (error as { code: string }).code;
-    if (code === 'permission-denied') return t('admin.error.permissionDenied', locale);
-    if (code === 'not-found') return t('admin.error.notFound', locale);
-    if (code === 'unavailable') return t('admin.error.unavailable', locale);
-  }
-  return t('admin.error.unknown', locale);
-}
-```
-
-Copy this into ExperiencesCrudPage AND ExperienceForm (both need it — CrudPage for delete errors, Form for save errors). Same pattern as TechnologiesCrudPage + TechnologyForm.
+Copy `getFirestoreErrorMessage()` from `TechnologiesCrudPage.svelte` into BOTH `ExperiencesCrudPage` (delete errors) AND `ExperienceForm` (save errors). Function duck-types `error.code` and maps `permission-denied` → `admin.error.permissionDenied`, `not-found` → `admin.error.notFound`, `unavailable` → `admin.error.unavailable`, fallback → `admin.error.unknown`. **Do NOT use specific error toast keys** — always use this contextual function (lesson from 3.6 code review).
 
 ### Testing Requirements
 
@@ -331,7 +323,19 @@ Copy this into ExperiencesCrudPage AND ExperienceForm (both need it — CrudPage
 - Co-located in `src/components/admin/__tests__/`
 - WARNING: NEVER import from `collections.ts` in tests for client components
 - Mock `firebase/firestore` with: `addDoc`, `updateDoc`, `deleteDoc`, `getDocs`, `doc`, `collection`, `query`, `orderBy`, `Timestamp`
-- Mock `Timestamp.fromDate()` to return a mock object with `toDate()` method
+- Mock `Timestamp.fromDate()` — this is NEW (3.6 had no dates). Use this pattern:
+
+```typescript
+// In vi.hoisted():
+const mockTimestamp = { toDate: () => new Date('2024-01-15'), seconds: 0, nanoseconds: 0 };
+const mockTimestampFromDate = vi.fn(() => mockTimestamp);
+
+// In vi.mock('firebase/firestore', ...):
+Timestamp: { fromDate: mockTimestampFromDate },
+
+// In tests — verify Timestamp conversion:
+expect(mockTimestampFromDate).toHaveBeenCalledWith(expect.any(Date));
+```
 
 ### Project Structure Notes
 
