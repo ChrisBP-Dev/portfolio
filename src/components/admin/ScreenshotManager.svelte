@@ -68,6 +68,10 @@
   function undoRemoveScreenshot(index: number): void {
     const slot = screenshots[index];
     if (slot && slot.type === 'removed') {
+      if (activeCount >= MAX_SCREENSHOTS) {
+        toastStore.warning(t('admin.validation.maxScreenshots', locale));
+        return;
+      }
       screenshots = screenshots.map((s, i) =>
         i === index ? { type: 'existing' as const, image: slot.old } : s,
       );

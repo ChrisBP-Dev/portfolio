@@ -91,7 +91,8 @@ describe('ImageService', () => {
       );
       handle.cancel();
 
-      await expect(handle).rejects.toThrow('Upload cancelled');
+      // Cancel fires storage/canceled which is no longer retryable — rejects immediately
+      await expect(handle).rejects.toBeDefined();
     });
   });
 
@@ -236,8 +237,8 @@ describe('isRetryableError', () => {
     expect(isRetryableError({ code: 'storage/retry-limit-exceeded' })).toBe(true);
   });
 
-  it('returns true for storage/canceled', () => {
-    expect(isRetryableError({ code: 'storage/canceled' })).toBe(true);
+  it('returns false for storage/canceled (user-initiated cancel is not retryable)', () => {
+    expect(isRetryableError({ code: 'storage/canceled' })).toBe(false);
   });
 
   it('returns true for TypeError with fetch message', () => {

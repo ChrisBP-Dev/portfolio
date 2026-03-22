@@ -9,7 +9,7 @@ export function isRetryableError(error: unknown): boolean {
   if (error instanceof TypeError && error.message.includes('fetch')) return true;
   if (typeof error === 'object' && error !== null && 'code' in error) {
     const code = (error as { code: string }).code;
-    return code === 'storage/retry-limit-exceeded' || code === 'storage/canceled';
+    return code === 'storage/retry-limit-exceeded';
   }
   return false;
 }
@@ -30,9 +30,11 @@ export async function withRetry<T>(fn: () => Promise<T>, maxRetries = MAX_RETRIE
   throw lastError;
 }
 
-/** PromiseLike wrapper that also exposes cancel() for in-flight uploads. */
+/** Promise-like wrapper that also exposes cancel() for in-flight uploads. */
 export interface UploadHandle extends PromiseLike<StoredImage> {
   cancel: () => void;
+  catch: Promise<StoredImage>['catch'];
+  finally: Promise<StoredImage>['finally'];
 }
 
 /**
@@ -76,6 +78,8 @@ function upload(
       activeTask?.cancel();
     },
     then: promise.then.bind(promise),
+    catch: promise.catch.bind(promise),
+    finally: promise.finally.bind(promise),
   };
 }
 

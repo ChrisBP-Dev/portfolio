@@ -175,17 +175,24 @@
           await updateDoc(doc(db, TECHNOLOGIES_COLLECTION, docId), { image: storedImage });
         }
       } catch (uploadError) {
-        // Best-effort rollback — delete orphan document created before upload
+        // Best-effort rollback — delete orphan document and any uploaded images
         try {
           await deleteDoc(doc(db, TECHNOLOGIES_COLLECTION, docId));
         } catch (rollbackError) {
           console.error('Rollback failed — orphan document left:', docId, rollbackError);
+        }
+        try {
+          await imageService.deleteByPrefix(`technologies/${docId}/`);
+        } catch {
+          // Best-effort — orphan images may remain
         }
         console.error('Image upload failed after document creation:', uploadError);
         toastStore.error(getFirestoreErrorMessage(uploadError, locale));
         imageProgress = null;
         saving = false;
         return;
+      } finally {
+        activeUpload = null;
       }
 
       saving = false;
