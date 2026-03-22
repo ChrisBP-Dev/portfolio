@@ -16,12 +16,21 @@
 
   let viewMode = $state<'list' | 'create' | 'edit'>('list');
   let listRef = $state<ProjectList | null>(null);
+  let formRef = $state<ProjectForm | null>(null);
   let editingProject = $state<ProjectWithId | null>(null);
 
   // Delete flow state
   let deletingProject = $state<ProjectWithId | null>(null);
   let showDeleteDialog = $state(false);
   let deleting = $state(false);
+
+  function navigateToList(): void {
+    if (formRef?.getHasChanges() && !window.confirm(t('admin.projects.form.discardChanges', locale))) {
+      return;
+    }
+    viewMode = 'list';
+    editingProject = null;
+  }
 
   function handleSaved(): void {
     viewMode = 'list';
@@ -48,8 +57,14 @@
     if (!deletingProject) return;
     deleting = true;
     try {
-      await imageService.deleteByPrefix(`projects/${deletingProject.id}/`);
+      // Safe-first order: remove document first so UI is consistent,
+      // then clean up images (non-blocking on failure)
       await deleteDoc(doc(db, PROJECTS_COLLECTION, deletingProject.id));
+      try {
+        await imageService.deleteByPrefix(`projects/${deletingProject.id}/`);
+      } catch (imgError) {
+        console.warn('Image cleanup failed after project delete, orphans may remain:', imgError);
+      }
       toastStore.success(t('admin.projects.deleteSuccessToast', locale));
       showDeleteDialog = false;
       deletingProject = null;
@@ -86,10 +101,7 @@
     <div class="mb-6">
       <button
         type="button"
-        onclick={() => {
-          viewMode = 'list';
-          editingProject = null;
-        }}
+        onclick={navigateToList}
         class="text-sm text-text-secondary hover:text-primary transition-colors mb-2 inline-flex items-center gap-1"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
@@ -102,12 +114,10 @@
       </h1>
     </div>
     <ProjectForm
+      bind:this={formRef}
       mode={viewMode === 'edit' ? 'edit' : 'create'}
       initialData={viewMode === 'edit' ? editingProject : null}
-      onCancel={() => {
-        viewMode = 'list';
-        editingProject = null;
-      }}
+      onCancel={navigateToList}
       onSaved={handleSaved}
     />
   {/if}

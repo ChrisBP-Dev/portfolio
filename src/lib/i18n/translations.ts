@@ -198,6 +198,7 @@ const translations: Record<string, Record<Locale, string>> = {
   'admin.projects.form.dragOrClick': { es: 'Arrastra o haz clic para subir', en: 'Drag or click to upload' },
   'admin.projects.form.imageFormats': { es: 'PNG, JPG, WebP — máx. 5MB', en: 'PNG, JPG, WebP — max 5MB' },
   'admin.projects.form.successToast': { es: 'Proyecto guardado exitosamente', en: 'Project saved successfully' },
+  'admin.projects.form.screenshotPartialWarning': { es: '{success} de {total} screenshots subidos, {failed} fallaron', en: '{success} of {total} screenshots uploaded, {failed} failed' },
   'admin.projects.form.errorToast': { es: 'Error al guardar el proyecto', en: 'Error saving project' },
   'admin.projects.deleteConfirmTitle': { es: 'Eliminar proyecto', en: 'Delete project' },
   'admin.projects.deleteConfirmMessage': { es: "¿Eliminar '{name}'? Se eliminarán también {count} imágenes de Storage.", en: "Delete '{name}'? {count} images will also be deleted from Storage." },
@@ -297,6 +298,7 @@ const translations: Record<string, Record<Locale, string>> = {
   'admin.validation.slugInvalid': { es: 'El slug solo puede contener letras minúsculas, números y guiones', en: 'Slug can only contain lowercase letters, numbers and hyphens' },
   'admin.validation.fileTooLarge': { es: 'Intenta con un archivo menor a 5MB', en: 'Try a file smaller than 5MB' },
   'admin.validation.imageRequired': { es: 'La imagen principal es obligatoria', en: 'Main image is required' },
+  'admin.validation.maxScreenshots': { es: 'Máximo 10 screenshots permitidos', en: 'Maximum 10 screenshots allowed' },
   'admin.validation.numberRequired': { es: 'Introduce un número válido', en: 'Enter a valid number' },
   'admin.validation.numberNonNegative': { es: 'El valor debe ser mayor o igual a 0', en: 'Value must be 0 or greater' },
 

@@ -2,6 +2,11 @@
 import { getViteConfig } from 'astro/config';
 
 export default getViteConfig({
+  resolve: {
+    // Required for @testing-library/svelte — ensures Svelte 5 uses
+    // client-side bundle (mount) instead of server-side (SSR)
+    conditions: ['browser'],
+  },
   test: {
     passWithNoTests: true,
     include: ['src/**/*.{test,spec}.{js,ts}'],

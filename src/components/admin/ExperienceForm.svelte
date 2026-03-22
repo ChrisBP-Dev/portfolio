@@ -46,13 +46,25 @@
       jobNameEn = initialData.jobName.en;
       responsibilitiesEs = [...initialData.responsibilities.es];
       responsibilitiesEn = [...initialData.responsibilities.en];
-      startDate = initialData.startDate.toISOString().split('T')[0];
+      // Use local date components to avoid UTC shift from toISOString()
+      const sd = initialData.startDate;
+      startDate = `${sd.getFullYear()}-${String(sd.getMonth() + 1).padStart(2, '0')}-${String(sd.getDate()).padStart(2, '0')}`;
       currentlyWorking = initialData.endDate === null;
-      endDate = initialData.endDate ? initialData.endDate.toISOString().split('T')[0] : '';
+      if (initialData.endDate) {
+        const ed = initialData.endDate;
+        endDate = `${ed.getFullYear()}-${String(ed.getMonth() + 1).padStart(2, '0')}-${String(ed.getDate()).padStart(2, '0')}`;
+      } else {
+        endDate = '';
+      }
       hasChanges = false;
       errors = {};
     }
   });
+
+  // Expose hasChanges for parent (CrudPage) to check before navigating away
+  export function getHasChanges(): boolean {
+    return hasChanges;
+  }
 
   function markDirty(): void {
     hasChanges = true;
@@ -125,7 +137,8 @@
         errors = { ...errors, endDate: t('admin.validation.required', locale) };
         return false;
       }
-      if (startDate && new Date(endDate) < new Date(startDate)) {
+      // T00:00:00 suffix forces local-time interpretation instead of UTC
+      if (startDate && new Date(endDate + 'T00:00:00') < new Date(startDate + 'T00:00:00')) {
         errors = { ...errors, endDate: t('admin.experiences.form.dateRangeError', locale) };
         return false;
       }
@@ -164,8 +177,8 @@
     const endValid = validateEndDate();
 
     // Zod schema validation
-    const startDateObj = startDate ? new Date(startDate) : new Date('invalid');
-    const endDateObj = currentlyWorking ? null : endDate ? new Date(endDate) : new Date('invalid');
+    const startDateObj = startDate ? new Date(startDate + 'T00:00:00') : new Date('invalid');
+    const endDateObj = currentlyWorking ? null : endDate ? new Date(endDate + 'T00:00:00') : new Date('invalid');
 
     const result = experienceFormSchema.safeParse({
       companyName: companyName.trim(),
@@ -206,8 +219,9 @@
         es: responsibilitiesEs.filter((s) => s.trim()).map((s) => s.trim()),
         en: responsibilitiesEn.filter((s) => s.trim()).map((s) => s.trim()),
       },
-      startDate: Timestamp.fromDate(new Date(startDate)),
-      endDate: currentlyWorking ? null : Timestamp.fromDate(new Date(endDate)),
+      // T00:00:00 suffix forces local-time interpretation instead of UTC
+      startDate: Timestamp.fromDate(new Date(startDate + 'T00:00:00')),
+      endDate: currentlyWorking ? null : Timestamp.fromDate(new Date(endDate + 'T00:00:00')),
     };
   }
 
@@ -257,10 +271,7 @@
   }
 
   function handleCancel(): void {
-    if (hasChanges) {
-      const confirmed = window.confirm(t('admin.experiences.form.discardChanges', locale));
-      if (!confirmed) return;
-    }
+    // Unsaved-changes guard is handled by CrudPage.navigateToList()
     onCancel();
   }
 
@@ -311,6 +322,7 @@
   <!-- Job Name (Bilingual) -->
   <BilingualField
     label={t('admin.experiences.form.jobName', locale)}
+    idPrefix="exp-jobName"
     bind:nameEs={jobNameEs}
     bind:nameEn={jobNameEn}
     type="input"

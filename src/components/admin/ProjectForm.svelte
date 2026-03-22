@@ -1,8 +1,8 @@
 <script lang="ts">
   import { tick } from 'svelte';
-  import { collection, addDoc, updateDoc, doc, deleteField } from 'firebase/firestore';
+  import { collection, addDoc, updateDoc, deleteDoc, doc, deleteField } from 'firebase/firestore';
   import { db } from '../../lib/firebase/client';
-  import { imageService } from '../../lib/firebase/image-service';
+  import { imageService, type UploadHandle } from '../../lib/firebase/image-service';
   import {
     processImageSlot,
     cleanupDeletedImages,
@@ -88,6 +88,20 @@
     if (!manualSlug && mode === 'create') {
       slug = slugify(companyNameEs);
     }
+  });
+
+  // Expose hasChanges for parent (CrudPage) to check before navigating away
+  export function getHasChanges(): boolean {
+    return hasChanges;
+  }
+
+  // Cancel in-flight uploads on unmount
+  let activeUploads: UploadHandle[] = [];
+  $effect(() => {
+    return () => {
+      activeUploads.forEach((h) => h.cancel());
+      activeUploads = [];
+    };
   });
 
   // Track changes
@@ -240,28 +254,54 @@
       try {
         if (mainImageSlot.type === 'new') {
           const mainPath = `projects/${docId}/main/${crypto.randomUUID()}.webp`;
-          const mainStoredImage = await imageService.upload(
+          const mainHandle = imageService.upload(
             mainImageSlot.file,
             mainPath,
             (p) => { mainImageProgress = p; },
           );
+          activeUploads.push(mainHandle);
+          const mainStoredImage = await mainHandle;
           mainImageProgress = null;
 
-          const screenshotImages = await Promise.all(
-            screenshots
-              .filter((s): s is Extract<ImageSlot, { type: 'new' }> => s.type === 'new')
-              .map((s) => {
-                const screenshotPath = `projects/${docId}/screenshots/${crypto.randomUUID()}.webp`;
-                return imageService.upload(s.file, screenshotPath);
-              }),
+          // Use allSettled for screenshots — partial success is acceptable
+          const newScreenshots = screenshots.filter(
+            (s): s is Extract<ImageSlot, { type: 'new' }> => s.type === 'new',
           );
+          const screenshotHandles = newScreenshots.map((s) => {
+            const screenshotPath = `projects/${docId}/screenshots/${crypto.randomUUID()}.webp`;
+            const handle = imageService.upload(s.file, screenshotPath);
+            activeUploads.push(handle);
+            return handle;
+          });
+
+          const screenshotResults = await Promise.allSettled(screenshotHandles);
+          const successfulScreenshots = screenshotResults
+            .filter((r): r is PromiseFulfilledResult<{ url: string; storagePath: string }> =>
+              r.status === 'fulfilled')
+            .map((r) => r.value);
+          const failedCount = screenshotResults.filter((r) => r.status === 'rejected').length;
+
+          if (failedCount > 0) {
+            toastStore.warning(
+              t('admin.projects.form.screenshotPartialWarning', locale)
+                .replace('{success}', String(successfulScreenshots.length))
+                .replace('{total}', String(newScreenshots.length))
+                .replace('{failed}', String(failedCount)),
+            );
+          }
 
           await updateDoc(doc(db, PROJECTS_COLLECTION, docId), {
             mainImage: mainStoredImage,
-            screenshots: screenshotImages,
+            screenshots: successfulScreenshots,
           });
         }
       } catch (uploadError) {
+        // Best-effort rollback — delete orphan document created before upload
+        try {
+          await deleteDoc(doc(db, PROJECTS_COLLECTION, docId));
+        } catch (rollbackError) {
+          console.error('Rollback failed — orphan document left:', docId, rollbackError);
+        }
         console.error('Image upload failed after document creation:', uploadError);
         toastStore.error(getFirestoreErrorMessage(uploadError, locale));
         mainImageProgress = null;
@@ -343,10 +383,7 @@
   }
 
   function handleCancel(): void {
-    if (hasChanges) {
-      const confirmed = window.confirm(t('admin.projects.form.discardChanges', locale));
-      if (!confirmed) return;
-    }
+    // Unsaved-changes guard is handled by CrudPage.navigateToList()
     onCancel();
   }
 
@@ -378,6 +415,7 @@
     <div class="space-y-4">
       <BilingualField
         label={t('admin.projects.form.companyName', locale)}
+        idPrefix="project-companyName"
         bind:nameEs={companyNameEs}
         bind:nameEn={companyNameEn}
         required
@@ -391,6 +429,7 @@
 
       <BilingualField
         label={t('admin.projects.form.shortDescription', locale)}
+        idPrefix="project-shortDescription"
         bind:nameEs={shortDescriptionEs}
         bind:nameEn={shortDescriptionEn}
         type="textarea"

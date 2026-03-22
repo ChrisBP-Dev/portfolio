@@ -15,27 +15,30 @@ const PATH_LABEL_MAP: Record<string, string> = {
 };
 
 export function getBreadcrumbSegments(path: string): BreadcrumbSegment[] {
-  const normalizedPath = path.endsWith('/') && path !== '/admin/' ? path.slice(0, -1) : path;
-  const cleanPath = normalizedPath === '/admin/' ? '/admin' : normalizedPath;
+  // Normalize trailing slashes
+  let normalized = path.endsWith('/') && path.length > 1 ? path.slice(0, -1) : path;
+  if (normalized === '/admin/' || normalized === '') normalized = '/admin';
 
-  const segments: BreadcrumbSegment[] = [
-    {
-      label: t('admin.breadcrumb.admin', 'es'),
-      href: '/admin',
-      isCurrent: true,
-    },
-  ];
+  const parts = normalized.split('/').filter(Boolean); // e.g. ['admin', 'projects', 'edit']
+  const segments: BreadcrumbSegment[] = [];
 
-  if (cleanPath !== '/admin') {
-    const labelKey = PATH_LABEL_MAP[cleanPath];
-    if (labelKey) {
-      segments[0]!.isCurrent = false;
-      segments.push({
-        label: t(labelKey, 'es'),
-        href: cleanPath,
-        isCurrent: true,
-      });
+  for (let i = 0; i < parts.length; i++) {
+    const partialPath = '/' + parts.slice(0, i + 1).join('/');
+    const isLast = i === parts.length - 1;
+
+    const labelKey = PATH_LABEL_MAP[partialPath];
+    let label: string;
+
+    if (partialPath === '/admin') {
+      label = t('admin.breadcrumb.admin', 'es');
+    } else if (labelKey) {
+      label = t(labelKey, 'es');
+    } else {
+      // Unknown segment — capitalize first letter
+      label = parts[i]!.charAt(0).toUpperCase() + parts[i]!.slice(1);
     }
+
+    segments.push({ label, href: partialPath, isCurrent: isLast });
   }
 
   return segments;

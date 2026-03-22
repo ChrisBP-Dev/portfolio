@@ -1,8 +1,8 @@
 <script lang="ts">
   import { tick } from 'svelte';
-  import { collection, addDoc, updateDoc, doc } from 'firebase/firestore';
+  import { collection, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
   import { db } from '../../lib/firebase/client';
-  import { imageService } from '../../lib/firebase/image-service';
+  import { imageService, type UploadHandle } from '../../lib/firebase/image-service';
   import {
     processImageSlot,
     cleanupDeletedImages,
@@ -48,6 +48,20 @@
       hasChanges = false;
       errors = {};
     }
+  });
+
+  // Expose hasChanges for parent (CrudPage) to check before navigating away
+  export function getHasChanges(): boolean {
+    return hasChanges;
+  }
+
+  // Cancel in-flight uploads on unmount
+  let activeUpload: UploadHandle | null = null;
+  $effect(() => {
+    return () => {
+      activeUpload?.cancel();
+      activeUpload = null;
+    };
   });
 
   function markDirty(): void {
@@ -147,15 +161,31 @@
       const docRef = await addDoc(collection(db, TECHNOLOGIES_COLLECTION), formData);
       const docId = docRef.id;
 
-      if (imageSlot.type === 'new') {
-        const imagePath = `technologies/${docId}/${crypto.randomUUID()}.webp`;
-        const storedImage = await imageService.upload(
-          imageSlot.file,
-          imagePath,
-          (p) => { imageProgress = p; },
-        );
+      try {
+        if (imageSlot.type === 'new') {
+          const imagePath = `technologies/${docId}/${crypto.randomUUID()}.webp`;
+          const handle = imageService.upload(
+            imageSlot.file,
+            imagePath,
+            (p) => { imageProgress = p; },
+          );
+          activeUpload = handle;
+          const storedImage = await handle;
+          imageProgress = null;
+          await updateDoc(doc(db, TECHNOLOGIES_COLLECTION, docId), { image: storedImage });
+        }
+      } catch (uploadError) {
+        // Best-effort rollback — delete orphan document created before upload
+        try {
+          await deleteDoc(doc(db, TECHNOLOGIES_COLLECTION, docId));
+        } catch (rollbackError) {
+          console.error('Rollback failed — orphan document left:', docId, rollbackError);
+        }
+        console.error('Image upload failed after document creation:', uploadError);
+        toastStore.error(getFirestoreErrorMessage(uploadError, locale));
         imageProgress = null;
-        await updateDoc(doc(db, TECHNOLOGIES_COLLECTION, docId), { image: storedImage });
+        saving = false;
+        return;
       }
 
       saving = false;
@@ -219,10 +249,7 @@
   }
 
   function handleCancel(): void {
-    if (hasChanges) {
-      const confirmed = window.confirm(t('admin.technologies.form.discardChanges', locale));
-      if (!confirmed) return;
-    }
+    // Unsaved-changes guard is handled by CrudPage.navigateToList()
     onCancel();
   }
 

@@ -5,6 +5,7 @@
 
   const locale = 'es';
   const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+  const MAX_SCREENSHOTS = 10;
 
   interface Props {
     screenshots: ImageSlot[];
@@ -16,9 +17,22 @@
   let fileInputRef = $state<HTMLInputElement | null>(null);
   let dragOver = $state(false);
 
+  let activeCount = $derived(screenshots.filter((s) => s.type !== 'removed').length);
+  let atLimit = $derived(activeCount >= MAX_SCREENSHOTS);
+
   function addFiles(files: FileList): void {
+    const remaining = MAX_SCREENSHOTS - activeCount;
+    if (remaining <= 0) {
+      toastStore.warning(t('admin.validation.maxScreenshots', locale));
+      return;
+    }
+
     const newSlots: ImageSlot[] = [];
     for (const file of files) {
+      if (newSlots.length >= remaining) {
+        toastStore.warning(t('admin.validation.maxScreenshots', locale));
+        break;
+      }
       if (file.size > MAX_FILE_SIZE) {
         toastStore.error(t('admin.validation.fileTooLarge', locale));
         continue;
@@ -147,22 +161,24 @@
     {/each}
 
     <!-- Add button -->
-    <div
-      class="h-24 border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer transition-colors {dragOver ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}"
-      onclick={() => fileInputRef?.click()}
-      onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInputRef?.click(); }}}
-      ondrop={handleDrop}
-      ondragover={(e) => { e.preventDefault(); dragOver = true; }}
-      ondragleave={() => { dragOver = false; }}
-      role="button"
-      tabindex="0"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-text-muted mb-1" aria-hidden="true">
-        <line x1="12" y1="5" x2="12" y2="19"></line>
-        <line x1="5" y1="12" x2="19" y2="12"></line>
-      </svg>
-      <span class="text-xs text-text-muted">{t('admin.projects.form.addScreenshot', locale)}</span>
-    </div>
+    {#if !atLimit}
+      <div
+        class="h-24 border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer transition-colors {dragOver ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}"
+        onclick={() => fileInputRef?.click()}
+        onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInputRef?.click(); }}}
+        ondrop={handleDrop}
+        ondragover={(e) => { e.preventDefault(); dragOver = true; }}
+        ondragleave={() => { dragOver = false; }}
+        role="button"
+        tabindex="0"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-text-muted mb-1" aria-hidden="true">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        <span class="text-xs text-text-muted">{t('admin.projects.form.addScreenshot', locale)}</span>
+      </div>
+    {/if}
   </div>
 
   <input

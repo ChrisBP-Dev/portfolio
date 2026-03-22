@@ -15,12 +15,21 @@
 
   let viewMode = $state<'list' | 'create' | 'edit'>('list');
   let listRef = $state<ExperienceList | null>(null);
+  let formRef = $state<ExperienceForm | null>(null);
   let editingExp = $state<ExperienceWithId | null>(null);
 
   // Delete flow state
   let deletingExp = $state<ExperienceWithId | null>(null);
   let showDeleteDialog = $state(false);
   let deleting = $state(false);
+
+  function navigateToList(): void {
+    if (formRef?.getHasChanges() && !window.confirm(t('admin.experiences.form.discardChanges', locale))) {
+      return;
+    }
+    viewMode = 'list';
+    editingExp = null;
+  }
 
   function handleSaved(): void {
     viewMode = 'list';
@@ -81,10 +90,7 @@
     <div class="mb-6">
       <button
         type="button"
-        onclick={() => {
-          viewMode = 'list';
-          editingExp = null;
-        }}
+        onclick={navigateToList}
         class="text-sm text-text-secondary hover:text-primary transition-colors mb-2 inline-flex items-center gap-1"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
@@ -97,12 +103,10 @@
       </h1>
     </div>
     <ExperienceForm
+      bind:this={formRef}
       mode={viewMode === 'edit' ? 'edit' : 'create'}
       initialData={viewMode === 'edit' ? editingExp : null}
-      onCancel={() => {
-        viewMode = 'list';
-        editingExp = null;
-      }}
+      onCancel={navigateToList}
       onSaved={handleSaved}
     />
   {/if}

@@ -7,6 +7,7 @@ const { mockRef, mockUploadBytesResumable, mockGetDownloadURL, mockDeleteObject,
       on: (_event: string, _next: unknown, _error: unknown, complete: () => void) => {
         complete();
       },
+      cancel: vi.fn(),
     })),
     mockGetDownloadURL: vi.fn((_ref: unknown) =>
       Promise.resolve('https://storage.example.com/file.webp'),
@@ -32,7 +33,7 @@ vi.mock('../client', () => ({
   storage: { name: 'storage-mock' },
 }));
 
-import { imageService, isRetryableError, withRetry } from '../image-service';
+import { imageService, isRetryableError, withRetry, type UploadHandle } from '../image-service';
 
 describe('ImageService', () => {
   beforeEach(() => {
@@ -41,6 +42,7 @@ describe('ImageService', () => {
       on: (_event: string, _next: unknown, _error: unknown, complete: () => void) => {
         complete();
       },
+      cancel: vi.fn(),
     }));
     mockGetDownloadURL.mockImplementation((_ref: unknown) =>
       Promise.resolve('https://storage.example.com/file.webp'),
@@ -69,6 +71,28 @@ describe('ImageService', () => {
         storagePath: path,
       });
     });
+
+    it('returns an UploadHandle with cancel that aborts in-flight upload', async () => {
+      let rejectUpload: ((error: unknown) => void) | null = null;
+
+      mockUploadBytesResumable.mockImplementation(() => ({
+        on: (_event: string, _next: unknown, errorCb: unknown) => {
+          rejectUpload = errorCb as (error: unknown) => void;
+        },
+        cancel: vi.fn(() => {
+          // Simulate Firebase: cancel triggers the error callback
+          rejectUpload?.({ code: 'storage/canceled' });
+        }),
+      }));
+
+      const handle: UploadHandle = imageService.upload(
+        new File(['x'], 'x.webp'),
+        'path/x.webp',
+      );
+      handle.cancel();
+
+      await expect(handle).rejects.toThrow('Upload cancelled');
+    });
   });
 
   describe('replace', () => {
@@ -87,6 +111,7 @@ describe('ImageService', () => {
           callOrder.push('upload');
           complete();
         },
+        cancel: vi.fn(),
       }));
       mockDeleteObject.mockImplementation(() => {
         callOrder.push('delete');
@@ -111,6 +136,7 @@ describe('ImageService', () => {
         on: (_event: string, _next: unknown, errorCb: unknown) => {
           (errorCb as (e: Error) => void)(new Error('Upload failed'));
         },
+        cancel: vi.fn(),
       }));
 
       await expect(imageService.replace(oldImage, file, newPath)).rejects.toThrow('Upload failed');

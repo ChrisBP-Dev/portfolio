@@ -9,6 +9,7 @@
     nameEn: string;
     type?: 'input' | 'textarea';
     required?: boolean;
+    idPrefix?: string;
     errorEs?: string;
     errorEn?: string;
     onChangeEs?: (value: string) => void;
@@ -23,6 +24,7 @@
     nameEn = $bindable(),
     type = 'input',
     required = false,
+    idPrefix,
     errorEs = '',
     errorEn = '',
     onChangeEs,
@@ -34,14 +36,15 @@
   let activeTab = $state<'es' | 'en'>('es');
 
   const labelSlug = $derived(label.toLowerCase().replace(/\s+/g, '-'));
-  const esId = $derived(`field-es-${labelSlug}`);
-  const enId = $derived(`field-en-${labelSlug}`);
+  const base = $derived(idPrefix ?? `field-${labelSlug}`);
+  const esId = $derived(idPrefix ? `${base}-es` : `field-es-${labelSlug}`);
+  const enId = $derived(idPrefix ? `${base}-en` : `field-en-${labelSlug}`);
   const esErrorId = $derived(`${esId}-error`);
   const enErrorId = $derived(`${enId}-error`);
-  const tabEsId = $derived(`tab-es-${labelSlug}`);
-  const tabEnId = $derived(`tab-en-${labelSlug}`);
-  const panelEsId = $derived(`panel-es-${labelSlug}`);
-  const panelEnId = $derived(`panel-en-${labelSlug}`);
+  const tabEsId = $derived(`tab-es-${idPrefix ?? labelSlug}`);
+  const tabEnId = $derived(`tab-en-${idPrefix ?? labelSlug}`);
+  const panelEsId = $derived(`panel-es-${idPrefix ?? labelSlug}`);
+  const panelEnId = $derived(`panel-en-${idPrefix ?? labelSlug}`);
 </script>
 
 <fieldset class="space-y-2">

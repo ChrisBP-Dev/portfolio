@@ -16,12 +16,21 @@
 
   let viewMode = $state<'list' | 'create' | 'edit'>('list');
   let listRef = $state<TechnologyList | null>(null);
+  let formRef = $state<TechnologyForm | null>(null);
   let editingTech = $state<TechnologyWithId | null>(null);
 
   // Delete flow state
   let deletingTech = $state<TechnologyWithId | null>(null);
   let showDeleteDialog = $state(false);
   let deleting = $state(false);
+
+  function navigateToList(): void {
+    if (formRef?.getHasChanges() && !window.confirm(t('admin.technologies.form.discardChanges', locale))) {
+      return;
+    }
+    viewMode = 'list';
+    editingTech = null;
+  }
 
   function handleSaved(): void {
     viewMode = 'list';
@@ -48,8 +57,13 @@
     if (!deletingTech) return;
     deleting = true;
     try {
-      await imageService.delete(deletingTech.image);
+      // Safe-first order: remove document first, then clean up image
       await deleteDoc(doc(db, TECHNOLOGIES_COLLECTION, deletingTech.id));
+      try {
+        await imageService.delete(deletingTech.image);
+      } catch (imgError) {
+        console.warn('Image cleanup failed after technology delete, orphan may remain:', imgError);
+      }
       toastStore.success(t('admin.technologies.deleteSuccessToast', locale));
       showDeleteDialog = false;
       deletingTech = null;
@@ -83,10 +97,7 @@
     <div class="mb-6">
       <button
         type="button"
-        onclick={() => {
-          viewMode = 'list';
-          editingTech = null;
-        }}
+        onclick={navigateToList}
         class="text-sm text-text-secondary hover:text-primary transition-colors mb-2 inline-flex items-center gap-1"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
@@ -99,12 +110,10 @@
       </h1>
     </div>
     <TechnologyForm
+      bind:this={formRef}
       mode={viewMode === 'edit' ? 'edit' : 'create'}
       initialData={viewMode === 'edit' ? editingTech : null}
-      onCancel={() => {
-        viewMode = 'list';
-        editingTech = null;
-      }}
+      onCancel={navigateToList}
       onSaved={handleSaved}
     />
   {/if}

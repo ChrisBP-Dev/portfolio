@@ -59,15 +59,35 @@ describe('getBreadcrumbSegments', () => {
     expect(segments[1]!.href).toBe('/admin/projects');
   });
 
-  it('returns only Admin segment for unknown paths', () => {
+  it('capitalizes unknown path segments', () => {
     const segments = getBreadcrumbSegments('/admin/unknown');
-    expect(segments).toHaveLength(1);
-    expect(segments[0]!.isCurrent).toBe(true);
+    expect(segments).toHaveLength(2);
+    expect(segments[0]!.isCurrent).toBe(false);
+    expect(segments[1]).toEqual({
+      label: 'Unknown',
+      href: '/admin/unknown',
+      isCurrent: true,
+    });
   });
 
   it('first segment links to /admin when there is a sub-path', () => {
     const segments = getBreadcrumbSegments('/admin/blog');
     expect(segments[0]!.href).toBe('/admin');
     expect(segments[0]!.isCurrent).toBe(false);
+  });
+
+  it('supports deep paths like /admin/projects/edit', () => {
+    const segments = getBreadcrumbSegments('/admin/projects/edit');
+    expect(segments).toHaveLength(3);
+    expect(segments[0]).toEqual({ label: 'Admin', href: '/admin', isCurrent: false });
+    expect(segments[1]).toEqual({ label: 'Proyectos', href: '/admin/projects', isCurrent: false });
+    expect(segments[2]).toEqual({ label: 'Edit', href: '/admin/projects/edit', isCurrent: true });
+  });
+
+  it('supports deep paths with unknown segments', () => {
+    const segments = getBreadcrumbSegments('/admin/technologies/create');
+    expect(segments).toHaveLength(3);
+    expect(segments[1]!.label).toBe('Tecnologías');
+    expect(segments[2]).toEqual({ label: 'Create', href: '/admin/technologies/create', isCurrent: true });
   });
 });

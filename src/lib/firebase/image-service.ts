@@ -30,14 +30,29 @@ export async function withRetry<T>(fn: () => Promise<T>, maxRetries = MAX_RETRIE
   throw lastError;
 }
 
-async function upload(
+/** PromiseLike wrapper that also exposes cancel() for in-flight uploads. */
+export interface UploadHandle extends PromiseLike<StoredImage> {
+  cancel: () => void;
+}
+
+/**
+ * Upload a file to Storage. Returns an UploadHandle that is both awaitable
+ * (backward-compat) and cancellable via handle.cancel().
+ */
+function upload(
   file: File,
   path: string,
   onProgress?: (percent: number) => void,
-): Promise<StoredImage> {
-  return withRetry(async () => {
+): UploadHandle {
+  let activeTask: { cancel(): void } | null = null;
+  let cancelled = false;
+
+  const promise = withRetry(async () => {
+    // Bail immediately on user-initiated cancel — not retryable
+    if (cancelled) throw new Error('Upload cancelled');
     const storageRef = ref(storage, path);
     const task = uploadBytesResumable(storageRef, file);
+    activeTask = task;
 
     await new Promise<void>((resolve, reject) => {
       task.on(
@@ -54,6 +69,14 @@ async function upload(
     const url = await getDownloadURL(storageRef);
     return { url, storagePath: path };
   });
+
+  return {
+    cancel() {
+      cancelled = true;
+      activeTask?.cancel();
+    },
+    then: promise.then.bind(promise),
+  };
 }
 
 async function replace(

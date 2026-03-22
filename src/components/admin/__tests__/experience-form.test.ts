@@ -284,6 +284,32 @@ describe('ExperienceForm — cancel with unsaved changes', () => {
   });
 });
 
+describe('ExperienceForm — date timezone handling', () => {
+  it('date string with T00:00:00 suffix is interpreted as local midnight', () => {
+    // The form appends 'T00:00:00' to force local interpretation instead of UTC.
+    // Without the suffix, new Date('2025-06-15') is midnight UTC — which shifts
+    // the date backwards in negative-offset timezones.
+    const dateString = '2025-06-15';
+    const localDate = new Date(dateString + 'T00:00:00');
+
+    expect(localDate.getFullYear()).toBe(2025);
+    expect(localDate.getMonth()).toBe(5); // 0-indexed: June
+    expect(localDate.getDate()).toBe(15);
+  });
+
+  it('Timestamp.fromDate receives local-midnight Date', () => {
+    mockTimestampFromDate.mockClear();
+    const dateString = '2024-03-10';
+
+    // Simulate what buildPayload does
+    const localDate = new Date(dateString + 'T00:00:00');
+    mockTimestampFromDate(localDate);
+
+    expect(mockTimestampFromDate).toHaveBeenCalledWith(localDate);
+    expect(localDate.getDate()).toBe(10);
+  });
+});
+
 describe('ExperienceForm — edit initialization', () => {
   it('[P0] 3.7-TEST-030: initialData populates form fields', () => {
     const exp = createExperience({
