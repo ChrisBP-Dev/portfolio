@@ -9,6 +9,9 @@ dist/
 .env.*
 !.env.example
 
+# Playwright auth state
+.auth/
+
 # Firebase credentials
 *.pem
 *-service-account*.json

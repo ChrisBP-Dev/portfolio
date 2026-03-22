@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
@@ -11,6 +12,16 @@ export default defineConfig({
     baseURL: 'http://localhost:4321',
     trace: 'on-first-retry',
   },
+  projects: [
+    {
+      name: 'public',
+      testIgnore: /admin-.*\.spec\.ts/,
+    },
+    {
+      name: 'admin',
+      testMatch: /admin-.*\.spec\.ts/,
+    },
+  ],
   webServer: {
     command: 'pnpm preview',
     url: 'http://localhost:4321',
