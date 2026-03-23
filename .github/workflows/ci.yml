@@ -87,20 +87,21 @@ jobs:
         if: steps.changes.outputs.has_code_changes == 'true'
         run: pnpm build
         env:
-          # Firebase Admin SDK (secret — server-side only)
+          # Firebase Admin SDK (server-side — extracted from service account secret)
           FIREBASE_ADMIN_PROJECT_ID: ${{ fromJson(secrets.FIREBASE_SERVICE_ACCOUNT).project_id }}
           FIREBASE_ADMIN_CLIENT_EMAIL: ${{ fromJson(secrets.FIREBASE_SERVICE_ACCOUNT).client_email }}
           FIREBASE_ADMIN_PRIVATE_KEY: ${{ fromJson(secrets.FIREBASE_SERVICE_ACCOUNT).private_key }}
-          # Firebase Client Config (public — embedded in client JS at build time)
-          PUBLIC_FIREBASE_API_KEY: AIzaSyCv5nTR229JDoAUG4QqUJ8sOwtOFYT0QdY
-          PUBLIC_FIREBASE_AUTH_DOMAIN: portfolio-chrisbp.firebaseapp.com
-          PUBLIC_FIREBASE_PROJECT_ID: portfolio-chrisbp
-          PUBLIC_FIREBASE_STORAGE_BUCKET: portfolio-chrisbp.appspot.com
-          PUBLIC_FIREBASE_MESSAGING_SENDER_ID: '267758672045'
-          PUBLIC_FIREBASE_APP_ID: 1:267758672045:web:4bb333fcbd92450d3dce24
-          PUBLIC_ADMIN_UID: G26dKlezR6cghnfv7NrBmQiXdUG3
-          PUBLIC_CONTACT_EMAIL: christopherboba@gmail.com
-          PUBLIC_WHATSAPP_NUMBER: '+2393831519'
+          # Firebase Client SDK (client-side — embedded in JS at build time)
+          PUBLIC_FIREBASE_API_KEY: ${{ fromJson(secrets.FIREBASE_CLIENT_CONFIG).apiKey }}
+          PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ fromJson(secrets.FIREBASE_CLIENT_CONFIG).authDomain }}
+          PUBLIC_FIREBASE_PROJECT_ID: ${{ fromJson(secrets.FIREBASE_CLIENT_CONFIG).projectId }}
+          PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ fromJson(secrets.FIREBASE_CLIENT_CONFIG).storageBucket }}
+          PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ fromJson(secrets.FIREBASE_CLIENT_CONFIG).messagingSenderId }}
+          PUBLIC_FIREBASE_APP_ID: ${{ fromJson(secrets.FIREBASE_CLIENT_CONFIG).appId }}
+          # App config (public)
+          PUBLIC_ADMIN_UID: ${{ fromJson(secrets.FIREBASE_CLIENT_CONFIG).adminUid }}
+          PUBLIC_CONTACT_EMAIL: ${{ fromJson(secrets.FIREBASE_CLIENT_CONFIG).contactEmail }}
+          PUBLIC_WHATSAPP_NUMBER: ${{ fromJson(secrets.FIREBASE_CLIENT_CONFIG).whatsappNumber }}
 
       - name: Remove admin pages from Lighthouse scan
         if: steps.changes.outputs.has_code_changes == 'true'
