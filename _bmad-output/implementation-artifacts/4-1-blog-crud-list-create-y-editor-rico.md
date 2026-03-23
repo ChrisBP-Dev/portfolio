@@ -8,6 +8,10 @@ As Christopher (admin),
 I want to create blog posts with a rich text editor, custom slugs and cover images,
 So that I can publish technical articles about my work.
 
+## Scope Note
+
+This story builds the **full Blog CrudPage infrastructure** (list + create + delete + edit skeleton) because the established CRUD orchestrator pattern (`ProjectsCrudPage`, `ExperiencesCrudPage`) requires all view modes in a single component. Story 4.3 scope is adjusted to focus on: edit form initialization from existing data, status toggle UX, and edit-specific validation/edge cases.
+
 ## Acceptance Criteria
 
 1. **Given** admin Blog page **When** loaded **Then** list shows all articles (published and drafts) with title, status badge (green "Publicado" / orange "Borrador"), date, action buttons.
@@ -27,8 +31,9 @@ So that I can publish technical articles about my work.
 - [ ] Task 2: Extend blog-post-schema.ts with form/firestore variants (AC: #5, #6, #7)
   - [ ] 2.1 Make `coverImage` optional in the **base** `blogPostBaseSchema` (change to `storedImageSchema.optional()`), then add `blogPostFirestoreSchema` — omit `id`, `images` defaults to `[]`. This ensures `parseBlogPost()` in `collections.ts` won't crash on posts without cover images.
   - [ ] 2.2 Add `blogPostFormSchema` — omit `id`, `coverImage`, `images`, `createdAt`, `updatedAt` (form doesn't handle these)
-  - [ ] 2.3 Change `content` field type to store TipTap JSON: keep `localizedString` type (JSON stringified or raw object — see Dev Notes)
+  - [ ] 2.3 Content field stores TipTap JSON as `JSON.stringify()`'d string inside `localizedString` (`{ es: string, en: string }`). The string value is a serialized TipTap doc, NOT a raw nested object. This keeps the existing `localizedString` validator (min 1 char strings) working without changes.
   - [ ] 2.4 Export types: `BlogPostFirestore`, `BlogPostForm`, `BlogPostWithId`
+  - [ ] 2.5 Update test factory `src/test/factories/blog-post.ts` — change content from HTML strings to valid TipTap JSON strings (e.g., `JSON.stringify({type:"doc",content:[{type:"paragraph",content:[{type:"text",text:"Contenido"}]}]})`)
 
 - [ ] Task 3: Create RichTextEditor.svelte component (AC: #4)
   - [ ] 3.1 Create `src/components/admin/RichTextEditor.svelte` using `@tiptap/core` with Svelte 5 `createSubscriber()` pattern (see Dev Notes for exact approach)
@@ -39,27 +44,28 @@ So that I can publish technical articles about my work.
   - [ ] 3.6 Style editor content area: min-height 300px, border, rounded, padding, focus ring. Prose styles for headings, lists, code blocks
   - [ ] 3.7 Cleanup: `editor.destroy()` in `$effect` return cleanup
   - [ ] 3.8 Add `aria-label` on editor and toolbar, `role="toolbar"` on toolbar container
+  - [ ] 3.9 Error recovery: wrap `new Editor()` in try-catch inside `$effect`. On failure, set `let initError = $state(true)` and render fallback: "Editor no disponible. Intente recargar la página." with `aria-live="assertive"`
 
 - [ ] Task 4: Create BlogForm.svelte (AC: #3, #5, #6, #7)
-  - [ ] 4.1 Create `src/components/admin/BlogForm.svelte` — follow `ProjectForm.svelte` pattern
-  - [ ] 4.2 Props: `mode: 'create' | 'edit'`, `initialData?: BlogPostWithId | null`, `onCancel: () => void`, `onSaved: () => void`
+  - [ ] 4.1 Create `src/components/admin/BlogForm.svelte` — follow `ExperienceForm.svelte` pattern (closest template: no image gallery, bilingual fields, validation). Reference `ProjectForm.svelte` only for image upload handling.
+  - [ ] 4.2 Props: `mode: 'create' | 'edit'`, `initialData?: BlogPostWithId | null`, `onCancel: () => void`, `onSaved: () => void`. **Note:** This story only exercises `mode='create'`. Edit initialization from `initialData` will be fully wired in Story 4.3.
   - [ ] 4.3 Form state with `$state`: `titleEs`, `titleEn`, `slug`, `status` (default 'draft'), `contentEs` (TipTap JSON), `contentEn` (TipTap JSON), `coverImageSlot: ImageSlot`
-  - [ ] 4.4 Auto-generate slug from ES title using `slugify()` from `src/lib/utils/slugify.ts` — only auto-generate when slug field hasn't been manually edited
+  - [ ] 4.4 Auto-generate slug from ES title using `slugify()` from `src/lib/utils/slugify.ts` — only auto-generate when slug field hasn't been manually edited. Field ID: `blog-slug`
   - [ ] 4.5 Slug validation: validate against regex, check uniqueness via Firestore query (exclude current doc in edit mode)
-  - [ ] 4.6 BilingualField for title (reuse existing component)
-  - [ ] 4.7 Two RichTextEditor instances: one for ES content, one for EN content — use tabs or toggle similar to BilingualField pattern
-  - [ ] 4.8 ImageUploader for cover image (single, optional)
-  - [ ] 4.9 Status toggle: draft/published — use styled toggle or select
-  - [ ] 4.10 Validation on submit: title.es required, title.en required, slug required+valid+unique, contentEs required (non-empty JSON), contentEn required
+  - [ ] 4.6 BilingualField for title (reuse existing component). Field IDs: `blog-title-es`, `blog-title-en`
+  - [ ] 4.7 Two RichTextEditor instances for ES and EN content, switched via tab buttons (like BilingualField's mobile pattern). **Critical:** Do NOT destroy/recreate editors on tab switch — use `display: none` on the inactive editor to preserve state. Field IDs: `blog-content-es`, `blog-content-en`
+  - [ ] 4.8 ImageUploader for cover image (single, optional). Field ID: `blog-cover-image`
+  - [ ] 4.9 Status toggle: draft/published — use styled toggle or select. Field ID: `blog-status`
+  - [ ] 4.10 Validation on submit: title.es required, title.en required, slug required+valid+unique, contentEs required (use `isTipTapContentEmpty()` helper — see Dev Notes), contentEn required
   - [ ] 4.11 Create flow: `addDoc()` → process cover image via `processImageSlot()` from `src/lib/firebase/image-slot-processor.ts` → `updateDoc()` with `coverImage` StoredImage → toast success
   - [ ] 4.12 `initializedForId` guard for edit mode (prevent infinite `$effect` re-init)
   - [ ] 4.13 `hasChanges` tracking + `getHasChanges()` export
   - [ ] 4.14 Upload handle cleanup in `$effect` return
-  - [ ] 4.15 Double-submit guard: early return if `saving === true`
+  - [ ] 4.15 Double-submit guard: early return if `saving === true` (Epic 3 fix D-3)
   - [ ] 4.16 `aria-busy` on submit button when saving
 
 - [ ] Task 5: Create BlogList.svelte (AC: #1, #2)
-  - [ ] 5.1 Create `src/components/admin/BlogList.svelte` — follow `TechnologyList.svelte` pattern
+  - [ ] 5.1 Create `src/components/admin/BlogList.svelte` — follow `ExperienceList.svelte` pattern (closest template: simple list with callbacks)
   - [ ] 5.2 Load all BlogPosts from Firestore `BlogPosts` collection, ordered by `createdAt` desc
   - [ ] 5.3 Parse each doc with `blogPostFirestoreSchema.safeParse()` — skip invalid entries, never crash list
   - [ ] 5.4 Error state UI: if Firestore query fails, show error message with retry button
@@ -69,13 +75,13 @@ So that I can publish technical articles about my work.
   - [ ] 5.8 Expose `loadPosts()` method for parent to call after save/delete
 
 - [ ] Task 6: Create BlogCrudPage.svelte (AC: #1, #2, #3)
-  - [ ] 6.1 Create `src/components/admin/BlogCrudPage.svelte` — follow `ProjectsCrudPage.svelte` pattern
-  - [ ] 6.2 View mode state machine: `'list' | 'create' | 'edit'`
+  - [ ] 6.1 Create `src/components/admin/BlogCrudPage.svelte` — follow `ExperiencesCrudPage.svelte` pattern (closest template: viewMode state machine, ConfirmDialog, unsaved guard)
+  - [ ] 6.2 View mode state machine: `'list' | 'create' | 'edit'`. **Note:** `'edit'` mode is structurally wired but only fully exercised in Story 4.3.
   - [ ] 6.3 Wire BlogList (list mode) and BlogForm (create/edit mode)
-  - [ ] 6.4 Delete flow: ConfirmDialog → `deleteDoc()` first → `imageService.deleteByPrefix('blog/{postId}/')` second → toast → reload list
-  - [ ] 6.5 Unsaved changes guard on cancel/back: `window.confirm()` if `hasChanges`
+  - [ ] 6.4 Delete flow: ConfirmDialog → `deleteDoc()` first → `imageService.deleteByPrefix('blog/{postId}/')` second → toast → reload list (Epic 3 fix D-1: safe-first order)
+  - [ ] 6.5 Unsaved changes guard on cancel/back: `window.confirm()` if `hasChanges` (Epic 3 fix D-2)
   - [ ] 6.6 Header with title + "Crear nuevo" button (visible in list mode)
-  - [ ] 6.7 Include `<Toast />` component in the template (required for `toastStore` notifications to render)
+  - [ ] 6.7 Include `<Toast />` component in the template — import from `src/components/admin/Toast.svelte` (required for `toastStore` notifications to render)
 
 - [ ] Task 7: Update blog.astro page (AC: #1)
   - [ ] 7.1 Replace placeholder content in `src/pages/admin/blog.astro` with `BlogCrudPage client:only="svelte"`
@@ -92,18 +98,20 @@ So that I can publish technical articles about my work.
     - Validation: `admin.blog.slugInUse`, `admin.blog.slugInvalid`, `admin.blog.contentRequired`
     - Form actions: `admin.blog.form.save`, `admin.blog.form.saving`, `admin.blog.form.cancel`, `admin.blog.form.discardChanges`
     - List actions: `admin.blog.edit`, `admin.blog.delete`
+    - Editor: `admin.blog.editorUnavailable` ("Editor no disponible. Intente recargar la página.")
 
 - [ ] Task 9: Unit tests (AC: all)
-  - [ ] 9.1 `src/components/admin/__tests__/blog-list.test.ts`: load, parse, display, empty state, skeleton, status badges
-  - [ ] 9.2 `src/components/admin/__tests__/blog-form.test.ts`: validation (title required, slug format, slug uniqueness, content required), create flow, edit initialization, hasChanges, double-submit guard
-  - [ ] 9.3 `src/components/admin/__tests__/blog-crud.test.ts`: view mode transitions, delete flow (doc first then images), unsaved changes guard
-  - [ ] 9.4 `src/lib/__tests__/blog-post-schema.test.ts`: base schema, firestore variant, form variant, slug regex, date refinement
+  - [ ] 9.1 `src/components/admin/__tests__/blog-list.test.ts` (~8 tests): load, parse, display, empty state, skeleton, status badges, error state, retry
+  - [ ] 9.2 `src/components/admin/__tests__/blog-form.test.ts` (~15 tests): validation (title required, slug format, slug uniqueness, content empty check via `isTipTapContentEmpty`), create flow, hasChanges, double-submit guard, image slot processing
+  - [ ] 9.3 `src/components/admin/__tests__/blog-crud.test.ts` (~7 tests): view mode transitions, delete flow (doc first then images), unsaved changes guard, Toast rendering
+  - [ ] 9.4 `src/lib/__tests__/blog-post-schema.test.ts` (~5 tests): base schema, firestore variant, form variant, slug regex, date refinement
   - [ ] 9.5 Mock Firebase client SDK (NOT admin SDK) — follow existing test patterns in `__tests__/`
 
 - [ ] Task 10: E2E tests (AC: all)
   - [ ] 10.1 `tests/e2e/admin-blog.spec.ts`: login → navigate to Blog → create article with title+slug+content → verify appears in list with "Borrador" badge → delete → verify removed
   - [ ] 10.2 Test empty state CTA triggers create form
   - [ ] 10.3 Use existing admin auth setup: `tests/e2e/auth.setup.ts` for login, `tests/e2e/admin-helpers.ts` for `ensureAdminLogin()` helper
+  - [ ] 10.4 TipTap editor interaction in Playwright: use `page.locator('[role="textbox"][aria-multiline="true"]')` or `.ProseMirror` selector — click to focus, then `page.keyboard.type('Contenido de prueba')` (NOT `.fill()` which replaces `contenteditable` entirely). For structured content, use `page.keyboard.press('Enter')` between paragraphs.
 
 ## Dev Notes
 
@@ -125,10 +133,12 @@ So that I can publish technical articles about my work.
 import { Editor } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
+import Link from '@tiptap/extension-link';
 import { createSubscriber } from 'svelte/reactivity';
 
 let element: HTMLDivElement;
 let editorInstance: Editor | undefined;
+let initError = $state(false);
 
 // Bridge TipTap transactions → Svelte reactivity
 const subscribe = createSubscriber((update) => {
@@ -143,17 +153,23 @@ function getEditor(): Editor | undefined {
 }
 
 $effect(() => {
-  editorInstance = new Editor({
-    element,
-    extensions: [
-      StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
-      Image,
-    ],
-    content: initialContent,  // TipTap JSON object
-    onUpdate: ({ editor }) => {
-      onUpdate(JSON.stringify(editor.getJSON()));
-    },
-  });
+  try {
+    editorInstance = new Editor({
+      element,
+      extensions: [
+        StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
+        Image,
+        Link.configure({ openOnClick: false }),
+      ],
+      content: initialContent,  // TipTap JSON object (parsed from string)
+      onUpdate: ({ editor }) => {
+        onUpdate(JSON.stringify(editor.getJSON()));
+      },
+    });
+  } catch (e) {
+    console.error('TipTap initialization failed:', e);
+    initError = true;
+  }
   return () => editorInstance?.destroy();
 });
 ```
@@ -163,52 +179,74 @@ $effect(() => {
 - StarterKit includes: Heading, Bold, Italic, CodeBlock, BulletList, OrderedList, etc.
 - Link extension is **NOT** in StarterKit — requires separate `@tiptap/extension-link`
 - Image extension is **NOT** in StarterKit — requires separate `@tiptap/extension-image`
-- All extensions are MIT licensed (core + extensions are free)
 
-**Editor extensions setup:**
+### TipTap Empty Content Validation
+
+An "empty" TipTap document still produces valid JSON: `{"type":"doc","content":[{"type":"paragraph"}]}`. Use this helper to detect effectively empty content:
+
 ```typescript
-import StarterKit from '@tiptap/starter-kit';
-import Image from '@tiptap/extension-image';
-import Link from '@tiptap/extension-link';
-
-extensions: [
-  StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
-  Image,
-  Link.configure({ openOnClick: false }),  // Don't open links in editor
-]
+function isTipTapContentEmpty(json: string): boolean {
+  try {
+    const doc = JSON.parse(json);
+    if (!doc.content || doc.content.length === 0) return true;
+    // Single empty paragraph = empty
+    if (doc.content.length === 1 && doc.content[0].type === 'paragraph' && !doc.content[0].content) return true;
+    return false;
+  } catch {
+    return true;
+  }
+}
 ```
+
+Place in `src/lib/utils/tiptap-helpers.ts` and import in BlogForm for validation (Task 4.10).
+
+### Bilingual RichTextEditor Pattern
+
+Two TipTap editor instances (ES/EN) managed via tab switching:
+
+```svelte
+<!-- Tab buttons -->
+<div role="tablist">
+  <button role="tab" aria-selected={activeTab === 'es'} onclick={() => activeTab = 'es'}>ES</button>
+  <button role="tab" aria-selected={activeTab === 'en'} onclick={() => activeTab = 'en'}>EN</button>
+</div>
+
+<!-- Both editors always mounted, toggle visibility with CSS -->
+<div style:display={activeTab === 'es' ? 'block' : 'none'}>
+  <RichTextEditor content={contentEs} onUpdate={(json) => contentEs = json} label="Contenido ES" />
+</div>
+<div style:display={activeTab === 'en' ? 'block' : 'none'}>
+  <RichTextEditor content={contentEn} onUpdate={(json) => contentEn = json} label="Contenido EN" />
+</div>
+```
+
+**Critical:** NEVER destroy/recreate editors on tab switch — use `display: none` to preserve TipTap internal state. Destroying resets undo history and cursor position.
 
 ### Content Storage Strategy
 
-**Store TipTap JSON (not HTML) in Firestore.** Reasons:
+**Store TipTap JSON (not HTML) in Firestore.** The `content` field is `localizedString` = `{ es: string, en: string }` where each value is `JSON.stringify(tiptapDoc)`.
+
+**Architecture doc says HTML, this story overrides to JSON.** Rationale:
 - Round-trips perfectly to/from editor without parse step
-- Firestore handles nested objects natively
-- HTML generated at build time for public pages (via `generateHTML()` from `@tiptap/core`)
-- Content field is `localizedString` = `{ es: string, en: string }` — store JSON.stringify'd TipTap doc per locale
-
-**Content field type in schema:**
-```typescript
-content: localizedString  // { es: JSON.stringify(tiptapDoc), en: JSON.stringify(tiptapDoc) }
-```
-
-**Public rendering (build-time, Story 4.4/4.5):** Use `generateHTML(json, extensions)` from `@tiptap/core` + sanitize with `sanitize-html` before `set:html`.
+- Firestore handles string storage efficiently
+- HTML generated at build time for public pages (Story 4.4/4.5) via `generateHTML(JSON.parse(content), extensions)` from `@tiptap/core` + sanitize with `sanitize-html`
 
 ### Existing Patterns to REUSE (Don't Reinvent)
 
-| Pattern | Source File | What to Copy |
+| Pattern | Source File | Specific Export/Pattern to Copy |
 |---|---|---|
-| CRUD state machine | `ProjectsCrudPage.svelte` | viewMode, delete flow, ConfirmDialog |
-| Form with images | `ProjectForm.svelte` | ImageSlot, upload handles, $effect cleanup, initializedForId guard |
-| Simple form | `TechnologyForm.svelte` | Single image upload, validation, error display |
-| BilingualField | `BilingualField.svelte` | Tabs mobile / side-by-side desktop |
-| ImageUploader | `ImageUploader.svelte` | Drag-drop, preview, progress bar |
-| List with parse | `TechnologyList.svelte` | safeParse, skeleton, empty state |
-| Toast | `toast-store.svelte.ts` | `toastStore.success()`, `toastStore.error()` |
+| CRUD state machine | `ExperiencesCrudPage.svelte` | `viewMode` state, `navigateToList()`, `handleDeleteRequest()`, ConfirmDialog wiring |
+| Form with images | `ProjectForm.svelte` | `ImageSlot` state, `activeUploads: UploadHandle[]`, `$effect` cleanup, `initializedForId` guard |
+| Form validation | `ExperienceForm.svelte` | `errors: Record<string,string>`, `validate*()` functions, `clearError()`, `getHasChanges()` export |
+| BilingualField | `BilingualField.svelte` | Direct reuse — tabs mobile / side-by-side desktop |
+| ImageUploader | `ImageUploader.svelte` | Direct reuse — drag-drop, preview, progress bar |
+| List with parse | `ExperienceList.svelte` | `safeParse()` loop, skeleton loader, empty state CTA, `onEdit`/`onDelete` callbacks |
+| Toast | `toast-store.svelte.ts` | `toastStore.success(msg)`, `toastStore.error(msg)` |
 | Error mapping | `error-messages.ts` | `getFirestoreErrorMessage(error, 'es')` |
-| Slug generation | `slugify.ts` | `slugify(titleEs)` for auto-slug |
-| Image lifecycle | `src/lib/firebase/image-service.ts` | upload, replace, delete, deleteByPrefix |
-| ImageSlot | `src/lib/schemas/image-slot.ts` | Discriminated union: empty/existing/new/replaced/removed |
-| processImageSlot | `src/lib/firebase/image-slot-processor.ts` | Encapsulated image state transitions — use this for create/save flows |
+| Slug generation | `slugify.ts` | `slugify(titleEs)` — handles Spanish accents (á,é,í,ó,ú,ñ) |
+| Image lifecycle | `image-service.ts` | `upload()`, `deleteByPrefix()` — returns `UploadHandle` with `.cancel()` |
+| ImageSlot | `image-slot.ts` | Discriminated union: `'empty'` / `'existing'` / `'new'` / `'replaced'` / `'removed'` |
+| processImageSlot | `image-slot-processor.ts` | `processImageSlot(slot, basePath, onProgress)` → `{ image: StoredImage | null, toDelete: string[] }` |
 
 ### File Structure (Create These)
 
@@ -223,6 +261,9 @@ src/components/admin/
       ├── blog-form.test.ts
       └── blog-crud.test.ts
 
+src/lib/utils/
+  └── tiptap-helpers.ts            # isTipTapContentEmpty() helper
+
 src/lib/schemas/
   └── blog-post-schema.ts         # EXTEND existing (add firestore/form variants)
 
@@ -231,6 +272,9 @@ src/lib/i18n/
 
 src/pages/admin/
   └── blog.astro                   # UPDATE existing placeholder
+
+src/test/factories/
+  └── blog-post.ts                 # UPDATE content to TipTap JSON format
 
 tests/e2e/
   └── admin-blog.spec.ts           # E2E happy path
@@ -243,7 +287,7 @@ tests/e2e/
 {
   title: { es: "Mi artículo", en: "My article" },
   slug: "mi-articulo",
-  content: { es: "{...tiptap json...}", en: "{...tiptap json...}" },
+  content: { es: "{...tiptap json stringified...}", en: "{...tiptap json stringified...}" },
   coverImage: { url: "https://...", storagePath: "blog/{postId}/cover.webp" },  // optional
   images: [],  // embedded images tracked for cleanup (Story 4.2)
   status: "draft",  // | "published"
@@ -252,13 +296,9 @@ tests/e2e/
 }
 ```
 
-**Storage paths:**
-```
-blog/{postId}/cover.webp              # Cover image
-blog/{postId}/images/{uuid}.webp      # Embedded images (Story 4.2)
-```
+**Storage path for cover image:** `blog/{postId}/cover.webp` (fixed name, no UUID — only one cover image per post, replaced on edit).
 
-### Delete Flow (Safe-First Order — Epic 3 Lesson D-1)
+### Delete Flow (Safe-First Order — Epic 3 Fix D-1)
 
 ```
 1. deleteDoc(doc(db, 'BlogPosts', postId))     ← Document first
@@ -270,10 +310,10 @@ Orphaned images acceptable if step 2 fails — refs are clean after step 1.
 ### Create Flow
 
 ```
-1. Validate form fields (title, slug, content, status)
+1. Validate form fields (title, slug, content via isTipTapContentEmpty(), status)
 2. Check slug uniqueness (see Slug Uniqueness Query below)
 3. addDoc(collection(db, 'BlogPosts'), { title, slug, content, status, images: [], createdAt, updatedAt })
-4. Process coverImage via processImageSlot(coverImageSlot, imageService, `blog/${docRef.id}/cover.webp`)
+4. Process coverImage via processImageSlot(coverImageSlot, `blog/${docRef.id}/cover.webp`, onProgress)
    → if returns StoredImage: updateDoc with coverImage field
 5. toastStore.success(t('admin.blog.saveSuccessToast', 'es'))
 6. onSaved() → parent returns to list view
@@ -288,33 +328,21 @@ async function isSlugUnique(slug: string, excludeId?: string): Promise<boolean> 
   const q = query(collection(db, 'BlogPosts'), where('slug', '==', slug), limit(1));
   const snapshot = await getDocs(q);
   if (snapshot.empty) return true;
-  // In edit mode, exclude current document
   return excludeId ? snapshot.docs[0].id === excludeId : false;
 }
 ```
-
-### Form Field IDs (Convention from Epic 3)
-
-Follow `blog-{fieldname}` pattern consistently:
-- `blog-title-es`, `blog-title-en`
-- `blog-slug`
-- `blog-content-es`, `blog-content-en`
-- `blog-cover-image`
-- `blog-status`
 
 ### Slug Auto-Generation Logic
 
 ```typescript
 let slugManuallyEdited = $state(false);
 
-// Auto-generate slug from ES title when not manually edited
 $effect(() => {
   if (!slugManuallyEdited && titleEs) {
     slug = slugify(titleEs);
   }
 });
 
-// On slug field input: mark as manually edited
 function handleSlugInput() {
   slugManuallyEdited = true;
 }
@@ -330,20 +358,21 @@ function handleSlugInput() {
 - Toolbar: `role="toolbar"`, `aria-label="Formato de texto"`
 - Status badges: include `aria-label` with full status text
 - Submit button: `aria-busy={saving}` when saving
+- Bilingual content tabs: `role="tablist"` / `role="tab"` / `aria-selected`
 
 ### Epic 3 Deferred Items — Prevent Replication
 
-- **D-1 (delete non-atomic):** FIXED — delete doc first, images second (see Delete Flow above)
-- **D-3 (double-submit):** Add `if (saving) return;` at top of `handleSubmit()`
-- **D-2 (back button bypass):** Implement unsaved changes check before switching viewMode
+- **D-1 (delete non-atomic):** FIXED in Task 6.4 — delete doc first, images second
+- **D-3 (double-submit):** FIXED in Task 4.15 — `if (saving) return;` at top of `handleSubmit()`
+- **D-2 (back button bypass):** FIXED in Task 6.5 — unsaved changes check before switching viewMode
 
 ### Testing Strategy
 
-**Unit tests (Vitest):** Mock Firebase client SDK. Use `vi.mock('firebase/firestore')`. Test factory for BlogPost objects. Co-locate in `__tests__/`.
+**Unit tests (Vitest):** Mock Firebase client SDK via `vi.mock('firebase/firestore')`. Use updated factory `createBlogPost()` from `src/test/factories/blog-post.ts` (TipTap JSON content). Co-locate in `__tests__/`.
 
-**E2E tests (Playwright):** Reuse admin auth setup (`tests/e2e/setup/`). Test: navigate → create → verify list → delete → verify removed.
+**E2E tests (Playwright):** Reuse `ensureAdminLogin()` from `tests/e2e/admin-helpers.ts`. TipTap editor is `contenteditable` — use `page.keyboard.type()` after clicking the `.ProseMirror` element (NOT `.fill()`). Use `tests/e2e/admin-projects.spec.ts` as template for serial test structure.
 
-**Coverage target:** ~30-40 tests across 4 test files.
+**Coverage target:** ~35 tests across 4 unit test files + 1 E2E file.
 
 ### Project Structure Notes
 
@@ -353,22 +382,31 @@ function handleSlugInput() {
 - `COLLECTION_PATHS.blogPosts` already registered in `collections.ts`
 - `parseBlogPost()` already exists in `collections.ts`
 - `blogPostSchema` already exists in `blog-post-schema.ts` (extend, don't replace)
+- `AdminDashboard.svelte` already counts `blogPosts` — verify compatibility after schema changes
 
 ### References
 
-- [Source: _bmad-output/planning-artifacts/epics.md#Story 4.1] — Acceptance criteria, implementation note
-- [Source: _bmad-output/planning-artifacts/architecture.md#Blog Editor] — TipTap decision, storage paths
-- [Source: _bmad-output/planning-artifacts/architecture.md#Image Lifecycle] — ImageSlot, safe-first order
-- [Source: _bmad-output/planning-artifacts/ux-design-specification.md#Journey 3] — Blog editor UX flow
-- [Source: _bmad-output/planning-artifacts/prd.md#FR31-FR37] — Blog functional requirements
-- [Source: _bmad-output/project-context.md] — HTML sanitization, form state patterns, testing standards
-- [Source: _bmad-output/implementation-artifacts/epic-3-retro-2026-03-22.md] — Deferred items D-1, D-2, D-3
-- [Source: src/lib/schemas/blog-post-schema.ts] — Existing schema (extend with variants)
-- [Source: src/lib/firebase/collections.ts] — parseBlogPost(), COLLECTION_PATHS.blogPosts
-- [Source: src/lib/utils/slugify.ts] — Reuse for auto-slug
-- [Source: src/components/admin/ProjectsCrudPage.svelte] — CRUD orchestrator pattern
-- [Source: src/components/admin/ProjectForm.svelte] — Form with images pattern
-- [TipTap v3 docs] — StarterKit, Image extension, generateHTML()
+**Planning artifacts:**
+- [epics.md#Epic 4, Story 4.1] — Acceptance criteria, epic scope, cross-story dependencies
+- [architecture.md#Blog Editor, #Image Lifecycle] — TipTap decision, storage paths, ImageSlot
+- [ux-design-specification.md#Journey 3] — Blog editor UX flow, form layout, interaction patterns
+- [prd.md#FR31-FR37] — Blog functional requirements
+
+**Implementation context:**
+- [epic-3-retro-2026-03-22.md] — Deferred items D-1/D-2/D-3, E2E mandatory, browser verification required
+- [project-context.md] — Form state patterns, image lifecycle, accessibility baseline
+
+**Codebase (extend/reuse):**
+- [src/lib/schemas/blog-post-schema.ts] — Existing schema (extend with variants)
+- [src/lib/firebase/collections.ts] — `parseBlogPost()`, `COLLECTION_PATHS.blogPosts`
+- [src/lib/utils/slugify.ts] — Reuse for auto-slug (Spanish accent support)
+- [src/components/admin/ExperiencesCrudPage.svelte] — Primary CRUD orchestrator template
+- [src/components/admin/ExperienceForm.svelte] — Primary form template (validation, hasChanges)
+- [src/components/admin/ProjectForm.svelte] — Image upload handling template
+- [src/test/factories/blog-post.ts] — Test factory (update content format)
+
+**External:**
+- [TipTap v3 docs] — StarterKit, Image/Link extensions, `generateHTML()`
 - [Svelte 5 createSubscriber] — Bridge TipTap transactions to Svelte reactivity
 
 ## Dev Agent Record
