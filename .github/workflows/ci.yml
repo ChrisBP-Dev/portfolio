@@ -93,11 +93,15 @@ jobs:
 
       - name: Remove admin pages from Lighthouse scan
         if: steps.changes.outputs.has_code_changes == 'true'
-        run: rm -rf dist/admin
+        run: mv dist/admin /tmp/_admin_backup
 
       - name: Lighthouse CI
         if: steps.changes.outputs.has_code_changes == 'true'
         run: pnpm exec lhci autorun
+
+      - name: Restore admin pages for deploy
+        if: steps.changes.outputs.has_code_changes == 'true'
+        run: mv /tmp/_admin_backup dist/admin
 
       - name: Deploy to Firebase Hosting
         if: steps.changes.outputs.has_code_changes == 'true'
