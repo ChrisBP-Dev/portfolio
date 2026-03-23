@@ -39,10 +39,9 @@ test.describe('Admin Blog CRUD', () => {
     // Submit
     await page.locator('button[type="submit"]').click();
     await expect(page.locator('text=/guardado exitosamente/i')).toBeVisible({ timeout: 20_000 });
-    await page.waitForTimeout(2_000);
 
-    // Verify appears in list with "Borrador" badge
-    await expect(page.locator(`text=${articleTitle}`).first()).toBeVisible({ timeout: 10_000 });
+    // Verify appears in list with "Borrador" badge (wait for list to reload)
+    await expect(page.locator(`text=${articleTitle}`).first()).toBeVisible({ timeout: 15_000 });
     await expect(page.locator('text=/borrador/i').first()).toBeVisible();
   });
 

@@ -103,7 +103,8 @@
     markDirty();
   }
 
-  // Slug uniqueness check
+  // Slug uniqueness check (client-side best-effort — TOCTOU race exists between
+  // this check and addDoc; true uniqueness requires server-side constraints)
   async function isSlugUnique(slugValue: string, excludeId?: string): Promise<boolean> {
     const q = query(collection(db, BLOG_COLLECTION), where('slug', '==', slugValue), limit(1));
     const snapshot = await getDocs(q);
@@ -215,14 +216,14 @@
 
   async function handleSubmit(): Promise<void> {
     if (saving) return;
+    saving = true;
 
     const valid = await validateAll();
     if (!valid) {
+      saving = false;
       scrollToFirstError();
       return;
     }
-
-    saving = true;
     try {
       const now = Timestamp.now();
       const payload: Record<string, unknown> = {

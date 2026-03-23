@@ -440,6 +440,7 @@ Claude Opus 4.6 (1M context)
 
 - 2026-03-23: Story 4.1 implemented — full Blog CRUD (list, create, delete, edit skeleton) with TipTap rich text editor
 - 2026-03-23: Post-implementation fixes — TipTap cursor loss (untrack), slug from EN not ES (defaultLocale alignment), slug empty-clear, also fixed pre-existing ProjectForm slug-from-ES bug. Added 2 rules to project-context.md.
+- 2026-03-23: Code review fixes — (P-1) double-submit race: moved saving=true before async validateAll(), (P-2) Link extension protocols restricted to http/https/mailto, (P-3) E2E replaced waitForTimeout with condition-based wait. Documented TOCTOU slug race limitation.
 
 ### File List
 

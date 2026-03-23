@@ -57,7 +57,7 @@
         extensions: [
           StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
           Image,
-          Link.configure({ openOnClick: false }),
+          Link.configure({ openOnClick: false, protocols: ['http', 'https', 'mailto'] }),
         ],
         content: initialContent,
         onUpdate: ({ editor }) => {
