@@ -1,20 +1,11 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import AuthGuard from '../../components/admin/AuthGuard.svelte';
-import { t } from '../../lib/i18n/translations';
-
-const locale = 'es';
+import BlogCrudPage from '../../components/admin/BlogCrudPage.svelte';
 ---
 
 <AdminLayout title="Blog — Admin ChrisBP">
   <AuthGuard client:only="svelte">
-    <div class="p-6 lg:p-8">
-      <h1 class="text-2xl font-bold text-text-primary">
-        {t('admin.sidebar.blog', locale)}
-      </h1>
-      <p class="mt-2 text-text-secondary">
-        {t('admin.placeholder.comingSoon', locale)}
-      </p>
-    </div>
+    <BlogCrudPage client:only="svelte" />
   </AuthGuard>
 </AdminLayout>

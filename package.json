@@ -30,6 +30,11 @@
   },
   "dependencies": {
     "@astrojs/svelte": "^8.0.1",
+    "@tiptap/core": "^3.20.4",
+    "@tiptap/extension-image": "^3.20.4",
+    "@tiptap/extension-link": "^3.20.4",
+    "@tiptap/pm": "^3.20.4",
+    "@tiptap/starter-kit": "^3.20.4",
     "astro": "^6.0.5",
     "firebase": "^12.10.0",
     "sanitize-html": "^2.17.1",

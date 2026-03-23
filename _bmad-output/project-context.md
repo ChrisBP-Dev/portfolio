@@ -1,10 +1,10 @@
 ---
 project_name: 'portfolio'
 user_name: 'Christopher'
-date: '2026-03-22'
+date: '2026-03-23'
 sections_completed: ['technology_stack', 'language_rules', 'framework_rules', 'testing_rules', 'code_quality', 'workflow_rules', 'critical_rules']
 status: 'complete'
-rule_count: 112
+rule_count: 114
 optimized_for_llm: true
 ---
 
@@ -65,6 +65,7 @@ _Este archivo contiene reglas y patrones críticos que los agentes de IA deben s
 - **Constantes de colección duplicadas en client**: Admin components duplican nombres de colección localmente — NO importar de `collections.ts` (evita side-effects del Admin SDK en browser)
 - **Dates con timezone local**: `new Date(value + 'T00:00:00')` para interpretar fechas como medianoche local, no UTC
 - **Interpolación de traducciones admin**: Placeholders `{key}` con `.replace()` para valores dinámicos en strings de traducción
+- **Slug auto-generation desde EN (defaultLocale)**: Slugs aparecen en URLs sin prefijo de locale (`/blog/my-article`, `/projects/my-project`). Generar siempre desde el campo EN usando `slugify(titleEn)`. Nunca desde ES — el sitio es English-first (`defaultLocale = 'en'`). Cuando el campo EN queda vacío, el slug debe limpiarse (`slug = titleEn ? slugify(titleEn) : ''`)
 
 ### Reglas Específicas del Framework
 
@@ -300,6 +301,7 @@ src/
 - NUNCA dejar `URL.createObjectURL()` sin `revokeObjectURL()` — memory leak en browsers
 - NUNCA usar `rm -rf` en artifacts de deploy durante CI — mover a temp, restaurar después
 - NUNCA importar `collections.ts` en componentes client — duplicar constantes localmente para evitar side-effects del Admin SDK
+- NUNCA generar slugs desde campos ES — el `defaultLocale` es `en`, las URLs públicas no tienen prefijo para inglés. Slugs siempre desde el campo EN
 
 #### Defer Criteria (Post-Retro Epic 3)
 - **Defer SOLO con plan concreto**: Si code review encuentra defecto y no hay story futura planeada → corregir en story actual. "Pre-existente" sin plan = se resuelve ahora

@@ -83,10 +83,10 @@
     }
   });
 
-  // Auto-slug from companyName ES (only in create mode)
+  // Auto-slug from companyName EN (en = defaultLocale, slugs appear in URL without prefix)
   $effect(() => {
     if (!manualSlug && mode === 'create') {
-      slug = slugify(companyNameEs);
+      slug = companyNameEn ? slugify(companyNameEn) : '';
     }
   });
 
