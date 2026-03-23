@@ -1,10 +1,10 @@
 ---
 project_name: 'portfolio'
 user_name: 'Christopher'
-date: '2026-03-19'
+date: '2026-03-22'
 sections_completed: ['technology_stack', 'language_rules', 'framework_rules', 'testing_rules', 'code_quality', 'workflow_rules', 'critical_rules']
 status: 'complete'
-rule_count: 68
+rule_count: 112
 optimized_for_llm: true
 ---
 
@@ -59,6 +59,12 @@ _Este archivo contiene reglas y patrones críticos que los agentes de IA deben s
 - **Constantes**: `UPPER_SNAKE_CASE` para constantes globales (ej: `const ADMIN_UID = import.meta.env.PUBLIC_ADMIN_UID`)
 - **Dates**: Siempre Firestore Timestamps nativos. Display con `Intl.DateTimeFormat` — no librerías de fecha externas
 - **Validación en forms**: Zod `.safeParse()` para validación. Validación por campo en blur, validación completa en submit
+- **safeParse obligatorio para datos externos**: Usar `schema.safeParse()` para datos de Firestore/usuario — skip invalid entries, nunca crashear la lista. `parse()` solo para datos confiables internos
+- **Promise.allSettled para operaciones múltiples**: Multi-upload usa `Promise.allSettled` + reporte de éxito parcial al usuario, no `Promise.all` que falla con todo-o-nada
+- **Guard de inicialización en forms**: Edit mode requiere flags (`initialized`, `initializedForId`) para prevenir loops infinitos en `$effect` al cargar datos iniciales
+- **Constantes de colección duplicadas en client**: Admin components duplican nombres de colección localmente — NO importar de `collections.ts` (evita side-effects del Admin SDK en browser)
+- **Dates con timezone local**: `new Date(value + 'T00:00:00')` para interpretar fechas como medianoche local, no UTC
+- **Interpolación de traducciones admin**: Placeholders `{key}` con `.replace()` para valores dinámicos en strings de traducción
 
 ### Reglas Específicas del Framework
 
@@ -74,6 +80,13 @@ _Este archivo contiene reglas y patrones críticos que los agentes de IA deben s
 - `client:load` para componentes que necesitan JS inmediatamente
 - `transition:persist` en componentes que deben sobrevivir navegación (ThemeToggle, LocaleToggle)
 
+#### Svelte 5 Patterns Maduros (Epic 3)
+- **Module-level `$state` para stores**: Patrón `toast-store.svelte.ts` — `$state` a nivel módulo, acceso via getter en objeto exportado
+- **`$effect` cleanup obligatorio**: Auth listeners (`onAuthStateChanged`), upload handles (`.cancel()`), event listeners — siempre retornar función cleanup
+- **`$derived.by()` para computed complejos**: Interpolación de strings, cálculos condicionales. Trackea dependencias automáticamente
+- **Export functions para state exposure**: En vez de eventos, exportar funciones (`getHasChanges()`, `loadProjects()`) para comunicación parent→child via refs
+- **Non-blocking image cleanup**: Cleanup de Storage envuelto en try-catch con `console.warn` — no falla la operación del usuario
+
 #### View Transitions
 - `transition:animate="fade"` en `<main>` para transiciones entre páginas
 - Escuchar `astro:after-swap` para re-sincronizar estado después de navegación (locale, theme)
@@ -84,10 +97,37 @@ _Este archivo contiene reglas y patrones críticos que los agentes de IA deben s
 - Props requeridos: `title`, `description`, `currentPage`
 - SEO: hreflang links automáticos para ambos locales
 
+#### Admin Architecture
+- **AdminLayout separado de BaseLayout**: Dark mode hardcodeado, sin View Transitions (`<ClientRouter />`), `noindex/nofollow`. No usa navegación client-side
+- **AuthGuard envuelve todas las páginas admin**: `client:only="svelte"` + `onAuthStateChanged` listener con redirección `window.location.href` (no client-side routing)
+- **CRUD Page pattern**: Estado `viewMode: 'list' | 'create' | 'edit'` con mode switching. Component refs (`bind:this`) + `export function` para comunicación entre componentes
+- **Unsaved changes guard**: Forms exponen `getHasChanges()` como función exportada. CRUD pages verifican antes de navegar con `confirm()`
+- **Login pattern**: Auth check en mount redirige usuarios ya autenticados. Submit con try-catch, error inline con `aria-invalid`
+
+#### Image Lifecycle (Safe-First)
+- **ImageSlot discriminated union**: Estado de imagen como state machine: `empty | existing | new | replaced | removed`. Cada estado trackea qué pasó para habilitar cleanup correcto
+- **ImageService con UploadHandle**: Retorna promise-like cancelable. `cancel()` en unmount via `$effect` cleanup. Backward compatible (PromiseLike → `await` funciona)
+- **Operaciones safe-first**: Eliminar documento PRIMERO, luego cleanup de imágenes. Orphans en Storage son OK, referencias rotas en Firestore NO
+- **Document-first create con rollback**: Crear doc → upload imagen → si falla upload, best-effort rollback del doc. Si rollback falla, log + orphan aceptable
+- **Partial failure**: `Promise.allSettled` para multi-screenshot. Reportar éxito parcial al usuario, guardar solo los exitosos
+- **Memory management**: `URL.revokeObjectURL()` obligatorio al reemplazar/eliminar previews. `MAX_SCREENSHOTS=10` con botón deshabilitado al límite
+- **Retry con backoff**: `withRetry()` para operaciones de Storage. Solo errores retryable (network, quota). Backoff exponencial: 300ms × 2^attempt, máximo 2 retries
+
+#### UI Patterns (Admin)
+- **ConfirmDialog WCAG**: `role="alertdialog"`, `aria-modal="true"`, `aria-labelledby`/`aria-describedby`. Focus trap, body scroll lock, Escape + backdrop close. Botones disabled durante confirmación
+- **BilingualField responsive**: Tabs (mobile <900px) vs columnas side-by-side (desktop ≥900px). `idPrefix` prop para IDs únicos. Error states sincronizados
+- **Toast por severidad**: Success auto-dismiss 4s, Warning 6s, Error manual. Máximo 3 toasts visibles (FIFO). Timeouts tracked en Map para cleanup
+- **Skeleton loaders**: `aria-busy` + `animate-pulse` + `bg-border` durante carga async de datos admin
+
 #### Firebase Dual SDK Pattern
 - **Build time (Admin SDK)**: `src/lib/firebase/firebase-admin.ts` — queries Firestore para generar HTML estático
 - **Browser (Client SDK)**: `src/lib/firebase/client.ts` — singleton: Auth, Firestore, Storage para admin UI
 - Emuladores: controlados por `PUBLIC_USE_EMULATORS` / `USE_EMULATORS`
+
+#### Firebase Hosting & CI
+- **`cleanUrls: true` obligatorio**: Sin esto, Firebase Hosting no resuelve `/admin` → `/admin/index.html` para páginas client-routed
+- **Client config en CI**: `fromJson(secrets.FIREBASE_CLIENT_CONFIG)` para extraer `PUBLIC_FIREBASE_*` vars. Son valores públicos pero almacenados en secrets para no hardcodear
+- **Lighthouse no destruye artifacts**: Mover admin pages a `/tmp` durante scan, restaurar antes de deploy. NUNCA `rm -rf dist/admin` permanente
 
 #### Responsive
 - Breakpoints custom: `sm: 28.125rem` (450px), `lg: 56.25rem` (900px), `xl: 75rem` (1200px)
@@ -119,6 +159,18 @@ _Este archivo contiene reglas y patrones críticos que los agentes de IA deben s
 - Directorio: `tests/e2e/`
 - Base URL: `http://localhost:4321` contra `pnpm preview`
 - CI: 1 worker, 2 retries. Local: paralelo, sin retries. Trace en primer retry
+
+#### Playwright E2E (Admin)
+- **Proyecto separado con auth global**: `admin` project depende de `setup` project. Auth state persistido en `.auth/admin.json` (gitignored)
+- **Auth setup fixture**: Login via UI (`/admin/login`), esperar hydration de Svelte (`toBeVisible({ timeout: 10_000 })`), guardar `storageState` para reuso
+- **Tests idempotentes**: Cada test crea y limpia sus propios datos. No acumular basura en Firestore
+- **Helpers para UI responsive**: `fillVisible()` / `clearAndFillVisible()` manejan duplicados mobile/desktop. `clickListAction()` para acciones en list items por texto
+- **E2E coverage admin**: Dashboard navigation, CRUD completo (create/edit/delete) para projects/technologies/experiences, auth protection, image upload/replace, logout
+
+#### Proceso de Testing (Lecciones Epic 3)
+- **E2E DEBE fluir de test-design a story tasks**: El SM verifica test-design al crear stories y traduce casos E2E en tareas explícitas. Gap entre "doc dice testear" y "story dice implementar" = tests que nunca se escriben
+- **Dev no marca 'done' sin E2E**: Todo story con UI incluye tareas E2E de sus acceptance criteria
+- **Browser verification es Definition of Done**: Admin = E2E con Playwright. Público = E2E + Lighthouse CI
 
 #### Lighthouse CI
 - 2 matrices: páginas de proyecto (performance >= 0.7 warn) y resto (>= 0.95 error)
@@ -157,9 +209,10 @@ src/
 ├── lib/i18n/                # Traducciones y config
 ├── lib/schemas/             # Zod schemas (source of truth)
 ├── lib/types/               # Tipos derivados de schemas
-├── lib/utils/               # Utilidades puras (formatDate, slugify)
+├── lib/utils/               # Utilidades puras (formatDate, slugify, toast-store, error-messages)
 ├── lib/scripts/             # Scripts de build/seed (migrate, seed)
 ├── pages/                   # File-based routing
+├── pages/admin/             # Admin pages (index, login, projects, technologies, experiences, blog)
 ├── styles/                  # CSS global + Tailwind
 ├── test/factories/          # Test data factories
 └── assets/                  # Imágenes estáticas
@@ -170,6 +223,21 @@ src/
 - HTML semántico nativo, ARIA landmarks, alt text en imágenes dinámicas
 - `SkipNav` component incluido en BaseLayout
 
+#### Accesibilidad Admin (WCAG 2.1 AA)
+- **Dialogs semánticos**: `role="alertdialog"`, `aria-modal="true"`, `aria-labelledby`, `aria-describedby` en ConfirmDialog
+- **Drawers/sidebars**: `aria-expanded`, `aria-controls`, `aria-label` en AdminSidebar mobile
+- **Focus management**: Focus trap en dialogs y drawers. `requestAnimationFrame()` para focus después de DOM update. Auto-focus en botón cancel al abrir dialog
+- **Estados de carga**: `aria-busy` en contenedores async. Skeleton loaders visualmente descriptivos
+
+#### Error Handling Centralizado
+- **Firebase error → i18n key mapping**: `FIRESTORE_ERROR_MAP` y `STORAGE_ERROR_MAP` mapean `error.code` → clave de traducción. Auth errors mapean a objetos `{ es, en }` directamente
+- **Duck-typing en error.code**: Todos los handlers verifican `error.code` sin import de tipos Firebase específicos — compatible con cualquier error shape
+- **Patrón DRY**: Una sola utilidad `getFirestoreErrorMessage()` / `getStorageErrorMessage()` — NUNCA duplicar lógica de mapeo en componentes individuales
+
+#### Calidad en Implementación
+- **Calidad empieza en dev, no en review**: A11y, patrones de error, cleanup — deben ser parte de la implementación, no atrapados en code review. Code review debe encontrar problemas de arquitectura, no aria-labels faltantes
+- **Código auto-documentado**: Funciones complejas, decisiones no obvias y patrones del proyecto tienen comentarios inline. Sin documentación externa obligatoria
+
 ### Reglas de Workflow de Desarrollo
 
 #### Git
@@ -179,6 +247,9 @@ src/
 
 #### CI/CD Pipeline (GitHub Actions)
 - `push to main → pnpm install → lint → type-check → test → build → Lighthouse CI → firebase deploy`
+- **Lighthouse scan con protección de artifacts**: Admin pages movidas a `/tmp` durante scan, restauradas antes de deploy. NUNCA eliminar permanentemente del `dist/`
+- **Firebase client config en CI**: Secret `FIREBASE_CLIENT_CONFIG` (JSON) parseado con `fromJson()` para inyectar `PUBLIC_FIREBASE_*` env vars en build step. Mismo patrón que `FIREBASE_SERVICE_ACCOUNT`
+- **Smart skip logic**: Si solo cambian `docs/`, `_bmad/`, `.claude/`, etc. → skip build, Lighthouse y deploy. Compara rango completo del push (`github.event.before..HEAD`), no solo último commit
 
 #### Build Pipeline Local
 - `pnpm dev` — servidor desarrollo (localhost:4321)
@@ -199,8 +270,19 @@ src/
 
 #### Environment Variables
 - `.env` (local, no committed) + `.env.example` (template, committed)
-- CI/CD: GitHub Secrets para `FIREBASE_ADMIN_*` keys
+- CI/CD: GitHub Secrets para `FIREBASE_ADMIN_*` keys + `FIREBASE_CLIENT_CONFIG`
 - `PUBLIC_*` = browser. Sin prefijo = solo build-time
+
+#### Proceso de Desarrollo (Lecciones Retros)
+- **Verificar datos reales antes de escribir stories**: Arquitectura es un plan, no realidad. Siempre verificar Firestore/código actual contra spec antes de crear story spec
+- **Decisiones estratégicas antes del epic, no durante**: Cambios como locale flip tocan 14+ archivos. Decidir en planning, no en implementación
+- **Project context actualizado después de cada epic**: Antes de crear stories del siguiente epic. Context desactualizado bloquea a los agentes
+- **Arquitectura pragmática**: JAMstack + Islands es correcto para portfolio. Clean Architecture sería sobre-ingeniería. Elegir mínima complejidad necesaria
+
+#### Code Review (3 Capas)
+- **Capa 1 — Implementación**: Story ACs cumplidos, funcionalidad correcta
+- **Capa 2 — Arquitectura**: Consistencia con schemas, error handling, patrones del proyecto
+- **Capa 3 — Seguridad de producción**: Atomicidad, cleanup, error cases, a11y, memory leaks
 
 ### Reglas Críticas — No Olvidar
 
@@ -212,13 +294,29 @@ src/
 - NUNCA agregar campos bilingües con sufijos (`fieldEs`/`fieldEn`) — siempre nested objects `{ es, en }`
 - NUNCA usar librerías de fecha externas — usar `Intl.DateTimeFormat` nativo
 - NUNCA editar archivos en `_bmad/`, `_bmad-output/`, `.claude/`, `docs/` — archivos del framework, off-limits
+- NUNCA usar `Promise.all` para uploads múltiples — siempre `Promise.allSettled` con reporte de éxito parcial
+- NUNCA eliminar imágenes de Storage ANTES del documento en Firestore — siempre document-first (orphans OK, refs rotas NO)
+- NUNCA dejar `UploadHandle` sin cancel en unmount — siempre `$effect` cleanup que cancela uploads activos
+- NUNCA dejar `URL.createObjectURL()` sin `revokeObjectURL()` — memory leak en browsers
+- NUNCA usar `rm -rf` en artifacts de deploy durante CI — mover a temp, restaurar después
+- NUNCA importar `collections.ts` en componentes client — duplicar constantes localmente para evitar side-effects del Admin SDK
+
+#### Defer Criteria (Post-Retro Epic 3)
+- **Defer SOLO con plan concreto**: Si code review encuentra defecto y no hay story futura planeada → corregir en story actual. "Pre-existente" sin plan = se resuelve ahora
+- **Riesgo de replicación**: Un defecto deferido se replicó a 4 archivos porque devs siguieron "el patrón existente". Deferir sin resolver = deuda técnica exponencial
+- **No defect replication**: Si el patrón actual tiene un defecto conocido, NO replicarlo en nuevos componentes — corregir primero
 
 #### Casos Especiales
 - **Blog HTML sanitization**: HTML de TipTap almacenado en Firestore DEBE sanitizarse con `sanitize-html` en build time al renderizar con `set:html`
-- **StoredImage vs ImageSlot**: `StoredImage` = modelo Firestore (url, path, alt). `ImageSlot` = estado UI (discriminated union: empty/existing/new). Nunca mezclar
+- **StoredImage vs ImageSlot**: `StoredImage` = modelo Firestore (url, path, alt). `ImageSlot` = estado UI (discriminated union: empty/existing/new/replaced/removed). Nunca mezclar
 - **Bilingüe obligatorio**: Todo contenido visible al usuario debe existir en EN y ES — campos Firestore Y strings de UI
 - **transition:persist**: Componentes que sobreviven navegación — registrar cleanup de listeners en `$effect` return, escuchar `astro:after-swap` para re-sync
 - **Firebase singleton**: Client SDK con `getApps().length === 0` check — nunca crear múltiples instancias
+- **Form init guard en edit mode**: `initialized` + `initializedForId` flags para prevenir loops infinitos de `$effect` al recibir `initialData` como prop
+- **Dates timezone**: `new Date(value + 'T00:00:00')` para interpretar como medianoche local, no UTC
+- **Rollback best-effort**: Si create doc OK pero upload falla → intentar `deleteDoc`. Si rollback falla → log + orphan aceptable. No silenciar, no crashear
+- **MAX_SCREENSHOTS=10**: Validación en UI (botón disabled) + validación en schema. Ambas necesarias
+- **BilingualField idPrefix**: Cada instancia necesita `idPrefix` único para IDs de input consistentes y accesibles
 
 #### Seguridad
 - API keys de Firebase en `.env` — NUNCA en código fuente
@@ -244,7 +342,6 @@ src/
 **Para Humanos:**
 - Mantener este archivo lean y enfocado en las necesidades de los agentes
 - Actualizar cuando cambie el stack tecnológico
-- Revisar periódicamente para eliminar reglas obsoletas
+- Revisar después de cada epic para eliminar reglas obsoletas y agregar nuevas
 
-Última actualización: 2026-03-19
-
+Última actualización: 2026-03-22
