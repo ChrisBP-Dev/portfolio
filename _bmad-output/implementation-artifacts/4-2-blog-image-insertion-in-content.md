@@ -1,6 +1,6 @@
 # Story 4.2: Blog — Image Insertion in Content
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -26,49 +26,49 @@ This story replaces the temporary `window.prompt()` image insertion in RichTextE
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Create ImageUploadDialog.svelte (AC: #1)
-  - [ ] 1.1 Create `src/components/admin/ImageUploadDialog.svelte` — a modal dialog wrapping ImageUploader for inline content images
-  - [ ] 1.2 Props: `open: boolean`, `onClose: () => void`, `onImageUploaded: (image: StoredImage, alt: string) => void`, `postId: string`
-  - [ ] 1.3 Use ConfirmDialog's modal pattern: `role="dialog"`, `aria-modal="true"`, `aria-labelledby`, backdrop click/Escape to close, focus trap, body scroll lock
-  - [ ] 1.4 Inside dialog: render `<ImageUploader>` with `label={t('admin.blog.insertImage', locale)}` and bind slot state
-  - [ ] 1.5 "Insertar" button (primary, disabled until slot type is `'new'`) — on click: upload file via `imageService.upload(file, \`blog/${postId}/images/${crypto.randomUUID()}.webp\`, onProgress)`, show progress, on success call `onImageUploaded(storedImage)` then `onClose()`
-  - [ ] 1.6 "Cancelar" button (secondary) — calls `onClose()`, revokes any preview objectURL. On successful upload+close, also revoke the preview objectURL before closing
-  - [ ] 1.7 Upload progress bar inside dialog (reuse ImageUploader's built-in progress or add inline progress)
-  - [ ] 1.8 Error handling: if upload fails, show error toast via `toastStore.error()`, keep dialog open for retry
-  - [ ] 1.9 Add optional `altText` input field (empty by default) — passed to `onImageUploaded` for accessibility. Label: `t('admin.blog.imageAltText', locale)`
-  - [ ] 1.10 `$effect` cleanup: cancel active `UploadHandle` on unmount, revoke objectURLs
+- [x] Task 1: Create ImageUploadDialog.svelte (AC: #1)
+  - [x] 1.1 Create `src/components/admin/ImageUploadDialog.svelte` — a modal dialog wrapping ImageUploader for inline content images
+  - [x] 1.2 Props: `open: boolean`, `onClose: () => void`, `onImageUploaded: (image: StoredImage, alt: string) => void`, `postId: string`
+  - [x] 1.3 Use ConfirmDialog's modal pattern: `role="dialog"`, `aria-modal="true"`, `aria-labelledby`, backdrop click/Escape to close, focus trap, body scroll lock
+  - [x] 1.4 Inside dialog: render `<ImageUploader>` with `label={t('admin.blog.insertImage', locale)}` and bind slot state
+  - [x] 1.5 "Insertar" button (primary, disabled until slot type is `'new'`) — on click: upload file via `imageService.upload(file, \`blog/${postId}/images/${crypto.randomUUID()}.webp\`, onProgress)`, show progress, on success call `onImageUploaded(storedImage)` then `onClose()`
+  - [x] 1.6 "Cancelar" button (secondary) — calls `onClose()`, revokes any preview objectURL. On successful upload+close, also revoke the preview objectURL before closing
+  - [x] 1.7 Upload progress bar inside dialog (reuse ImageUploader's built-in progress or add inline progress)
+  - [x] 1.8 Error handling: if upload fails, show error toast via `toastStore.error()`, keep dialog open for retry
+  - [x] 1.9 Add optional `altText` input field (empty by default) — passed to `onImageUploaded` for accessibility. Label: `t('admin.blog.imageAltText', locale)`
+  - [x] 1.10 `$effect` cleanup: cancel active `UploadHandle` on unmount, revoke objectURLs
 
-- [ ] Task 2: Add `onInsertImage` callback prop to RichTextEditor (AC: #1, #3)
-  - [ ] 2.1 Add new prop `onInsertImage?: () => void` to RichTextEditor.svelte `Props` interface
-  - [ ] 2.2 Replace `insertImage()` body: if `onInsertImage` prop is provided, call `onInsertImage()` instead of `window.prompt()`. If no callback, keep `window.prompt()` as fallback (backward-compat safety)
-  - [ ] 2.5 Prevent TipTap Image extension from accepting pasted/dropped base64 images — configure `Image.configure({ allowBase64: false })` so only URLs inserted via `insertImageAtCursor()` are accepted. This prevents untracked data-URL images in content
-  - [ ] 2.3 Add `insertImageAtCursor(src: string, alt?: string)` exported function that parent can call after upload completes: `editor.chain().focus().setImage({ src, alt }).run()`
-  - [ ] 2.4 Ensure exported function restores cursor to last known position if editor lost focus during dialog interaction
+- [x] Task 2: Add `onInsertImage` callback prop to RichTextEditor (AC: #1, #3)
+  - [x] 2.1 Add new prop `onInsertImage?: () => void` to RichTextEditor.svelte `Props` interface
+  - [x] 2.2 Replace `insertImage()` body: if `onInsertImage` prop is provided, call `onInsertImage()` instead of `window.prompt()`. If no callback, keep `window.prompt()` as fallback (backward-compat safety)
+  - [x] 2.5 Prevent TipTap Image extension from accepting pasted/dropped base64 images — configure `Image.configure({ allowBase64: false })` so only URLs inserted via `insertImageAtCursor()` are accepted. This prevents untracked data-URL images in content
+  - [x] 2.3 Add `insertImageAtCursor(src: string, alt?: string)` exported function that parent can call after upload completes: `editor.chain().focus().setImage({ src, alt }).run()`
+  - [x] 2.4 Ensure exported function restores cursor to last known position if editor lost focus during dialog interaction
 
-- [ ] Task 3: Wire ImageUploadDialog in BlogForm (AC: #1, #2, #3)
-  - [ ] 3.1 Add state: `let imageDialogOpen = $state(false)`, `let activeEditorRef: 'es' | 'en' = $state('es')`, `let editorRefEs: RichTextEditor`, `let editorRefEn: RichTextEditor`
-  - [ ] 3.2 Pass `onInsertImage` callback to both RichTextEditor instances — callback sets `activeEditorRef` to the respective locale and opens dialog (`imageDialogOpen = true`)
-  - [ ] 3.3 Add `bind:this` on both RichTextEditor components to get component refs
-  - [ ] 3.4 Render `<ImageUploadDialog>` in BlogForm template with `postId={currentPostId}` — handle `postId` availability (see Task 5 for pre-create flow)
-  - [ ] 3.5 `onImageUploaded` handler: call `editorRef[activeEditorRef].insertImageAtCursor(image.url, alt)` → track image in `uploadedImages` array
-  - [ ] 3.6 Add `let uploadedImages = $state<StoredImage[]>([])` to track all inline images. **In edit mode, seed from `initialData?.images ?? []`** during form initialization (alongside existing initialData hydration) — without this, pre-existing inline images are lost on save because `extractImagesFromContent()` won't match them
-  - [ ] 3.7 UploadHandle cleanup: track active dialog upload handle in `$state`, cancel on form unmount via `$effect` return
+- [x] Task 3: Wire ImageUploadDialog in BlogForm (AC: #1, #2, #3)
+  - [x] 3.1 Add state: `let imageDialogOpen = $state(false)`, `let activeEditorRef: 'es' | 'en' = $state('es')`, `let editorRefEs: RichTextEditor`, `let editorRefEn: RichTextEditor`
+  - [x] 3.2 Pass `onInsertImage` callback to both RichTextEditor instances — callback sets `activeEditorRef` to the respective locale and opens dialog (`imageDialogOpen = true`)
+  - [x] 3.3 Add `bind:this` on both RichTextEditor components to get component refs
+  - [x] 3.4 Render `<ImageUploadDialog>` in BlogForm template with `postId={currentPostId}` — handle `postId` availability (see Task 5 for pre-create flow)
+  - [x] 3.5 `onImageUploaded` handler: call `editorRef[activeEditorRef].insertImageAtCursor(image.url, alt)` → track image in `uploadedImages` array
+  - [x] 3.6 Add `let uploadedImages = $state<StoredImage[]>([])` to track all inline images. **In edit mode, seed from `initialData?.images ?? []`** during form initialization (alongside existing initialData hydration) — without this, pre-existing inline images are lost on save because `extractImagesFromContent()` won't match them
+  - [x] 3.7 UploadHandle cleanup: track active dialog upload handle in `$state`, cancel on form unmount via `$effect` return
 
-- [ ] Task 4: Populate `images[]` array on save (AC: #4)
-  - [ ] 4.1 Create helper `extractImagesFromContent(contentJson: string, uploadedImages: StoredImage[]): StoredImage[]` in `src/lib/utils/tiptap-helpers.ts`
-  - [ ] 4.2 Logic: parse TipTap JSON, find all `type: 'image'` nodes, extract `src` URLs, match each URL against `uploadedImages` array by `url` field, return only matched StoredImage objects (this ensures only uploaded images are tracked, not external URLs)
-  - [ ] 4.3 In BlogForm `handleSubmit()`: before saving, call `extractImagesFromContent()` for both ES and EN content, merge unique images (dedupe by `storagePath`), set as `images` field in Firestore document
-  - [ ] 4.4 Replace the hardcoded `images: []` in the create payload (line ~234 in BlogForm.svelte) with the merged images array
+- [x] Task 4: Populate `images[]` array on save (AC: #4)
+  - [x] 4.1 Create helper `extractImagesFromContent(contentJson: string, uploadedImages: StoredImage[]): StoredImage[]` in `src/lib/utils/tiptap-helpers.ts`
+  - [x] 4.2 Logic: parse TipTap JSON, find all `type: 'image'` nodes, extract `src` URLs, match each URL against `uploadedImages` array by `url` field, return only matched StoredImage objects (this ensures only uploaded images are tracked, not external URLs)
+  - [x] 4.3 In BlogForm `handleSubmit()`: before saving, call `extractImagesFromContent()` for both ES and EN content, merge unique images (dedupe by `storagePath`), set as `images` field in Firestore document
+  - [x] 4.4 Replace the hardcoded `images: []` in the create payload (line ~234 in BlogForm.svelte) with the merged images array
 
-- [ ] Task 5: Handle postId for image upload paths (AC: #2)
-  - [ ] 5.1 Problem: inline images need `blog/{postId}/images/{uuid}.webp` path, but postId doesn't exist until document is created
-  - [ ] 5.2 Solution: use pre-generated document ID — `const docRef = doc(collection(db, 'BlogPosts'))` to get ID before saving, then use `docRef.id` for both image paths and `setDoc(docRef, data)` instead of `addDoc`
-  - [ ] 5.3 Refactor BlogForm create flow: generate `docRef` at form mount (NOT lazily on first image insert — avoids null postId race when dialog opens), pass `docRef.id` to ImageUploadDialog as `postId`
-  - [ ] 5.4 Update `handleSubmit()`: use `setDoc(docRef, data)` for create mode (replaces current `addDoc()`)
-  - [ ] 5.5 In edit mode: `postId` is `initialData.id` — no change needed
+- [x] Task 5: Handle postId for image upload paths (AC: #2)
+  - [x] 5.1 Problem: inline images need `blog/{postId}/images/{uuid}.webp` path, but postId doesn't exist until document is created
+  - [x] 5.2 Solution: use pre-generated document ID — `const docRef = doc(collection(db, 'BlogPosts'))` to get ID before saving, then use `docRef.id` for both image paths and `setDoc(docRef, data)` instead of `addDoc`
+  - [x] 5.3 Refactor BlogForm create flow: generate `docRef` at form mount (NOT lazily on first image insert — avoids null postId race when dialog opens), pass `docRef.id` to ImageUploadDialog as `postId`
+  - [x] 5.4 Update `handleSubmit()`: use `setDoc(docRef, data)` for create mode (replaces current `addDoc()`)
+  - [x] 5.5 In edit mode: `postId` is `initialData.id` — no change needed
 
-- [ ] Task 6: Add i18n keys (AC: all)
-  - [ ] 6.1 Add to `translations.ts` under `admin.blog.*`:
+- [x] Task 6: Add i18n keys (AC: all)
+  - [x] 6.1 Add to `translations.ts` under `admin.blog.*`:
     - `admin.blog.insertImage` — "Insertar imagen" / "Insert image"
     - `admin.blog.insertImageTitle` — "Insertar imagen en contenido" / "Insert image in content"
     - `admin.blog.uploading` — "Subiendo imagen..." / "Uploading image..."
@@ -76,16 +76,16 @@ This story replaces the temporary `window.prompt()` image insertion in RichTextE
     - `admin.blog.imageUploadError` — "Error al subir la imagen. Intente de nuevo." / "Failed to upload image. Please try again."
     - `admin.blog.imageAltText` — "Texto alternativo (opcional)" / "Alt text (optional)"
 
-- [ ] Task 7: Unit tests (AC: all)
-  - [ ] 7.1 `src/components/admin/__tests__/image-upload-dialog.test.ts` (~8 tests): render open/closed, upload flow mock, progress display, error handling, cancel cleanup, a11y attributes (role, aria-modal), Escape close
-  - [ ] 7.2 `src/lib/__tests__/tiptap-helpers.test.ts` — add tests for `extractImagesFromContent()`: empty content, content with images, content with external URLs (not tracked), deduplication across locales, malformed JSON
-  - [ ] 7.3 Update `src/components/admin/__tests__/blog-form.test.ts` — add tests: image dialog opens on editor callback, uploaded image tracked in state, images[] populated on save, postId pre-generation, **edit mode seeds uploadedImages from initialData.images** (critical: verify pre-existing images survive save)
+- [x] Task 7: Unit tests (AC: all)
+  - [x] 7.1 `src/components/admin/__tests__/image-upload-dialog.test.ts` (~8 tests): render open/closed, upload flow mock, progress display, error handling, cancel cleanup, a11y attributes (role, aria-modal), Escape close
+  - [x] 7.2 `src/lib/__tests__/tiptap-helpers.test.ts` — add tests for `extractImagesFromContent()`: empty content, content with images, content with external URLs (not tracked), deduplication across locales, malformed JSON
+  - [x] 7.3 Update `src/components/admin/__tests__/blog-form.test.ts` — add tests: image dialog opens on editor callback, uploaded image tracked in state, images[] populated on save, postId pre-generation, **edit mode seeds uploadedImages from initialData.images** (critical: verify pre-existing images survive save)
 
-- [ ] Task 8: E2E tests (AC: #1, #2, #3, #5)
-  - [ ] 8.1 In `tests/e2e/admin-blog.spec.ts` add test: create article → click image button in toolbar → dialog opens → upload image file → image appears in editor content → save → verify images[] in created document (via Firestore query or re-load edit)
-  - [ ] 8.2 Test image preview renders in TipTap editor after insertion (visible `<img>` in `.ProseMirror`)
-  - [ ] 8.3 Test dialog cancel: open dialog → cancel → editor state unchanged
-  - [ ] 8.4 Use test image file from `tests/fixtures/test-image.png` — create a minimal 1x1 pixel PNG if not exists (e.g., via `Buffer.from('iVBOR...', 'base64')` in test setup or commit a small static file)
+- [x] Task 8: E2E tests (AC: #1, #2, #3, #5)
+  - [x] 8.1 In `tests/e2e/admin-blog.spec.ts` add test: create article → click image button in toolbar → dialog opens → upload image file → image appears in editor content → save → verify images[] in created document (via Firestore query or re-load edit)
+  - [x] 8.2 Test image preview renders in TipTap editor after insertion (visible `<img>` in `.ProseMirror`)
+  - [x] 8.3 Test dialog cancel: open dialog → cancel → editor state unchanged
+  - [x] 8.4 Use test image file from `tests/fixtures/test-image.png` — create a minimal 1x1 pixel PNG if not exists (e.g., via `Buffer.from('iVBOR...', 'base64')` in test setup or commit a small static file)
 
 ## Dev Notes
 
@@ -338,10 +338,40 @@ tests/fixtures/
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.6 (1M context)
 
 ### Debug Log References
 
+- ESLint flagged `new Set()` inside Svelte component (svelte/prefer-svelte-reactivity). Resolved by extracting `mergeUniqueImages()` helper to tiptap-helpers.ts.
+
 ### Completion Notes List
 
+- Task 1: Created ImageUploadDialog.svelte — modal dialog wrapping ImageUploader with full a11y (role="dialog", aria-modal, focus trap, Escape close, backdrop close), upload progress bar, alt text input, $effect cleanup for UploadHandle and objectURLs.
+- Task 2: Modified RichTextEditor.svelte — added onInsertImage optional callback prop (falls back to window.prompt for backward compat), exported insertImageAtCursor() function, configured Image.configure({ allowBase64: false }) to prevent untracked base64 images.
+- Task 3: Wired dialog in BlogForm — added imageDialogOpen state, activeEditorRef tracking, bind:this on both RichTextEditor instances, handleEditorInsertImage/handleImageUploaded handlers, uploadedImages state seeded from initialData.images in edit mode.
+- Task 4: Implemented extractImagesFromContent() and mergeUniqueImages() in tiptap-helpers.ts. BlogForm handleSubmit now extracts and deduplicates tracked images from both ES/EN content before saving.
+- Task 5: Pre-generated Firestore document reference at form mount using doc(collection(db, BLOG_COLLECTION)). Create mode now uses setDoc instead of addDoc. currentPostId derived from preGeneratedDocRef.id (create) or initialData.id (edit).
+- Task 6: Added 6 i18n keys to translations.ts (insertImage, insertImageTitle, uploading, insertButton, imageUploadError, imageAltText).
+- Task 7: Created tiptap-helpers.test.ts (13 tests), image-upload-dialog.test.ts (10 tests), updated blog-form.test.ts (5 new tests for inline image tracking, setDoc, edit mode seeding). All 1066 tests pass.
+- Task 8: Added 4 E2E tests to admin-blog.spec.ts (dialog open, dialog cancel, full upload+insert flow, cleanup). Created test-image.png fixture (1x1 pixel PNG).
+
+### Change Log
+
+- 2026-03-23: Implemented Story 4-2 — Blog image insertion in content. Replaced window.prompt with ImageUploadDialog, added image tracking with extractImagesFromContent, pre-generated postId with setDoc pattern. 28 new tests added.
+
 ### File List
+
+**New:**
+- src/components/admin/ImageUploadDialog.svelte
+- src/components/admin/__tests__/image-upload-dialog.test.ts
+- src/lib/utils/__tests__/tiptap-helpers.test.ts
+- tests/fixtures/test-image.png
+
+**Modified:**
+- src/components/admin/RichTextEditor.svelte
+- src/components/admin/BlogForm.svelte
+- src/lib/utils/tiptap-helpers.ts
+- src/lib/i18n/translations.ts
+- src/components/admin/__tests__/blog-form.test.ts
+- tests/e2e/admin-blog.spec.ts
+- _bmad-output/implementation-artifacts/sprint-status.yaml

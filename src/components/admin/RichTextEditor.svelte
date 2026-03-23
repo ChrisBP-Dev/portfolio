@@ -15,9 +15,10 @@
     label: string;
     error?: string;
     id?: string;
+    onInsertImage?: () => void;
   }
 
-  let { content, onUpdate, label, error = '', id = '' }: Props = $props();
+  let { content, onUpdate, label, error = '', id = '', onInsertImage }: Props = $props();
 
   let element: HTMLDivElement | undefined = $state(undefined);
   let editorInstance: Editor | undefined;
@@ -56,7 +57,7 @@
         element,
         extensions: [
           StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
-          Image,
+          Image.configure({ allowBase64: false }),
           Link.configure({ openOnClick: false, protocols: ['http', 'https', 'mailto'] }),
         ],
         content: initialContent,
@@ -105,11 +106,21 @@
   }
 
   function insertImage(): void {
+    if (onInsertImage) {
+      onInsertImage();
+      return;
+    }
     const editor = getEditor();
     if (!editor) return;
     const url = window.prompt('URL de imagen');
     if (!url) return;
     editor.chain().focus().setImage({ src: url }).run();
+  }
+
+  export function insertImageAtCursor(src: string, alt = ''): void {
+    const editor = getEditor();
+    if (!editor) return;
+    editor.chain().focus().setImage({ src, ...(alt ? { alt } : {}) }).run();
   }
 
   let editor = $derived(getEditor());

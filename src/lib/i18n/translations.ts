@@ -338,6 +338,12 @@ const translations: Record<string, Record<Locale, string>> = {
   'admin.blog.delete': { es: 'Eliminar', en: 'Delete' },
   'admin.blog.editorUnavailable': { es: 'Editor no disponible. Intente recargar la página.', en: 'Editor unavailable. Try reloading the page.' },
   'admin.blog.retryLoad': { es: 'Reintentar', en: 'Retry' },
+  'admin.blog.insertImage': { es: 'Insertar imagen', en: 'Insert image' },
+  'admin.blog.insertImageTitle': { es: 'Insertar imagen en contenido', en: 'Insert image in content' },
+  'admin.blog.uploading': { es: 'Subiendo imagen...', en: 'Uploading image...' },
+  'admin.blog.insertButton': { es: 'Insertar', en: 'Insert' },
+  'admin.blog.imageUploadError': { es: 'Error al subir la imagen. Intente de nuevo.', en: 'Failed to upload image. Please try again.' },
+  'admin.blog.imageAltText': { es: 'Texto alternativo (opcional)', en: 'Alt text (optional)' },
 };
 
 export function t(key: string, locale: Locale): string {

@@ -1,19 +1,21 @@
 <script lang="ts">
   import { tick } from 'svelte';
-  import { collection, addDoc, updateDoc, doc, query, where, limit, getDocs, Timestamp } from 'firebase/firestore';
+  import { collection, setDoc, updateDoc, doc, query, where, limit, getDocs, Timestamp } from 'firebase/firestore';
   import { db } from '../../lib/firebase/client';
   import type { UploadHandle } from '../../lib/firebase/image-service';
   import { processImageSlot } from '../../lib/firebase/image-slot-processor';
   import { blogPostFormSchema } from '../../lib/schemas/blog-post-schema';
   import type { BlogPostWithId } from '../../lib/schemas/blog-post-schema';
+  import type { StoredImage } from '../../lib/schemas/shared-schemas';
   import { t } from '../../lib/i18n/translations';
   import { slugify } from '../../lib/utils/slugify';
-  import { isTipTapContentEmpty } from '../../lib/utils/tiptap-helpers';
+  import { isTipTapContentEmpty, extractImagesFromContent, mergeUniqueImages } from '../../lib/utils/tiptap-helpers';
   import { toastStore } from '../../lib/utils/toast-store.svelte';
   import { getFirestoreErrorMessage } from '../../lib/utils/error-messages';
   import type { ImageSlot } from '../../lib/schemas/image-slot';
   import BilingualField from './BilingualField.svelte';
   import ImageUploader from './ImageUploader.svelte';
+  import ImageUploadDialog from './ImageUploadDialog.svelte';
   import RichTextEditor from './RichTextEditor.svelte';
 
   const locale = 'es';
@@ -42,6 +44,19 @@
   let coverImageProgress = $state<number | null>(null);
   let activeContentTab = $state<'es' | 'en'>('es');
 
+  // Image dialog state
+  let imageDialogOpen = $state(false);
+  let activeEditorRef = $state<'es' | 'en'>('es');
+  let editorRefEs = $state<RichTextEditor | undefined>(undefined);
+  let editorRefEn = $state<RichTextEditor | undefined>(undefined);
+  let uploadedImages = $state<StoredImage[]>([]);
+
+  // Pre-generate postId for create mode (Firestore client-generated ID, no network call)
+  const preGeneratedDocRef = doc(collection(db, BLOG_COLLECTION));
+  const currentPostId = $derived(
+    mode === 'edit' && initialData ? initialData.id : preGeneratedDocRef.id,
+  );
+
   let errors = $state<Record<string, string>>({});
   let saving = $state(false);
   let hasChanges = $state(false);
@@ -62,6 +77,7 @@
       coverImageSlot = initialData.coverImage
         ? { type: 'existing', image: initialData.coverImage }
         : { type: 'empty' };
+      uploadedImages = initialData.images ?? [];
       hasChanges = false;
       errors = {};
     }
@@ -208,6 +224,18 @@
     return titleEsValid && titleEnValid && slugValid && contentEsValid && contentEnValid;
   }
 
+  function handleEditorInsertImage(editorLocale: 'es' | 'en'): void {
+    activeEditorRef = editorLocale;
+    imageDialogOpen = true;
+  }
+
+  function handleImageUploaded(image: StoredImage, alt: string): void {
+    uploadedImages = [...uploadedImages, image];
+    const ref = activeEditorRef === 'es' ? editorRefEs : editorRefEn;
+    ref?.insertImageAtCursor(image.url, alt);
+    markDirty();
+  }
+
   async function scrollToFirstError(): Promise<void> {
     await tick();
     const firstErrorEl = document.querySelector('[role="alert"]');
@@ -226,12 +254,18 @@
     }
     try {
       const now = Timestamp.now();
+
+      // Extract tracked images from content (deduplicated across locales)
+      const esImages = extractImagesFromContent(contentEs, uploadedImages);
+      const enImages = extractImagesFromContent(contentEn, uploadedImages);
+      const mergedImages = mergeUniqueImages(esImages, enImages);
+
       const payload: Record<string, unknown> = {
         title: { es: titleEs.trim(), en: titleEn.trim() },
         slug: slug.trim(),
         content: { es: contentEs, en: contentEn },
         status,
-        images: [],
+        images: mergedImages,
         updatedAt: now,
       };
 
@@ -240,13 +274,11 @@
       }
 
       // Create or update document
-      let docId: string;
+      const docId = currentPostId;
       if (mode === 'edit' && initialData) {
-        docId = initialData.id;
         await updateDoc(doc(db, BLOG_COLLECTION, docId), payload);
       } else {
-        const docRef = await addDoc(collection(db, BLOG_COLLECTION), payload);
-        docId = docRef.id;
+        await setDoc(preGeneratedDocRef, payload);
       }
 
       // Process cover image
@@ -387,20 +419,24 @@
     <!-- Both editors always mounted, toggle visibility with CSS -->
     <div style:display={activeContentTab === 'es' ? 'block' : 'none'}>
       <RichTextEditor
+        bind:this={editorRefEs}
         content={contentEs}
         onUpdate={(json) => { contentEs = json; markDirty(); }}
         label="Contenido ES"
         error={errors.contentEs ?? ''}
         id="blog-content-es"
+        onInsertImage={() => handleEditorInsertImage('es')}
       />
     </div>
     <div style:display={activeContentTab === 'en' ? 'block' : 'none'}>
       <RichTextEditor
+        bind:this={editorRefEn}
         content={contentEn}
         onUpdate={(json) => { contentEn = json; markDirty(); }}
         label="Contenido EN"
         error={errors.contentEn ?? ''}
         id="blog-content-en"
+        onInsertImage={() => handleEditorInsertImage('en')}
       />
     </div>
   </div>
@@ -440,3 +476,10 @@
     </button>
   </div>
 </form>
+
+<ImageUploadDialog
+  open={imageDialogOpen}
+  postId={currentPostId}
+  onClose={() => { imageDialogOpen = false; }}
+  onImageUploaded={handleImageUploaded}
+/>

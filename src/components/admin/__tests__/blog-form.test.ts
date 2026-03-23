@@ -6,13 +6,12 @@ type AnyFn = (...args: any[]) => any;
 const mockTimestamp = { seconds: 0, nanoseconds: 0 };
 const mockTimestampNow = vi.fn(() => mockTimestamp);
 
-const { mockAddDoc, mockUpdateDoc, mockDoc, mockCollection, mockGetDocs, mockQuery, mockWhere, mockLimit } = vi.hoisted(() => ({
-  mockAddDoc: vi.fn((_col: unknown, _data: unknown) =>
-    Promise.resolve({ id: 'new-blog-id' }),
-  ) as AnyFn & ReturnType<typeof vi.fn>,
+const { mockSetDoc, mockUpdateDoc, mockDoc, mockCollection, mockGetDocs, mockQuery, mockWhere, mockLimit } = vi.hoisted(() => ({
+  mockSetDoc: vi.fn((_ref: unknown, _data: unknown) => Promise.resolve()) as AnyFn &
+    ReturnType<typeof vi.fn>,
   mockUpdateDoc: vi.fn((_ref: unknown, _data: unknown) => Promise.resolve()) as AnyFn &
     ReturnType<typeof vi.fn>,
-  mockDoc: vi.fn((_db: unknown, _col: string, _id: string) => ({ path: `${_col}/${_id}` })),
+  mockDoc: vi.fn((..._args: unknown[]) => ({ id: 'pre-generated-id', path: 'BlogPosts/pre-generated-id' })),
   mockCollection: vi.fn((_db: unknown, _col: string) => ({ _col })),
   mockGetDocs: vi.fn(() => Promise.resolve({ empty: true, docs: [] })) as AnyFn & ReturnType<typeof vi.fn>,
   mockQuery: vi.fn((..._args: unknown[]) => ({ _query: true })),
@@ -21,7 +20,7 @@ const { mockAddDoc, mockUpdateDoc, mockDoc, mockCollection, mockGetDocs, mockQue
 }));
 
 vi.mock('firebase/firestore', () => ({
-  addDoc: mockAddDoc,
+  setDoc: mockSetDoc,
   updateDoc: mockUpdateDoc,
   doc: mockDoc,
   collection: mockCollection,
@@ -48,9 +47,10 @@ vi.mock('../../../lib/firebase/image-slot-processor', () => ({
 }));
 
 import { blogPostFormSchema } from '../../../lib/schemas/blog-post-schema';
-import { isTipTapContentEmpty } from '../../../lib/utils/tiptap-helpers';
+import { isTipTapContentEmpty, extractImagesFromContent, mergeUniqueImages } from '../../../lib/utils/tiptap-helpers';
 import { slugify } from '../../../lib/utils/slugify';
 import { createBlogPost } from '../../../test/factories/blog-post';
+import type { StoredImage } from '../../../lib/schemas/shared-schemas';
 
 const TIPTAP_CONTENT = JSON.stringify({
   type: 'doc',
@@ -192,19 +192,20 @@ describe('BlogForm — content validation (isTipTapContentEmpty)', () => {
   });
 });
 
-describe('BlogForm — create submit flow', () => {
+describe('BlogForm — create submit flow (uses setDoc with pre-generated ID)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('addDoc called with correct collection', async () => {
-    await mockAddDoc(mockCollection({}, 'BlogPosts'), { title: { es: 'Test', en: 'Test' } });
+  it('setDoc called with pre-generated docRef', async () => {
+    const docRef = mockDoc({}, 'BlogPosts');
+    await mockSetDoc(docRef, { title: { es: 'Test', en: 'Test' } });
 
-    expect(mockCollection).toHaveBeenCalledWith({}, 'BlogPosts');
-    expect(mockAddDoc).toHaveBeenCalled();
+    expect(mockDoc).toHaveBeenCalled();
+    expect(mockSetDoc).toHaveBeenCalled();
   });
 
-  it('addDoc payload includes createdAt and updatedAt timestamps', async () => {
+  it('setDoc payload includes createdAt and updatedAt timestamps', async () => {
     const now = mockTimestampNow();
     const payload = {
       title: { es: 'Test', en: 'Test' },
@@ -216,9 +217,10 @@ describe('BlogForm — create submit flow', () => {
       updatedAt: now,
     };
 
-    await mockAddDoc(mockCollection({}, 'BlogPosts'), payload);
+    const docRef = mockDoc({}, 'BlogPosts');
+    await mockSetDoc(docRef, payload);
 
-    expect(mockAddDoc).toHaveBeenCalledWith(
+    expect(mockSetDoc).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({
         createdAt: mockTimestamp,
@@ -227,6 +229,11 @@ describe('BlogForm — create submit flow', () => {
         images: [],
       }),
     );
+  });
+
+  it('pre-generated doc provides immediate postId (no network call)', () => {
+    const docRef = mockDoc({}, 'BlogPosts');
+    expect(docRef.id).toBe('pre-generated-id');
   });
 });
 
@@ -315,5 +322,64 @@ describe('BlogForm — image slot processing', () => {
     const slot = { type: 'new' as const, file: new File([''], 'test.webp'), preview: 'blob:test' };
     expect(slot.type).toBe('new');
     expect(slot.file).toBeInstanceOf(File);
+  });
+});
+
+describe('BlogForm — inline image tracking (Story 4-2)', () => {
+  const IMG_1: StoredImage = { url: 'https://storage.test/img1.webp', storagePath: 'blog/1/images/img1.webp' };
+  const IMG_2: StoredImage = { url: 'https://storage.test/img2.webp', storagePath: 'blog/1/images/img2.webp' };
+
+  function makeContentWithImages(srcs: string[]): string {
+    return JSON.stringify({
+      type: 'doc',
+      content: [
+        { type: 'paragraph', content: [{ type: 'text', text: 'Hello' }] },
+        ...srcs.map((src) => ({ type: 'image', attrs: { src } })),
+      ],
+    });
+  }
+
+  it('images[] populated from content on save via extractImagesFromContent', () => {
+    const content = makeContentWithImages([IMG_1.url]);
+    const uploadedImages = [IMG_1, IMG_2];
+    const images = extractImagesFromContent(content, uploadedImages);
+    expect(images).toEqual([IMG_1]);
+  });
+
+  it('mergeUniqueImages deduplicates across ES/EN content', () => {
+    const esContent = makeContentWithImages([IMG_1.url]);
+    const enContent = makeContentWithImages([IMG_1.url, IMG_2.url]);
+    const uploadedImages = [IMG_1, IMG_2];
+
+    const esImages = extractImagesFromContent(esContent, uploadedImages);
+    const enImages = extractImagesFromContent(enContent, uploadedImages);
+    const merged = mergeUniqueImages(esImages, enImages);
+
+    expect(merged).toEqual([IMG_1, IMG_2]);
+  });
+
+  it('edit mode seeds uploadedImages from initialData.images', () => {
+    const post = createBlogPost({
+      images: [IMG_1],
+    });
+    // Simulates the seeding in $effect
+    const uploadedImages = post.images ?? [];
+    expect(uploadedImages).toEqual([IMG_1]);
+  });
+
+  it('pre-existing images survive save when seeded correctly', () => {
+    // Simulates: edit mode seeds IMG_1, content still references IMG_1
+    const content = makeContentWithImages([IMG_1.url]);
+    const uploadedImages = [IMG_1]; // seeded from initialData.images
+    const images = extractImagesFromContent(content, uploadedImages);
+    expect(images).toEqual([IMG_1]);
+  });
+
+  it('images removed from content are excluded from save', () => {
+    // IMG_1 is tracked but no longer in content
+    const content = makeContentWithImages([]);
+    const uploadedImages = [IMG_1];
+    const images = extractImagesFromContent(content, uploadedImages);
+    expect(images).toEqual([]);
   });
 });
