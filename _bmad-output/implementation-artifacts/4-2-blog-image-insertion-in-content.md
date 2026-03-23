@@ -28,18 +28,20 @@ This story replaces the temporary `window.prompt()` image insertion in RichTextE
 
 - [ ] Task 1: Create ImageUploadDialog.svelte (AC: #1)
   - [ ] 1.1 Create `src/components/admin/ImageUploadDialog.svelte` — a modal dialog wrapping ImageUploader for inline content images
-  - [ ] 1.2 Props: `open: boolean`, `onClose: () => void`, `onImageUploaded: (image: StoredImage) => void`, `postId: string`
+  - [ ] 1.2 Props: `open: boolean`, `onClose: () => void`, `onImageUploaded: (image: StoredImage, alt: string) => void`, `postId: string`
   - [ ] 1.3 Use ConfirmDialog's modal pattern: `role="dialog"`, `aria-modal="true"`, `aria-labelledby`, backdrop click/Escape to close, focus trap, body scroll lock
   - [ ] 1.4 Inside dialog: render `<ImageUploader>` with `label={t('admin.blog.insertImage', locale)}` and bind slot state
-  - [ ] 1.5 "Insertar" button (primary, disabled until slot type is `'new'`) — on click: upload file via `imageService.upload(file, 'blog/{postId}/images/{uuid}.webp')`, show progress, on success call `onImageUploaded(storedImage)` then `onClose()`
-  - [ ] 1.6 "Cancelar" button (secondary) — calls `onClose()`, revokes any preview objectURL
+  - [ ] 1.5 "Insertar" button (primary, disabled until slot type is `'new'`) — on click: upload file via `imageService.upload(file, \`blog/${postId}/images/${crypto.randomUUID()}.webp\`, onProgress)`, show progress, on success call `onImageUploaded(storedImage)` then `onClose()`
+  - [ ] 1.6 "Cancelar" button (secondary) — calls `onClose()`, revokes any preview objectURL. On successful upload+close, also revoke the preview objectURL before closing
   - [ ] 1.7 Upload progress bar inside dialog (reuse ImageUploader's built-in progress or add inline progress)
   - [ ] 1.8 Error handling: if upload fails, show error toast via `toastStore.error()`, keep dialog open for retry
-  - [ ] 1.9 `$effect` cleanup: cancel active `UploadHandle` on unmount, revoke objectURLs
+  - [ ] 1.9 Add optional `altText` input field (empty by default) — passed to `onImageUploaded` for accessibility. Label: `t('admin.blog.imageAltText', locale)`
+  - [ ] 1.10 `$effect` cleanup: cancel active `UploadHandle` on unmount, revoke objectURLs
 
 - [ ] Task 2: Add `onInsertImage` callback prop to RichTextEditor (AC: #1, #3)
   - [ ] 2.1 Add new prop `onInsertImage?: () => void` to RichTextEditor.svelte `Props` interface
   - [ ] 2.2 Replace `insertImage()` body: if `onInsertImage` prop is provided, call `onInsertImage()` instead of `window.prompt()`. If no callback, keep `window.prompt()` as fallback (backward-compat safety)
+  - [ ] 2.5 Prevent TipTap Image extension from accepting pasted/dropped base64 images — configure `Image.configure({ allowBase64: false })` so only URLs inserted via `insertImageAtCursor()` are accepted. This prevents untracked data-URL images in content
   - [ ] 2.3 Add `insertImageAtCursor(src: string, alt?: string)` exported function that parent can call after upload completes: `editor.chain().focus().setImage({ src, alt }).run()`
   - [ ] 2.4 Ensure exported function restores cursor to last known position if editor lost focus during dialog interaction
 
@@ -48,8 +50,8 @@ This story replaces the temporary `window.prompt()` image insertion in RichTextE
   - [ ] 3.2 Pass `onInsertImage` callback to both RichTextEditor instances — callback sets `activeEditorRef` to the respective locale and opens dialog (`imageDialogOpen = true`)
   - [ ] 3.3 Add `bind:this` on both RichTextEditor components to get component refs
   - [ ] 3.4 Render `<ImageUploadDialog>` in BlogForm template with `postId={currentPostId}` — handle `postId` availability (see Task 5 for pre-create flow)
-  - [ ] 3.5 `onImageUploaded` handler: call `editorRef[activeEditorRef].insertImageAtCursor(image.url)` → track image in `uploadedImages` array
-  - [ ] 3.6 Add `let uploadedImages = $state<StoredImage[]>([])` to track all inline images uploaded during this session
+  - [ ] 3.5 `onImageUploaded` handler: call `editorRef[activeEditorRef].insertImageAtCursor(image.url, alt)` → track image in `uploadedImages` array
+  - [ ] 3.6 Add `let uploadedImages = $state<StoredImage[]>([])` to track all inline images. **In edit mode, seed from `initialData?.images ?? []`** during form initialization (alongside existing initialData hydration) — without this, pre-existing inline images are lost on save because `extractImagesFromContent()` won't match them
   - [ ] 3.7 UploadHandle cleanup: track active dialog upload handle in `$state`, cancel on form unmount via `$effect` return
 
 - [ ] Task 4: Populate `images[]` array on save (AC: #4)
@@ -61,7 +63,7 @@ This story replaces the temporary `window.prompt()` image insertion in RichTextE
 - [ ] Task 5: Handle postId for image upload paths (AC: #2)
   - [ ] 5.1 Problem: inline images need `blog/{postId}/images/{uuid}.webp` path, but postId doesn't exist until document is created
   - [ ] 5.2 Solution: use pre-generated document ID — `const docRef = doc(collection(db, 'BlogPosts'))` to get ID before saving, then use `docRef.id` for both image paths and `setDoc(docRef, data)` instead of `addDoc`
-  - [ ] 5.3 Refactor BlogForm create flow: generate `docRef` at form mount (or on first image insert), pass `docRef.id` to ImageUploadDialog as `postId`
+  - [ ] 5.3 Refactor BlogForm create flow: generate `docRef` at form mount (NOT lazily on first image insert — avoids null postId race when dialog opens), pass `docRef.id` to ImageUploadDialog as `postId`
   - [ ] 5.4 Update `handleSubmit()`: use `setDoc(docRef, data)` for create mode (replaces current `addDoc()`)
   - [ ] 5.5 In edit mode: `postId` is `initialData.id` — no change needed
 
@@ -72,17 +74,18 @@ This story replaces the temporary `window.prompt()` image insertion in RichTextE
     - `admin.blog.uploading` — "Subiendo imagen..." / "Uploading image..."
     - `admin.blog.insertButton` — "Insertar" / "Insert"
     - `admin.blog.imageUploadError` — "Error al subir la imagen. Intente de nuevo." / "Failed to upload image. Please try again."
+    - `admin.blog.imageAltText` — "Texto alternativo (opcional)" / "Alt text (optional)"
 
 - [ ] Task 7: Unit tests (AC: all)
   - [ ] 7.1 `src/components/admin/__tests__/image-upload-dialog.test.ts` (~8 tests): render open/closed, upload flow mock, progress display, error handling, cancel cleanup, a11y attributes (role, aria-modal), Escape close
   - [ ] 7.2 `src/lib/__tests__/tiptap-helpers.test.ts` — add tests for `extractImagesFromContent()`: empty content, content with images, content with external URLs (not tracked), deduplication across locales, malformed JSON
-  - [ ] 7.3 Update `src/components/admin/__tests__/blog-form.test.ts` — add tests: image dialog opens on editor callback, uploaded image tracked in state, images[] populated on save, postId pre-generation
+  - [ ] 7.3 Update `src/components/admin/__tests__/blog-form.test.ts` — add tests: image dialog opens on editor callback, uploaded image tracked in state, images[] populated on save, postId pre-generation, **edit mode seeds uploadedImages from initialData.images** (critical: verify pre-existing images survive save)
 
 - [ ] Task 8: E2E tests (AC: #1, #2, #3, #5)
   - [ ] 8.1 In `tests/e2e/admin-blog.spec.ts` add test: create article → click image button in toolbar → dialog opens → upload image file → image appears in editor content → save → verify images[] in created document (via Firestore query or re-load edit)
   - [ ] 8.2 Test image preview renders in TipTap editor after insertion (visible `<img>` in `.ProseMirror`)
   - [ ] 8.3 Test dialog cancel: open dialog → cancel → editor state unchanged
-  - [ ] 8.4 Use test image file from `tests/fixtures/` (create small test .webp or .png if not exists)
+  - [ ] 8.4 Use test image file from `tests/fixtures/test-image.png` — create a minimal 1x1 pixel PNG if not exists (e.g., via `Buffer.from('iVBOR...', 'base64')` in test setup or commit a small static file)
 
 ## Dev Notes
 
@@ -125,11 +128,11 @@ Schema is ready — no changes needed.
 
 Inline images need a Storage path like `blog/{postId}/images/{uuid}.webp`. In create mode, the postId doesn't exist yet because no doc has been created.
 
-**Solution:** Pre-generate a Firestore document reference:
+**Solution:** Pre-generate a Firestore document reference at form mount:
 ```typescript
 import { collection, doc, setDoc } from 'firebase/firestore';
 
-// At form mount or first image insert
+// At form mount — generate immediately, not lazily
 const docRef = doc(collection(db, BLOG_COLLECTION));
 const postId = docRef.id;  // Available immediately, no network call
 
@@ -142,16 +145,20 @@ This is a safe, standard Firestore pattern. The ID is client-generated and guara
 ### Image Tracking Flow
 
 ```
-1. User clicks image button in editor toolbar
-2. BlogForm opens ImageUploadDialog with postId
-3. User selects/drops image → ImageUploader shows preview
-4. User clicks "Insertar" → imageService.upload(file, 'blog/{postId}/images/{uuid}.webp')
-5. On success: onImageUploaded(storedImage) → BlogForm stores in uploadedImages[]
-6. BlogForm calls editorRef.insertImageAtCursor(storedImage.url)
-7. TipTap inserts <img src="url"> at cursor position
-8. On form save: extractImagesFromContent() scans TipTap JSON for image nodes
-9. Matches image URLs to uploadedImages[] → final images[] for Firestore
+1. Form mounts → uploadedImages seeded from initialData.images (edit) or [] (create)
+2. User clicks image button in editor toolbar
+3. BlogForm opens ImageUploadDialog with postId
+4. User selects/drops image → ImageUploader shows preview
+5. User optionally enters alt text
+6. User clicks "Insertar" → imageService.upload(file, `blog/${postId}/images/${crypto.randomUUID()}.webp`)
+7. On success: onImageUploaded(storedImage, alt) → BlogForm stores in uploadedImages[]
+8. BlogForm calls editorRef.insertImageAtCursor(storedImage.url, alt)
+9. TipTap inserts <img src="url" alt="..."> at cursor position
+10. On form save: extractImagesFromContent() scans TipTap JSON for image nodes
+11. Matches image URLs to uploadedImages[] → final images[] for Firestore
 ```
+
+**Edit mode critical path:** Step 1 ensures pre-existing images are in `uploadedImages[]`, so step 11 matches them correctly. Without seeding, all pre-existing inline images would be dropped from `images[]` on save.
 
 ### extractImagesFromContent Helper
 
@@ -187,6 +194,8 @@ function findImageNodes(node: unknown, urls: Set<string>): void {
 
 **Why match against uploadedImages instead of trusting all image URLs?** Security: only track images we actually uploaded to our Storage. External URLs (if user pastes HTML) are not tracked and won't generate orphans.
 
+**Edit mode:** `uploadedImages` must be seeded from `initialData.images` at form init, so pre-existing inline images are matched during save. New uploads are appended to the same array.
+
 ### RichTextEditor Export Pattern
 
 To call `insertImageAtCursor()` from BlogForm, the RichTextEditor must export the function:
@@ -209,10 +218,12 @@ BlogForm accesses it via `bind:this`:
 <RichTextEditor bind:this={editorRefEs} ... />
 ```
 
-### Dialog Modal Pattern (Follow ConfirmDialog)
+### Dialog Modal Pattern (Follow ConfirmDialog — with one difference)
 
-The existing `ConfirmDialog.svelte` uses this modal pattern — follow it:
-- `role="dialog"`, `aria-modal="true"`
+The existing `ConfirmDialog.svelte` uses this modal pattern — follow it for focus trap, backdrop, body scroll lock, Escape close, and `$effect` cleanup. **One key difference:** ConfirmDialog uses `role="alertdialog"` (destructive confirmation), but ImageUploadDialog must use `role="dialog"` (non-alert, standard modal).
+
+- `role="dialog"` (NOT `alertdialog` — this is not an alert)
+- `aria-modal="true"`
 - `aria-labelledby` pointing to dialog title
 - Backdrop with `onclick` → close
 - Escape key → close
@@ -222,8 +233,8 @@ The existing `ConfirmDialog.svelte` uses this modal pattern — follow it:
 
 ### Storage Path Convention
 
-- Cover image: `blog/{postId}/cover.webp` (fixed name, one per post)
-- Inline images: `blog/{postId}/images/{uuid}.webp` (UUID per image, multiple per post)
+- Cover image: `blog/{postId}/{uuid}.webp` (UUID-named via `processImageSlot`, one per post — NOT a fixed "cover.webp" name)
+- Inline images: `blog/{postId}/images/{uuid}.webp` (UUID per image via `crypto.randomUUID()`, multiple per post, in `images/` subdirectory)
 
 Story 4-3 delete flow already calls `imageService.deleteByPrefix('blog/{postId}/')` which recursively deletes both cover and inline images.
 
@@ -279,6 +290,7 @@ tests/fixtures/
 - **Double-submit guard:** Already in BlogForm — `if (saving) return;` at top of handleSubmit. Keep for this story's save flow changes
 - **`client:only="svelte"` mandatory:** All Firebase-accessing components require this directive
 - **Admin locale fixed to `'es'`:** Pass `'es'` to all `t()` calls in admin components
+- **TipTap Image paste prevention:** Current `Image` extension is unconfigured (line 59: `Image` with no `.configure()`). Story 4-2 must add `Image.configure({ allowBase64: false })` to prevent pasted/dropped base64 images that bypass Storage upload tracking
 
 ### Testing Strategy
 
