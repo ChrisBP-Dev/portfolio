@@ -223,41 +223,19 @@ describe('TechnologyList — reorder logic', () => {
     expect(batch.commit).toHaveBeenCalledTimes(1);
   });
 
-  it('keyboard reorder up moves item from index 1 to index 0', () => {
+  it('sorts by order first, then name as tiebreaker', () => {
     const technologies = [
-      { ...createTechnology({ name: 'First' }), order: 0 },
-      { ...createTechnology({ name: 'Second' }), order: 1 },
-      { ...createTechnology({ name: 'Third' }), order: 2 },
+      { ...createTechnology({ name: 'Zebra' }), order: 0 },
+      { ...createTechnology({ name: 'Alpha' }), order: 0 },
+      { ...createTechnology({ name: 'Beta' }), order: 1 },
     ];
 
-    // Simulate ArrowUp on index 1
-    const index = 1;
-    const targetIndex = index - 1; // ArrowUp
+    const sorted = [...technologies].sort(
+      (a, b) => (a.order ?? 0) - (b.order ?? 0) || (a.name ?? '').localeCompare(b.name ?? ''),
+    );
 
-    const reordered = [...technologies];
-    const [moved] = reordered.splice(index, 1);
-    reordered.splice(targetIndex, 0, moved!);
-    const result = reordered.map((t, i) => ({ ...t, order: i }));
-
-    expect(result[0]!.name).toBe('Second');
-    expect(result[1]!.name).toBe('First');
-    expect(result[2]!.name).toBe('Third');
-
-    expect(result[0]!.order).toBe(0);
-    expect(result[1]!.order).toBe(1);
-    expect(result[2]!.order).toBe(2);
-  });
-
-  it('concurrent drag blocked by reordering flag', () => {
-    // Simulate the reordering guard from handleDrop
-    const reordering = true;
-
-    // handleDrop returns early when reordering is true
-    function handleDrop(): boolean {
-      if (reordering) return false; // blocked
-      return true; // would proceed
-    }
-
-    expect(handleDrop()).toBe(false);
+    expect(sorted[0]!.name).toBe('Alpha');
+    expect(sorted[1]!.name).toBe('Zebra');
+    expect(sorted[2]!.name).toBe('Beta');
   });
 });

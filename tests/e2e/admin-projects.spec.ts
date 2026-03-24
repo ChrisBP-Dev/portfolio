@@ -162,8 +162,8 @@ test.describe('Admin Projects — Featured & Ordering', () => {
     await expect(secondCard).toBeVisible({ timeout: 10_000 });
 
     // Use Playwright dragTo to drag second project to first position
-    const secondHandle = secondCard.locator('button[aria-label]').first();
-    const firstHandle = firstCard.locator('button[aria-label]').first();
+    const secondHandle = secondCard.locator('[data-drag-handle]');
+    const firstHandle = firstCard.locator('[data-drag-handle]');
     await secondHandle.dragTo(firstHandle);
 
     // Wait for batch update to complete

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Sortable from 'sortablejs';
   import { collection, getDocs, doc, writeBatch } from 'firebase/firestore';
   import { db } from '../../lib/firebase/client';
   import { technologyFirestoreSchema } from '../../lib/schemas/technology-schema';
@@ -20,18 +21,56 @@
   let technologies = $state<TechnologyWithId[]>([]);
   let loading = $state(true);
   let error = $state(false);
-
-  // Drag state
-  let draggedIndex = $state<number | null>(null);
-  let dropTargetIndex = $state<number | null>(null);
   let reordering = $state(false);
-  let canDrag = $state(false);
 
   // Accessibility: aria-live announcement
   let liveAnnouncement = $state('');
 
+  // SortableJS instance + list element ref
+  let listEl = $state<HTMLElement | null>(null);
+  let sortableInstance: Sortable | null = null;
+
   $effect(() => {
     loadTechnologies();
+  });
+
+  // Initialize SortableJS when list element is available
+  $effect(() => {
+    if (!listEl) return;
+
+    sortableInstance = Sortable.create(listEl, {
+      handle: '[data-drag-handle]',
+      animation: 150,
+      ghostClass: 'opacity-50',
+      chosenClass: 'border-primary',
+      onEnd: (evt) => {
+        const { oldIndex, newIndex, from, item } = evt;
+        if (oldIndex == null || newIndex == null || oldIndex === newIndex) return;
+
+        // Revert SortableJS DOM change — let Svelte manage the DOM
+        from.removeChild(item);
+        from.insertBefore(item, from.children[oldIndex] ?? null);
+
+        const reordered = [...technologies];
+        const [moved] = reordered.splice(oldIndex, 1);
+        reordered.splice(newIndex, 0, moved);
+        technologies = reordered.map((tech, i) => ({ ...tech, order: i }));
+
+        liveAnnouncement = `${moved.name} movido a posición ${newIndex + 1}`;
+
+        persistOrder();
+      },
+    });
+
+    return () => {
+      sortableInstance?.destroy();
+      sortableInstance = null;
+    };
+  });
+
+  // Disable sorting during persist
+  $effect(() => {
+    sortableInstance?.option('disabled', reordering);
   });
 
   export async function loadTechnologies(): Promise<void> {
@@ -52,87 +91,6 @@
     } finally {
       loading = false;
     }
-  }
-
-  // Drag handlers — drag starts only from grip handle via canDrag flag
-  function handleDragStart(e: DragEvent, index: number): void {
-    if (!canDrag) {
-      e.preventDefault();
-      return;
-    }
-    draggedIndex = index;
-    if (e.dataTransfer) {
-      e.dataTransfer.effectAllowed = 'move';
-    }
-  }
-
-  function handleDragOver(e: DragEvent, index: number): void {
-    e.preventDefault();
-    dropTargetIndex = index;
-  }
-
-  function handleDragLeave(): void {
-    dropTargetIndex = null;
-  }
-
-  async function handleDrop(e: DragEvent, index: number): Promise<void> {
-    e.preventDefault();
-    if (reordering) return;
-    if (draggedIndex === null || draggedIndex === index) {
-      draggedIndex = null;
-      dropTargetIndex = null;
-      return;
-    }
-
-    // Reorder array
-    const reordered = [...technologies];
-    const [moved] = reordered.splice(draggedIndex, 1);
-    reordered.splice(index, 0, moved);
-
-    // Assign sequential order values
-    technologies = reordered.map((tech, i) => ({ ...tech, order: i }));
-
-    liveAnnouncement = `${moved.name} movido a posición ${index + 1}`;
-
-    draggedIndex = null;
-    dropTargetIndex = null;
-    canDrag = false;
-
-    await persistOrder();
-  }
-
-  function handleDragEnd(): void {
-    draggedIndex = null;
-    dropTargetIndex = null;
-    canDrag = false;
-  }
-
-  // Keyboard reorder — ArrowUp/ArrowDown on grip handle
-  async function handleKeyboardReorder(e: KeyboardEvent, index: number): Promise<void> {
-    if (reordering) return;
-    let targetIndex: number | null = null;
-
-    if (e.key === 'ArrowUp' && index > 0) {
-      targetIndex = index - 1;
-    } else if (e.key === 'ArrowDown' && index < technologies.length - 1) {
-      targetIndex = index + 1;
-    }
-
-    if (targetIndex === null) return;
-    e.preventDefault();
-
-    const reordered = [...technologies];
-    const [moved] = reordered.splice(index, 1);
-    reordered.splice(targetIndex, 0, moved);
-    technologies = reordered.map((tech, i) => ({ ...tech, order: i }));
-
-    liveAnnouncement = `${moved.name} ${targetIndex < index ? '↑' : '↓'} posición ${targetIndex + 1} de ${technologies.length}`;
-
-    await persistOrder();
-
-    // Refocus the handle at the new position
-    const handle = document.querySelector(`[data-drag-index="${targetIndex}"]`) as HTMLElement | null;
-    handle?.focus();
   }
 
   async function persistOrder(): Promise<void> {
@@ -204,27 +162,17 @@
     </div>
   {:else}
     <!-- Technology list -->
-    <div class="space-y-3" role="list">
-      {#each technologies as tech, index (tech.id)}
+    <div class="space-y-3" role="list" bind:this={listEl}>
+      {#each technologies as tech (tech.id)}
         <div
-          draggable="true"
-          ondragstart={(e) => handleDragStart(e, index)}
-          ondragover={(e) => handleDragOver(e, index)}
-          ondragleave={handleDragLeave}
-          ondrop={(e) => handleDrop(e, index)}
-          ondragend={handleDragEnd}
           role="listitem"
-          class="flex items-center gap-4 bg-surface border rounded-lg p-4 transition-colors hover:border-primary/30 {draggedIndex === index ? 'opacity-50' : ''} {dropTargetIndex === index && draggedIndex !== index ? 'border-t-2 border-primary' : 'border-border'}"
+          class="flex items-center gap-4 bg-surface border border-border rounded-lg p-4 transition-colors hover:border-primary/30"
         >
-          <!-- Drag handle — mousedown enables drag, keyboard arrows reorder -->
-          <button
-            type="button"
-            onmousedown={() => { canDrag = true; }}
-            onkeydown={(e) => handleKeyboardReorder(e, index)}
-            class="cursor-grab active:cursor-grabbing shrink-0 text-text-muted hover:text-text-secondary p-1"
+          <!-- Drag handle -->
+          <div
+            data-drag-handle
+            class="cursor-grab active:cursor-grabbing shrink-0 text-text-muted hover:text-text-secondary p-1 touch-none"
             aria-label={t('admin.technologies.dragHandle', locale)}
-            aria-roledescription="sortable"
-            data-drag-index={index}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
               <circle cx="5" cy="2" r="1.5"/>
@@ -234,7 +182,7 @@
               <circle cx="5" cy="14" r="1.5"/>
               <circle cx="11" cy="14" r="1.5"/>
             </svg>
-          </button>
+          </div>
 
           <img
             src={tech.image.url}

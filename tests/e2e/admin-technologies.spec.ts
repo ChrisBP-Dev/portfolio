@@ -88,8 +88,8 @@ test.describe('Admin Technologies Drag Reorder', () => {
     const itemA = listItems.filter({ hasText: techNameA });
 
     // Drag B to A's position using Playwright dragTo (fires HTML5 drag events)
-    const handleB = itemB.locator('[data-drag-index]');
-    const handleA = itemA.locator('[data-drag-index]');
+    const handleB = itemB.locator('[data-drag-handle]');
+    const handleA = itemA.locator('[data-drag-handle]');
     await handleB.dragTo(handleA);
 
     // Wait for persistence
