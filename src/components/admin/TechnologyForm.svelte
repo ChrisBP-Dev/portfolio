@@ -1,6 +1,6 @@
 <script lang="ts">
   import { tick } from 'svelte';
-  import { collection, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+  import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from 'firebase/firestore';
   import { db } from '../../lib/firebase/client';
   import { imageService, type UploadHandle } from '../../lib/firebase/image-service';
   import {
@@ -157,7 +157,14 @@
   async function handleCreateSubmit(): Promise<void> {
     saving = true;
     try {
-      const formData = { name: name.trim(), experienceYears };
+      const existingSnapshot = await getDocs(collection(db, TECHNOLOGIES_COLLECTION));
+      const maxOrder = existingSnapshot.docs.reduce((max, d) => {
+        const raw = (d.data() as Record<string, unknown>).order;
+        const num = typeof raw === 'number' && !isNaN(raw) ? raw : 0;
+        return Math.max(max, num);
+      }, -1);
+
+      const formData = { name: name.trim(), experienceYears, order: maxOrder + 1 };
       const docRef = await addDoc(collection(db, TECHNOLOGIES_COLLECTION), formData);
       const docId = docRef.id;
 

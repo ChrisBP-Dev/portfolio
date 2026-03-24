@@ -133,12 +133,12 @@ describe('Firebase Collections', () => {
   });
 
   describe('getAllTechnologies', () => {
-    it('[P0] 2.2-UNIT-001: returns parsed Technology[] from mock Firestore', async () => {
-      const tech1 = createTechnology({ name: 'Flutter' });
-      const tech2 = createTechnology({ name: 'Firebase' });
+    it('[P0] 2.2-UNIT-001: returns parsed Technology[] from mock Firestore sorted by order then name', async () => {
+      const tech1 = createTechnology({ name: 'Flutter', order: 1 });
+      const tech2 = createTechnology({ name: 'Firebase', order: 0 });
       const { id: id1, ...data1 } = tech1;
       const { id: id2, ...data2 } = tech2;
-      const { db, query } = createMockDb([
+      const { db } = createMockDb([
         { id: id1, data: data1 as Record<string, unknown> },
         { id: id2, data: data2 as Record<string, unknown> },
       ]);
@@ -146,10 +146,9 @@ describe('Firebase Collections', () => {
       const result = await getAllTechnologies(db as never);
 
       expect(result).toHaveLength(2);
-      expect(result[0]!.name).toBe('Flutter');
-      expect(result[1]!.name).toBe('Firebase');
+      expect(result[0]!.name).toBe('Firebase');
+      expect(result[1]!.name).toBe('Flutter');
       expect(db.collection).toHaveBeenCalledWith(COLLECTION_PATHS.technologies);
-      expect(query.orderBy).toHaveBeenCalledWith('name');
     });
 
     it('[P1] 2.2-UNIT-002: returns empty array when no documents exist', async () => {

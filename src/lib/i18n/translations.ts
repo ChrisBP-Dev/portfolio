@@ -260,6 +260,8 @@ const translations: Record<string, Record<Locale, string>> = {
   'admin.technologies.deleteConfirmButton': { es: 'Eliminar', en: 'Delete' },
   'admin.technologies.deleteSuccessToast': { es: 'Tecnología eliminada exitosamente', en: 'Technology deleted successfully' },
   'admin.technologies.deleteErrorToast': { es: 'Error al eliminar la tecnología', en: 'Error deleting technology' },
+  'admin.technologies.reorderError': { es: 'Error al reordenar tecnologías', en: 'Error reordering technologies' },
+  'admin.technologies.dragHandle': { es: 'Arrastrar para reordenar', en: 'Drag to reorder' },
 
   // Admin — Experiences
   'admin.experiences.title': { es: 'Experiencias', en: 'Experiences' },

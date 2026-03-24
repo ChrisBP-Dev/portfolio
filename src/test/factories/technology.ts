@@ -9,6 +9,7 @@ export function createTechnology(overrides?: Partial<Technology>): Technology {
       storagePath: 'technologies/astro/logo.webp',
     },
     experienceYears: 3,
+    order: 0,
     ...overrides,
   };
 }

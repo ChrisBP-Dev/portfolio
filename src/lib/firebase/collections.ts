@@ -71,8 +71,9 @@ export function parseBlogPost(data: Record<string, unknown>, id: string): BlogPo
 }
 
 export async function getAllTechnologies(db: Firestore): Promise<Technology[]> {
-  const snapshot = await db.collection(COLLECTION_PATHS.technologies).orderBy('name').get();
-  return snapshot.docs.map((doc) => parseTechnology(doc.data() as Record<string, unknown>, doc.id));
+  const snapshot = await db.collection(COLLECTION_PATHS.technologies).get();
+  const techs = snapshot.docs.map((doc) => parseTechnology(doc.data() as Record<string, unknown>, doc.id));
+  return techs.sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
 }
 
 export async function getAllProjects(db: Firestore): Promise<Project[]> {

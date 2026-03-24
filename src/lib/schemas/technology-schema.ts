@@ -6,6 +6,7 @@ export const technologySchema = z.object({
   name: z.string().min(1),
   image: storedImageSchema,
   experienceYears: z.number().int().nonnegative(),
+  order: z.number().int().nonnegative().default(0),
 });
 
 export type Technology = z.infer<typeof technologySchema>;
@@ -17,6 +18,7 @@ export const technologyFirestoreSchema = technologySchema.omit({ id: true });
 export const technologyFormSchema = technologySchema.omit({
   id: true,
   image: true,
+  order: true,
 });
 
 export type TechnologyFirestoreData = z.infer<typeof technologyFirestoreSchema>;
