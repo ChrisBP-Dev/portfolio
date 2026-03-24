@@ -80,6 +80,15 @@ export async function getAllProjects(db: Firestore): Promise<Project[]> {
   return snapshot.docs.map((doc) => parseProject(doc.data() as Record<string, unknown>, doc.id));
 }
 
+export async function getPublishedBlogPosts(db: Firestore): Promise<BlogPost[]> {
+  const snapshot = await db
+    .collection(COLLECTION_PATHS.blogPosts)
+    .where('status', '==', 'published')
+    .orderBy('createdAt', 'desc')
+    .get();
+  return snapshot.docs.map((doc) => parseBlogPost(doc.data() as Record<string, unknown>, doc.id));
+}
+
 export async function getAllExperiences(db: Firestore): Promise<Experience[]> {
   const snapshot = await db
     .collection(COLLECTION_PATHS.experiences)

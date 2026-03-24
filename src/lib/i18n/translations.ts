@@ -54,6 +54,20 @@ const translations: Record<string, Record<Locale, string>> = {
     en: "ChrisBP's Portfolio — Mobile developer with 4+ years in Flutter, expanding into full-stack web with modern technologies and AI-augmented development.",
   },
 
+  // Blog page
+  'blog.meta.title': { es: 'Blog — ChrisBP', en: 'Blog — ChrisBP' },
+  'blog.meta.description': {
+    es: 'Artículos sobre desarrollo web, tecnología y proceso creativo',
+    en: 'Articles about web development, technology and creative process',
+  },
+  'blog.heading': { es: 'Blog', en: 'Blog' },
+  'blog.intro': {
+    es: 'Artículos sobre desarrollo web, tecnología y mi proceso creativo como desarrollador.',
+    en: 'Articles about web development, technology, and my creative process as a developer.',
+  },
+  'blog.noArticles': { es: 'No hay artículos publicados aún.', en: 'No published articles yet.' },
+  'blog.readingTime': { es: '{minutes} min de lectura', en: '{minutes} min read' },
+
   // Projects page
   'projects.heading': { es: 'Proyectos', en: 'Projects' },
   'projects.meta.title': { es: 'Proyectos — ChrisBP', en: 'Projects — ChrisBP' },

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatExperienceDateRange } from '../format-date';
+import { formatExperienceDateRange, formatBlogDate } from '../format-date';
 
 describe('formatExperienceDateRange', () => {
   it('formats range with both dates provided', () => {
@@ -23,5 +23,17 @@ describe('formatExperienceDateRange', () => {
     const start = new Date('2024-03-01');
     const end = new Date('2024-11-15');
     expect(formatExperienceDateRange(start, end, 'es', 'Presente')).toBe('2024 – 2024');
+  });
+});
+
+describe('formatBlogDate', () => {
+  it('formats date in EN locale as "March 15, 2026"', () => {
+    const date = new Date('2026-03-15T00:00:00');
+    expect(formatBlogDate(date, 'en')).toBe('March 15, 2026');
+  });
+
+  it('formats date in ES locale as "15 de marzo de 2026"', () => {
+    const date = new Date('2026-03-15T00:00:00');
+    expect(formatBlogDate(date, 'es')).toBe('15 de marzo de 2026');
   });
 });

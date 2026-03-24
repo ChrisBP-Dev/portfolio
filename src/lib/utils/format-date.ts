@@ -1,5 +1,14 @@
 import type { Locale } from '../i18n/config';
 
+export function formatBlogDate(date: Date, locale: Locale): string {
+  const intlLocale = locale === 'es' ? 'es-ES' : 'en-US';
+  return new Intl.DateTimeFormat(intlLocale, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(date);
+}
+
 export function formatExperienceDateRange(
   startDate: Date,
   endDate: Date | null,

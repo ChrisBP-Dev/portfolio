@@ -8,6 +8,7 @@ import {
   getAllTechnologies,
   getAllProjects,
   getAllExperiences,
+  getPublishedBlogPosts,
 } from '../collections';
 import {
   createProject,
@@ -24,6 +25,7 @@ function createMockDb(docs: Array<{ id: string; data: Record<string, unknown> }>
   const query = {
     get: vi.fn().mockResolvedValue(snapshot),
     orderBy: vi.fn().mockReturnThis(),
+    where: vi.fn().mockReturnThis(),
   };
   const db = { collection: vi.fn().mockReturnValue(query) };
   return { db, query };
@@ -184,6 +186,34 @@ describe('Firebase Collections', () => {
       expect(result[0]!.companyName).toBe('Acme Corp');
       expect(db.collection).toHaveBeenCalledWith(COLLECTION_PATHS.experiences);
       expect(query.orderBy).toHaveBeenCalledWith('startDate', 'desc');
+    });
+  });
+
+  describe('getPublishedBlogPosts', () => {
+    it('returns only published posts filtered and ordered by createdAt desc', async () => {
+      const post1 = createBlogPost({ status: 'published', slug: 'post-one' });
+      const post2 = createBlogPost({ status: 'published', slug: 'post-two' });
+      const { id: id1, ...data1 } = post1;
+      const { id: id2, ...data2 } = post2;
+      const { db, query } = createMockDb([
+        { id: id1, data: data1 as Record<string, unknown> },
+        { id: id2, data: data2 as Record<string, unknown> },
+      ]);
+
+      const result = await getPublishedBlogPosts(db as never);
+
+      expect(result).toHaveLength(2);
+      expect(result[0]!.slug).toBe('post-one');
+      expect(result[1]!.slug).toBe('post-two');
+      expect(db.collection).toHaveBeenCalledWith(COLLECTION_PATHS.blogPosts);
+      expect(query.where).toHaveBeenCalledWith('status', '==', 'published');
+      expect(query.orderBy).toHaveBeenCalledWith('createdAt', 'desc');
+    });
+
+    it('returns empty array when no published posts exist', async () => {
+      const { db } = createMockDb([]);
+      const result = await getPublishedBlogPosts(db as never);
+      expect(result).toEqual([]);
     });
   });
 

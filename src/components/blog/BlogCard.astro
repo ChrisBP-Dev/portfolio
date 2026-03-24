@@ -1,0 +1,41 @@
+---
+import type { BlogPost } from '../../lib/schemas/blog-post-schema';
+import type { Locale } from '../../lib/i18n/config';
+import Card from '../common/Card.astro';
+import { localizeHref } from '../../data/navigation';
+import { formatBlogDate } from '../../lib/utils/format-date';
+import { calculateReadingTime } from '../../lib/utils/reading-time';
+
+interface Props {
+  post: BlogPost;
+  locale: Locale;
+  readingTimeLabel: string;
+}
+
+const { post, locale, readingTimeLabel } = Astro.props;
+const href = localizeHref('/blog/' + post.slug, locale);
+const readingTime = readingTimeLabel.replace('{minutes}', String(calculateReadingTime(post.content[locale])));
+---
+
+<a href={href} class="block focus:outline-2 focus:outline-offset-2 focus:outline-accent rounded-xl">
+  <Card as="article" hoverable={true} class="p-0">
+    {post.coverImage && (
+      <img
+        src={post.coverImage.url}
+        alt={post.title[locale]}
+        loading="lazy"
+        class="w-full aspect-video object-cover rounded-t-xl"
+      />
+    )}
+    <div class="p-4">
+      <h2 class="text-lg font-semibold text-text-primary mb-2">{post.title[locale]}</h2>
+      <p class="text-sm text-text-secondary">
+        <time datetime={post.createdAt.toISOString()}>
+          {formatBlogDate(post.createdAt, locale)}
+        </time>
+        {' · '}
+        {readingTime}
+      </p>
+    </div>
+  </Card>
+</a>
