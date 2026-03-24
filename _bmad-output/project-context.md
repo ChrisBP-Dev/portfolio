@@ -1,10 +1,10 @@
 ---
 project_name: 'portfolio'
 user_name: 'Christopher'
-date: '2026-03-23'
+date: '2026-03-24'
 sections_completed: ['technology_stack', 'language_rules', 'framework_rules', 'testing_rules', 'code_quality', 'workflow_rules', 'critical_rules']
 status: 'complete'
-rule_count: 114
+rule_count: 165
 optimized_for_llm: true
 ---
 
@@ -31,6 +31,10 @@ _Este archivo contiene reglas y patrones críticos que los agentes de IA deben s
 
 ### Validación
 - **Zod** 4.3.6 — schemas de runtime para datos de Firestore
+
+### Rich Text & Drag-Drop
+- **TipTap** 3.20.4 — Editor rich text (StarterKit + Image + Link extensions)
+- **SortableJS** 1.15.7 — Drag-drop con soporte touch para reordering admin
 
 ### i18n
 - Astro i18n nativo — `en` (default, sin prefijo) / `es` (prefijo `/es/`)
@@ -66,6 +70,14 @@ _Este archivo contiene reglas y patrones críticos que los agentes de IA deben s
 - **Dates con timezone local**: `new Date(value + 'T00:00:00')` para interpretar fechas como medianoche local, no UTC
 - **Interpolación de traducciones admin**: Placeholders `{key}` con `.replace()` para valores dinámicos en strings de traducción
 - **Slug auto-generation desde EN (defaultLocale)**: Slugs aparecen en URLs sin prefijo de locale (`/blog/my-article`, `/projects/my-project`). Generar siempre desde el campo EN usando `slugify(titleEn)`. Nunca desde ES — el sitio es English-first (`defaultLocale = 'en'`). Cuando el campo EN queda vacío, el slug debe limpiarse (`slug = titleEn ? slugify(titleEn) : ''`)
+- **`exactOptionalPropertyTypes` compliance**: Props opcionales con `?:` NO aceptan `undefined` implícitamente. Declarar explícito: `ogImage?: string | undefined`. Sin `| undefined` explícito, TypeScript rechaza valores que pueden ser `undefined` en runtime
+- **TipTap JSON como string**: Contenido de blog almacenado como JSON stringificado en Firestore (`JSON.stringify(editor.getJSON())`). Parse con `JSON.parse()` al inicializar editor. NUNCA almacenar HTML — el render pipeline es: JSON → HTML → sanitize
+- **`createSubscriber` para sistemas externos**: Svelte 5 bridge para TipTap u otros event systems. `createSubscriber()` de `svelte/reactivity` registra dependencia reactiva sin crear nueva por cada llamada — es idempotente
+- **`untrack()` en `$effect` de editores**: Previene que el efecto se re-ejecute cuando cambian props como `content` u `onUpdate`. El efecto trackea SOLO el elemento DOM; props se capturan con `untrack()` en closures del primer run. Sin esto, el editor se destruye/recrea en cada keystroke
+- **Plain `let` vs `$state` para cleanup trackers**: Variables de tracking de sesión (`savedSuccessfully`, `sessionInlineImages`) usan `let` simple, NO `$state`. Reactive state dispararía `$effect` en cada push/cambio — closures de JS son suficientes para cleanup en unmount
+- **`escapeHtml` obligatorio en renderers custom**: Todo texto Y atributos (href, alt, src) deben escaparse con la secuencia correcta: `&` primero (evita double-escaping), luego `<`, `>`, `"`, `'`. Single-quote se escapa por defense-in-depth
+- **TipTap empty detection**: `{ type: 'doc', content: [{ type: 'paragraph' }] }` es el estado inicial de TipTap — detectar como "vacío" para validación con `isTipTapContentEmpty()`
+- **Image dedup en contenido bilingüe**: Extraer imágenes de ambos locales con `extractImagesFromContent()`, merge con `mergeUniqueImages()` deduplicando por `storagePath`. Guardar solo imágenes realmente referenciadas en `images[]`
 
 ### Reglas Específicas del Framework
 
@@ -96,6 +108,7 @@ _Este archivo contiene reglas y patrones críticos que los agentes de IA deben s
 #### Layouts
 - `BaseLayout.astro` — estructura global: SkipNav → Banner → Header → main → Footer
 - Props requeridos: `title`, `description`, `currentPage`
+- Props opcionales: `ogImage?: string | undefined`, `ogType?: string | undefined`, `ogDescription?: string | undefined`
 - SEO: hreflang links automáticos para ambos locales
 
 #### Admin Architecture
@@ -119,6 +132,42 @@ _Este archivo contiene reglas y patrones críticos que los agentes de IA deben s
 - **BilingualField responsive**: Tabs (mobile <900px) vs columnas side-by-side (desktop ≥900px). `idPrefix` prop para IDs únicos. Error states sincronizados
 - **Toast por severidad**: Success auto-dismiss 4s, Warning 6s, Error manual. Máximo 3 toasts visibles (FIFO). Timeouts tracked en Map para cleanup
 - **Skeleton loaders**: `aria-busy` + `animate-pulse` + `bg-border` durante carga async de datos admin
+
+#### TipTap Editor Integration (Epic 4)
+- **Editor como controlled component**: `$effect` crea instancia TipTap keyed al elemento DOM. `onUpdate` callback emite `JSON.stringify(editor.getJSON())` al parent. Parent almacena JSON string en state
+- **Toolbar pattern**: Todas las acciones siguen `getEditor()?.chain().focus().<action>().run()`. La API `.chain()` batchea actualizaciones DOM. Image insertion exportada como función pública para que `ImageUploadDialog` la invoque
+- **Bilingual content tabs**: Ambos editores (ES/EN) siempre montados en DOM — visibilidad con `display:none`. Esto preserva el estado del editor al cambiar tabs. NUNCA desmontar/remontar editores por tab switch
+- **Content rendering pipeline**: `TipTap JSON → renderTipTapToHtml() → sanitizeBlogHtml() → set:html`. Tres capas de seguridad: escapeHtml en renderer, sanitize-html whitelist, Astro `set:html`
+- **Heading level fallback**: `Number(node.attrs?.level) || 2` — si level es NaN, fallback a h2. Clamp entre h1-h3 con `Math.min(Math.max(level, 1), 3)`
+
+#### SortableJS Drag-Drop Pattern (Post-Epic 4)
+- **DOM revert obligatorio en `onEnd`**: SortableJS manipula DOM directamente — DEBE revertirse manualmente antes de actualizar estado Svelte. Sin revert, Svelte haría double-update del DOM: `from.removeChild(item); from.insertBefore(item, from.children[oldIndex] ?? null)`
+- **Instanciación en `$effect`**: Crear `Sortable.create(element)` cuando el elemento DOM existe. Retornar cleanup `() => sortableInstance?.destroy()`. Handle selector: `[data-drag-handle]`
+- **Guard de reordering**: `$state` boolean `reordering` deshabilita Sortable durante persist con `sortableInstance?.option('disabled', reordering)`. En error, recargar datos del servidor
+- **Persist con batch write**: `writeBatch(db)` para actualizar `order` field de todos los items en una operación atómica
+- **Accessibility**: `aria-live="polite"` + `aria-atomic="true"` en elemento `sr-only` para anunciar movimientos a screen readers
+
+#### Blog-Specific Patterns (Epic 4)
+- **Triple schema pattern para blog**: `blogPostSchema` (runtime con id), `blogPostFirestoreSchema` (sin id, images default []), `blogPostFormSchema` (solo campos editables — excluye createdAt, updatedAt, images, coverImage)
+- **Reading time**: Recursive text extraction de TipTap JSON → split whitespace → 200 WPM. Mínimo 1 minuto. Función `calculateReadingTime()` en `reading-time.ts`
+- **OG description desde contenido**: Extraer texto plano de TipTap JSON, truncar a 157 chars con word boundary (`\s\S*$` regex para no cortar palabra), agregar `…`. Fallback a `post.title[locale]` si vacío
+- **`ogType="article"`**: Blog articles pasan `ogType="article"` a BaseLayout para OpenGraph article-specific metadata. Cover image como og:image si existe
+- **Status field (published/draft)**: Solo posts con `status: 'published'` aparecen en build-time queries. Admin puede toggle status
+- **Slug regex**: `/^[a-z0-9]+(?:-[a-z0-9]+)*$/` — solo lowercase alphanumeric con hyphens, sin hyphens al inicio/final
+- **`slugManuallyEdited` flag**: Auto-generation de slug se desactiva si el usuario editó manualmente. Se reactiva solo al limpiar el slug completo
+
+#### Orphan Image Cleanup (Post-Epic 4)
+- **Fire-and-forget pattern**: `cleanupOrphanedImages(images)` itera y llama `imageService.delete()` sin `await` — cada delete independiente con `.catch(console.warn)`. No bloquea operación del usuario
+- **Session tracking en forms**: `savedSuccessfully`, `sessionInlineImages[]`, `sessionCoverImage` como plain `let` (no `$state`). Trackean imágenes subidas durante la sesión actual
+- **Cleanup en unmount (abandonment)**: `$effect` cleanup cancela uploads activos + elimina TODAS las imágenes de sesión si `!savedSuccessfully`. Protege contra usuario que cierra form sin guardar
+- **Cleanup en save failure retry**: Bloque `catch` limpia SOLO la cover image del intento fallido (inline images se mantienen para retry). Diferente de abandonment que limpia todo
+- **Reset en edit re-initialization**: Cuando el form se reutiliza para otro item (sin remount), resetear todos los trackers para evitar deletes de imágenes del item anterior
+- **BlogForm vs ProjectForm**: BlogForm trackea inline images separadamente (editor ya las muestra); ProjectForm solo trackea uploads durante submit. Diseños diferentes por flujo de UX diferente
+
+#### Link & Image Dialogs (Blog Admin)
+- **LinkDialog**: URL validation solo permite `http://`, `https://`, `mailto:`. Reusa dialog para crear y editar links. Botón remove solo en edit mode
+- **ImageUploadDialog**: Estado como mini state machine — upload disabled hasta seleccionar archivo (`type === 'new'`). Path: `blog/{postId}/images/{uuid}.webp`. Alt text separado del slot state. Upload handle cancelable en unmount
+- **`allowBase64: false`**: sanitize-html bloquea imágenes base64 en contenido — solo URLs de Firebase Storage permitidas
 
 #### Firebase Dual SDK Pattern
 - **Build time (Admin SDK)**: `src/lib/firebase/firebase-admin.ts` — queries Firestore para generar HTML estático
@@ -166,12 +215,19 @@ _Este archivo contiene reglas y patrones críticos que los agentes de IA deben s
 - **Auth setup fixture**: Login via UI (`/admin/login`), esperar hydration de Svelte (`toBeVisible({ timeout: 10_000 })`), guardar `storageState` para reuso
 - **Tests idempotentes**: Cada test crea y limpia sus propios datos. No acumular basura en Firestore
 - **Helpers para UI responsive**: `fillVisible()` / `clearAndFillVisible()` manejan duplicados mobile/desktop. `clickListAction()` para acciones en list items por texto
-- **E2E coverage admin**: Dashboard navigation, CRUD completo (create/edit/delete) para projects/technologies/experiences, auth protection, image upload/replace, logout
+- **E2E coverage admin**: Dashboard navigation, CRUD completo (create/edit/delete) para projects/technologies/experiences/blog, auth protection, image upload/replace, logout
 
-#### Proceso de Testing (Lecciones Epic 3)
+#### Proceso de Testing (Lecciones Epics 3-4)
 - **E2E DEBE fluir de test-design a story tasks**: El SM verifica test-design al crear stories y traduce casos E2E en tareas explícitas. Gap entre "doc dice testear" y "story dice implementar" = tests que nunca se escriben
 - **Dev no marca 'done' sin E2E**: Todo story con UI incluye tareas E2E de sus acceptance criteria
 - **Browser verification es Definition of Done**: Admin = E2E con Playwright. Público = E2E + Lighthouse CI
+- **Tests substantivos, no cosméticos**: Verificar comportamiento observable con funciones reales o decision tables — NUNCA testear que un mock fue llamado sin verificar el resultado. Code review Epic 4 encontró tests tautológicos que verificaban mocks en lugar de lógica
+- **E2E obligatorio en cada story con UI (reafirmado Epic 4)**: Resultado: E2E encontró bugs reales (timing, selectores ambiguos, `__dirname` ESM)
+- **E2E con emuladores en CI**: Pipeline corre `firebase emulators:exec` con auth, firestore y storage para E2E admin. Auth setup persiste `storageState` en `.auth/admin.json`
+- **E2E blog coverage**: Create post con TipTap content → verify in list → edit → toggle status → delete. Image upload dialog flow. Bilingual content switching
+- **TipTap testing**: Verificar contenido via `editor.getJSON()` o assertions en el DOM renderizado — no mockear internals de TipTap. `toBeVisible({ timeout: 10_000 })` para esperar hydration
+- **SortableJS testing**: E2E verifica order persiste después de drag. Verificar `aria-live` announcements
+- **Orphan cleanup testing**: Unit tests con spy en `imageService.delete` — verificar cleanup en unmount sin `savedSuccessfully` y NO cleanup cuando `savedSuccessfully = true`
 
 #### Lighthouse CI
 - 2 matrices: páginas de proyecto (performance >= 0.7 warn) y resto (>= 0.95 error)
@@ -204,16 +260,23 @@ _Este archivo contiene reglas y patrones críticos que los agentes de IA deben s
 ```
 src/
 ├── components/{feature}/    # Por feature: home, layout, contact, projects, blog, admin, common
+├── components/blog/         # BlogCard.astro, BlogContent.astro
+├── components/admin/        # + RichTextEditor.svelte, BlogForm.svelte, BlogList.svelte,
+│                            #   ImageUploadDialog.svelte, LinkDialog.svelte
 ├── data/                    # Helpers de datos (navigation)
 ├── layouts/                 # Wrappers de página (BaseLayout, AdminLayout)
-├── lib/firebase/            # SDKs client + admin
+├── lib/firebase/            # SDKs client + admin + orphan-cleanup.ts, image-slot-processor.ts
 ├── lib/i18n/                # Traducciones y config
-├── lib/schemas/             # Zod schemas (source of truth)
+├── lib/schemas/             # Zod schemas (source of truth) + blog-post-schema.ts
 ├── lib/types/               # Tipos derivados de schemas
-├── lib/utils/               # Utilidades puras (formatDate, slugify, toast-store, error-messages)
+├── lib/utils/               # Utilidades puras (formatDate, slugify, toast-store, error-messages,
+│                            #   tiptap-renderer.ts, tiptap-helpers.ts, reading-time.ts,
+│                            #   sanitize-blog-html.ts)
 ├── lib/scripts/             # Scripts de build/seed (migrate, seed)
 ├── pages/                   # File-based routing
 ├── pages/admin/             # Admin pages (index, login, projects, technologies, experiences, blog)
+├── pages/blog/              # Blog pages (index.astro, [slug].astro)
+├── pages/es/blog/           # Blog pages ES (index.astro, [slug].astro)
 ├── styles/                  # CSS global + Tailwind
 ├── test/factories/          # Test data factories
 └── assets/                  # Imágenes estáticas
@@ -238,6 +301,9 @@ src/
 #### Calidad en Implementación
 - **Calidad empieza en dev, no en review**: A11y, patrones de error, cleanup — deben ser parte de la implementación, no atrapados en code review. Code review debe encontrar problemas de arquitectura, no aria-labels faltantes
 - **Código auto-documentado**: Funciones complejas, decisiones no obvias y patrones del proyecto tienen comentarios inline. Sin documentación externa obligatoria
+- **Defense-in-depth para HTML dinámico**: Tres capas siempre: (1) escapeHtml en renderer, (2) sanitize-html whitelist, (3) Astro `set:html` solo con output sanitizado. NUNCA confiar en una sola capa
+- **Specs validados contra código real**: Antes de crear story specs, verificar Firestore/código actual contra arquitectura. La realidad del código manda sobre el doc
+- **No replicar defectos conocidos**: Si un patrón existente tiene un bug, NO copiarlo en componentes nuevos — corregir primero, luego implementar
 
 ### Reglas de Workflow de Desarrollo
 
@@ -274,16 +340,24 @@ src/
 - CI/CD: GitHub Secrets para `FIREBASE_ADMIN_*` keys + `FIREBASE_CLIENT_CONFIG`
 - `PUBLIC_*` = browser. Sin prefijo = solo build-time
 
-#### Proceso de Desarrollo (Lecciones Retros)
+#### Proceso de Desarrollo (Lecciones Retros Epics 3-4)
 - **Verificar datos reales antes de escribir stories**: Arquitectura es un plan, no realidad. Siempre verificar Firestore/código actual contra spec antes de crear story spec
 - **Decisiones estratégicas antes del epic, no durante**: Cambios como locale flip tocan 14+ archivos. Decidir en planning, no en implementación
-- **Project context actualizado después de cada epic**: Antes de crear stories del siguiente epic. Context desactualizado bloquea a los agentes
+- **Project context actualizado al cierre de cada epic**: ANTES de crear stories del siguiente epic. Context desactualizado bloquea a los agentes. Epic 4 necesitó actualización post-cierre para TipTap, SortableJS, orphan cleanup, y anti-patrones de `$effect`
 - **Arquitectura pragmática**: JAMstack + Islands es correcto para portfolio. Clean Architecture sería sobre-ingeniería. Elegir mínima complejidad necesaria
+- **Defer solo con plan concreto (reafirmado Epic 4)**: Epic 3 tuvo 10 defers sin plan → Epic 4 redujo a 1 defer con quick-dev programado. Si no hay story futura que lo resuelva → corregir en story actual
+- **Tests substantivos (acuerdo Epic 4)**: Code review encontró tests tautológicos que verificaban mocks en vez de comportamiento real. Tests verifican lógica observable, no llamadas a mocks
+- **Quick devs para mejoras post-epic**: Mejoras de UX (SortableJS ordering, orphan cleanup) se implementan como quick-dev entre épicas. No requieren story spec completo pero sí code review y E2E
 
 #### Code Review (3 Capas)
 - **Capa 1 — Implementación**: Story ACs cumplidos, funcionalidad correcta
 - **Capa 2 — Arquitectura**: Consistencia con schemas, error handling, patrones del proyecto
 - **Capa 3 — Seguridad de producción**: Atomicidad, cleanup, error cases, a11y, memory leaks
+
+#### Métricas de Calidad (Baseline Epic 4)
+- Stories completadas: 5/5. Tests agregados: +323 (+284 unit, +39 E2E)
+- Code review patches: ~26 (mejora vs ~38 en Epic 3). Deferred items: 1 con plan (vs 10 sin plan en Epic 3)
+- Bugs pre-existentes corregidos proactivamente: 3. Incidentes en producción: 0
 
 ### Reglas Críticas — No Olvidar
 
@@ -302,15 +376,23 @@ src/
 - NUNCA usar `rm -rf` en artifacts de deploy durante CI — mover a temp, restaurar después
 - NUNCA importar `collections.ts` en componentes client — duplicar constantes localmente para evitar side-effects del Admin SDK
 - NUNCA generar slugs desde campos ES — el `defaultLocale` es `en`, las URLs públicas no tienen prefijo para inglés. Slugs siempre desde el campo EN
+- NUNCA almacenar HTML de TipTap en Firestore — siempre JSON stringificado. El render es responsabilidad del frontend con pipeline seguro
+- NUNCA renderizar TipTap JSON sin pasar por las 3 capas: escapeHtml → sanitize-html → `set:html`. Saltarse una capa = vector XSS
+- NUNCA desmontar/remontar editores TipTap al cambiar tabs bilingües — usar `display:none` para preservar estado del editor
+- NUNCA trackear con `$state` variables que solo se leen en cleanup de `$effect` — usar plain `let` para evitar re-ejecuciones reactivas innecesarias
+- NUNCA dejar que SortableJS maneje el DOM sin revertir primero — Svelte debe ser el único que controla el DOM reactivo. Revertir con `removeChild` + `insertBefore` antes de actualizar state
+- NUNCA usar `Promise.all` para batch deletes de imágenes orphan — fire-and-forget individual con `.catch(console.warn)` para no bloquear al usuario
+- NUNCA confiar en que un spec refleja la realidad del código — verificar Firestore/codebase actual antes de implementar. Specs pueden tener bugs
+- NUNCA copiar patrones de componentes existentes sin verificar que no tengan defectos conocidos — corregir primero, luego implementar
 
-#### Defer Criteria (Post-Retro Epic 3)
+#### Defer Criteria (Post-Retros Epics 3-4)
 - **Defer SOLO con plan concreto**: Si code review encuentra defecto y no hay story futura planeada → corregir en story actual. "Pre-existente" sin plan = se resuelve ahora
 - **Riesgo de replicación**: Un defecto deferido se replicó a 4 archivos porque devs siguieron "el patrón existente". Deferir sin resolver = deuda técnica exponencial
 - **No defect replication**: Si el patrón actual tiene un defecto conocido, NO replicarlo en nuevos componentes — corregir primero
 
 #### Casos Especiales
 - **Blog HTML sanitization**: HTML de TipTap almacenado en Firestore DEBE sanitizarse con `sanitize-html` en build time al renderizar con `set:html`
-- **StoredImage vs ImageSlot**: `StoredImage` = modelo Firestore (url, path, alt). `ImageSlot` = estado UI (discriminated union: empty/existing/new/replaced/removed). Nunca mezclar
+- **StoredImage vs ImageSlot**: `StoredImage` = modelo Firestore (url, storagePath). `ImageSlot` = estado UI (discriminated union: empty/existing/new/replaced/removed). Nunca mezclar
 - **Bilingüe obligatorio**: Todo contenido visible al usuario debe existir en EN y ES — campos Firestore Y strings de UI
 - **transition:persist**: Componentes que sobreviven navegación — registrar cleanup de listeners en `$effect` return, escuchar `astro:after-swap` para re-sync
 - **Firebase singleton**: Client SDK con `getApps().length === 0` check — nunca crear múltiples instancias
@@ -319,6 +401,14 @@ src/
 - **Rollback best-effort**: Si create doc OK pero upload falla → intentar `deleteDoc`. Si rollback falla → log + orphan aceptable. No silenciar, no crashear
 - **MAX_SCREENSHOTS=10**: Validación en UI (botón disabled) + validación en schema. Ambas necesarias
 - **BilingualField idPrefix**: Cada instancia necesita `idPrefix` único para IDs de input consistentes y accesibles
+- **Blog content bilateral tracking**: `uploadedImages` (todas, incluye pre-existentes) vs `sessionInlineImages` (solo nuevas de esta sesión). Son listas diferentes con propósitos diferentes — no mezclar
+- **Cleanup abandonment vs retry**: Abandonment (unmount) limpia TODAS las imágenes de sesión. Save failure retry limpia SOLO la cover image del intento fallido — inline images se mantienen porque el editor las referencia
+- **Edit re-init reset**: Cuando form se reutiliza para otro item sin remount, resetear `savedSuccessfully`, `sessionInlineImages`, `sessionCoverImage` en el bloque `$effect.pre` de inicialización. Sin reset = cleanup borra imágenes del item anterior
+- **TipTap `createSubscriber` bridge**: Idempotente — llamar `subscribe()` dentro de `getEditor()` registra dependencia reactiva sin duplicar. Es el patrón oficial Svelte 5 para integrar event systems externos
+- **`$effect` vs `$effect.pre` en forms**: `$effect.pre` para inicialización de form data (corre antes del render). `$effect` regular para side effects como auto-slug. Orden importa para evitar flicker
+- **OG description word boundary**: Truncar a 157 chars, luego `replace(/\s\S*$/, '')` para no cortar a mitad de palabra. Si regex deja string vacío (palabra única >157 chars), usar slice crudo. Fallback a título si no hay texto
+- **SortableJS `ghostClass` y `chosenClass`**: Clases de Tailwind aplicadas por Sortable directamente — deben existir en el contexto CSS. `opacity-50` para ghost, `border-primary` para chosen
+- **`allowBase64: false` en sanitize-html**: Bloquea imágenes base64 inline — solo URLs de Firebase Storage. Previene inyección de contenido pesado y bypasses de CSP
 
 #### Seguridad
 - API keys de Firebase en `.env` — NUNCA en código fuente
@@ -346,4 +436,4 @@ src/
 - Actualizar cuando cambie el stack tecnológico
 - Revisar después de cada epic para eliminar reglas obsoletas y agregar nuevas
 
-Última actualización: 2026-03-22
+Última actualización: 2026-03-24
