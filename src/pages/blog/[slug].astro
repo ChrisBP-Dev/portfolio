@@ -30,7 +30,13 @@ const locale = getLocaleFromUrl(Astro.url);
 const contentHtml = sanitizeBlogHtml(renderTipTapToHtml(post.content[locale]));
 const readingTime = calculateReadingTime(post.content[locale]);
 const readingTimeLabel = t('blog.readingTime', locale).replace('{minutes}', String(readingTime));
-const ogDesc = extractTextFromTipTap(post.content[locale]).slice(0, 160);
+const rawText = extractTextFromTipTap(post.content[locale]);
+let ogDesc = rawText;
+if (rawText.length > 160) {
+  const trimmed = rawText.slice(0, 157).replace(/\s\S*$/, '');
+  ogDesc = (trimmed || rawText.slice(0, 157)) + '…';
+}
+if (!ogDesc) ogDesc = post.title[locale];
 ---
 
 <BaseLayout

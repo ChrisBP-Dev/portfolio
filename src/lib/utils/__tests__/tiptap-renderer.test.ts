@@ -216,4 +216,25 @@ describe('renderTipTapToHtml', () => {
     expect(result).not.toContain('<script>');
     expect(result).toContain('&lt;script&gt;');
   });
+
+  it('escapes single quotes in text content', () => {
+    const json = makeDoc([makeParagraph("it's a test")]);
+    const result = renderTipTapToHtml(json);
+    expect(result).toContain('&#39;');
+    expect(result).toBe('<p>it&#39;s a test</p>');
+  });
+
+  it('falls back to h2 when heading level is non-numeric', () => {
+    const json = makeDoc([
+      { type: 'heading', attrs: { level: 'abc' }, content: [{ type: 'text', text: 'Title' }] },
+    ]);
+    expect(renderTipTapToHtml(json)).toBe('<h2>Title</h2>');
+  });
+
+  it('falls back to h2 when heading level is null', () => {
+    const json = makeDoc([
+      { type: 'heading', attrs: { level: null }, content: [{ type: 'text', text: 'Title' }] },
+    ]);
+    expect(renderTipTapToHtml(json)).toBe('<h2>Title</h2>');
+  });
 });

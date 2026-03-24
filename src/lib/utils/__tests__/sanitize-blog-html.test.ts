@@ -48,10 +48,11 @@ describe('sanitizeBlogHtml', () => {
     expect(result).toContain('<p>click me</p>');
   });
 
-  it('strips javascript: protocol from links', () => {
+  it('strips javascript: protocol from links and preserves text', () => {
     const html = '<a href="javascript:alert(1)">click</a>';
     const result = sanitizeBlogHtml(html);
     expect(result).not.toContain('javascript:');
+    expect(result).toContain('click');
   });
 
   it('allows img with src, alt, loading but strips onerror', () => {
@@ -61,6 +62,32 @@ describe('sanitizeBlogHtml', () => {
     expect(result).toContain('alt="pic"');
     expect(result).toContain('loading="lazy"');
     expect(result).not.toContain('onerror');
+  });
+
+  it('strips javascript: protocol from image src', () => {
+    const html = '<img src="javascript:alert(1)" alt="test" />';
+    const result = sanitizeBlogHtml(html);
+    expect(result).not.toContain('javascript:');
+  });
+
+  it('pipeline: attribute-level injection in image node is sanitized', () => {
+    const maliciousDoc = JSON.stringify({
+      type: 'doc',
+      content: [
+        {
+          type: 'image',
+          attrs: { src: 'javascript:alert(1)', alt: '" onload="alert(1)' },
+        },
+      ],
+    });
+
+    const result = sanitizeBlogHtml(renderTipTapToHtml(maliciousDoc));
+    // javascript: src stripped by sanitizer's allowedSchemes
+    expect(result).not.toContain('javascript:');
+    // Double quote in alt escaped to &quot; — prevents attribute breakout
+    expect(result).toContain('&quot;');
+    // Alt attribute safely contains the encoded injection attempt
+    expect(result).toMatch(/<img alt="&quot;/);
   });
 
   it('full pipeline: sanitizeBlogHtml(renderTipTapToHtml(json)) produces safe output', () => {

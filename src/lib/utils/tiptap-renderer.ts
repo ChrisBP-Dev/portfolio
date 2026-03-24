@@ -16,7 +16,8 @@ function escapeHtml(text: string): string {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 function renderMarks(text: string, marks: TipTapMark[]): string {
@@ -59,7 +60,7 @@ function renderNode(node: TipTapNode): string {
       return `<p>${(node.content ?? []).map(renderNode).join('')}</p>`;
 
     case 'heading': {
-      const level = Number(node.attrs?.level ?? 2);
+      const level = Number(node.attrs?.level) || 2;
       const tag = `h${Math.min(Math.max(level, 1), 3)}`;
       return `<${tag}>${(node.content ?? []).map(renderNode).join('')}</${tag}>`;
     }
