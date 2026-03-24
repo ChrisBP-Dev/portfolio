@@ -1,6 +1,6 @@
 # Story 4.5: Blog Public — Article Page y OpenGraph
 
-Status: review
+Status: done
 
 ## Story
 
@@ -442,6 +442,32 @@ Claude Opus 4.6 (1M context)
 ### Debug Log References
 
 - Pre-existing E2E test failures in `project-detail.spec.ts` fixed: `h1` locator resolved to multiple elements due to strict mode violation. Fixed by scoping to `main h1`.
+
+### Code Review Record
+
+**Review model:** Claude Opus 4.6 (1M context) — 3-layer adversarial review (Blind Hunter, Edge Case Hunter, Acceptance Auditor)
+
+**AC Status:** All 8 acceptance criteria verified and passed.
+
+**Triage summary:** 10 patches applied, 12 findings rejected as noise, 0 intent gaps, 0 bad spec, 0 defers.
+
+**Patches applied (commit `f3f0bc1`):**
+
+1. **P1 — `escapeHtml` missing single-quote escaping** (`tiptap-renderer.ts:20`): Added `'` → `&#39;` for defense-in-depth. All 5 HTML-significant characters now escaped.
+2. **P2 — Heading level NaN** (`tiptap-renderer.ts:63`): `Number(node.attrs?.level ?? 2)` → `Number(node.attrs?.level) || 2`. Non-numeric levels now fallback to `h2` instead of producing `<hNaN>`.
+3. **P3 — `og:description` empty fallback** (`[slug].astro:39`, EN+ES): Added fallback to `post.title[locale]` when `extractTextFromTipTap` returns empty string (e.g., posts with only images/code blocks).
+4. **P4 — Pipeline test attribute injection** (`sanitize-blog-html.test.ts:73-91`): Added test for `image` node with `src="javascript:alert(1)"` and `alt='" onload="alert(1)'`. Verifies `javascript:` stripped by `allowedSchemes` and `"` escaped to `&quot;` preventing attribute breakout.
+5. **P5 — E2E `.blog-content` child verification** (`blog-article.spec.ts:49-50`, EN+ES): Added assertion that `.blog-content` contains at least one block element (`p, h1, h2, h3, ul, ol, pre, blockquote, img`).
+6. **P6 — E2E `h1` locator scoped to `main`** (`blog-article.spec.ts:25,90`): Changed `page.locator('h1')` → `page.locator('main h1')` for consistency with `project-detail.spec.ts` fix in same implementation.
+7. **P7 — E2E click card navigation** (`blog-article.spec.ts:13-14,88-89`): Changed `page.goto(articleUrl)` → `articleLinks.first().click()` + `waitForURL()` to match spec task 10.2 ("click first card").
+8. **P8 — `ogDesc` word-boundary truncation** (`[slug].astro:35-38`, EN+ES): Changed `.slice(0, 160)` to word-boundary-aware truncation at 157 chars + `…` ellipsis.
+9. **P9 — Sanitizer `javascript:` test assertion** (`sanitize-blog-html.test.ts:55`): Added `expect(result).toContain('click')` to verify link text preserved after protocol stripping.
+10. **P10 — ES E2E coverage expansion** (`blog-article.spec.ts:103-124`): Added 5 new ES tests: reading time visible (`min de lectura`), `.blog-content` with child content, OG meta tags with `type=article`, Twitter Card meta.
+
+**Type fix (commit `d1c7823`):**
+- `BaseLayout.astro` Props: `ogImage?: string` → `ogImage?: string | undefined` (same for `ogType`, `ogDescription`). Required by `exactOptionalPropertyTypes: true` when passing `post.coverImage?.url` which is `string | undefined`. Missed during review because `vitest` doesn't run `astro check`.
+
+**Findings rejected (12):** JSON doc root validation (handled by default case), recursive depth limit (caught by try/catch), `post.content[locale]` null (guarded by Zod schema), `ogImage` relative URL (Firebase URLs are absolute per spec), EN/ES file duplication (prescribed by spec task 7.1), `createdAt.toISOString` (guarded by `parseBlogPost.toDate()`), E2E shared mutable state (Playwright sequential by default), double-escape in codeBlock (sanitize-html preserves entities), cover image unescaped (Astro auto-escapes JSX), `set:html` bypass (intentional pattern), slug regex (valid pattern), mark ordering (semantically equivalent).
 
 ### Completion Notes List
 
