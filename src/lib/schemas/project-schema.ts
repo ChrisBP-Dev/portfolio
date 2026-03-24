@@ -12,6 +12,8 @@ export const projectSchema = z.object({
   sourceCodeUrl: z.url().optional(),
   technologies: z.array(z.string().min(1)),
   slug: z.string().min(1).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  order: z.number().int().nonnegative().default(0),
+  featured: z.boolean().default(false),
 });
 
 export type Project = z.infer<typeof projectSchema>;
@@ -26,9 +28,11 @@ export type ProjectFirestoreData = z.infer<typeof projectFirestoreSchema>;
 
 export type ProjectWithId = ProjectFirestoreData & { id: string };
 
-/** For form validation before submit — excludes id and image fields (handled separately) */
+/** For form validation before submit — excludes id, image fields, and order (managed by list drag-drop) */
 export const projectFormSchema = projectSchema.omit({
   id: true,
   mainImage: true,
   screenshots: true,
+  order: true,
+  featured: true,
 });

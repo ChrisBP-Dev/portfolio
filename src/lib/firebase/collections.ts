@@ -76,8 +76,9 @@ export async function getAllTechnologies(db: Firestore): Promise<Technology[]> {
 }
 
 export async function getAllProjects(db: Firestore): Promise<Project[]> {
-  const snapshot = await db.collection(COLLECTION_PATHS.projects).orderBy('slug').get();
-  return snapshot.docs.map((doc) => parseProject(doc.data() as Record<string, unknown>, doc.id));
+  const snapshot = await db.collection(COLLECTION_PATHS.projects).get();
+  const projects = snapshot.docs.map((doc) => parseProject(doc.data() as Record<string, unknown>, doc.id));
+  return projects.sort((a, b) => a.order - b.order || a.slug.localeCompare(b.slug));
 }
 
 export async function getPublishedBlogPosts(db: Firestore): Promise<BlogPost[]> {

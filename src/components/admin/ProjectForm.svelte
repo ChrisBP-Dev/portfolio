@@ -1,6 +1,6 @@
 <script lang="ts">
   import { tick } from 'svelte';
-  import { collection, addDoc, updateDoc, deleteDoc, doc, deleteField } from 'firebase/firestore';
+  import { collection, addDoc, updateDoc, deleteDoc, doc, deleteField, getDocs } from 'firebase/firestore';
   import { db } from '../../lib/firebase/client';
   import { imageService, type UploadHandle } from '../../lib/firebase/image-service';
   import {
@@ -247,7 +247,14 @@
   async function handleCreateSubmit(): Promise<void> {
     saving = true;
     try {
-      const projectData = buildFormData();
+      // Compute next order value
+      const existingSnapshot = await getDocs(collection(db, PROJECTS_COLLECTION));
+      const maxOrder = existingSnapshot.docs.reduce((max, d) => {
+        const raw = (d.data() as Record<string, unknown>).order;
+        const num = typeof raw === 'number' && !isNaN(raw) ? raw : 0;
+        return Math.max(max, num);
+      }, -1);
+      const projectData = { ...buildFormData(), order: maxOrder + 1, featured: false };
       const docRef = await addDoc(collection(db, PROJECTS_COLLECTION), projectData);
       const docId = docRef.id;
 

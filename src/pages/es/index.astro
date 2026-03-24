@@ -12,7 +12,9 @@ import { t } from '../../lib/i18n/translations';
 const locale = getLocaleFromUrl(Astro.url);
 const technologies = await getAllTechnologies(adminDb);
 const projects = await getAllProjects(adminDb);
-const projectsPreview = projects.slice(0, 3);
+const featured = projects.filter(p => p.featured);
+const nonFeatured = projects.filter(p => !p.featured);
+const projectsPreview = [...featured, ...nonFeatured].slice(0, 3);
 const experiences = await getAllExperiences(adminDb);
 ---
 

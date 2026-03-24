@@ -1,9 +1,10 @@
 <script lang="ts">
-  import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+  import { collection, getDocs, updateDoc, doc, writeBatch } from 'firebase/firestore';
   import { db } from '../../lib/firebase/client';
   import { projectFirestoreSchema } from '../../lib/schemas/project-schema';
   import type { ProjectWithId } from '../../lib/schemas/project-schema';
   import { t } from '../../lib/i18n/translations';
+  import { toastStore } from '../../lib/utils/toast-store.svelte';
 
   const locale = 'es';
   const PROJECTS_COLLECTION = 'Projects';
@@ -20,6 +21,18 @@
   let loading = $state(true);
   let error = $state(false);
 
+  // Drag state
+  let draggedIndex = $state<number | null>(null);
+  let dropTargetIndex = $state<number | null>(null);
+  let reordering = $state(false);
+  let canDrag = $state(false);
+
+  // Accessibility: aria-live announcement
+  let liveAnnouncement = $state('');
+
+  // Featured count
+  let featuredCount = $derived(projects.filter(p => p.featured).length);
+
   $effect(() => {
     loadProjects();
   });
@@ -28,19 +41,132 @@
     loading = true;
     error = false;
     try {
-      const q = query(collection(db, PROJECTS_COLLECTION), orderBy('slug'));
-      const snapshot = await getDocs(q);
+      const snapshot = await getDocs(collection(db, PROJECTS_COLLECTION));
       projects = snapshot.docs
         .map((doc) => {
           const result = projectFirestoreSchema.safeParse(doc.data());
           if (!result.success) return null;
           return { ...result.data, id: doc.id };
         })
-        .filter((p): p is ProjectWithId => p !== null);
+        .filter((p): p is ProjectWithId => p !== null)
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0) || (a.slug ?? '').localeCompare(b.slug ?? ''));
     } catch {
       error = true;
     } finally {
       loading = false;
+    }
+  }
+
+  // Drag handlers — drag starts only from grip handle via canDrag flag
+  function handleDragStart(e: DragEvent, index: number): void {
+    if (!canDrag) {
+      e.preventDefault();
+      return;
+    }
+    draggedIndex = index;
+    if (e.dataTransfer) {
+      e.dataTransfer.effectAllowed = 'move';
+    }
+  }
+
+  function handleDragOver(e: DragEvent, index: number): void {
+    e.preventDefault();
+    dropTargetIndex = index;
+  }
+
+  function handleDragLeave(): void {
+    dropTargetIndex = null;
+  }
+
+  async function handleDrop(e: DragEvent, index: number): Promise<void> {
+    e.preventDefault();
+    if (reordering) return;
+    if (draggedIndex === null || draggedIndex === index) {
+      draggedIndex = null;
+      dropTargetIndex = null;
+      return;
+    }
+
+    // Reorder array
+    const reordered = [...projects];
+    const [moved] = reordered.splice(draggedIndex, 1);
+    reordered.splice(index, 0, moved);
+
+    // Assign sequential order values
+    projects = reordered.map((p, i) => ({ ...p, order: i }));
+
+    liveAnnouncement = `${moved.companyName[locale]} movido a posición ${index + 1}`;
+
+    draggedIndex = null;
+    dropTargetIndex = null;
+    canDrag = false;
+
+    await persistOrder();
+  }
+
+  function handleDragEnd(): void {
+    draggedIndex = null;
+    dropTargetIndex = null;
+    canDrag = false;
+  }
+
+  // Keyboard reorder — ArrowUp/ArrowDown on grip handle
+  async function handleKeyboardReorder(e: KeyboardEvent, index: number): Promise<void> {
+    if (reordering) return;
+    let targetIndex: number | null = null;
+
+    if (e.key === 'ArrowUp' && index > 0) {
+      targetIndex = index - 1;
+    } else if (e.key === 'ArrowDown' && index < projects.length - 1) {
+      targetIndex = index + 1;
+    }
+
+    if (targetIndex === null) return;
+    e.preventDefault();
+
+    const reordered = [...projects];
+    const [moved] = reordered.splice(index, 1);
+    reordered.splice(targetIndex, 0, moved);
+    projects = reordered.map((p, i) => ({ ...p, order: i }));
+
+    liveAnnouncement = `${moved.companyName[locale]} ${targetIndex < index ? '↑' : '↓'} posición ${targetIndex + 1} de ${projects.length}`;
+
+    await persistOrder();
+
+    // Refocus the handle at the new position
+    const handle = document.querySelector(`[data-drag-index="${targetIndex}"]`) as HTMLElement | null;
+    handle?.focus();
+  }
+
+  async function persistOrder(): Promise<void> {
+    reordering = true;
+    try {
+      const batch = writeBatch(db);
+      projects.forEach((project, index) => {
+        batch.update(doc(db, PROJECTS_COLLECTION, project.id), { order: index });
+      });
+      await batch.commit();
+    } catch {
+      toastStore.error(t('admin.projects.reorderError', locale));
+      await loadProjects();
+    } finally {
+      reordering = false;
+    }
+  }
+
+  async function handleToggleFeatured(project: ProjectWithId): Promise<void> {
+    if (!project.featured && featuredCount >= 3) {
+      toastStore.warning(t('admin.projects.maxFeatured', locale));
+      return;
+    }
+    const newFeatured = !project.featured;
+    try {
+      await updateDoc(doc(db, PROJECTS_COLLECTION, project.id), { featured: newFeatured });
+      // Update local state
+      const idx = projects.findIndex(p => p.id === project.id);
+      if (idx !== -1) projects[idx] = { ...projects[idx], featured: newFeatured };
+    } catch {
+      toastStore.error(t('admin.projects.featuredToggleError', locale));
     }
   }
 </script>
@@ -97,9 +223,38 @@
     </div>
   {:else}
     <!-- Project list -->
-    <div class="space-y-3">
-      {#each projects as project (project.id)}
-        <div class="flex items-center gap-4 bg-surface border border-border rounded-lg p-4 transition-colors hover:border-primary/30">
+    <div class="space-y-3" role="list">
+      {#each projects as project, index (project.id)}
+        <div
+          draggable="true"
+          ondragstart={(e) => handleDragStart(e, index)}
+          ondragover={(e) => handleDragOver(e, index)}
+          ondragleave={handleDragLeave}
+          ondrop={(e) => handleDrop(e, index)}
+          ondragend={handleDragEnd}
+          role="listitem"
+          class="flex items-center gap-4 bg-surface border rounded-lg p-4 transition-colors hover:border-primary/30 {draggedIndex === index ? 'opacity-50' : ''} {dropTargetIndex === index && draggedIndex !== index ? 'border-t-2 border-primary' : 'border-border'}"
+        >
+          <!-- Drag handle — mousedown enables drag, keyboard arrows reorder -->
+          <button
+            type="button"
+            onmousedown={() => { canDrag = true; }}
+            onkeydown={(e) => handleKeyboardReorder(e, index)}
+            class="cursor-grab active:cursor-grabbing shrink-0 text-text-muted hover:text-text-secondary p-1"
+            aria-label={t('admin.projects.dragHandle', locale)}
+            aria-roledescription="sortable"
+            data-drag-index={index}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+              <circle cx="5" cy="2" r="1.5"/>
+              <circle cx="11" cy="2" r="1.5"/>
+              <circle cx="5" cy="8" r="1.5"/>
+              <circle cx="11" cy="8" r="1.5"/>
+              <circle cx="5" cy="14" r="1.5"/>
+              <circle cx="11" cy="14" r="1.5"/>
+            </svg>
+          </button>
+
           {#if project.mainImage?.url}
             <img
               src={project.mainImage.url}
@@ -123,6 +278,27 @@
             <p class="text-sm text-text-muted truncate">{project.slug}</p>
           </div>
 
+          <!-- Featured star toggle -->
+          <button
+            type="button"
+            onclick={() => handleToggleFeatured(project)}
+            class="shrink-0 p-1.5 rounded-lg transition-colors {project.featured ? 'text-yellow-500 hover:text-yellow-600' : 'text-text-muted hover:text-yellow-500'}"
+            aria-label="{t('admin.projects.featured', locale)}: {project.companyName[locale]}"
+            data-testid="featured-toggle-{project.id}"
+          >
+            {#if project.featured}
+              <!-- Filled star -->
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            {:else}
+              <!-- Outline star -->
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            {/if}
+          </button>
+
           <div class="flex gap-2 shrink-0">
             <button
               type="button"
@@ -143,4 +319,7 @@
       {/each}
     </div>
   {/if}
+
+  <!-- Screen reader announcements for reorder -->
+  <div aria-live="polite" aria-atomic="true" class="sr-only">{liveAnnouncement}</div>
 </div>

@@ -225,6 +225,11 @@ const translations: Record<string, Record<Locale, string>> = {
   'admin.confirm.cancel': { es: 'Cancelar', en: 'Cancel' },
   'admin.confirm.deleting': { es: 'Eliminando...', en: 'Deleting...' },
   'admin.projects.form.noTechnologies': { es: 'No hay tecnologías disponibles', en: 'No technologies available' },
+  'admin.projects.featured': { es: 'Destacado', en: 'Featured' },
+  'admin.projects.maxFeatured': { es: 'Máximo 3 proyectos destacados', en: 'Maximum 3 featured projects' },
+  'admin.projects.reorderError': { es: 'Error al reordenar proyectos', en: 'Error reordering projects' },
+  'admin.projects.featuredToggleError': { es: 'Error al cambiar destacado', en: 'Error toggling featured' },
+  'admin.projects.dragHandle': { es: 'Arrastrar para reordenar', en: 'Drag to reorder' },
 
   // Admin — Technologies
   'admin.technologies.title': { es: 'Tecnologías', en: 'Technologies' },

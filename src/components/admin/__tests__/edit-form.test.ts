@@ -61,6 +61,8 @@ describe('Edit form — initialization from initialData', () => {
     websiteUrl: 'https://example.com',
     sourceCodeUrl: 'https://github.com/test',
     slug: 'empresa-test',
+    order: 0,
+    featured: false,
     id: 'proj-1',
   };
 

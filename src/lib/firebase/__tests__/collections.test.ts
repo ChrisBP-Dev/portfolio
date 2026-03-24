@@ -160,17 +160,24 @@ describe('Firebase Collections', () => {
   });
 
   describe('getAllProjects', () => {
-    it('[P0] 2.2-UNIT-003: returns parsed Project[] from mock Firestore ordered by slug', async () => {
-      const proj = createProject({ slug: 'test-proj' });
-      const { id, ...data } = proj;
-      const { db, query } = createMockDb([{ id, data: data as Record<string, unknown> }]);
+    it('[P0] 2.2-UNIT-003: returns parsed Project[] from mock Firestore sorted by order then slug', async () => {
+      const proj1 = createProject({ slug: 'beta', order: 1 });
+      const proj2 = createProject({ slug: 'alpha', order: 0 });
+      const { id: id1, ...data1 } = proj1;
+      const { id: id2, ...data2 } = proj2;
+      const { db, query } = createMockDb([
+        { id: id1, data: data1 as Record<string, unknown> },
+        { id: id2, data: data2 as Record<string, unknown> },
+      ]);
 
       const result = await getAllProjects(db as never);
 
-      expect(result).toHaveLength(1);
-      expect(result[0]!.slug).toBe('test-proj');
+      expect(result).toHaveLength(2);
+      expect(result[0]!.slug).toBe('alpha');
+      expect(result[1]!.slug).toBe('beta');
       expect(db.collection).toHaveBeenCalledWith(COLLECTION_PATHS.projects);
-      expect(query.orderBy).toHaveBeenCalledWith('slug');
+      // No orderBy call — sorting is done in JS
+      expect(query.orderBy).not.toHaveBeenCalled();
     });
   });
 

@@ -15,6 +15,8 @@ export function createProject(overrides?: Partial<Project>): Project {
     sourceCodeUrl: undefined,
     technologies: ['astro', 'svelte'],
     slug: 'proyecto-demo',
+    order: 0,
+    featured: false,
     ...overrides,
   };
 }
