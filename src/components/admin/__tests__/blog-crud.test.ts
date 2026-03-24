@@ -26,6 +26,8 @@ vi.mock('../../../lib/firebase/image-service', () => ({
 }));
 
 import type { BlogPostWithId } from '../../../lib/schemas/blog-post-schema';
+import type { StoredImage } from '../../../lib/schemas/shared-schemas';
+import { t } from '../../../lib/i18n/translations';
 import { createBlogPost } from '../../../test/factories/blog-post';
 
 describe('BlogCrudPage — view mode transitions', () => {
@@ -173,15 +175,88 @@ describe('BlogCrudPage — unsaved changes guard (D-2)', () => {
   });
 });
 
-describe('BlogCrudPage — delete dialog message', () => {
-  it('message includes post title', () => {
-    const template = "¿Eliminar '{name}'? Se eliminarán también las imágenes asociadas.";
-    const postTitle = 'Mi primer artículo';
+describe('BlogCrudPage — delete dialog message (Story 4-3, Task 6)', () => {
+  const locale = 'es';
 
-    const message = template.replace('{name}', postTitle);
+  function buildDeleteMessage(post: BlogPostWithId): string {
+    const hasCover = !!post.coverImage;
+    const imageCount = post.images?.length ?? 0;
 
-    expect(message).toBe(
-      "¿Eliminar 'Mi primer artículo'? Se eliminarán también las imágenes asociadas.",
-    );
+    if (hasCover && imageCount > 0) {
+      return t('admin.blog.deleteConfirmMessage', locale)
+        .replace('{name}', post.title.es)
+        .replace('{imageCount}', String(imageCount));
+    } else if (hasCover && imageCount === 0) {
+      return t('admin.blog.deleteConfirmMessageNoImages', locale)
+        .replace('{name}', post.title.es);
+    } else if (!hasCover && imageCount > 0) {
+      return t('admin.blog.deleteConfirmMessageNoCover', locale)
+        .replace('{name}', post.title.es)
+        .replace('{imageCount}', String(imageCount));
+    } else {
+      return t('admin.blog.deleteConfirmMessageEmpty', locale)
+        .replace('{name}', post.title.es);
+    }
+  }
+
+  it('post with coverImage + 3 embedded images → shows "portada y 3 imágenes embebidas"', () => {
+    const images: StoredImage[] = [
+      { url: 'https://a.com/1.webp', storagePath: 'blog/1/img1.webp' },
+      { url: 'https://a.com/2.webp', storagePath: 'blog/1/img2.webp' },
+      { url: 'https://a.com/3.webp', storagePath: 'blog/1/img3.webp' },
+    ];
+    const post = createBlogPost({
+      title: { es: 'Mi artículo', en: 'My article' },
+      coverImage: { url: 'https://a.com/cover.webp', storagePath: 'blog/1/cover.webp' },
+      images,
+    }) as BlogPostWithId;
+
+    const message = buildDeleteMessage(post);
+    expect(message).toContain('Mi artículo');
+    expect(message).toContain('portada');
+    expect(message).toContain('3');
+    expect(message).toContain('imágenes embebidas');
+  });
+
+  it('post with coverImage but 0 embedded images → shows "portada de Storage"', () => {
+    const post = createBlogPost({
+      title: { es: 'Solo portada', en: 'Cover only' },
+      coverImage: { url: 'https://a.com/cover.webp', storagePath: 'blog/1/cover.webp' },
+      images: [],
+    }) as BlogPostWithId;
+
+    const message = buildDeleteMessage(post);
+    expect(message).toContain('Solo portada');
+    expect(message).toContain('portada de Storage');
+    expect(message).not.toContain('imágenes embebidas');
+  });
+
+  it('post without coverImage but 2 embedded images → shows "2 imágenes embebidas"', () => {
+    const images: StoredImage[] = [
+      { url: 'https://a.com/1.webp', storagePath: 'blog/1/img1.webp' },
+      { url: 'https://a.com/2.webp', storagePath: 'blog/1/img2.webp' },
+    ];
+    const post = createBlogPost({
+      title: { es: 'Sin portada', en: 'No cover' },
+      coverImage: undefined,
+      images,
+    }) as BlogPostWithId;
+
+    const message = buildDeleteMessage(post);
+    expect(message).toContain('Sin portada');
+    expect(message).toContain('2');
+    expect(message).toContain('imágenes embebidas');
+    expect(message).not.toContain('portada y');
+  });
+
+  it('post with no images at all → shows just "¿Eliminar \'name\'?"', () => {
+    const post = createBlogPost({
+      title: { es: 'Post vacío', en: 'Empty post' },
+      coverImage: undefined,
+      images: [],
+    }) as BlogPostWithId;
+
+    const message = buildDeleteMessage(post);
+    expect(message).toBe("¿Eliminar 'Post vacío'?");
   });
 });

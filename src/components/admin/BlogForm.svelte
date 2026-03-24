@@ -1,9 +1,9 @@
 <script lang="ts">
   import { tick } from 'svelte';
-  import { collection, setDoc, updateDoc, doc, query, where, limit, getDocs, Timestamp } from 'firebase/firestore';
+  import { collection, setDoc, updateDoc, doc, query, where, limit, getDocs, Timestamp, deleteField } from 'firebase/firestore';
   import { db } from '../../lib/firebase/client';
-  import type { UploadHandle } from '../../lib/firebase/image-service';
-  import { processImageSlot } from '../../lib/firebase/image-slot-processor';
+  import { imageService, type UploadHandle } from '../../lib/firebase/image-service';
+  import { processImageSlot, cleanupDeletedImages } from '../../lib/firebase/image-slot-processor';
   import { blogPostFormSchema } from '../../lib/schemas/blog-post-schema';
   import type { BlogPostWithId } from '../../lib/schemas/blog-post-schema';
   import type { StoredImage } from '../../lib/schemas/shared-schemas';
@@ -64,7 +64,9 @@
   // Edit mode initialization guard
   let initializedForId = $state('');
 
-  $effect(() => {
+  // $effect.pre runs BEFORE children update — ensures RichTextEditor receives
+  // the correct content prop on its initial mount (fixes edit mode timing bug)
+  $effect.pre(() => {
     if (mode === 'edit' && initialData && initializedForId !== initialData.id) {
       initializedForId = initialData.id;
       titleEs = initialData.title.es;
@@ -281,6 +283,20 @@
         await setDoc(preGeneratedDocRef, payload);
       }
 
+      // Cleanup orphaned inline images (edit mode only)
+      if (mode === 'edit' && initialData) {
+        const orphanedImages = (initialData.images ?? []).filter(
+          (img) => !mergedImages.some((m) => m.storagePath === img.storagePath),
+        );
+        for (const orphan of orphanedImages) {
+          try {
+            await imageService.delete(orphan);
+          } catch (cleanupError) {
+            console.warn(`Orphaned image cleanup failed for ${orphan.storagePath}:`, cleanupError);
+          }
+        }
+      }
+
       // Process cover image
       try {
         const processed = await processImageSlot(
@@ -290,10 +306,25 @@
         );
         coverImageProgress = null;
 
+        // Update Firestore with new image or clear if removed
         if (processed.image) {
           await updateDoc(doc(db, BLOG_COLLECTION, docId), {
             coverImage: processed.image,
           });
+        } else if (coverImageSlot.type === 'removed') {
+          await updateDoc(doc(db, BLOG_COLLECTION, docId), {
+            coverImage: deleteField(),
+          });
+        }
+        // else: type 'empty' or 'existing' — no coverImage update needed
+
+        // Cleanup old images from Storage (non-blocking)
+        if (processed.toDelete.length > 0) {
+          try {
+            await cleanupDeletedImages(processed.toDelete);
+          } catch (cleanupError) {
+            console.warn('Cover image cleanup failed (orphans may remain):', cleanupError);
+          }
         }
       } catch (uploadError) {
         console.error('Cover image processing failed:', uploadError);

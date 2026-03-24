@@ -1,6 +1,6 @@
 # Story 4.3: Blog CRUD — Edit, Delete y Status Toggle
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -31,58 +31,58 @@ Story 4-1 built the full BlogCrudPage infrastructure (list + create + delete + e
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Fix cover image lifecycle in BlogForm edit save (AC: #5)
-  - [ ] 1.1 Import `cleanupDeletedImages` from `../../lib/firebase/image-slot-processor` in `BlogForm.svelte`
-  - [ ] 1.2 After `processImageSlot()` (line ~286), collect `processed.toDelete` array
-  - [ ] 1.3 Handle cover removed case: when `coverImageSlot.type === 'removed'` (NOT just `processed.image === null`, which also matches 'empty'), call `updateDoc` with `coverImage: deleteField()` to clear from Firestore — import `deleteField` from `firebase/firestore`
-  - [ ] 1.4 Handle `processed.image` truthy case (new or replaced cover): existing `updateDoc` with `coverImage: processed.image` (already works)
-  - [ ] 1.5 After document update, call `cleanupDeletedImages(processed.toDelete)` wrapped in non-blocking try-catch (orphans OK, same pattern as ProjectForm lines 358-365)
-  - [ ] 1.6 Handle edge case: if `coverImageSlot.type === 'existing'` (no change), processImageSlot returns `{ image: slot.image, toDelete: [] }` — no cleanup needed, no updateDoc needed for coverImage
+- [x] Task 1: Fix cover image lifecycle in BlogForm edit save (AC: #5)
+  - [x] 1.1 Import `cleanupDeletedImages` from `../../lib/firebase/image-slot-processor` in `BlogForm.svelte`
+  - [x] 1.2 After `processImageSlot()` (line ~286), collect `processed.toDelete` array
+  - [x] 1.3 Handle cover removed case: when `coverImageSlot.type === 'removed'` (NOT just `processed.image === null`, which also matches 'empty'), call `updateDoc` with `coverImage: deleteField()` to clear from Firestore — import `deleteField` from `firebase/firestore`
+  - [x] 1.4 Handle `processed.image` truthy case (new or replaced cover): existing `updateDoc` with `coverImage: processed.image` (already works)
+  - [x] 1.5 After document update, call `cleanupDeletedImages(processed.toDelete)` wrapped in non-blocking try-catch (orphans OK, same pattern as ProjectForm lines 358-365)
+  - [x] 1.6 Handle edge case: if `coverImageSlot.type === 'existing'` (no change), processImageSlot returns `{ image: slot.image, toDelete: [] }` — no cleanup needed, no updateDoc needed for coverImage
 
-- [ ] Task 2: Orphaned inline image cleanup on edit save (AC: #1, #5)
-  - [ ] 2.1 In `handleSubmit()`, after computing `mergedImages`, compare against initial images to find orphans: `const orphanedImages = (initialData?.images ?? []).filter(img => !mergedImages.some(m => m.storagePath === img.storagePath))`
-  - [ ] 2.2 For each orphaned image, delete from Storage via `imageService.delete(orphan)` where `orphan` is a `StoredImage` object — non-blocking, try-catch with `console.warn` (same pattern as cover image cleanup). Note: `imageService.delete` signature is `deleteSingle(image: StoredImage): Promise<void>` — takes the full StoredImage, not just the path
-  - [ ] 2.3 Only run orphan cleanup in edit mode (`mode === 'edit' && initialData`)
-  - [ ] 2.4 Run orphan cleanup AFTER document save succeeds (safe-first: Firestore updated first, then Storage cleanup)
+- [x] Task 2: Orphaned inline image cleanup on edit save (AC: #1, #5)
+  - [x] 2.1 In `handleSubmit()`, after computing `mergedImages`, compare against initial images to find orphans: `const orphanedImages = (initialData?.images ?? []).filter(img => !mergedImages.some(m => m.storagePath === img.storagePath))`
+  - [x] 2.2 For each orphaned image, delete from Storage via `imageService.delete(orphan)` where `orphan` is a `StoredImage` object — non-blocking, try-catch with `console.warn` (same pattern as cover image cleanup). Note: `imageService.delete` signature is `deleteSingle(image: StoredImage): Promise<void>` — takes the full StoredImage, not just the path
+  - [x] 2.3 Only run orphan cleanup in edit mode (`mode === 'edit' && initialData`)
+  - [x] 2.4 Run orphan cleanup AFTER document save succeeds (safe-first: Firestore updated first, then Storage cleanup)
 
-- [ ] Task 3: Enhanced delete confirmation message (AC: #3)
-  - [ ] 3.1 Update i18n keys in `translations.ts`:
+- [x] Task 3: Enhanced delete confirmation message (AC: #3)
+  - [x] 3.1 Update i18n keys in `translations.ts`:
     - `admin.blog.deleteConfirmMessage`: Change to "¿Eliminar '{name}'? Se eliminarán la portada y {imageCount} imágenes embebidas de Storage." / "Delete '{name}'? The cover image and {imageCount} embedded images will be deleted from Storage."
     - `admin.blog.deleteConfirmMessageNoImages`: "¿Eliminar '{name}'? Se eliminará la portada de Storage." / "Delete '{name}'? The cover image will be deleted from Storage."
     - `admin.blog.deleteConfirmMessageNoCover`: "¿Eliminar '{name}'? Se eliminarán {imageCount} imágenes embebidas de Storage." / "Delete '{name}'? {imageCount} embedded images will be deleted from Storage."
     - `admin.blog.deleteConfirmMessageEmpty`: "¿Eliminar '{name}'?" / "Delete '{name}'?"
-  - [ ] 3.2 Update `deleteDialogMessage` derived in `BlogCrudPage.svelte`: compute `hasCover = !!deletingPost.coverImage`, `imageCount = deletingPost.images?.length ?? 0`, select appropriate i18n key based on combination, replace `{name}` and `{imageCount}` placeholders
+  - [x] 3.2 Update `deleteDialogMessage` derived in `BlogCrudPage.svelte`: compute `hasCover = !!deletingPost.coverImage`, `imageCount = deletingPost.images?.length ?? 0`, select appropriate i18n key based on combination, replace `{name}` and `{imageCount}` placeholders
 
-- [ ] Task 4: Unit tests — cover image lifecycle fix (AC: #5)
+- [x] Task 4: Unit tests — cover image lifecycle fix (AC: #5)
   - **Note:** `blog-form.test.ts` already mocks `processImageSlot` (vi.mock) and Firestore ops (`mockSetDoc`, `mockUpdateDoc`, `mockDoc`). **Extend the existing mock setup** — add `cleanupDeletedImages` mock to the `image-slot-processor` mock module and add `imageService.delete` mock to a new `image-service` mock module. Do NOT create a separate mock setup.
-  - [ ] 4.1 In `blog-form.test.ts`, add test: edit mode with replaced cover image → on submit, `processImageSlot` returns `toDelete: ['old/path.webp']` → verify `cleanupDeletedImages` called with old path
-  - [ ] 4.2 Add test: edit mode with removed cover image → on submit, `updateDoc` called with `coverImage: deleteField()` AND `cleanupDeletedImages` called with old path
-  - [ ] 4.3 Add test: edit mode with unchanged cover image (type 'existing') → `cleanupDeletedImages` NOT called (no orphans)
-  - [ ] 4.4 Add test: cover image cleanup failure doesn't block save (try-catch, document already saved)
+  - [x] 4.1 In `blog-form.test.ts`, add test: edit mode with replaced cover image → on submit, `processImageSlot` returns `toDelete: ['old/path.webp']` → verify `cleanupDeletedImages` called with old path
+  - [x] 4.2 Add test: edit mode with removed cover image → on submit, `updateDoc` called with `coverImage: deleteField()` AND `cleanupDeletedImages` called with old path
+  - [x] 4.3 Add test: edit mode with unchanged cover image (type 'existing') → `cleanupDeletedImages` NOT called (no orphans)
+  - [x] 4.4 Add test: cover image cleanup failure doesn't block save (try-catch, document already saved)
 
-- [ ] Task 5: Unit tests — orphaned inline image cleanup (AC: #1, #5)
+- [x] Task 5: Unit tests — orphaned inline image cleanup (AC: #1, #5)
   - **Note:** Reuse the `imageService.delete` mock added in Task 4. The mock for `image-service` must export both `imageService` (value) and `UploadHandle` (type) to match the modified import in BlogForm.
-  - [ ] 5.1 In `blog-form.test.ts`, add test: edit mode, initialData has 3 images, after edit content only references 2 → verify `imageService.delete()` called for orphaned image's storagePath
-  - [ ] 5.2 Add test: edit mode, no images removed → `imageService.delete()` NOT called
-  - [ ] 5.3 Add test: create mode → orphan cleanup NOT executed (no initialData to compare)
-  - [ ] 5.4 Add test: orphan cleanup failure doesn't block save (non-blocking try-catch)
+  - [x] 5.1 In `blog-form.test.ts`, add test: edit mode, initialData has 3 images, after edit content only references 2 → verify `imageService.delete()` called for orphaned image's storagePath
+  - [x] 5.2 Add test: edit mode, no images removed → `imageService.delete()` NOT called
+  - [x] 5.3 Add test: create mode → orphan cleanup NOT executed (no initialData to compare)
+  - [x] 5.4 Add test: orphan cleanup failure doesn't block save (non-blocking try-catch)
 
-- [ ] Task 6: Unit tests — delete confirmation with image count (AC: #3)
+- [x] Task 6: Unit tests — delete confirmation with image count (AC: #3)
   - **Note:** `blog-crud.test.ts` already has a basic delete dialog message test (lines 176-187) that tests the current generic message with `{name}` substitution. **Replace/extend that existing test** with the four variants below — do NOT create a duplicate test suite.
-  - [ ] 6.1 In `blog-crud.test.ts`, add test: post with coverImage + 3 embedded images → dialog message shows "portada y 3 imágenes embebidas"
-  - [ ] 6.2 Add test: post with coverImage but 0 embedded images → dialog shows "portada de Storage"
-  - [ ] 6.3 Add test: post without coverImage but 2 embedded images → dialog shows "2 imágenes embebidas"
-  - [ ] 6.4 Add test: post with no images at all → dialog shows just "¿Eliminar '{name}'?"
+  - [x] 6.1 In `blog-crud.test.ts`, add test: post with coverImage + 3 embedded images → dialog message shows "portada y 3 imágenes embebidas"
+  - [x] 6.2 Add test: post with coverImage but 0 embedded images → dialog shows "portada de Storage"
+  - [x] 6.3 Add test: post without coverImage but 2 embedded images → dialog shows "2 imágenes embebidas"
+  - [x] 6.4 Add test: post with no images at all → dialog shows just "¿Eliminar '{name}'?"
 
-- [ ] Task 7: E2E tests — edit flow (AC: #1, #2, #5)
-  - [ ] 7.1 In `admin-blog.spec.ts`, add test: create article with title/content/draft status → click edit → verify all fields populated (title ES, title EN, slug, status, content in TipTap editors) → change title → change status to published → save → verify list shows updated title + "Publicado" badge
-  - [ ] 7.2 Add test: edit article → modify content in TipTap editor → save → edit again → verify modified content persisted
-  - [ ] 7.3 Add test: edit article → make no changes → cancel → no unsaved changes warning (hasChanges is false after init)
-  - [ ] 7.4 Add test: edit article → change title → cancel → unsaved changes warning appears → confirm discard → returns to list
-  - [ ] 7.5 Cleanup: delete test articles created during edit tests
+- [x] Task 7: E2E tests — edit flow (AC: #1, #2, #5)
+  - [x] 7.1 In `admin-blog.spec.ts`, add test: create article with title/content/draft status → click edit → verify all fields populated (title ES, title EN, slug, status, content in TipTap editors) → change title → change status to published → save → verify list shows updated title + "Publicado" badge
+  - [x] 7.2 Add test: edit article → modify content in TipTap editor → save → edit again → verify modified content persisted
+  - [x] 7.3 Add test: edit article → make no changes → cancel → no unsaved changes warning (hasChanges is false after init)
+  - [x] 7.4 Add test: edit article → change title → cancel → unsaved changes warning appears → confirm discard → returns to list
+  - [x] 7.5 Cleanup: delete test articles created during edit tests
 
-- [ ] Task 8: E2E tests — delete with verification (AC: #3, #4)
-  - [ ] 8.1 In `admin-blog.spec.ts`, add test: create article → click delete → verify ConfirmDialog shows correct message with title → confirm → verify article removed from list → verify toast shown
+- [x] Task 8: E2E tests — delete with verification (AC: #3, #4)
+  - [x] 8.1 In `admin-blog.spec.ts`, add test: create article → click delete → verify ConfirmDialog shows correct message with title → confirm → verify article removed from list → verify toast shown
 
 ## Dev Notes
 
@@ -350,10 +350,36 @@ Line numbers referenced in this story (e.g., 284-303, 80, 358-365) are approxima
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.6 (1M context)
 
 ### Debug Log References
 
+- E2E descubrió bug de timing en edit mode: TipTap content vacío porque `$effect` del padre corre después de `$effect` de hijos (Svelte 5). Fix: `$effect.pre` para init guard.
+- E2E descubrió `__dirname` no definido en ESM (pre-existente). Fix: polyfill con `fileURLToPath`.
+- E2E descubrió selectores ambiguos para tab EN (BilingualField vs RichTextEditor tabs visibles simultáneamente). Fix: `.rounded-t-lg` class qualifier.
+
 ### Completion Notes List
 
+- **Task 1 (Cover lifecycle fix):** Importado `deleteField` de firebase/firestore y `cleanupDeletedImages` de image-slot-processor. BlogForm.handleSubmit ahora: (a) procesa `processed.toDelete` con `cleanupDeletedImages` en try-catch no-bloqueante, (b) usa `deleteField()` cuando `coverImageSlot.type === 'removed'`, (c) no modifica coverImage si slot es 'existing' o 'empty'.
+- **Task 2 (Orphan inline cleanup):** Modificado import de image-service de type-only a value import. Agregado bloque de orphan detection después del document save: compara `initialData.images` vs `mergedImages`, elimina diferencias con `imageService.delete()` en try-catch individual.
+- **Task 3 (Delete confirmation):** 4 variantes i18n: cover+images, cover-only, images-only, empty. BlogCrudPage.deleteDialogMessage usa `$derived.by()` con lógica condicional por `hasCover` × `imageCount`.
+- **Tasks 4-5 (Unit tests):** 8 nuevos tests en blog-form.test.ts: 4 para cover lifecycle (replaced, removed con deleteField, unchanged, cleanup failure) + 4 para orphan cleanup (orphan detection, no orphans, create mode skip, failure non-blocking). Mocks extendidos: `mockCleanupDeletedImages`, `mockProcessImageSlot`, `mockImageServiceDelete`, `mockDeleteField`.
+- **Task 6 (Delete dialog tests):** Reemplazado test genérico con 4 variantes en blog-crud.test.ts usando `buildDeleteMessage()` helper que replica la lógica del componente. Importado `t` y `StoredImage` para validar mensajes reales.
+- **Tasks 7-8 (E2E tests):** 7 nuevos tests E2E: edit round-trip (fields populated, change title+status, verify "Publicado"), content persistence, cancel without changes (no confirm), cancel with changes (confirm dialog), cleanup, y delete with dialog message verification.
+- **Bug fix adicional (edit mode timing):** Cambiado `$effect` → `$effect.pre` en BlogForm init guard. Svelte 5 ejecuta effects de hijos antes que del padre, así que RichTextEditor montaba con contenido vacío en edit mode. `$effect.pre` corre antes del DOM update, asegurando que contentEs/contentEn estén poblados cuando RichTextEditor se inicializa.
+- **Bug fix adicional (__dirname ESM):** `admin-blog.spec.ts` usaba `__dirname` (CommonJS) en contexto ESM. Agregado polyfill con `fileURLToPath(import.meta.url)`.
+- **Fix selectores E2E:** Tab "EN" del contenido colisionaba con tab "EN" del BilingualField. Cualificado selector con `.rounded-t-lg` (clase exclusiva de los tabs de contenido).
+
+### Change Log
+
+- 2026-03-23: Implementación completa de Story 4-3 — fix cover lifecycle, orphan cleanup, delete confirmation variants, 12 unit tests, 8 E2E tests. Fixes adicionales: edit mode timing bug ($effect.pre), __dirname ESM polyfill, selectores E2E ambiguos.
+
 ### File List
+
+- `src/components/admin/BlogForm.svelte` — MODIFIED (imports, handleSubmit cover lifecycle fix, orphan cleanup, $effect → $effect.pre init guard)
+- `src/components/admin/BlogCrudPage.svelte` — MODIFIED (deleteDialogMessage 4-variant logic)
+- `src/lib/i18n/translations.ts` — MODIFIED (3 new i18n keys for delete message variants)
+- `src/components/admin/__tests__/blog-form.test.ts` — MODIFIED (extended mocks + 8 new tests)
+- `src/components/admin/__tests__/blog-crud.test.ts` — MODIFIED (replaced generic test with 4 variant tests)
+- `tests/e2e/admin-blog.spec.ts` — MODIFIED (ESM __dirname fix, tab selector fix, 2 new test.describe blocks: edit flow + delete verification)
+- `tests/e2e/admin-blog.spec.ts` — MODIFIED (2 new test.describe blocks: edit flow + delete verification)

@@ -83,8 +83,24 @@
 
   let deleteDialogMessage = $derived.by(() => {
     if (!deletingPost) return '';
-    return t('admin.blog.deleteConfirmMessage', locale)
-      .replace('{name}', deletingPost.title.es);
+    const hasCover = !!deletingPost.coverImage;
+    const imageCount = deletingPost.images?.length ?? 0;
+
+    if (hasCover && imageCount > 0) {
+      return t('admin.blog.deleteConfirmMessage', locale)
+        .replace('{name}', deletingPost.title.es)
+        .replace('{imageCount}', String(imageCount));
+    } else if (hasCover && imageCount === 0) {
+      return t('admin.blog.deleteConfirmMessageNoImages', locale)
+        .replace('{name}', deletingPost.title.es);
+    } else if (!hasCover && imageCount > 0) {
+      return t('admin.blog.deleteConfirmMessageNoCover', locale)
+        .replace('{name}', deletingPost.title.es)
+        .replace('{imageCount}', String(imageCount));
+    } else {
+      return t('admin.blog.deleteConfirmMessageEmpty', locale)
+        .replace('{name}', deletingPost.title.es);
+    }
   });
 </script>
 
