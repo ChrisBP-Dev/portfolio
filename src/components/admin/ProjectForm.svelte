@@ -7,8 +7,10 @@
     processImageSlot,
     cleanupDeletedImages,
   } from '../../lib/firebase/image-slot-processor';
+  import { cleanupOrphanedImages } from '../../lib/firebase/orphan-cleanup';
   import { projectFormSchema } from '../../lib/schemas/project-schema';
   import type { ProjectWithId } from '../../lib/schemas/project-schema';
+  import type { StoredImage } from '../../lib/schemas/shared-schemas';
   import { t } from '../../lib/i18n/translations';
   import { slugify } from '../../lib/utils/slugify';
   import { toastStore } from '../../lib/utils/toast-store.svelte';
@@ -53,6 +55,10 @@
   // Validation errors
   let errors = $state<Record<string, string>>({});
 
+  // Orphan cleanup session trackers (plain let — JS closures capture by reference)
+  let savedSuccessfully = false;
+  let sessionUploadedImages: StoredImage[] = [];
+
   // Edit mode initialization — flag guard prevents infinite loop
   let initialized = false;
   let initializedForId: string | null = null;
@@ -80,6 +86,9 @@
       slug = initialData.slug;
       manualSlug = true;
       hasChanges = false;
+      // Reset orphan cleanup trackers on edit re-initialization
+      savedSuccessfully = false;
+      sessionUploadedImages = [];
     }
   });
 
@@ -95,12 +104,15 @@
     return hasChanges;
   }
 
-  // Cancel in-flight uploads on unmount
+  // Cancel in-flight uploads on unmount + orphan cleanup
   let activeUploads: UploadHandle[] = [];
   $effect(() => {
     return () => {
       activeUploads.forEach((h) => h.cancel());
       activeUploads = [];
+      if (!savedSuccessfully && sessionUploadedImages.length > 0) {
+        cleanupOrphanedImages(sessionUploadedImages);
+      }
     };
   });
 
@@ -269,6 +281,7 @@
           activeUploads.push(mainHandle);
           const mainStoredImage = await mainHandle;
           mainImageProgress = null;
+          sessionUploadedImages.push(mainStoredImage);
 
           // Use allSettled for screenshots — partial success is acceptable
           const newScreenshots = screenshots.filter(
@@ -286,6 +299,7 @@
             .filter((r): r is PromiseFulfilledResult<{ url: string; storagePath: string }> =>
               r.status === 'fulfilled')
             .map((r) => r.value);
+          sessionUploadedImages.push(...successfulScreenshots);
           const failedCount = screenshotResults.filter((r) => r.status === 'rejected').length;
 
           if (failedCount > 0) {
@@ -314,6 +328,7 @@
         } catch {
           // Best-effort — orphan images may remain
         }
+        sessionUploadedImages = [];
         console.error('Image upload failed after document creation:', uploadError);
         toastStore.error(getFirestoreErrorMessage(uploadError, locale));
         mainImageProgress = null;
@@ -323,6 +338,7 @@
         activeUploads = [];
       }
 
+      savedSuccessfully = true;
       saving = false;
       toastStore.success(t('admin.projects.form.successToast', locale));
       onSaved();
@@ -347,10 +363,22 @@
       );
       mainImageProgress = null;
 
+      // Track newly uploaded main image for orphan cleanup
+      if ((mainImageSlot.type === 'new' || mainImageSlot.type === 'replaced') && mainProcessed.image) {
+        sessionUploadedImages.push(mainProcessed.image);
+      }
+
       // Process each screenshot
       const screenshotResults = await Promise.all(
         screenshots.map((slot) => processImageSlot(slot, `projects/${docId}/screenshots/`)),
       );
+
+      // Track newly uploaded screenshots for orphan cleanup
+      screenshots.forEach((slot, i) => {
+        if ((slot.type === 'new' || slot.type === 'replaced') && screenshotResults[i]?.image) {
+          sessionUploadedImages.push(screenshotResults[i]!.image!);
+        }
+      });
 
       // Build update payload
       const payload: Record<string, unknown> = {
@@ -371,6 +399,7 @@
         await cleanupDeletedImages(allDeletePaths);
       }
 
+      savedSuccessfully = true;
       saving = false;
       toastStore.success(t('admin.projects.editSuccessToast', locale));
       onSaved();

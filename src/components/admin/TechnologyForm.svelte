@@ -7,8 +7,10 @@
     processImageSlot,
     cleanupDeletedImages,
   } from '../../lib/firebase/image-slot-processor';
+  import { cleanupOrphanedImages } from '../../lib/firebase/orphan-cleanup';
   import { technologyFormSchema } from '../../lib/schemas/technology-schema';
   import type { TechnologyWithId } from '../../lib/schemas/technology-schema';
+  import type { StoredImage } from '../../lib/schemas/shared-schemas';
   import type { ImageSlot } from '../../lib/schemas/image-slot';
   import { t } from '../../lib/i18n/translations';
   import { toastStore } from '../../lib/utils/toast-store.svelte';
@@ -36,6 +38,10 @@
   let hasChanges = $state(false);
   let imageProgress = $state<number | null>(null);
 
+  // Orphan cleanup session trackers (plain let — JS closures capture by reference)
+  let savedSuccessfully = false;
+  let sessionUploadedImage: StoredImage | null = null;
+
   // Edit mode initialization — track by id to re-init when switching items
   let initializedId = $state('');
 
@@ -47,6 +53,9 @@
       imageSlot = { type: 'existing', image: initialData.image };
       hasChanges = false;
       errors = {};
+      // Reset orphan cleanup trackers on edit re-initialization
+      savedSuccessfully = false;
+      sessionUploadedImage = null;
     }
   });
 
@@ -55,12 +64,15 @@
     return hasChanges;
   }
 
-  // Cancel in-flight uploads on unmount
+  // Cancel in-flight uploads on unmount + orphan cleanup
   let activeUpload: UploadHandle | null = null;
   $effect(() => {
     return () => {
       activeUpload?.cancel();
       activeUpload = null;
+      if (!savedSuccessfully && sessionUploadedImage) {
+        cleanupOrphanedImages([sessionUploadedImage]);
+      }
     };
   });
 
@@ -179,6 +191,7 @@
           activeUpload = handle;
           const storedImage = await handle;
           imageProgress = null;
+          sessionUploadedImage = storedImage;
           await updateDoc(doc(db, TECHNOLOGIES_COLLECTION, docId), { image: storedImage });
         }
       } catch (uploadError) {
@@ -193,6 +206,7 @@
         } catch {
           // Best-effort — orphan images may remain
         }
+        sessionUploadedImage = null;
         console.error('Image upload failed after document creation:', uploadError);
         toastStore.error(getFirestoreErrorMessage(uploadError, locale));
         imageProgress = null;
@@ -202,6 +216,7 @@
         activeUpload = null;
       }
 
+      savedSuccessfully = true;
       saving = false;
       toastStore.success(t('admin.technologies.createSuccessToast', locale));
       onSaved();
@@ -225,6 +240,12 @@
         (p) => { imageProgress = p; },
       );
       imageProgress = null;
+
+      // Track newly uploaded image for orphan cleanup
+      if ((imageSlot.type === 'new' || imageSlot.type === 'replaced') && processed.image) {
+        sessionUploadedImage = processed.image;
+      }
+
       const payload = {
         name: name.trim(),
         experienceYears,
@@ -237,6 +258,7 @@
         await cleanupDeletedImages(processed.toDelete);
       }
 
+      savedSuccessfully = true;
       saving = false;
       toastStore.success(t('admin.technologies.editSuccessToast', locale));
       onSaved();

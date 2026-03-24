@@ -4,6 +4,7 @@
   import { db } from '../../lib/firebase/client';
   import { imageService, type UploadHandle } from '../../lib/firebase/image-service';
   import { processImageSlot, cleanupDeletedImages } from '../../lib/firebase/image-slot-processor';
+  import { cleanupOrphanedImages } from '../../lib/firebase/orphan-cleanup';
   import { blogPostFormSchema } from '../../lib/schemas/blog-post-schema';
   import type { BlogPostWithId } from '../../lib/schemas/blog-post-schema';
   import type { StoredImage } from '../../lib/schemas/shared-schemas';
@@ -51,6 +52,11 @@
   let editorRefEn = $state<RichTextEditor | undefined>(undefined);
   let uploadedImages = $state<StoredImage[]>([]);
 
+  // Orphan cleanup session trackers (plain let — JS closures capture by reference)
+  let savedSuccessfully = false;
+  let sessionInlineImages: StoredImage[] = [];
+  let sessionCoverImage: StoredImage | null = null;
+
   // Pre-generate postId for create mode (Firestore client-generated ID, no network call)
   const preGeneratedDocRef = doc(collection(db, BLOG_COLLECTION));
   const currentPostId = $derived(
@@ -82,6 +88,10 @@
       uploadedImages = initialData.images ?? [];
       hasChanges = false;
       errors = {};
+      // Reset orphan cleanup trackers on edit re-initialization
+      savedSuccessfully = false;
+      sessionInlineImages = [];
+      sessionCoverImage = null;
     }
   });
 
@@ -97,12 +107,17 @@
     return hasChanges;
   }
 
-  // Cancel in-flight uploads on unmount
+  // Cancel in-flight uploads on unmount + orphan cleanup
   let activeUploads: UploadHandle[] = [];
   $effect(() => {
     return () => {
       activeUploads.forEach((h) => h.cancel());
       activeUploads = [];
+      if (!savedSuccessfully) {
+        const orphans: StoredImage[] = [...sessionInlineImages];
+        if (sessionCoverImage) orphans.push(sessionCoverImage);
+        if (orphans.length > 0) cleanupOrphanedImages(orphans);
+      }
     };
   });
 
@@ -233,6 +248,7 @@
 
   function handleImageUploaded(image: StoredImage, alt: string): void {
     uploadedImages = [...uploadedImages, image];
+    sessionInlineImages.push(image);
     const ref = activeEditorRef === 'es' ? editorRefEs : editorRefEn;
     ref?.insertImageAtCursor(image.url, alt);
     markDirty();
@@ -310,6 +326,11 @@
         );
         coverImageProgress = null;
 
+        // Track session cover image for orphan cleanup
+        if (processed.image) {
+          sessionCoverImage = processed.image;
+        }
+
         // Update Firestore with new image or clear if removed
         if (processed.image) {
           await updateDoc(doc(db, BLOG_COLLECTION, docId), {
@@ -337,6 +358,7 @@
         activeUploads = [];
       }
 
+      savedSuccessfully = true;
       saving = false;
       if (coverImageFailed) {
         toastStore.warning(t('admin.blog.coverImageFailedWarning', locale));

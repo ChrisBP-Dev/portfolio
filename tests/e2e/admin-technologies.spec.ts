@@ -118,3 +118,36 @@ test.describe('Admin Technologies Drag Reorder', () => {
     await deleteTech(page, techNameA);
   });
 });
+
+test.describe('Orphan Cleanup — Happy Path Save', () => {
+  test.beforeEach(async ({ page }) => {
+    await ensureAdminLogin(page);
+  });
+
+  test('saving a technology with image succeeds without cleanup interference', async ({ page }) => {
+    const techName = `e2e-orphan-${Date.now()}`;
+    await page.goto('/admin/technologies');
+
+    await page.locator('button', { hasText: /crear nueva/i }).click();
+    await expect(page.locator('h1', { hasText: /crear tecnología/i })).toBeVisible({ timeout: 5_000 });
+
+    await page.locator('#tech-name').fill(techName);
+    await page.locator('#tech-years').fill('2');
+
+    await page.locator('input[type="file"][accept="image/*"]').first().setInputFiles(TEST_IMAGE);
+    await page.waitForTimeout(1_000);
+
+    await page.locator('button[type="submit"]').click();
+    await expect(page.locator('text=/guardada exitosamente/i')).toBeVisible({ timeout: 20_000 });
+
+    // Verify tech appears in list (image was preserved, not cleaned up)
+    await expect(page.locator(`text=${techName}`).first()).toBeVisible({ timeout: 10_000 });
+
+    // Cleanup: delete the test technology
+    await clickListAction(page, techName, 'delete');
+    const dialog = page.locator('[role="alertdialog"]');
+    await expect(dialog).toBeVisible();
+    await dialog.locator('button', { hasText: /eliminar/i }).click();
+    await expect(page.locator('text=/eliminad/i')).toBeVisible({ timeout: 15_000 });
+  });
+});
