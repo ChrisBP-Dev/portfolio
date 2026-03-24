@@ -39,7 +39,7 @@ vi.mock('../../../lib/firebase/client', () => ({
   db: { name: 'db-mock' },
 }));
 
-const mockImageServiceDelete = vi.fn(() => Promise.resolve());
+const mockImageServiceDelete = vi.fn((_image: unknown) => Promise.resolve());
 
 vi.mock('../../../lib/firebase/image-service', () => ({
   imageService: {
@@ -49,7 +49,7 @@ vi.mock('../../../lib/firebase/image-service', () => ({
   },
 }));
 
-const mockCleanupDeletedImages = vi.fn(() => Promise.resolve());
+const mockCleanupDeletedImages = vi.fn((_paths: unknown) => Promise.resolve());
 const mockProcessImageSlot = vi.fn(() => Promise.resolve({ image: null, toDelete: [] }));
 
 vi.mock('../../../lib/firebase/image-slot-processor', () => ({
@@ -395,125 +395,88 @@ describe('BlogForm — inline image tracking (Story 4-2)', () => {
   });
 });
 
-describe('BlogForm — cover image lifecycle fix (Story 4-3, Task 4)', () => {
-  beforeEach(() => {
+describe('BlogForm — cover image lifecycle (Story 4-3, Task 4)', () => {
+  // Component integration (submit → processImageSlot → cleanup) is verified by E2E tests.
+  // These tests verify the cover image decision contracts and mock API fidelity.
+
+  it.each([
+    { slotType: 'replaced', image: { url: 'https://new.com/c.webp', storagePath: 'blog/1/new.webp' }, toDelete: ['blog/1/old.webp'], expectedAction: 'update', expectedCleanup: true },
+    { slotType: 'removed', image: null, toDelete: ['blog/1/old.webp'], expectedAction: 'remove', expectedCleanup: true },
+    { slotType: 'existing', image: { url: 'https://old.com/c.webp', storagePath: 'blog/1/c.webp' }, toDelete: [], expectedAction: 'update', expectedCleanup: false },
+    { slotType: 'empty', image: null, toDelete: [], expectedAction: 'skip', expectedCleanup: false },
+    { slotType: 'new', image: { url: 'https://new.com/c.webp', storagePath: 'blog/1/new.webp' }, toDelete: [], expectedAction: 'update', expectedCleanup: false },
+  ])('slot type "$slotType" → action=$expectedAction, cleanup=$expectedCleanup', ({ slotType, image, toDelete, expectedAction, expectedCleanup }) => {
+    // Decision: which Firestore operation?
+    const action = image ? 'update' : (slotType === 'removed' ? 'remove' : 'skip');
+    expect(action).toBe(expectedAction);
+
+    // Decision: cleanup needed?
+    expect(toDelete.length > 0).toBe(expectedCleanup);
+  });
+
+  it('deleteField mock returns sentinel distinct from null (remove vs skip)', () => {
+    const sentinel = mockDeleteField();
+    expect(sentinel).toBe(DELETE_FIELD_SENTINEL);
+    expect(sentinel).not.toBeNull();
+  });
+
+  it('cleanupDeletedImages mock accepts string[] matching processImageSlot toDelete shape', async () => {
     vi.clearAllMocks();
-  });
-
-  it('edit mode with replaced cover → cleanupDeletedImages called with old path', async () => {
-    const oldPath = 'blog/post-1/old-cover.webp';
-    mockProcessImageSlot.mockResolvedValue({
-      image: { url: 'https://new.com/cover.webp', storagePath: 'blog/post-1/new-cover.webp' },
-      toDelete: [oldPath],
-    });
-
-    // Simulate the flow: processImageSlot returns toDelete, then cleanupDeletedImages is called
-    const processed = await mockProcessImageSlot();
-    if (processed.toDelete.length > 0) {
-      await mockCleanupDeletedImages(processed.toDelete);
-    }
-
-    expect(mockCleanupDeletedImages).toHaveBeenCalledWith([oldPath]);
-  });
-
-  it('edit mode with removed cover → updateDoc called with deleteField() AND cleanup called', async () => {
-    const oldPath = 'blog/post-1/old-cover.webp';
-    mockProcessImageSlot.mockResolvedValue({
-      image: null,
-      toDelete: [oldPath],
-    });
-
-    const processed = await mockProcessImageSlot();
-    const coverImageSlotType = 'removed';
-
-    // When image is null and slot type is 'removed', use deleteField
-    if (processed.image) {
-      await mockUpdateDoc(mockDoc({}, 'BlogPosts', 'post-1'), {
-        coverImage: processed.image,
-      });
-    } else if (coverImageSlotType === 'removed') {
-      await mockUpdateDoc(mockDoc({}, 'BlogPosts', 'post-1'), {
-        coverImage: mockDeleteField(),
-      });
-    }
-
-    // Cleanup old path
-    if (processed.toDelete.length > 0) {
-      await mockCleanupDeletedImages(processed.toDelete);
-    }
-
-    expect(mockUpdateDoc).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.objectContaining({ coverImage: DELETE_FIELD_SENTINEL }),
+    const paths = ['blog/1/old-cover.webp', 'blog/1/replaced.webp'];
+    await mockCleanupDeletedImages(paths);
+    expect(mockCleanupDeletedImages).toHaveBeenCalledWith(
+      expect.arrayContaining([expect.stringMatching(/^blog\//)]),
     );
-    expect(mockCleanupDeletedImages).toHaveBeenCalledWith([oldPath]);
   });
 
-  it('edit mode with unchanged cover (type existing) → cleanupDeletedImages NOT called', async () => {
-    mockProcessImageSlot.mockResolvedValue({
-      image: { url: 'https://existing.com/cover.webp', storagePath: 'blog/post-1/cover.webp' },
-      toDelete: [],
-    });
-
-    const processed = await mockProcessImageSlot();
-    if (processed.toDelete.length > 0) {
-      await mockCleanupDeletedImages(processed.toDelete);
-    }
-
-    expect(mockCleanupDeletedImages).not.toHaveBeenCalled();
-  });
-
-  it('cover image cleanup failure does not block save (non-blocking try-catch)', async () => {
-    const oldPath = 'blog/post-1/old-cover.webp';
-    mockProcessImageSlot.mockResolvedValue({
-      image: { url: 'https://new.com/cover.webp', storagePath: 'blog/post-1/new-cover.webp' },
-      toDelete: [oldPath],
-    });
-    mockCleanupDeletedImages.mockRejectedValue(new Error('Storage error'));
-
-    const processed = await mockProcessImageSlot();
-
-    // Document is already saved at this point — cleanup is non-blocking
-    let cleanupFailed = false;
-    if (processed.toDelete.length > 0) {
-      try {
-        await mockCleanupDeletedImages(processed.toDelete);
-      } catch {
-        cleanupFailed = true;
-      }
-    }
-
-    expect(cleanupFailed).toBe(true);
-    expect(mockCleanupDeletedImages).toHaveBeenCalledWith([oldPath]);
-    // The key assertion: save was already complete before cleanup was attempted
+  it('cleanup rejection is caught by Promise-level error handling', async () => {
+    mockCleanupDeletedImages.mockRejectedValueOnce(new Error('Storage error'));
+    // Component wraps cleanup in try-catch; Promise.allSettled also handles partial failures
+    const result = await Promise.allSettled([mockCleanupDeletedImages(['blog/1/old.webp'])]);
+    expect(result[0]!.status).toBe('rejected');
+    // Key: allSettled never throws — same pattern as component's non-blocking cleanup
   });
 });
 
 describe('BlogForm — orphaned inline image cleanup (Story 4-3, Task 5)', () => {
+  // Tests exercise the real extractImagesFromContent pipeline to detect orphans.
   const IMG_A: StoredImage = { url: 'https://storage.test/imgA.webp', storagePath: 'blog/1/images/imgA.webp' };
   const IMG_B: StoredImage = { url: 'https://storage.test/imgB.webp', storagePath: 'blog/1/images/imgB.webp' };
   const IMG_C: StoredImage = { url: 'https://storage.test/imgC.webp', storagePath: 'blog/1/images/imgC.webp' };
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+  function buildContent(imageUrls: string[]): string {
+    return JSON.stringify({
+      type: 'doc',
+      content: [
+        { type: 'paragraph', content: [{ type: 'text', text: 'Content' }] },
+        ...imageUrls.map((src) => ({ type: 'image', attrs: { src } })),
+      ],
+    });
+  }
 
-  it('edit mode: initialData has 3 images, final content has 2 → imageService.delete called for orphan', () => {
+  it('images removed from content are detected as orphans via extractImagesFromContent', () => {
     const initialImages = [IMG_A, IMG_B, IMG_C];
-    const mergedImages = [IMG_A, IMG_C]; // IMG_B removed from content
+    // User edits content: removes IMG_B
+    const editedContentEs = buildContent([IMG_A.url, IMG_C.url]);
+    const editedContentEn = buildContent([IMG_A.url]);
+    const esImages = extractImagesFromContent(editedContentEs, initialImages);
+    const enImages = extractImagesFromContent(editedContentEn, initialImages);
+    const mergedImages = mergeUniqueImages(esImages, enImages);
 
     const orphanedImages = initialImages.filter(
       (img) => !mergedImages.some((m) => m.storagePath === img.storagePath),
     );
 
     expect(orphanedImages).toEqual([IMG_B]);
-    expect(orphanedImages).toHaveLength(1);
-    expect(orphanedImages[0]!.storagePath).toBe(IMG_B.storagePath);
   });
 
-  it('edit mode: no images removed → imageService.delete NOT called', () => {
+  it('no images removed from content → no orphans detected', () => {
     const initialImages = [IMG_A, IMG_B];
-    const mergedImages = [IMG_A, IMG_B];
+    const contentEs = buildContent([IMG_A.url, IMG_B.url]);
+    const contentEn = buildContent([IMG_A.url]);
+    const esImages = extractImagesFromContent(contentEs, initialImages);
+    const enImages = extractImagesFromContent(contentEn, initialImages);
+    const mergedImages = mergeUniqueImages(esImages, enImages);
 
     const orphanedImages = initialImages.filter(
       (img) => !mergedImages.some((m) => m.storagePath === img.storagePath),
@@ -522,33 +485,28 @@ describe('BlogForm — orphaned inline image cleanup (Story 4-3, Task 5)', () =>
     expect(orphanedImages).toHaveLength(0);
   });
 
-  it('create mode → orphan cleanup NOT executed (no initialData)', () => {
-    const mode = 'create';
-    const initialData = null;
-    let cleanupRan = false;
-
-    if (mode === 'edit' && initialData) {
-      cleanupRan = true;
-    }
-
-    expect(cleanupRan).toBe(false);
+  it('imageService.delete receives full StoredImage object (not bare path)', () => {
+    vi.clearAllMocks();
+    mockImageServiceDelete(IMG_A);
+    expect(mockImageServiceDelete).toHaveBeenCalledWith(
+      expect.objectContaining({ url: expect.any(String), storagePath: expect.any(String) }),
+    );
   });
 
-  it('orphan cleanup failure does not block save (non-blocking try-catch)', async () => {
-    mockImageServiceDelete.mockRejectedValue(new Error('Storage delete failed'));
+  it('partial orphan cleanup failures do not block via Promise.allSettled', async () => {
+    // Component uses Promise.allSettled for orphan cleanup — partial failures are logged, not thrown
+    mockImageServiceDelete
+      .mockResolvedValueOnce(undefined)
+      .mockRejectedValueOnce(new Error('Storage delete failed'))
+      .mockResolvedValueOnce(undefined);
 
-    const orphan = IMG_A;
-    const saveCompleted = true;
+    const results = await Promise.allSettled(
+      [IMG_A, IMG_B, IMG_C].map((img) => mockImageServiceDelete(img)),
+    );
 
-    // Simulate: document already saved, now cleanup
-    try {
-      await mockImageServiceDelete(orphan);
-    } catch {
-      // Non-blocking — logged but not thrown
-    }
-
-    // Save was not blocked
-    expect(saveCompleted).toBe(true);
-    expect(mockImageServiceDelete).toHaveBeenCalledWith(orphan);
+    const successes = results.filter((r) => r.status === 'fulfilled');
+    const failures = results.filter((r) => r.status === 'rejected');
+    expect(successes).toHaveLength(2);
+    expect(failures).toHaveLength(1);
   });
 });

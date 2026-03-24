@@ -6,6 +6,7 @@
   import { createSubscriber } from 'svelte/reactivity';
   import { untrack } from 'svelte';
   import { t } from '../../lib/i18n/translations';
+  import LinkDialog from './LinkDialog.svelte';
 
   const locale = 'es';
 
@@ -92,17 +93,34 @@
     getEditor()?.chain().focus().toggleOrderedList().run();
   }
 
+  let linkDialogOpen = $state(false);
+  let linkDialogInitialUrl = $state('');
+
   function setLink(): void {
     const editor = getEditor();
     if (!editor) return;
     const previousUrl = editor.getAttributes('link').href as string | undefined;
-    const url = window.prompt('URL', previousUrl ?? '');
-    if (url === null) return;
-    if (url === '') {
-      editor.chain().focus().extendMarkRange('link').unsetLink().run();
-      return;
-    }
+    linkDialogInitialUrl = previousUrl ?? '';
+    linkDialogOpen = true;
+  }
+
+  function handleLinkApply(url: string): void {
+    const editor = getEditor();
+    if (!editor) return;
     editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+    linkDialogOpen = false;
+  }
+
+  function handleLinkRemove(): void {
+    const editor = getEditor();
+    if (!editor) return;
+    editor.chain().focus().extendMarkRange('link').unsetLink().run();
+    linkDialogOpen = false;
+  }
+
+  function handleLinkCancel(): void {
+    linkDialogOpen = false;
+    getEditor()?.chain().focus().run();
   }
 
   function insertImage(): void {
@@ -254,3 +272,11 @@
     {/if}
   </div>
 {/if}
+
+<LinkDialog
+  open={linkDialogOpen}
+  initialUrl={linkDialogInitialUrl}
+  onApply={handleLinkApply}
+  onRemove={handleLinkRemove}
+  onCancel={handleLinkCancel}
+/>

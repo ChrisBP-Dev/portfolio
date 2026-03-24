@@ -86,17 +86,24 @@
     const hasCover = !!deletingPost.coverImage;
     const imageCount = deletingPost.images?.length ?? 0;
 
-    if (hasCover && imageCount > 0) {
+    // Replace {imageCount} before {name} to prevent injection if title contains '{imageCount}'
+    if (hasCover && imageCount === 1) {
+      return t('admin.blog.deleteConfirmMessageSingular', locale)
+        .replace('{name}', deletingPost.title.es);
+    } else if (hasCover && imageCount > 1) {
       return t('admin.blog.deleteConfirmMessage', locale)
-        .replace('{name}', deletingPost.title.es)
-        .replace('{imageCount}', String(imageCount));
+        .replace('{imageCount}', String(imageCount))
+        .replace('{name}', deletingPost.title.es);
     } else if (hasCover && imageCount === 0) {
       return t('admin.blog.deleteConfirmMessageNoImages', locale)
         .replace('{name}', deletingPost.title.es);
-    } else if (!hasCover && imageCount > 0) {
+    } else if (!hasCover && imageCount === 1) {
+      return t('admin.blog.deleteConfirmMessageNoCoverSingular', locale)
+        .replace('{name}', deletingPost.title.es);
+    } else if (!hasCover && imageCount > 1) {
       return t('admin.blog.deleteConfirmMessageNoCover', locale)
-        .replace('{name}', deletingPost.title.es)
-        .replace('{imageCount}', String(imageCount));
+        .replace('{imageCount}', String(imageCount))
+        .replace('{name}', deletingPost.title.es);
     } else {
       return t('admin.blog.deleteConfirmMessageEmpty', locale)
         .replace('{name}', deletingPost.title.es);

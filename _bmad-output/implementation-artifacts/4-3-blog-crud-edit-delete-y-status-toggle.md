@@ -1,6 +1,6 @@
 # Story 4.3: Blog CRUD — Edit, Delete y Status Toggle
 
-Status: review
+Status: done
 
 ## Story
 
@@ -361,25 +361,36 @@ Claude Opus 4.6 (1M context)
 ### Completion Notes List
 
 - **Task 1 (Cover lifecycle fix):** Importado `deleteField` de firebase/firestore y `cleanupDeletedImages` de image-slot-processor. BlogForm.handleSubmit ahora: (a) procesa `processed.toDelete` con `cleanupDeletedImages` en try-catch no-bloqueante, (b) usa `deleteField()` cuando `coverImageSlot.type === 'removed'`, (c) no modifica coverImage si slot es 'existing' o 'empty'.
-- **Task 2 (Orphan inline cleanup):** Modificado import de image-service de type-only a value import. Agregado bloque de orphan detection después del document save: compara `initialData.images` vs `mergedImages`, elimina diferencias con `imageService.delete()` en try-catch individual.
-- **Task 3 (Delete confirmation):** 4 variantes i18n: cover+images, cover-only, images-only, empty. BlogCrudPage.deleteDialogMessage usa `$derived.by()` con lógica condicional por `hasCover` × `imageCount`.
-- **Tasks 4-5 (Unit tests):** 8 nuevos tests en blog-form.test.ts: 4 para cover lifecycle (replaced, removed con deleteField, unchanged, cleanup failure) + 4 para orphan cleanup (orphan detection, no orphans, create mode skip, failure non-blocking). Mocks extendidos: `mockCleanupDeletedImages`, `mockProcessImageSlot`, `mockImageServiceDelete`, `mockDeleteField`.
-- **Task 6 (Delete dialog tests):** Reemplazado test genérico con 4 variantes en blog-crud.test.ts usando `buildDeleteMessage()` helper que replica la lógica del componente. Importado `t` y `StoredImage` para validar mensajes reales.
+- **Task 2 (Orphan inline cleanup):** Modificado import de image-service de type-only a value import. Agregado bloque de orphan detection después del document save: compara `initialData.images` vs `mergedImages`, elimina diferencias con `Promise.allSettled` en paralelo (no secuencial).
+- **Task 3 (Delete confirmation):** 6 variantes i18n (4 originales + 2 singulares): cover+images plural, cover+1 imagen singular, cover-only, images-only plural, 1 imagen-only singular, empty. BlogCrudPage.deleteDialogMessage usa `$derived.by()` con lógica condicional por `hasCover` × `imageCount` incluyendo singular/plural.
+- **Tasks 4-5 (Unit tests):** 8 tests en blog-form.test.ts: cover lifecycle como decision table con `it.each` (5 slot types), API contract tests (deleteField sentinel, cleanupDeletedImages shape, cleanup rejection via Promise.allSettled), orphan detection usando real `extractImagesFromContent` + `mergeUniqueImages`, y imageService.delete API contract.
+- **Task 6 (Delete dialog tests):** 7 tests en blog-crud.test.ts verificando i18n strings directamente con `t()` — 6 variantes ES (cover+plural, cover+singular, cover-only, no-cover+plural, no-cover+singular, empty) + 1 test de gramática EN (singular/plural correcto).
 - **Tasks 7-8 (E2E tests):** 7 nuevos tests E2E: edit round-trip (fields populated, change title+status, verify "Publicado"), content persistence, cancel without changes (no confirm), cancel with changes (confirm dialog), cleanup, y delete with dialog message verification.
 - **Bug fix adicional (edit mode timing):** Cambiado `$effect` → `$effect.pre` en BlogForm init guard. Svelte 5 ejecuta effects de hijos antes que del padre, así que RichTextEditor montaba con contenido vacío en edit mode. `$effect.pre` corre antes del DOM update, asegurando que contentEs/contentEn estén poblados cuando RichTextEditor se inicializa.
 - **Bug fix adicional (__dirname ESM):** `admin-blog.spec.ts` usaba `__dirname` (CommonJS) en contexto ESM. Agregado polyfill con `fileURLToPath(import.meta.url)`.
 - **Fix selectores E2E:** Tab "EN" del contenido colisionaba con tab "EN" del BilingualField. Cualificado selector con `.rounded-t-lg` (clase exclusiva de los tabs de contenido).
 
+### Code Review Fixes (Post-Implementation)
+
+- **P-1 (Tautological tests):** Reescritos 8 tests en blog-form.test.ts — cover lifecycle ahora usa `it.each` decision table en lugar de llamar mocks manualmente; orphan tests usan `extractImagesFromContent` + `mergeUniqueImages` reales. Reescritos 4 tests en blog-crud.test.ts — eliminado helper `buildDeleteMessage()` que duplicaba lógica del componente; ahora verifican i18n strings directamente con `t()`.
+- **P-2 (Orphan deletion secuencial):** Cambiado `for...of` + `await` → `Promise.allSettled` en BlogForm.svelte para paralelizar cleanup de imágenes huérfanas, consistente con patrón de `cleanupDeletedImages`.
+- **P-3 (Title injection en delete message):** Reordenado `.replace()` en BlogCrudPage.svelte: `{imageCount}` se sustituye antes que `{name}` para evitar que un título con literal `{imageCount}` corrompa el mensaje.
+- **P-4 (Singular/plural):** Agregadas 2 i18n keys singulares (`deleteConfirmMessageSingular`, `deleteConfirmMessageNoCoverSingular`). BlogCrudPage usa `imageCount === 1` para seleccionar variante singular.
+- **P-5 (Cover upload failure):** BlogForm.svelte ahora muestra `toastStore.warning()` cuando `processImageSlot` falla, en vez de mostrar toast de éxito. Nueva i18n key `coverImageFailedWarning`.
+- **LinkDialog (UX improvement):** Reemplazado `window.prompt('URL')` en RichTextEditor con componente LinkDialog propio. Sigue patrón ConfirmDialog (role="dialog", aria-modal, focus trap, Escape, backdrop click, scroll lock). Soporta edición de links existentes (pre-fill URL), botón "Quitar enlace", validación de URL (https/http/mailto), Enter para aplicar. 7 nuevas i18n keys.
+
 ### Change Log
 
 - 2026-03-23: Implementación completa de Story 4-3 — fix cover lifecycle, orphan cleanup, delete confirmation variants, 12 unit tests, 8 E2E tests. Fixes adicionales: edit mode timing bug ($effect.pre), __dirname ESM polyfill, selectores E2E ambiguos.
+- 2026-03-23: Code review fixes — tests reescritos (no tautológicos), orphan cleanup paralelo (Promise.allSettled), title injection fix, singular/plural en traducciones, cover upload failure warning toast, LinkDialog reemplaza window.prompt para enlaces en RichTextEditor.
 
 ### File List
 
-- `src/components/admin/BlogForm.svelte` — MODIFIED (imports, handleSubmit cover lifecycle fix, orphan cleanup, $effect → $effect.pre init guard)
-- `src/components/admin/BlogCrudPage.svelte` — MODIFIED (deleteDialogMessage 4-variant logic)
-- `src/lib/i18n/translations.ts` — MODIFIED (3 new i18n keys for delete message variants)
-- `src/components/admin/__tests__/blog-form.test.ts` — MODIFIED (extended mocks + 8 new tests)
-- `src/components/admin/__tests__/blog-crud.test.ts` — MODIFIED (replaced generic test with 4 variant tests)
+- `src/components/admin/BlogForm.svelte` — MODIFIED (imports, handleSubmit cover lifecycle fix, orphan cleanup con Promise.allSettled, $effect → $effect.pre init guard, coverImageFailed warning toast)
+- `src/components/admin/BlogCrudPage.svelte` — MODIFIED (deleteDialogMessage 6-variant logic con singular/plural, replacement order fix)
+- `src/components/admin/RichTextEditor.svelte` — MODIFIED (import LinkDialog, setLink() abre diálogo en vez de window.prompt, handlers para apply/remove/cancel)
+- `src/components/admin/LinkDialog.svelte` — NEW (diálogo custom para insertar/editar enlaces con a11y completa)
+- `src/lib/i18n/translations.ts` — MODIFIED (6 delete message variants + 1 cover warning + 7 link dialog keys)
+- `src/components/admin/__tests__/blog-form.test.ts` — MODIFIED (extended mocks, decision table + real function tests)
+- `src/components/admin/__tests__/blog-crud.test.ts` — MODIFIED (i18n string verification tests, 7 variants)
 - `tests/e2e/admin-blog.spec.ts` — MODIFIED (ESM __dirname fix, tab selector fix, 2 new test.describe blocks: edit flow + delete verification)
-- `tests/e2e/admin-blog.spec.ts` — MODIFIED (2 new test.describe blocks: edit flow + delete verification)

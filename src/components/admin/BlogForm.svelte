@@ -288,16 +288,20 @@
         const orphanedImages = (initialData.images ?? []).filter(
           (img) => !mergedImages.some((m) => m.storagePath === img.storagePath),
         );
-        for (const orphan of orphanedImages) {
-          try {
-            await imageService.delete(orphan);
-          } catch (cleanupError) {
-            console.warn(`Orphaned image cleanup failed for ${orphan.storagePath}:`, cleanupError);
-          }
+        if (orphanedImages.length > 0) {
+          const results = await Promise.allSettled(
+            orphanedImages.map((orphan) => imageService.delete(orphan)),
+          );
+          results.forEach((result, i) => {
+            if (result.status === 'rejected') {
+              console.warn(`Orphaned image cleanup failed for ${orphanedImages[i]!.storagePath}:`, result.reason);
+            }
+          });
         }
       }
 
       // Process cover image
+      let coverImageFailed = false;
       try {
         const processed = await processImageSlot(
           coverImageSlot,
@@ -328,13 +332,17 @@
         }
       } catch (uploadError) {
         console.error('Cover image processing failed:', uploadError);
-        // Document is already saved — image failure is non-blocking
+        coverImageFailed = true;
       } finally {
         activeUploads = [];
       }
 
       saving = false;
-      toastStore.success(t('admin.blog.saveSuccessToast', locale));
+      if (coverImageFailed) {
+        toastStore.warning(t('admin.blog.coverImageFailedWarning', locale));
+      } else {
+        toastStore.success(t('admin.blog.saveSuccessToast', locale));
+      }
       onSaved();
     } catch (error) {
       console.error('Failed to save blog post:', error);
