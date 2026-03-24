@@ -53,30 +53,32 @@ describe('ImageUploadDialog — upload path construction', () => {
 });
 
 describe('ImageUploadDialog — canInsert derivation', () => {
+  function canInsert(slot: ImageSlot): boolean {
+    return slot.type === 'new';
+  }
+
   it('is false for empty slot', () => {
-    const slot: ImageSlot = { type: 'empty' };
-    expect(slot.type === 'new').toBe(false);
+    expect(canInsert({ type: 'empty' })).toBe(false);
   });
 
   it('is true for new slot (file selected)', () => {
-    const slot: ImageSlot = {
+    expect(canInsert({
       type: 'new',
       file: new File(['data'], 'test.webp', { type: 'image/webp' }),
       preview: 'blob:http://localhost/test',
-    };
-    expect(slot.type === 'new').toBe(true);
+    })).toBe(true);
   });
 
   it('is false for existing slot', () => {
-    const slot: ImageSlot = {
-      type: 'existing',
-      image: MOCK_IMAGE,
-    };
-    expect(slot.type === 'new').toBe(false);
+    expect(canInsert({ type: 'existing', image: MOCK_IMAGE })).toBe(false);
   });
 });
 
 describe('ImageUploadDialog — resetState logic', () => {
+  function shouldRevoke(slot: ImageSlot): boolean {
+    return slot.type === 'new' || slot.type === 'replaced';
+  }
+
   it('revokes objectURL for new slot on reset', () => {
     const revokeURL = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
     const slot: ImageSlot = {
@@ -85,8 +87,7 @@ describe('ImageUploadDialog — resetState logic', () => {
       preview: 'blob:http://localhost/abc',
     };
 
-    // Simulate resetState: revoke if type is new or replaced
-    if (slot.type === 'new' || slot.type === 'replaced') {
+    if (shouldRevoke(slot)) {
       URL.revokeObjectURL(slot.preview);
     }
 
@@ -98,10 +99,7 @@ describe('ImageUploadDialog — resetState logic', () => {
     const revokeURL = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
     const slot: ImageSlot = { type: 'empty' };
 
-    if (slot.type === 'new' || slot.type === 'replaced') {
-      URL.revokeObjectURL((slot as { preview: string }).preview);
-    }
-
+    expect(shouldRevoke(slot)).toBe(false);
     expect(revokeURL).not.toHaveBeenCalled();
     revokeURL.mockRestore();
   });
