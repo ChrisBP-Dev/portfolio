@@ -1,168 +1,155 @@
-# Guía de Despliegue
+# Guía de Despliegue — Portfolio ChrisBP
 
-> Generado: 2026-03-15 | Escaneo Exhaustivo
+> Generado: 2026-03-24 | Escaneo Exhaustivo | Firebase Hosting + GitHub Actions
 
 ## Infraestructura
 
-| Servicio | Proveedor | Proyecto |
-|---|---|---|
-| **Hosting** | Firebase Hosting | portfolio-chrisbp |
-| **Autenticación** | Firebase Auth | portfolio-chrisbp |
-| **Base de datos** | Cloud Firestore | portfolio-chrisbp |
-| **Almacenamiento** | Firebase Storage | portfolio-chrisbp |
-| **Dominio** | Firebase Hosting (default) | portfolio-chrisbp.web.app |
+| Servicio | Proveedor | Propósito |
+|----------|-----------|-----------|
+| Hosting | Firebase Hosting | Sitio estático (dist/) |
+| Base de Datos | Cloud Firestore | Datos de contenido |
+| Storage | Firebase Storage | Imágenes (proyectos, tecnologías, blog) |
+| Auth | Firebase Auth | Autenticación admin |
+| CI/CD | GitHub Actions | Pipeline automatizado |
+| Performance | Lighthouse CI | Auditoría de calidad |
 
-## Configuración Firebase
+**Proyecto Firebase:** `portfolio-chrisbp`
+**URL producción:** `https://portfolio-chrisbp.web.app`
 
-### Proyecto
-
-- **ID:** portfolio-chrisbp
-- **Sender ID:** 267758672045
-- **Storage Bucket:** portfolio-chrisbp.appspot.com
-- **Auth Domain:** portfolio-chrisbp.firebaseapp.com
-
-### Plataformas Configuradas
-
-| Plataforma | App ID | Namespace/Bundle |
-|---|---|---|
-| **Web** | 1:267758672045:web:* | N/A |
-| **Android** | 1:267758672045:android:* | com.chrisbp.portfolio |
-| **iOS** | 1:267758672045:ios:* | com.chrisbp.portfolio |
-| **macOS** | 1:267758672045:ios:* | com.chrisbp.portfolio |
-| **Windows** | 1:267758672045:web:* | N/A |
-
-## Proceso de Despliegue Web
-
-### 1. Build
+## Build de Producción
 
 ```bash
-flutter build web --release
+pnpm build
 ```
 
-Genera output en `build/web/`.
+**Output:** `dist/` — sitio estático completo
 
-### 2. Desplegar a Firebase Hosting
+**Variables requeridas en build:**
+- Firebase Admin SDK: `FIREBASE_ADMIN_PROJECT_ID`, `FIREBASE_ADMIN_CLIENT_EMAIL`, `FIREBASE_ADMIN_PRIVATE_KEY`
+- Firebase Client SDK: `PUBLIC_FIREBASE_*` (6 variables)
+- App config: `PUBLIC_ADMIN_UID`, `PUBLIC_CONTACT_EMAIL`, `PUBLIC_WHATSAPP_NUMBER`
+
+## Despliegue Manual
 
 ```bash
+# Build
+pnpm build
+
+# Deploy solo hosting
 firebase deploy --only hosting
+
+# Deploy reglas Firestore
+firebase deploy --only firestore:rules
+
+# Deploy reglas Storage
+firebase deploy --only storage
+
+# Deploy todo
+firebase deploy
 ```
 
-### 3. Verificar
+## CI/CD Pipeline (GitHub Actions)
 
-El sitio estará disponible en:
-- `https://portfolio-chrisbp.web.app`
-- `https://portfolio-chrisbp.firebaseapp.com`
+**Trigger:** Push a `main` o `workflow_dispatch`
 
-## Configuración de Hosting (`firebase.json`)
+### Etapas del Pipeline
+
+```
+1. Checkout + Setup (pnpm 10, Node via .nvmrc)
+2. Install (pnpm install --frozen-lockfile)
+3. Change Detection (smart skip si solo docs/config cambiaron)
+4. Quality Gates (siempre)
+   ├── Lint (pnpm lint)
+   └── Type Check (pnpm type-check)
+5. Tests con Firebase Emulators (siempre)
+   ├── Setup Java 21 (Temurin)
+   ├── Cache emuladores
+   └── firebase emulators:exec "pnpm test"
+6. Build (solo si hay cambios en código)
+7. Lighthouse CI (solo si hay cambios en código)
+   ├── Exclude admin pages
+   └── Assert scores ≥0.95
+8. Deploy a Firebase Hosting (solo si hay cambios en código)
+```
+
+### Smart Change Detection
+
+El pipeline detecta si solo cambiaron archivos de docs/config:
+- **Archivos monitoreados:** `src/**`, `public/**`, `tests/**`, `package.json`, `pnpm-lock.yaml`, configs de build, `.github/workflows/**`
+- **Si solo cambian otros archivos:** Se ejecutan lint, type-check y tests, pero se saltan build, Lighthouse y deploy
+
+### Secrets de GitHub
+
+| Secret | Contenido |
+|--------|-----------|
+| `FIREBASE_SERVICE_ACCOUNT` | JSON completo del service account |
+| `FIREBASE_CLIENT_CONFIG` | JSON con apiKey, authDomain, projectId, storageBucket, messagingSenderId, appId, adminUid, contactEmail, whatsappNumber |
+
+## Firebase Hosting Config
 
 ```json
 {
   "hosting": {
-    "public": "build/web",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-    "rewrites": [
+    "public": "dist/",
+    "cleanUrls": true,
+    "headers": [
       {
-        "source": "**",
-        "destination": "/index.html"
+        "source": "**/*.@(js|css|svg|png|jpg|webp|woff2)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=31536000, immutable"
+          }
+        ]
       }
     ]
   }
 }
 ```
 
-- **SPA Rewrite**: Todas las rutas redirigen a `index.html` (necesario para GoRouter path strategy)
-- **Directorio público**: `build/web/` (output de `flutter build web`)
+- **Clean URLs:** Habilitado (rutas sin `.html`)
+- **Cache:** Assets inmutables con cache de 1 año
+- **Ignore:** `firebase.json`, dotfiles, `node_modules`
 
-## SEO y Web
+## Reglas de Seguridad
 
-### index.html
-
-- Meta tags configurados para SEO
-- Theme color: `#bb86fc`
-- Splash screen CSS personalizado
-- Viewport responsive
-
-### Meta SEO
-
-El paquete `meta_seo` se inicializa en `main.dart`:
-```dart
-MetaSEO().config();
+### Firestore Rules
+```
+read: público (cualquier visitante)
+write: solo auth.uid == 'G26dKlezR6cghnfv7NrBmQiXdUG3' (admin)
 ```
 
-## Estructura de Firebase Storage
-
+### Storage Rules
 ```
-portfolio-chrisbp.appspot.com/
-├── projects/
-│   ├── {projectId}/
-│   │   ├── main-image.webp
-│   │   └── screenshots/
-│   │       ├── 0-image.webp
-│   │       ├── 1-image.webp
-│   │       └── ...
-└── technologies/
-    └── {technologyId}/
-        └── image.webp
+read: público
+write: solo auth.uid == 'G26dKlezR6cghnfv7NrBmQiXdUG3' (admin)
 ```
 
-## Colecciones Firestore
+## Lighthouse CI Config
 
-```
-portfolio-chrisbp (database)
-├── Projects/          # Documentos de proyectos
-├── Technologies/      # Documentos de tecnologías
-└── Experiences/       # Documentos de experiencias
-```
-
-## CI/CD
-
-**Estado actual:** No configurado.
-
-El directorio `.github/` existe pero está vacío. No hay workflows de GitHub Actions, ni configuración de Fastlane, ni pipelines de CI/CD.
-
-### Recomendación
-
-Para automatizar el despliegue, se podría agregar un workflow de GitHub Actions:
-
-```yaml
-# .github/workflows/deploy.yml (sugerido)
-name: Deploy to Firebase Hosting
-on:
-  push:
-    branches: [main]
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.27.1'
-      - run: flutter pub get
-      - run: flutter build web --release
-      - uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
-          channelId: live
+```javascript
+// Thresholds estrictos
+performance: ≥0.95     // (≥0.70 para project detail pages con imágenes)
+accessibility: ≥0.95
+best-practices: ≥0.95
+seo: ≥0.95
 ```
 
-## Build Android
+- **Excepción:** Pages de detalle de proyecto (`/projects/[slug]`) tienen threshold de performance en `warn` ≥0.70 (por carga de screenshots)
+- **Admin pages** excluidas del escaneo Lighthouse
 
-### Configuración Actual
+## Emuladores Locales
 
-- **App ID:** com.chrisbp.portfolio
-- **Min SDK:** Flutter default
-- **Signing:** Debug keys (release signing pendiente)
-
-### Nota
-
-El `build.gradle` tiene un TODO para configurar signing de release:
+```json
+{
+  "auth": { "port": 9099 },
+  "firestore": { "port": 8080 },
+  "storage": { "port": 9199 },
+  "ui": { "port": 4000 }
+}
 ```
-// TODO: Add a valid signing config for the release build
-```
 
-Para publicar en Play Store, necesitarás:
-1. Generar keystore de release
-2. Configurar `key.properties`
-3. Actualizar `build.gradle` con signing config
+**Inicio:** `pnpm emulators`
+**UI:** `http://127.0.0.1:4000`
+
+Los emuladores se conectan automáticamente cuando `PUBLIC_USE_EMULATORS=true` y `USE_EMULATORS=true` están configurados en `.env`.

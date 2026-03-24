@@ -1,237 +1,263 @@
-# Arquitectura del Proyecto - Portfolio ChrisBP
+# Arquitectura del Proyecto — Portfolio ChrisBP
 
-> Generado: 2026-03-15 | Escaneo Exhaustivo
+> Generado: 2026-03-24 | Escaneo Exhaustivo | Astro 6 + Svelte 5 + Firebase
 
 ## Resumen Ejecutivo
 
-Aplicación Flutter multiplataforma que sigue **Clean Architecture** organizada por features, con Riverpod como gestión de estado, Firebase como backend (Auth, Firestore, Storage) y GoRouter para navegación declarativa. El proyecto prioriza la plataforma web pero soporta 6 plataformas desde un solo codebase.
+Aplicación web estática (SSG) construida con el patrón **Astro Islands**: páginas pre-renderizadas en Astro con islas de interactividad en Svelte 5. Firebase como BaaS (Auth + Firestore + Storage). Tailwind CSS 4 para estilos. TypeScript strict en todo el codebase.
 
 ## Patrón Arquitectónico
 
-### Clean Architecture por Features
+### Astro Islands Architecture
 
 ```
-┌──────────────────────────────────────────────────────────┐
-│                    PRESENTATION                          │
-│  Pages → Components → Widgets → Controllers (Riverpod)  │
-├──────────────────────────────────────────────────────────┤
-│                      DOMAIN                              │
-│   Entities (Freezed) → Abstract Repositories → Contracts │
-├──────────────────────────────────────────────────────────┤
-│                       DATA                               │
-│  Firebase Implementations → Services → Fake Repositories │
-└──────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                    Build Time (Astro SSG)                     │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────┐   │
+│  │ Pages (.astro)│→│ Firebase Admin│→│ Static HTML + CSS  │   │
+│  │ getStaticPaths│  │  SDK queries │  │  (pre-rendered)   │   │
+│  └──────────────┘  └──────────────┘  └──────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
+                              ↓ deploy
+┌─────────────────────────────────────────────────────────────┐
+│                   Runtime (Browser)                           │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────┐   │
+│  │ Static HTML  │ +│ Svelte Islands│→│ Firebase Client   │   │
+│  │ (zero JS)    │  │ (client:*)   │  │ SDK (Auth/CRUD)   │   │
+│  └──────────────┘  └──────────────┘  └──────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-### Principios de Diseño
+**Dos modos de data fetching:**
+1. **Build-time** (páginas públicas): Firebase Admin SDK → `getStaticPaths()` → HTML estático
+2. **Client-side** (admin): Firebase Client SDK → Svelte reactivo → CRUD en tiempo real
 
-1. **Inversión de dependencias**: Domain define interfaces, Data las implementa
-2. **Intercambiabilidad**: Firebase ↔ Fake repositories para testing/offline
-3. **Separación por features**: Cada feature es un módulo autocontenido
-4. **Código compartido en Core**: Widgets, utils y constantes comunes
+### Hydration Strategies
 
-## Gestión de Estado (Riverpod)
+| Directiva | Uso | Ejemplo |
+|-----------|-----|---------|
+| `client:load` | Componentes interactivos inmediatos | ProjectFilter, ContactForm |
+| `client:visible` | Lazy hydration al hacer scroll | ImageViewer |
+| `client:only="svelte"` | Solo cliente, sin SSR | Admin pages (AuthGuard, CrudPages) |
+| Sin directiva | Estático, zero JS | Todos los componentes Astro |
 
-### Patrones Utilizados
+## Capas de la Aplicación
 
-| Patrón | Uso | Ejemplo |
-|---|---|---|
-| **StreamProvider** | Datos en tiempo real desde Firestore | `getProjectsStreamProvider`, `authStateChangesProvider` |
-| **AsyncNotifierProvider** | Operaciones async con estado | `authControllerProvider`, `themeControllerProvider` |
-| **FutureProvider** | Datos async one-shot | `getTechnologiesByIdProvider` |
-| **Provider** | Dependencias singleton | `authRepositoryProvider`, `firebaseAuthProvider` |
-
-### Flujo de Datos
+### 1. Capa de Presentación
 
 ```
-Firestore Stream → Repository (Data) → StreamProvider → Controller → UI (ConsumerWidget)
-                                                                        ↓
-User Action → Controller Method → Repository Method → Firebase Service → Firestore/Storage
+src/pages/          → Routing (Astro file-based)
+src/layouts/        → Layout wrappers (BaseLayout, AdminLayout)
+src/components/     → UI components (Astro estáticos + Svelte interactivos)
+src/styles/         → Design system (CSS tokens + Tailwind)
 ```
 
-### Providers Clave (keepAlive: true)
-
-- `authStateChangesProvider` - Estado de autenticación
-- `getProjectsStreamProvider` - Stream de proyectos
-- `getTechnologiesProvider` - Stream de tecnologías
-- `getExperiencesStreamProvider` - Stream de experiencias
-
-## Modelos de Datos (Domain)
-
-### Entidades Freezed
-
-| Modelo | Campos Principales | Colección Firestore |
-|---|---|---|
-| **Admin** | `uid`, `email` | N/A (Firebase Auth) |
-| **Project** | `id`, `companyNameEs/En`, `shortDescriptionEs/En`, `mainImage`, `screenshots`, `technologies`, `featuresES/EN`, `websiteUrl`, `sourceCodeUrl` | `Projects` |
-| **Technology** | `id`, `name`, `image`, `experienceTime` | `Technologies` |
-| **Experience** | `id`, `date`, `companyName`, `jobNameEn/Es`, `responsabilitiesEn/Es` | `Experiences` |
-| **ContactMessage** | `name`, `email`, `message`, `phoneNumber`, `sendThrough` | N/A (envío directo) |
-| **ContactPhoneNumber** | `countryCode`, `phoneNumber` | N/A |
-| **ImageAndPath** | `url`, `localImage`, `refPath` | Embebido en Project/Technology |
-| **Settings** | `themeMode`, `locale` | N/A (local) |
-
-### Modelo ImageAndPath
-
-Gestiona estados duales de imágenes (local vs. red):
+### 2. Capa de Datos / Lógica
 
 ```
-ImageAndPath
-├── hasUrl        → Imagen subida a Firebase Storage
-├── hasLocalImage → Imagen seleccionada localmente (Uint8List)
-├── hasRefImage   → Tiene referencia de Storage
-├── needsToUpdate → Local image + ref existente
-├── needsToDelete → Sin local ni URL pero tiene ref
-└── isEmpty       → Sin datos
+src/lib/schemas/    → Validación Zod (runtime type safety)
+src/lib/firebase/   → Acceso a datos (Firestore, Storage, Auth)
+src/lib/utils/      → Utilidades puras (formateo, sanitización, rendering)
+src/lib/i18n/       → Internacionalización
+src/data/           → Datos estáticos de configuración
 ```
 
-## Servicios Firebase (Data Layer)
-
-### FirestoreService\<T\> (Genérico)
-
-Servicio genérico para operaciones CRUD en Firestore:
-- `getCollectionStream()` - Stream en tiempo real
-- `getCollectionFuture()` - Lectura one-shot
-- `createDocument()` / `updateDocument()` / `deleteDocument()`
-- Manejo de errores: `FirestoreException` con `FirestoreErrorType`
-
-### StorageService
-
-Gestión de archivos en Firebase Storage:
-- `uploadImage(Uint8List, path)` → URL de descarga
-- `deleteImage(path)` → Eliminación
-- Manejo de errores: `StorageException` con `StorageErrorType`
-
-### FirebaseAuthService
-
-Wrapper sobre FirebaseAuth:
-- `signInWithEmailAndPassword()` → Admin
-- `signOut()`
-- `authStateChanges()` → Stream\<Admin?\>
-- Manejo de errores: `FirebaseAuthException` con `FirebaseAuthErrorType`
-
-## Navegación (GoRouter)
-
-### Estructura de Rutas
+### 3. Capa de Infraestructura
 
 ```
-ShellRoute (FullPageContainer - layout persistente)
-├── /                          → HomePage
-├── /projects                  → ProjectsPage
-├── /projects/imageviewer/:id/:index → ImageViewer
-├── /experience                → ExperiencePage
-├── /contact                   → ContactPage
-├── /admin/technologies        → AdminTechnologiesListPage
-├── /admin/projects            → AdminProjectsListPage
-└── /admin/experiences         → AdminExperiencesListPage
+firebase.json       → Hosting + Emulators config
+firestore.rules     → Reglas de seguridad Firestore
+storage.rules       → Reglas de seguridad Storage
+.github/workflows/  → CI/CD pipeline
 ```
 
-### Características de Routing
+## Estado y Reactividad
 
-- **Path URL Strategy**: URLs limpias sin `#` para web
-- **Shell Route**: Layout persistente (header, footer, admin drawer)
-- **Auth Refresh**: GoRouterRefreshStream escucha cambios de auth
-- **Fade Transitions**: Transiciones suaves entre rutas
-- **404 Page**: NotFoundPage para rutas inválidas
+### Svelte 5 Runes
 
-## Diseño Responsive
+El proyecto usa **Svelte 5** con el nuevo sistema de runes para reactividad:
+- `$state()` — Estado reactivo local (formularios, UI state)
+- `$derived()` — Valores computados
+- `$effect()` — Side effects
 
-### Breakpoints
+### Stores Globales
 
-| Breakpoint | Valor | Comportamiento |
-|---|---|---|
-| **Mobile** | < 450px | Menú hamburguesa, layout vertical |
-| **Tablet** | 450-600px | Layout intermedio |
-| **Desktop** | > 900px | Menú horizontal, admin sidebar |
+| Store | Archivo | Propósito |
+|-------|---------|-----------|
+| Toast Store | `toast-store.svelte.ts` | Notificaciones con auto-dismiss (max 3, tiempos por tipo) |
 
-### Estrategia
+### Patrón CRUD Container
 
-- `ResponsiveWidget`: Renderiza widget diferente por breakpoint
-- `ResponsiveCenter`: Contenido centrado con max-width
-- `sizeScaled()`: Interpolación de tamaños entre breakpoints
-- Tema responsive: TextTheme escala con ancho de pantalla
+Los 4 módulos admin siguen el mismo patrón:
 
-## Localización (i18n)
+```
+CrudPage.svelte (container)
+├── List.svelte         → Lista + acciones (edit, delete, reorder)
+├── Form.svelte         → Crear/editar con validación Zod
+├── ConfirmDialog.svelte → Confirmación de eliminación
+└── Toast.svelte        → Feedback de operaciones
+```
 
-### Configuración
+**Flujo de vista:** `list` → `create` | `edit` → `list` (con detección de cambios sin guardar)
 
-- **Idiomas**: Inglés (en) - template, Español (es)
-- **Formato**: ARB files (`lib/src/localization/arb/`)
-- **Acceso**: `context.l10n.keyName`
-- **Cambio**: `LocaleController.changeLocale()` (toggle EN ↔ ES)
+## Modelo de Datos
 
-### Estrategia de Contenido Bilingüe
+### Esquemas Zod (Triple Schema Pattern)
 
-Los modelos de datos contienen campos duplicados por idioma:
-- `companyNameEn` / `companyNameEs`
-- `shortDescriptionEn` / `shortDescriptionEs`
-- `featuresEN` / `featuresES`
+Cada entidad tiene 3 esquemas:
+1. **Full Schema** — Tipo completo con ID (para uso en la app)
+2. **Firestore Schema** — Sin ID, para parsing de Firestore docs
+3. **Form Schema** — Solo campos editables, para validación de formularios
 
-Extensions localizados seleccionan el campo correcto según locale activo.
+### Colecciones Firestore
 
-## Sistema de Temas
+| Colección | Documentos | Campos Clave |
+|-----------|------------|-------------|
+| `Projects` | Proyectos del portfolio | companyName (L10n), slug, mainImage, screenshots[], technologies[], featured, order |
+| `Technologies` | Stack tecnológico | name, image, experienceYears, order |
+| `Experiences` | Experiencia laboral | companyName, jobName (L10n), responsibilities (L10n), startDate, endDate? |
+| `BlogPosts` | Artículos del blog | title (L10n), content (L10n, TipTap JSON), slug, coverImage?, images[], status |
 
-### Modos
+**L10n = LocalizedString** → `{ es: string, en: string }`
 
-- **Dark** (por defecto): Colores primarios `#48A1CD` / `#108385`
-- **Light**: Variantes claras de los mismos colores
-- **Cambio**: `ThemeController.changeTheme()` (toggle)
+### Campos Compartidos (shared-schemas.ts)
 
-### Implementación
+- `LocalizedString` → `{ es: string, en: string }` con min 1 char cada uno
+- `LocalizedStringArray` → `{ es: string[], en: string[] }` con min 1 item
+- `StoredImage` → `{ url: string (URL), storagePath: string }`
+- `Locale` → `'es' | 'en'`
 
-- `ThemeApp` genera `ThemeData` completo con Riverpod providers
-- `AppColor` define paleta centralizada (light + dark)
-- `AppTextTheme` genera tipografía responsive con Google Fonts Poppins
-- `ThemeExtension` en BuildContext para acceso rápido
+## Navegación y Routing
+
+### Estructura de URLs
+
+```
+/ (EN)                    /es/ (ES)
+/projects                 /es/projects
+/projects/[slug]          /es/projects/[slug]
+/blog                     /es/blog
+/blog/[slug]              /es/blog/[slug]
+/contact                  /es/contact
+/admin/login              (sin i18n)
+/admin/                   (sin i18n)
+/admin/projects           (sin i18n)
+/admin/technologies       (sin i18n)
+/admin/experiences        (sin i18n)
+/admin/blog               (sin i18n)
+```
+
+- **EN** es el `defaultLocale` → sin prefijo
+- **ES** usa prefijo `/es/`
+- **Admin** es solo español, sin prefijo de locale
+- **Slugs** se generan desde el campo EN (via `slugify()`)
+- **View Transitions** via Astro ClientRouter
 
 ## Autenticación y Seguridad
 
-### Flujo de Auth
+### Firebase Auth
+
+- **Login:** Email + password (signInWithEmailAndPassword)
+- **Guard:** `AuthGuard.svelte` wrapper en todas las páginas admin
+- **Admin UID:** Hardcoded en Firestore/Storage rules (`G26dKlezR6cghnfv7NrBmQiXdUG3`)
+
+### Reglas de Seguridad
 
 ```
-Footer double-tap → SignInAlert → Email/Password form
-                                       ↓
-                              AuthController.signIn()
-                                       ↓
-                              FirebaseAuth.signInWithEmailAndPassword()
-                                       ↓
-                              authStateChangesProvider actualiza
-                                       ↓
-                              GoRouter refresh → Admin routes disponibles
-                                       ↓
-                              FullPageContainer muestra AdminDrawer
+Firestore: read = público, write = auth.uid == ADMIN_UID
+Storage:   read = público, write = auth.uid == ADMIN_UID
 ```
 
-### Roles
+### Protección XSS
 
-- **Visitante**: Acceso a home, projects, experience, contact
-- **Admin** (autenticado): Acceso adicional a CRUD de technologies, projects, experiences
+- Blog HTML sanitizado con `sanitize-html` (allowlist estricto)
+- TipTap renderer con HTML escaping en todos los atributos y texto
+- Solo tags/atributos/protocolos en whitelist
+
+## Gestión de Imágenes
+
+### Image Slot State Machine
+
+```
+empty → new (file selected)
+existing → replaced (new file) | removed
+new → empty (cancelled)
+replaced → existing (cancelled) | empty (both removed)
+removed → existing (undo)
+```
+
+### Upload Pipeline
+
+1. `ImageUploader.svelte` captura drag-drop o file input
+2. `image-service.ts` sube con `uploadBytesResumable` + retry (exponential backoff)
+3. `image-slot-processor.ts` procesa transiciones de estado
+4. `orphan-cleanup.ts` limpia imágenes huérfanas si el save falla
+
+## Internacionalización
+
+- **Sistema:** Astro built-in i18n
+- **Locales:** `en` (default), `es`
+- **Routing:** `prefixDefaultLocale: false` → EN sin prefijo, ES con `/es/`
+- **Traducciones:** `src/lib/i18n/translations.ts` (~150+ claves)
+- **Contenido:** Campos bilingües en Firestore (`{ es, en }`)
+- **Detección:** `getLocaleFromUrl(url)` extrae locale del path
+
+## Tema (Dark/Light Mode)
+
+- **Default:** Dark (`class="dark"` en `<html>`)
+- **Persistencia:** `localStorage` → `matchMedia` fallback
+- **Anti-FOUC:** `ThemeScript.astro` ejecuta sync en `<head>`
+- **Transiciones:** 200ms con `prefers-reduced-motion` respetado
+- **Tokens CSS:** Variables `--theme-*` para ambos modos
 
 ## Testing
 
-### Estado Actual
+### Estrategia
 
-- `test/widget_test.dart` - Test placeholder (counter smoke test, no refleja la app actual)
-- **Cobertura**: Mínima - necesita tests unitarios, de widget e integración
-- **Herramientas disponibles**: flutter_test, mocktail (^1.0.4)
-- **Patrón ready**: Repositorios Fake permiten testing sin Firebase
+| Tipo | Framework | Ubicación | Alcance |
+|------|-----------|-----------|---------|
+| Unit | Vitest + Testing Library | `src/**/__tests__/` | Schemas, utils, Firebase, componentes |
+| E2E | Playwright | `tests/e2e/` | Flujos completos (público + admin) |
+| Factories | Custom | `src/test/factories/` | Generación de datos de test |
+| Accesibilidad | Tests de contraste | `src/styles/__tests__/` | WCAG AA compliance |
 
-## Diagrama de Dependencias entre Features
+### E2E Projects
+
+- `public` — Páginas públicas (excluye `admin-*.spec.ts`)
+- `admin` — Panel admin (match `admin-*.spec.ts`)
+- WebServer: `pnpm preview` en `localhost:4321`
+
+## CI/CD Pipeline
 
 ```
-home ──→ projects (HomeProjectsList)
-     ──→ technologies (TechnologiesList)
-     ──→ experience (ExperiencesList)
-     ──→ social_launcher (SocialButtons)
-     ──→ settings (ThemeController)
-
-projects ──→ technologies (getTechnologiesByIdProvider)
-         ──→ social_launcher (launchAnyLink)
-
-contact ──→ social_launcher (UrlLauncherRepository)
-
-auth ←── core/common_components (FullPageContainer, FooterComponent)
-
-settings ←── app.dart (ThemeController, LocaleController)
-         ←── core/common_components (SwitchThemeWidget, SwitchLocaleWidget)
+Push to main → GitHub Actions
+  ├── Lint (ESLint)
+  ├── Type Check (astro check)
+  ├── Tests (Vitest con Firebase Emulators)
+  ├── Build (si hay cambios en código)
+  ├── Lighthouse CI (≥0.95 en 4 categorías)
+  └── Deploy (Firebase Hosting, canal live)
 ```
+
+**Smart Skip:** Si solo cambian docs/config, se saltan build + Lighthouse + deploy.
+
+## Dependencias Clave
+
+### Runtime
+- `astro` — Framework SSG
+- `svelte` — UI interactivo
+- `firebase` — Client SDK (Auth, Firestore, Storage)
+- `@tiptap/*` — Editor rich text
+- `sortablejs` — Drag and drop
+- `zod` — Validación de esquemas
+- `sanitize-html` — Sanitización HTML
+- `sharp` — Procesamiento de imágenes (build-time)
+
+### Development
+- `firebase-admin` — Server-side Firebase (build-time queries)
+- `firebase-tools` — Emuladores locales
+- `vitest` — Testing unitario
+- `@playwright/test` — Testing E2E
+- `@lhci/cli` — Lighthouse CI
+- `tailwindcss` — CSS utility framework
+- `typescript` — Type safety
+- `eslint` + `prettier` — Code quality

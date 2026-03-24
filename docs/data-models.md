@@ -1,240 +1,208 @@
-# Modelos de Datos
+# Modelos de Datos — Portfolio ChrisBP
 
-> Generado: 2026-03-15 | Escaneo Exhaustivo
+> Generado: 2026-03-24 | Escaneo Exhaustivo | Zod 4 + Firebase Firestore
 
 ## Resumen
 
-El proyecto usa **Freezed** para modelos inmutables con generación automática de `copyWith`, `==`, `hashCode`, `toString` y serialización JSON. Los datos persisten en **Cloud Firestore** (colecciones) y **Firebase Storage** (imágenes).
+| Entidad | Colección Firestore | Esquemas Zod | Campos L10n |
+|---------|-------------------|-------------|-------------|
+| Project | `Projects` | project, projectFirestore, projectForm | companyName, shortDescription, features |
+| Technology | `Technologies` | technology, technologyFirestore, technologyForm | — |
+| Experience | `Experiences` | experience, experienceFirestore, experienceForm | jobName, responsibilities |
+| BlogPost | `BlogPosts` | blogPost, blogPostFirestore, blogPostForm | title, content |
 
-## Colecciones Firestore
+## Esquemas Compartidos (`shared-schemas.ts`)
 
-### Projects
+### Locale
+```typescript
+type Locale = 'es' | 'en'
+```
 
-**Colección:** `Projects`
+### LocalizedString
+```typescript
+type LocalizedString = { es: string; en: string }
+// Validación: min 1 char cada campo
+```
 
-| Campo | Tipo | Descripción |
-|---|---|---|
-| `id` | String | UUID generado |
-| `companyNameEs` | String | Nombre empresa (español) |
-| `companyNameEn` | String | Nombre empresa (inglés) |
-| `shortDescriptionEs` | String | Descripción corta (español) |
-| `shortDescriptionEn` | String | Descripción corta (inglés) |
-| `mainImage` | ImageAndPath | Imagen principal |
-| `screenshots` | List\<ImageAndPath\> | Capturas de pantalla |
-| `websiteUrl` | String? | URL del sitio web |
-| `sourceCodeUrl` | String? | URL del código fuente |
-| `featuresES` | List\<String\> | Características (español) |
-| `featuresEN` | List\<String\> | Características (inglés) |
-| `technologies` | List\<TechnologyID\> | IDs de tecnologías usadas |
+### LocalizedStringArray
+```typescript
+type LocalizedStringArray = { es: string[]; en: string[] }
+// Validación: min 1 item en cada array, strings no vacíos
+```
 
-**Storage paths:**
-- Imagen principal: `projects/{projectId}/main-image.webp`
-- Screenshots: `projects/{projectId}/screenshots/{index}-image.webp`
+### StoredImage
+```typescript
+type StoredImage = { url: string; storagePath: string }
+// url: URL válida, storagePath: ruta en Firebase Storage
+```
 
-### Technologies
+## Project
 
-**Colección:** `Technologies`
-
-| Campo | Tipo | Descripción |
-|---|---|---|
-| `id` | String | UUID generado |
-| `name` | String | Nombre de la tecnología |
-| `image` | ImageAndPath | Icono/logo |
-| `experienceTime` | String | Tiempo de experiencia |
-
-**Storage path:** `technologies/{technologyId}/image.webp`
-
-### Experiences
-
-**Colección:** `Experiences`
-
-| Campo | Tipo | Descripción |
-|---|---|---|
-| `id` | String | UUID generado |
-| `date` | String | Fecha/período |
-| `companyName` | String | Nombre de empresa |
-| `jobNameEn` | String | Cargo (inglés) |
-| `jobNameEs` | String | Cargo (español) |
-| `responsabilitiesEn` | String | Responsabilidades (inglés) |
-| `responsabilitiesEs` | String | Responsabilidades (español) |
-
-## Modelos Freezed
-
-### Admin
-
-```dart
-@freezed
-class Admin with _$Admin {
-  const factory Admin({
-    required String uid,
-    required String email,
-  }) = _Admin;
+### Esquema Completo
+```typescript
+type Project = {
+  id: string
+  companyName: LocalizedString        // Nombre del proyecto
+  shortDescription: LocalizedString   // Descripción corta
+  features: LocalizedStringArray      // Lista de características
+  mainImage: StoredImage              // Imagen principal
+  screenshots: StoredImage[]          // Galería de screenshots
+  websiteUrl?: string                 // URL del sitio web (opcional)
+  sourceCodeUrl?: string              // URL del código fuente (opcional)
+  technologies: string[]              // IDs de tecnologías (min 1)
+  slug: string                        // URL slug (/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+  order: number                       // Orden de display (≥0)
+  featured: boolean                   // Proyecto destacado
 }
 ```
 
-**Uso:** Representa al usuario autenticado. No persiste en Firestore (viene de Firebase Auth).
+### Esquema Firestore (`projectFirestoreSchema`)
+- Omite `id` (es el document ID)
+- `mainImage` y `screenshots` opcionales (para parsing robusto)
 
-### Project
+### Esquema Form (`projectFormSchema`)
+- Omite `id`, `mainImage`, `screenshots`, `order`, `featured`
+- Solo campos editables por el usuario en formularios
 
-```dart
-@freezed
-class Project with _$Project {
-  const factory Project({
-    required String companyNameEs,
-    required String companyNameEn,
-    required String shortDescriptionEs,
-    required String shortDescriptionEn,
-    required ImageAndPath mainImage,
-    @Default([]) List<ImageAndPath> screenshots,
-    @Default('') String websiteUrl,
-    @Default('') String sourceCodeUrl,
-    @Default([]) List<String> featuresES,
-    @Default([]) List<String> featuresEN,
-    @Default([]) List<TechnologyID> technologies,
-    required String id,
-  }) = _Project;
+### Colección Firestore: `Projects`
+- **Queries:** Todos los documentos, ordenados por `order` ASC
+- **Storage paths:** `projects/{slug}/main.*`, `projects/{slug}/screenshots/*`
 
-  factory Project.fromJson(Map<String, dynamic> json) => _$ProjectFromJson(json);
+## Technology
+
+### Esquema Completo
+```typescript
+type Technology = {
+  id: string
+  name: string                        // Nombre de la tecnología
+  image: StoredImage                  // Logo/ícono
+  experienceYears: number             // Años de experiencia (0-50)
+  order: number                       // Orden de display (≥0)
 }
 ```
 
-**Extensions:**
-- `companyName(Locale)` → Nombre localizado
-- `shortDescription(Locale)` → Descripción localizada
-- `features(Locale)` → Features localizados
-- `screenshotsUrlFiltered` → Screenshots con URL válida
-- `screenshotsLocalFiltered` → Screenshots con imagen local
+### Esquema Firestore (`technologyFirestoreSchema`)
+- Omite `id`
 
-### ImageAndPath
+### Esquema Form (`technologyFormSchema`)
+- Omite `id`, `image`, `order`
 
-```dart
-@freezed
-class ImageAndPath with _$ImageAndPath {
-  const factory ImageAndPath({
-    @Default('') String url,
-    Uint8List? localImage,
-    @Default('') String refPath,
-  }) = _ImageAndPath;
+### Colección Firestore: `Technologies`
+- **Queries:** Todos los documentos, ordenados por `order` ASC
+- **Storage paths:** `technologies/{id}/image.*`
 
-  factory ImageAndPath.fromJson(Map<String, dynamic> json) => _$ImageAndPathFromJson(json);
+## Experience
+
+### Esquema Completo
+```typescript
+type Experience = {
+  id: string
+  companyName: string                 // Nombre de la empresa
+  jobName: LocalizedString            // Puesto de trabajo (bilingüe)
+  responsibilities: LocalizedStringArray  // Responsabilidades (bilingüe)
+  startDate: Date                     // Fecha de inicio
+  endDate?: Date | null               // Fecha de fin (null = actualmente)
 }
 ```
 
-**Extensions de estado:**
-- `hasUrl` → url.isNotEmpty
-- `hasLocalImage` → localImage != null
-- `hasRefImage` → refPath.isNotEmpty
-- `isEmpty` → !hasUrl && !hasLocalImage && !hasRefImage
-- `needsToUpdate` → hasLocalImage && hasRefImage
-- `needsToDelete` → !hasLocalImage && !hasUrl && hasRefImage
+### Validación
+- **Refinement:** Si `endDate` existe, debe ser ≥ `startDate`
 
-### Technology
+### Esquema Firestore (`experienceFirestoreSchema`)
+- Omite `id`
 
-```dart
-@freezed
-class Technology with _$Technology {
-  const factory Technology({
-    required String name,
-    required ImageAndPath image,
-    required String id,
-    required String experienceTime,
-  }) = _Technology;
+### Esquema Form (`experienceFormSchema`)
+- Omite `id`, misma validación de fechas
 
-  factory Technology.fromJson(Map<String, dynamic> json) => _$TechnologyFromJson(json);
+### Colección Firestore: `Experiences`
+- **Queries:** Todos los documentos
+- **Fechas:** Firestore Timestamps → JavaScript Dates
+
+## BlogPost
+
+### Esquema Completo
+```typescript
+type BlogPost = {
+  id: string
+  title: LocalizedString              // Título del artículo (bilingüe)
+  content: LocalizedString            // Contenido TipTap JSON (bilingüe)
+  slug: string                        // URL slug (/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+  coverImage?: StoredImage | null     // Imagen de portada (opcional)
+  images: StoredImage[]               // Imágenes inline del contenido
+  status: 'published' | 'draft'       // Estado de publicación
+  createdAt: Date                     // Fecha de creación
+  updatedAt: Date                     // Fecha de última actualización
 }
 ```
 
-### Experience
+### Validación
+- **Refinement:** `updatedAt` ≥ `createdAt`
 
-```dart
-@freezed
-class Experience with _$Experience {
-  const factory Experience({
-    required String id,
-    required String date,
-    required String companyName,
-    required String jobNameEn,
-    required String jobNameEs,
-    required String responsabilitiesEn,
-    required String responsabilitiesEs,
-  }) = _Experience;
+### Esquema Firestore (`blogPostFirestoreSchema`)
+- Omite `id`
+- `images` default a `[]`
 
-  factory Experience.fromJson(Map<String, dynamic> json) => _$ExperienceFromJson(json);
-}
+### Esquema Form (`blogPostFormSchema`)
+- Solo: `title`, `content`, `slug`, `status`
+
+### Colección Firestore: `BlogPosts`
+- **Queries:** Status = 'published', ordenados por `createdAt` DESC
+- **Storage paths:** `blog-posts/{id}/cover.*`, `blog-posts/{id}/images/*`
+- **Contenido:** TipTap JSON almacenado como string en campo bilingüe
+
+## ImageSlot (Discriminated Union)
+
+No es un esquema Zod — es un tipo TypeScript para gestión de estados de imagen en formularios:
+
+```typescript
+type ImageSlot =
+  | { type: 'empty' }
+  | { type: 'existing'; image: StoredImage }
+  | { type: 'new'; file: File; preview: string }
+  | { type: 'replaced'; old: StoredImage; file: File; preview: string }
+  | { type: 'removed'; old: StoredImage }
 ```
 
-**Extensions:**
-- `jobName(Locale)` → Cargo localizado
-- `responsabilities(Locale)` → Responsabilidades localizadas
+## Triple Schema Pattern
 
-### ContactMessage
+Cada entidad sigue el patrón de 3 esquemas Zod:
 
-```dart
-@freezed
-class ContactMessage with _$ContactMessage {
-  const factory ContactMessage({
-    required String name,
-    required String email,
-    required String message,
-    required String phoneNumber,
-    required SendThrough sendThrough,
-  }) = _ContactMessage;
-}
+```
+Full Schema (Project)
+├── Incluye id, todos los campos, campos computados
+├── Usado como tipo principal en la app
+│
+Firestore Schema (ProjectFirestoreData)
+├── Sin id (viene del document ID)
+├── Campos opcionales para parsing robusto
+├── Usado para parsear documentos de Firestore
+│
+Form Schema (ProjectFormSchema)
+├── Solo campos editables por el usuario
+├── Sin id, sin imágenes (manejo separado), sin order/featured
+├── Usado para validación de formularios
 ```
 
-**Enum SendThrough:** `email`, `whatsapp`
+## Relaciones entre Entidades
 
-**Extension:** `formattedMessage()` → Formatea mensaje con datos de negocio
-
-### ContactPhoneNumber
-
-```dart
-@freezed
-class ContactPhoneNumber with _$ContactPhoneNumber {
-  const factory ContactPhoneNumber({
-    required String countryCode,
-    required String phoneNumber,
-  }) = _ContactPhoneNumber;
-}
+```
+Projects ──→ Technologies (references: technologies[] = Technology IDs)
+Projects ──→ StoredImage (embedded: mainImage, screenshots[])
+Technologies ──→ StoredImage (embedded: image)
+BlogPosts ──→ StoredImage (embedded: coverImage?, images[])
+Experiences ──→ (sin imágenes ni referencias)
 ```
 
-### Settings
+## Reglas de Seguridad
 
-```dart
-class Settings {
-  final ThemeMode themeMode;
-  final Locale locale;
-}
+### Firestore
+```
+read: público (cualquier usuario puede leer)
+write: solo request.auth.uid == 'G26dKlezR6cghnfv7NrBmQiXdUG3'
 ```
 
-**Nota:** Modelo simple sin Freezed. No persiste actualmente (stubs en repository).
-
-## Repositorios
-
-### Patrón
-
-Cada feature define un repositorio abstracto en Domain e implementaciones en Data:
-
-| Repositorio | Implementación Firebase | Implementación Fake |
-|---|---|---|
-| `AuthRepository` | `FirebaseAdminAuthRepositoryImp` | N/A |
-| `ProjectsRepository` | `FirebaseProjectsRepositoryImp` | `FakeProjectsRepositoryImp` |
-| `AdminProjectsRepository` | `FirebaseAdminProjectsRepositoryImp` | `FakeAdminProjectsRepositoryImp` |
-| `TechnologyRepository` | `FirebaseTechnologyRepositoryImp` | `FakeTechnologyRepositoryImp` |
-| `AdminTechnologyRepository` | `AdminFirebaseTechnologyRepositoryImp` | `AdminFakeTechnologyRepositoryImp` |
-| `ExperienceRepository` | `FirebaseExperienceRepositoryImp` | `FakeExperienceRepositoryImp` |
-| `ContactRepository` | `ContactRepositoryImp` | N/A |
-| `SocialLauncherRepository` | `SocialLauncherRepositoryImp` | N/A |
-| `UrlLauncherRepository` | `UrlLauncherRepositoryImp` | N/A |
-| `SettingsRepository` | `SettingsRepository` (stubs) | N/A |
-
-### Estado Actual de Datos
-
-| Feature | Fuente Activa | Nota |
-|---|---|---|
-| **Projects** | Firebase | Firestore + Storage |
-| **Technologies** | Firebase | Firestore + Storage |
-| **Experiences** | Fake (constantes) | Firebase impl existe pero no está conectada |
-| **Auth** | Firebase Auth | Email/password |
-| **Contact** | Envío directo | WhatsApp UniLink / Mailto |
-| **Settings** | Stubs | Retorna valores por defecto (dark, en) |
+### Storage
+```
+read: público
+write: solo request.auth.uid == 'G26dKlezR6cghnfv7NrBmQiXdUG3'
+```

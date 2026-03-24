@@ -1,202 +1,145 @@
-# Inventario de Componentes UI
+# Inventario de Componentes UI — Portfolio ChrisBP
 
-> Generado: 2026-03-15 | Escaneo Exhaustivo
+> Generado: 2026-03-24 | Escaneo Exhaustivo | 51 componentes (17 Astro, 34 Svelte)
 
 ## Resumen
 
-- **Widgets reutilizables (common_widgets)**: 22
-- **Componentes de layout (common_components)**: 11
-- **Componentes de features**: ~40+
-- **Total estimado**: ~73 widgets/componentes
+| Categoría | Astro | Svelte | Total |
+|-----------|-------|--------|-------|
+| Layout | 4 | 3 | 7 |
+| Home | 4 | 0 | 4 |
+| Common | 7 | 0 | 7 |
+| Blog | 2 | 0 | 2 |
+| Projects | 0 | 2 | 2 |
+| Contact | 0 | 1 | 1 |
+| Admin | 1 | 27 | 28 |
+| **Total** | **17** | **34** | **51** |
 
----
+## Layout (7)
 
-## Widgets Reutilizables (`core/common_widgets/`)
+| Componente | Tipo | Props | Descripción |
+|------------|------|-------|-------------|
+| `Header.astro` | Astro | `currentPage?, locale` | Navegación principal con logo y menú desktop |
+| `Footer.astro` | Astro | `locale` | Footer con links sociales (TikTok, GitHub, LinkedIn) |
+| `Banner.astro` | Astro | `locale` | Banner de bienvenida con gradiente |
+| `ThemeScript.astro` | Astro | — | Script anti-FOUC para tema (sync en `<head>`) |
+| `ThemeToggle.svelte` | Svelte | `currentLocale` | Toggle dark/light con persistencia localStorage |
+| `LocaleToggle.svelte` | Svelte | `currentLocale, currentPath` | Toggle idioma EN/ES con manipulación de URL |
+| `MobileMenu.svelte` | Svelte | `currentPage?, locale` | Menú hamburguesa responsive con focus trap |
 
-### Layout y Responsive
+## Home (4)
 
-| Widget | Archivo | Descripción |
-|---|---|---|
-| `ResponsiveCenter` | responsive_center.dart | Centra contenido con max-width (default: 900px) |
-| `ResponsiveSliverCenter` | responsive_center.dart | Versión Sliver de ResponsiveCenter |
-| `ResponsiveWidget` | responsive_widget.dart | Renderiza widget diferente por breakpoint (mobile/tablet/desktop) |
-| `WrapperScroll` | wrapper_scroll.dart | Layout principal: Banner + Header + Slivers + Footer |
+| Componente | Tipo | Props | Descripción |
+|------------|------|-------|-------------|
+| `HeroSection.astro` | Astro | `locale` | Hero con avatar, heading, CTA buttons |
+| `TechnologiesSection.astro` | Astro | `technologies[], locale` | Grid de logos de tecnologías |
+| `ProjectsSection.astro` | Astro | `projects[], locale` | Grid de 3 proyectos destacados |
+| `ExperienceSection.astro` | Astro | `experiences[], locale` | Timeline de experiencia laboral |
 
-### Botones
+## Common (7)
 
-| Widget | Archivo | Descripción |
-|---|---|---|
-| `PrimaryButton` | primary_button.dart | ElevatedButton responsive con color primario |
-| `SecondaryButton` | secondary_button.dart | OutlinedButton responsive |
-| `SocialButton` | social_button.dart | InkWell con icono para redes sociales |
+| Componente | Tipo | Props | Descripción |
+|------------|------|-------|-------------|
+| `Container.astro` | Astro | `variant?('default'\|'narrow'), class?` | Wrapper max-width (75rem / 45rem) |
+| `Section.astro` | Astro | `variant?('default'\|'hero'\|'compact'), id?, class?` | Sección semántica con padding |
+| `Button.astro` | Astro | `variant?, href?, type?, disabled?, download?` | Botón/enlace (primary, secondary, danger, ghost) |
+| `Card.astro` | Astro | `as?('article'\|'div'), hoverable?, class?` | Tarjeta con bordes y hover opcional |
+| `Badge.astro` | Astro | `variant('technology'\|'status'\|'language'), value?, class?` | Etiqueta inline (tech, estado, idioma) |
+| `Input.astro` | Astro | `type?, name, label, required?, error?, placeholder?, value?` | Input con label y mensaje de error |
+| `SkipNav.astro` | Astro | `locale` | Skip navigation para accesibilidad |
 
-### Texto y Títulos
+## Blog (2)
 
-| Widget | Archivo | Descripción |
-|---|---|---|
-| `ShaderTextEffect` | shader_text_effect.dart | Texto con efecto gradiente |
-| `ShaderTextSpan` | shader_text_effect.dart | TextSpan con gradiente inline |
-| `CustomTitleOnComponent` | custom_title_on_component.dart | Título de sección con gradiente temático |
-| `TitleFormField` | title_form_field.dart | Título de sección en formularios |
+| Componente | Tipo | Props | Descripción |
+|------------|------|-------|-------------|
+| `BlogCard.astro` | Astro | `post, locale, readingTimeLabel` | Card preview de artículo (cover, título, fecha, tiempo lectura) |
+| `BlogContent.astro` | Astro | `contentHtml` | Renderizado de HTML blog con estilos markdown |
 
-### Datos y Estado
+## Projects (2)
 
-| Widget | Archivo | Descripción |
-|---|---|---|
-| `AsyncValueWidget<T>` | async_value_widget.dart | Wrapper para AsyncValue (loading/error/data) |
-| `AsyncValueSliverWidget<T>` | async_value_widget.dart | Versión Sliver del AsyncValueWidget |
-| `ErrorMessageWidget` | error_message_widget.dart | Mensaje de error estilizado |
-| `EmptyPlaceholderWidget` | empty_placeholder_widget.dart | Placeholder vacío con botón "Go Home" |
-| `CustomPlaceholder` | custom_placeholder.dart | Placeholder de desarrollo |
+| Componente | Tipo | Props | Descripción |
+|------------|------|-------|-------------|
+| `ProjectFilter.svelte` | Svelte | `projects[], technologies[], locale, *labels` | Filtro dropdown por tecnología con resultados reactivos |
+| `ImageViewer.svelte` | Svelte | `screenshots[], locale` | Galería fullscreen con navegación por teclas |
 
-### Negocio y Marca
+## Contact (1)
 
-| Widget | Archivo | Descripción |
-|---|---|---|
-| `BusinessLogo` | business_logo.dart | Logo clickeable con navegación a home |
-| `BusinessChipText` | business_chip_text.dart | Chip con borde gradiente (tags de tecnología) |
-| `TechnologyIcon` | technology_icon.dart | Icono de tecnología con imagen de red |
-| `InitialBanner` | initial_banner.dart | Banner sliver de bienvenida con gradiente |
+| Componente | Tipo | Props | Descripción |
+|------------|------|-------|-------------|
+| `ContactForm.svelte` | Svelte | `locale` | Formulario con country picker → WhatsApp o Email |
 
-### Formularios
+## Admin — Layout y Navegación (3)
 
-| Widget | Archivo | Descripción |
-|---|---|---|
-| `CustomTextFormField` | custom_text_form_field.dart | TextFormField estilizado con borde gradiente en focus |
+| Componente | Tipo | Props | Descripción |
+|------------|------|-------|-------------|
+| `AdminBreadcrumb.astro` | Astro | `currentPath` | Breadcrumb del admin |
+| `AdminDashboard.svelte` | Svelte | — | Dashboard con conteos de colecciones Firestore |
+| `AdminSidebar.svelte` | Svelte | `currentPath` | Sidebar responsive con logout |
 
-### Imágenes
+## Admin — Autenticación (2)
 
-| Widget | Archivo | Descripción |
-|---|---|---|
-| `WrapNetworkImage` | wrap_network_image.dart | CachedNetworkImage con loading/error handling |
-| `ImageMemoryPicked` | image_memory_picked.dart | Selector de imagen local/red con delete |
+| Componente | Tipo | Props | Descripción |
+|------------|------|-------|-------------|
+| `LoginForm.svelte` | Svelte | — | Login Firebase (email + password) |
+| `AuthGuard.svelte` | Svelte | `children: Snippet` | Wrapper de autenticación (spinner → redirect) |
 
-### Diálogos
+## Admin — CRUD Pages (4)
 
-| Widget | Archivo | Descripción |
-|---|---|---|
-| `showAlertDialog()` | alert_dialogs.dart | Diálogo multiplataforma (Material/Cupertino) |
-| `showExceptionAlertDialog()` | alert_dialogs.dart | Diálogo de error/excepción |
-| `showNotImplementedAlertDialog()` | alert_dialogs.dart | Diálogo "no implementado" |
-| `AdminDialog` | admin_dialog.dart | Diálogo CRUD admin con formulario scrollable |
+| Componente | Tipo | Props | Descripción |
+|------------|------|-------|-------------|
+| `ProjectsCrudPage.svelte` | Svelte | — | Container: list/create/edit + delete + image cleanup |
+| `TechnologiesCrudPage.svelte` | Svelte | — | Container: list/create/edit + delete + image cleanup |
+| `ExperiencesCrudPage.svelte` | Svelte | — | Container: list/create/edit + delete |
+| `BlogCrudPage.svelte` | Svelte | — | Container: list/create/edit + delete + image cleanup |
 
----
+## Admin — Listas (4)
 
-## Componentes de Layout (`core/common_components/`)
+| Componente | Tipo | Props | Descripción |
+|------------|------|-------|-------------|
+| `ProjectList.svelte` | Svelte | `onCreateNew, onEdit?, onDelete?` | Lista con drag-reorder (SortableJS) + featured |
+| `TechnologyList.svelte` | Svelte | `onCreateNew, onEdit?, onDelete?` | Lista con drag-reorder (SortableJS) |
+| `ExperienceList.svelte` | Svelte | `onCreateNew, onEdit?, onDelete?` | Lista con formato de fechas |
+| `BlogList.svelte` | Svelte | `onCreateNew, onEdit?, onDelete?` | Lista ordenada por fecha creación |
 
-### Contenedor Principal
+## Admin — Formularios (4)
 
-| Componente | Archivo | Descripción |
-|---|---|---|
-| `FullPageContainer` | full_page_container.dart | Wrapper de todas las páginas: AdminDrawer (si auth) + FABs (tema, locale, admin) |
+| Componente | Tipo | Props | Descripción |
+|------------|------|-------|-------------|
+| `ProjectForm.svelte` | Svelte | `mode?, initialData?, onCancel, onSaved` | Formulario completo: bilingüe, imágenes, techs, slug auto |
+| `TechnologyForm.svelte` | Svelte | `mode?, initialData?, onCancel, onSaved` | Formulario: nombre, años experiencia, imagen |
+| `ExperienceForm.svelte` | Svelte | `mode?, initialData?, onCancel, onSaved` | Formulario: bilingüe, fechas, "actualmente trabajando" |
+| `BlogForm.svelte` | Svelte | `mode?, initialData?, onCancel, onSaved` | Formulario: TipTap editor bilingüe, cover, inline images |
 
-### Header (Navegación)
+## Admin — Helpers de Formulario (5)
 
-| Componente | Archivo | Descripción |
-|---|---|---|
-| `HeaderComponent` | header/header_component.dart | PinnedHeaderSliver: logo + menú desktop/mobile |
-| `ResponsiveHeader` | header/header_component.dart | Helper responsive para header |
-| `HeaderLogo` | header/header_logo.dart | Logo responsive en header |
-| `CustomMenuItem` | header/custom_menu_item.dart | Item menú desktop con hover y gradiente |
-| `MobileMenuItem` | header/mobile_menu_item.dart | Item menú mobile con gradiente |
-| `AnimatedMenuContainer` | header/animated_menu_container.dart | Menú mobile con animación slide (400ms) |
+| Componente | Tipo | Props | Descripción |
+|------------|------|-------|-------------|
+| `BilingualField.svelte` | Svelte | `label, nameEs, nameEn, type?, required?, errorEs?, errorEn?` | Input bilingüe: tabs mobile, side-by-side desktop |
+| `BilingualArrayField.svelte` | Svelte | `label, itemsEs, itemsEn, required?` | Array bilingüe: add/remove items (max 10) |
+| `ImageUploader.svelte` | Svelte | `label, slot, required?, error?, uploadProgress?` | Upload drag-drop con preview y progreso |
+| `ScreenshotManager.svelte` | Svelte | `screenshots, onChange?` | Multi-imagen: upload, preview grid, undo remove (max 10) |
+| `TechnologySelector.svelte` | Svelte | `selected, onChange?` | Checkbox group de tecnologías desde Firestore |
 
-### Footer
+## Admin — Editores y Diálogos (5)
 
-| Componente | Archivo | Descripción |
-|---|---|---|
-| `FooterComponent` | footer/footer_component.dart | Footer: título "Contact", redes sociales, copyright, SignIn oculto |
+| Componente | Tipo | Props | Descripción |
+|------------|------|-------|-------------|
+| `RichTextEditor.svelte` | Svelte | `content, onUpdate, label, error?, onInsertImage?` | TipTap WYSIWYG: headings, bold, code, listas, links, imágenes |
+| `ImageUploadDialog.svelte` | Svelte | `open, postId, onClose, onImageUploaded` | Modal upload de imagen inline para blog |
+| `LinkDialog.svelte` | Svelte | `open, initialUrl?, onApply, onRemove, onCancel` | Modal para agregar/editar links en editor |
+| `ConfirmDialog.svelte` | Svelte | `open, title, message, confirmLabel, cancelLabel, confirming?, onConfirm, onCancel` | Modal de confirmación reutilizable con focus trap |
+| `Toast.svelte` | Svelte | — (usa toastStore) | Sistema de notificaciones toast (success/warning/error) |
 
-### Admin
+## Patrones Arquitectónicos Clave
 
-| Componente | Archivo | Descripción |
-|---|---|---|
-| `AdminDrawer` | admin/admin_drawer.dart | Sidebar admin (230px): menú + sign out |
-| `AdminWrapList` | admin/admin_wrap_list.dart | Layout lista admin: AppBar gradiente + botón crear + lista |
-| `AdminMenuItem` | admin/widgets/admin_menu_item.dart | Item de menú del drawer admin |
+### Patrón CRUD Container
+Cada módulo admin sigue: `CrudPage` → `List` + `Form` + `ConfirmDialog` + `Toast`
 
----
+### Image Slot Pattern
+Estados de imagen: `empty` → `new` → `existing` → `replaced` → `removed` con transiciones seguras
 
-## Componentes por Feature
+### Bilingual Field Pattern
+Campos ES/EN con tabs en mobile y side-by-side en desktop, validación independiente por locale
 
-### Home
-
-| Componente | Archivo | Descripción |
-|---|---|---|
-| `AboutMeComponent` | about_me/about_me_component.dart | Sección "About Me": avatar, texto, detalles, botones |
-| `Avatar` | about_me/avatar.dart | Avatar circular con gradiente |
-| `AboutText` | about_me/about_text.dart | Headline "about" con shader |
-| `AboutDetails` | about_me/about_details.dart | Descripción personal |
-| `AboutButtons` | about_me/about_buttons.dart | "Get in Touch" + "Download Resume" |
-| `TechnologiesComponent` | technologies/technologies_component.dart | Sección tecnologías |
-| `TechnologiesList` | technologies/technologies_list.dart | Lista horizontal de tecnologías |
-| `TechnologyIconText` | technologies/technology_icon_text.dart | Icono + nombre de tecnología |
-| `ExperienceComponent` | experience/experience_component.dart | Sección experiencia |
-| `ExperiencesList` | experience/experiences_list.dart | Lista de experiencias |
-| `ExperienceCard` | experience/experience_card.dart | Card de experiencia individual |
-| `ProjectsComponent` | projects/projects_component.dart | Sección proyectos + "See All" |
-| `HomeProjectsList` | projects/home_projects_list.dart | Primeros 3 proyectos |
-| `HomeProjectCard` | projects/home_project_card.dart | Card de proyecto en home |
-| `HomeProjectImageCard` | projects/home_project_image_card.dart | Imagen de proyecto en home |
-
-### Projects
-
-| Componente | Archivo | Descripción |
-|---|---|---|
-| `ProjectsPage` | projects_page.dart | Página con filtros y lista de proyectos |
-| `ProjectCard` | project_card.dart | Card de proyecto individual |
-| `ProjectContent` | project_content.dart | Contenido: nombre, descripción, URLs, tecnologías |
-| `ProjectDescription` | project_description.dart | Descripción de sección |
-| `ProjectsList` | projects_list.dart | Layout wrap responsive de projects |
-| `ProjectImagesList` | project_images_list.dart | Scroll horizontal de screenshots |
-| `FilterDropdown` | filter_dropdown.dart | Filtro por tipo (all, website, source code) |
-| `ImageViewer` | image_viewer.dart | Visor fullscreen de imágenes con navegación |
-
-### Contact
-
-| Componente | Archivo | Descripción |
-|---|---|---|
-| `ContactPage` | contact_page.dart | Página de contacto |
-| `ContactForm` | contact_form.dart | Formulario: nombre, email, teléfono, mensaje, canal |
-| `ContactDescription` | contact_description.dart | Descripción de sección contacto |
-| `CountryPicker` | country_picker.dart | Selector de código de país |
-| `SendThroughDropDownButton` | send_through_dropdown_button.dart | Selector WhatsApp/Email |
-| `ContactTextformField` | contact_textform_field.dart | Campo de formulario con validación |
-
-### Auth
-
-| Componente | Archivo | Descripción |
-|---|---|---|
-| `SignInAlert` | sign_in_alert.dart | Diálogo de login (email + password) |
-| `SignOutAlert` | sign_out_alert.dart | Diálogo de confirmación de logout |
-| `SignInFormField` | sign_in_form_field.dart | Campo de formulario para login |
-| `SignOutButton` | sign_out_button.dart | Botón de cerrar sesión |
-
-### Settings
-
-| Componente | Archivo | Descripción |
-|---|---|---|
-| `SwitchThemeWidget` | switch_theme_widget.dart | FAB toggle dark/light (sol/luna) |
-| `SwitchLocaleWidget` | switch_locale_widget.dart | FAB toggle EN/ES (bandera) |
-
-### Social Launcher
-
-| Componente | Archivo | Descripción |
-|---|---|---|
-| `SocialButtons` | social_buttons.dart | Fila de 3 botones: TikTok, GitHub, LinkedIn |
-
-### Technologies (Admin)
-
-| Componente | Archivo | Descripción |
-|---|---|---|
-| `AdminTechnologiesListPage` | admin_technologies_list_page.dart | Página admin lista tecnologías |
-| `AdminTechnologiesList` | admin_technologies_list.dart | ListView de tecnologías admin |
-| `AdminTechnologyPage` | admin_technology_page.dart | Diálogo CRUD tecnología |
-
-### Projects (Admin)
-
-| Componente | Archivo | Descripción |
-|---|---|---|
-| `AdminProjectsListPage` | admin_projects_list_page.dart | Página admin lista proyectos |
-| `AdminProjectList` | admin_project_list.dart | ListView de proyectos admin |
-| `AdminProjectPage` | admin_project_page.dart | Diálogo CRUD proyecto (complejo) |
+### Orphan Cleanup
+Imágenes subidas se rastrean; si el save falla, se limpian automáticamente
