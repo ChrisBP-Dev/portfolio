@@ -16,10 +16,20 @@ interface Props {
   title: string;
   description?: string;
   currentPage?: 'home' | 'projects' | 'experience' | 'blog' | 'contact';
+  ogImage?: string;
+  ogType?: string;
+  ogDescription?: string;
 }
 
 const locale = (Astro.currentLocale ?? 'en') as Locale;
-const { title, description = t('meta.description', locale), currentPage = 'home' } = Astro.props;
+const {
+  title,
+  description = t('meta.description', locale),
+  currentPage = 'home',
+  ogImage,
+  ogType,
+  ogDescription,
+} = Astro.props;
 
 // Strip locale prefix to get the base route path for hreflang generation
 const routePath = locale === 'es'
@@ -44,6 +54,17 @@ const enHref = new URL(getRelativeLocaleUrl('en', routePath), Astro.url).href;
     <link rel="alternate" hreflang="es" href={esHref} />
     <link rel="alternate" hreflang="en" href={enHref} />
     <link rel="alternate" hreflang="x-default" href={enHref} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={ogDescription ?? description} />
+    <meta property="og:url" content={locale === 'en' ? enHref : esHref} />
+    <meta property="og:locale" content={locale === 'en' ? 'en_US' : 'es_ES'} />
+    <meta property="og:site_name" content="ChrisBP" />
+    <meta property="og:type" content={ogType ?? 'website'} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={ogDescription ?? description} />
+    {ogImage && <meta name="twitter:image" content={ogImage} />}
     <title>{title}</title>
     <ClientRouter />
   </head>

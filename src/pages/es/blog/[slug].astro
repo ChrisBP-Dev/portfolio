@@ -1,0 +1,73 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Section from '../../../components/common/Section.astro';
+import Container from '../../../components/common/Container.astro';
+import BlogContent from '../../../components/blog/BlogContent.astro';
+import { adminDb } from '../../../lib/firebase/admin';
+import { getPublishedBlogPosts } from '../../../lib/firebase/collections';
+import { getLocaleFromUrl } from '../../../lib/i18n/config';
+import { t } from '../../../lib/i18n/translations';
+import { localizeHref } from '../../../data/navigation';
+import { calculateReadingTime, extractTextFromTipTap } from '../../../lib/utils/reading-time';
+import { formatBlogDate } from '../../../lib/utils/format-date';
+import { renderTipTapToHtml } from '../../../lib/utils/tiptap-renderer';
+import { sanitizeBlogHtml } from '../../../lib/utils/sanitize-blog-html';
+
+export async function getStaticPaths() {
+  const posts = await getPublishedBlogPosts(adminDb);
+  if (posts.length === 0) {
+    console.warn('[getStaticPaths] No se encontraron blog posts publicados — verifica la conexión a Firestore');
+  }
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const locale = getLocaleFromUrl(Astro.url);
+
+const contentHtml = sanitizeBlogHtml(renderTipTapToHtml(post.content[locale]));
+const readingTime = calculateReadingTime(post.content[locale]);
+const readingTimeLabel = t('blog.readingTime', locale).replace('{minutes}', String(readingTime));
+const ogDesc = extractTextFromTipTap(post.content[locale]).slice(0, 160);
+---
+
+<BaseLayout
+  title={post.title[locale] + ' — ChrisBP'}
+  description={ogDesc}
+  currentPage="blog"
+  ogImage={post.coverImage?.url}
+  ogType="article"
+>
+  <Section variant="default">
+    <Container variant="default">
+      <article>
+        <a href={localizeHref('/blog', locale)} class="inline-flex items-center text-primary hover:underline text-body-sm mb-6">
+          {t('blog.article.backToBlog', locale)}
+        </a>
+
+        <h1 class="text-heading-1 font-bold mb-4">{post.title[locale]}</h1>
+
+        <p class="text-sm text-[var(--color-text-secondary)] mb-6">
+          <time datetime={post.createdAt.toISOString()}>
+            {t('blog.article.publishedOn', locale)} {formatBlogDate(post.createdAt, locale)}
+          </time>
+          {' · '}
+          {readingTimeLabel}
+        </p>
+
+        {post.coverImage && (
+          <img
+            src={post.coverImage.url}
+            alt={post.title[locale]}
+            fetchpriority="high"
+            class="w-full rounded-xl object-cover max-h-96 aspect-video mb-8"
+          />
+        )}
+
+        <BlogContent contentHtml={contentHtml} />
+      </article>
+    </Container>
+  </Section>
+</BaseLayout>

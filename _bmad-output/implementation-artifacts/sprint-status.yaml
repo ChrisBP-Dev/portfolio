@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-03-16
-last_updated: 2026-03-24  # story 4-5 ready-for-dev
+last_updated: 2026-03-24  # story 4-5 in-progress
 project: portfolio
 project_key: NOKEY
 tracking_system: file-system
@@ -86,7 +86,7 @@ development_status:
   4-2-blog-image-insertion-in-content: done
   4-3-blog-crud-edit-delete-y-status-toggle: done
   4-4-blog-public-listing-page: done
-  4-5-blog-public-article-page-y-opengraph: ready-for-dev
+  4-5-blog-public-article-page-y-opengraph: review
   epic-4-retrospective: optional
 
   # Epic 5: SEO, Accesibilidad y Open Source Readiness

@@ -12,7 +12,7 @@ test.describe('Project Detail Page — EN', () => {
   });
 
   test('page loads with project name, description, and main image', async ({ page }) => {
-    const h1 = page.locator('h1');
+    const h1 = page.locator('main h1');
     await expect(h1).toBeVisible();
     const h1Text = await h1.textContent();
     expect(h1Text!.trim().length).toBeGreaterThan(0);
@@ -84,7 +84,7 @@ test.describe('Project Detail Page — ES', () => {
   test('page loads with Spanish content at /es/projects/[slug]', async ({ page }) => {
     await expect(page).toHaveURL(/\/es\/projects\/.+/);
 
-    const h1 = page.locator('h1');
+    const h1 = page.locator('main h1');
     await expect(h1).toBeVisible();
 
     await expect(page).toHaveTitle(/.*— ChrisBP/);

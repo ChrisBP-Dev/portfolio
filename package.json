@@ -50,6 +50,7 @@
     "@tailwindcss/vite": "^4.2.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/svelte": "^5.3.1",
+    "@types/sanitize-html": "^2.16.1",
     "@vitest/coverage-v8": "^4.1.0",
     "dotenv": "^17.3.1",
     "eslint": "^10.0.3",

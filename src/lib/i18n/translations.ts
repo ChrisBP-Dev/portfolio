@@ -67,6 +67,8 @@ const translations: Record<string, Record<Locale, string>> = {
   },
   'blog.noArticles': { es: 'No hay artículos publicados aún.', en: 'No published articles yet.' },
   'blog.readingTime': { es: '{minutes} min de lectura', en: '{minutes} min read' },
+  'blog.article.backToBlog': { es: '← Volver al Blog', en: '← Back to Blog' },
+  'blog.article.publishedOn': { es: 'Publicado el', en: 'Published on' },
 
   // Projects page
   'projects.heading': { es: 'Proyectos', en: 'Projects' },
