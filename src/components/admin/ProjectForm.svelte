@@ -404,6 +404,11 @@
       toastStore.success(t('admin.projects.editSuccessToast', locale));
       onSaved();
     } catch (error) {
+      // Cleanup images uploaded during this failed attempt
+      if (sessionUploadedImages.length > 0) {
+        cleanupOrphanedImages(sessionUploadedImages);
+        sessionUploadedImages = [];
+      }
       console.error('Failed to update project:', error);
       toastStore.error(getFirestoreErrorMessage(error, locale));
       mainImageProgress = null;

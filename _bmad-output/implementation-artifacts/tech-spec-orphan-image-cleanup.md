@@ -60,9 +60,9 @@ context: []
 
 **Execution:**
 - [x] `src/lib/firebase/orphan-cleanup.ts` -- Crear utility compartida: `cleanupOrphanedImages(images: StoredImage[])` que itera y llama imageService.delete con .catch y console.warn por imagen
-- [x] `src/components/admin/BlogForm.svelte` -- Agregar savedSuccessfully flag + sessionInlineImages[] (separado de uploadedImages, solo acumula en handleImageUploaded) + sessionCoverImage tracker. Resetear los 3 trackers en el bloque de re-inicialización edit mode. Set flag=true después del save final. En $effect cleanup: si !savedSuccessfully, llamar cleanupOrphanedImages con sessionInlineImages + sessionCoverImage
-- [x] `src/components/admin/ProjectForm.svelte` -- Agregar savedSuccessfully flag + sessionUploadedImages[]. Resetear ambos en el bloque de re-inicialización edit mode. Push después de cada upload en create/edit submit. Limpiar sessionUploadedImages en catch/rollback de create. Set flag=true después del save. En $effect cleanup: si !savedSuccessfully, llamar cleanupOrphanedImages
-- [x] `src/components/admin/TechnologyForm.svelte` -- Agregar savedSuccessfully flag + sessionUploadedImage tracker. Resetear ambos en el bloque de re-inicialización edit mode. Set después de upload en create/edit submit. Limpiar sessionUploadedImage en catch/rollback de create. Set flag=true después del save. En $effect cleanup: si !savedSuccessfully, llamar cleanupOrphanedImages
+- [x] `src/components/admin/BlogForm.svelte` -- Agregar savedSuccessfully flag + sessionInlineImages[] (separado de uploadedImages, solo acumula en handleImageUploaded) + sessionCoverImage tracker. Resetear los 3 trackers en el bloque de re-inicialización edit mode. Set flag=true después del save final. En catch de handleSubmit: limpiar sessionCoverImage (inline images no se tocan — siguen en editor). En $effect cleanup: si !savedSuccessfully, llamar cleanupOrphanedImages con sessionInlineImages + sessionCoverImage
+- [x] `src/components/admin/ProjectForm.svelte` -- Agregar savedSuccessfully flag + sessionUploadedImages[]. Resetear ambos en el bloque de re-inicialización edit mode. Push después de cada upload en create/edit submit. Limpiar sessionUploadedImages en catch/rollback de create Y en catch de edit. Set flag=true después del save. En $effect cleanup: si !savedSuccessfully, llamar cleanupOrphanedImages
+- [x] `src/components/admin/TechnologyForm.svelte` -- Agregar savedSuccessfully flag + sessionUploadedImage tracker. Resetear ambos en el bloque de re-inicialización edit mode. Set después de upload en create/edit submit. Limpiar sessionUploadedImage en catch/rollback de create Y en catch de edit. Set flag=true después del save. En $effect cleanup: si !savedSuccessfully, llamar cleanupOrphanedImages
 - [x] `src/lib/firebase/__tests__/orphan-cleanup.test.ts` -- Unit tests: cleanup invoca delete cuando hay imágenes, no invoca cuando array vacío, fallo parcial logea warning sin throw
 - [x] E2E test -- Verificar que happy path de save funciona correctamente sin que cleanup interfiera
 
@@ -110,3 +110,16 @@ La utility compartida `cleanupOrphanedImages` centraliza el patrón delete-with-
 - `savedSuccessfully` flag pattern is correct (plain `let`, not `$state` needed — JS closures capture by reference)
 - `sessionCoverImage` single-value tracker for BlogForm is correct (covers only upload during save)
 - E2E test and unit tests are correct — preserve as-is
+
+### Iteration 2 (defer resolved)
+**Trigger:** Review round 1 clasificó como defer: "edit-mode retry after partial failure leaves orphans from failed attempt". El defer fue resuelto en lugar de documentarse como trabajo pendiente.
+
+**Problem:** En edit mode, si processImageSlot sube una imagen nueva y updateDoc falla, el usuario reintenta con imagen diferente. Las imágenes del primer intento fallido quedan huérfanas porque sessionUploadedImages acumula ambas y savedSuccessfully=true bloquea el cleanup.
+
+**Fix:** Agregar cleanup de session trackers en los catch blocks de handleEditSubmit de los 3 forms (mismo patrón que ya existía en create-mode catch). BlogForm solo limpia sessionCoverImage (las inline images siguen en el editor).
+
+**Amended:**
+- Tasks de los 3 forms: agregado "limpiar trackers en catch de edit" además de create
+- Design Notes: ya cubría el patrón de catch/rollback
+
+**Known-bad state avoided:** Orphaned images acumulándose en Storage tras retries fallidos en edit mode

@@ -367,6 +367,11 @@
       }
       onSaved();
     } catch (error) {
+      // Cleanup cover image uploaded during this failed attempt (inline images stay — still in editor)
+      if (sessionCoverImage) {
+        cleanupOrphanedImages([sessionCoverImage]);
+        sessionCoverImage = null;
+      }
       console.error('Failed to save blog post:', error);
       toastStore.error(getFirestoreErrorMessage(error, locale));
       coverImageProgress = null;

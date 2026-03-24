@@ -263,6 +263,11 @@
       toastStore.success(t('admin.technologies.editSuccessToast', locale));
       onSaved();
     } catch (error) {
+      // Cleanup image uploaded during this failed attempt
+      if (sessionUploadedImage) {
+        cleanupOrphanedImages([sessionUploadedImage]);
+        sessionUploadedImage = null;
+      }
       console.error('Failed to update technology:', error);
       toastStore.error(getFirestoreErrorMessage(error, locale));
       imageProgress = null;
