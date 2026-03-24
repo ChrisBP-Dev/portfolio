@@ -102,7 +102,7 @@
   }
 
   function handleKeydown(e: KeyboardEvent): void {
-    if (e.key === 'Escape' && !uploading) {
+    if (e.key === 'Escape') {
       handleCancel();
       return;
     }
@@ -123,7 +123,7 @@
   }
 
   function handleBackdropClick(e: MouseEvent): void {
-    if (e.target === e.currentTarget && !uploading) {
+    if (e.target === e.currentTarget) {
       handleCancel();
     }
   }
@@ -176,6 +176,7 @@
           <div
             class="h-2 bg-border rounded-full overflow-hidden"
             role="progressbar"
+            aria-label={t('admin.blog.uploading', locale)}
             aria-valuenow={uploadProgress}
             aria-valuemin={0}
             aria-valuemax={100}
@@ -195,7 +196,6 @@
           type="button"
           data-cancel
           onclick={handleCancel}
-          disabled={uploading}
           class="px-4 py-2 rounded-lg font-semibold border border-border text-text-primary transition-colors hover:bg-surface-alt disabled:opacity-50"
         >
           {t('admin.blog.form.cancel', locale)}

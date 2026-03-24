@@ -358,6 +358,7 @@ Claude Opus 4.6 (1M context)
 ### Change Log
 
 - 2026-03-23: Implemented Story 4-2 — Blog image insertion in content. Replaced window.prompt with ImageUploadDialog, added image tracking with extractImagesFromContent, pre-generated postId with setDoc pattern. 28 new tests added.
+- 2026-03-23: Code review fixes — (P1) Cancel button + Escape + backdrop click now work during upload, enabling upload cancellation. (P3) Rewrote tautological dialog unit tests with real logic verification. (P4) Added aria-label to progress bar for screen readers. Note: getFirestoreErrorMessage handles Storage errors correctly (checks both maps); imageUploadError i18n key available as fallback. 1 valid defer: orphaned Storage images on form abandonment (planned in Story 4-3).
 
 ### File List
 
