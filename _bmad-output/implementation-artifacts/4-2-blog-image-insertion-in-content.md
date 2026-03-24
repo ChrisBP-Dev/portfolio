@@ -1,6 +1,6 @@
 # Story 4.2: Blog — Image Insertion in Content
 
-Status: review
+Status: done
 
 ## Story
 

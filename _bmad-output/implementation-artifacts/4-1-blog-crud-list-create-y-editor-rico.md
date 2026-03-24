@@ -1,6 +1,6 @@
 # Story 4.1: Blog CRUD — List, Create y Editor Rico
 
-Status: review
+Status: done
 
 ## Story
 
