@@ -32,7 +32,7 @@ So that I can evaluate Christopher's technical depth and share it with others.
   - [ ] 1.6 Graceful fallback: invalid JSON or empty content returns empty string
 
 - [ ] Task 2: HTML sanitization utility (AC: #1)
-  - [ ] 2.0 Install `@types/sanitize-html` as devDependency: `pnpm add -D @types/sanitize-html` — required for TypeScript strict mode, `sanitize-html` does NOT ship its own types
+  - [ ] 2.0 Install `@types/sanitize-html` as devDependency: `pnpm add -D @types/sanitize-html` — required for TypeScript strict mode. Verify first: run `pnpm add -D @types/sanitize-html` — if types are already bundled in `sanitize-html@2.17.1` this will be a no-op or redundant (safe either way)
   - [ ] 2.1 Create `src/lib/utils/sanitize-blog-html.ts` with `sanitizeBlogHtml(html: string): string`
   - [ ] 2.2 Use `sanitize-html` (already in `package.json` v2.17.1) with allowlist: tags `h1, h2, h3, p, ul, ol, li, blockquote, pre, code, a, img, strong, em, s, br, hr`, allowed attributes: `a[href,target,rel]`, `img[src,alt,loading]`, `pre[class]`, `code[class]`
   - [ ] 2.3 Compose pipeline: `sanitizeBlogHtml(renderTipTapToHtml(json))` — this is the safe render path
@@ -70,17 +70,17 @@ So that I can evaluate Christopher's technical depth and share it with others.
   - [ ] 6.2 `getStaticPaths()`: call `getPublishedBlogPosts(adminDb)`, map each post to `{ params: { slug: post.slug }, props: { post } }`. If no posts, `console.warn` and return empty array
   - [ ] 6.3 Import and use: `BaseLayout` (`../../layouts/BaseLayout.astro`), `Section`, `Container` (`../../components/common/`), `BlogContent` (`../../components/blog/BlogContent.astro`), `adminDb` (`../../lib/firebase/admin`), `getPublishedBlogPosts` (`../../lib/firebase/collections`), `getLocaleFromUrl` (`../../lib/i18n/config`), `t` (`../../lib/i18n/translations`), `localizeHref` (`../../data/navigation`), `calculateReadingTime`, `extractTextFromTipTap` (`../../lib/utils/reading-time`), `formatBlogDate` (`../../lib/utils/format-date`), `renderTipTapToHtml` (`../../lib/utils/tiptap-renderer`), `sanitizeBlogHtml` (`../../lib/utils/sanitize-blog-html`)
   - [ ] 6.4 In frontmatter: compute `contentHtml = sanitizeBlogHtml(renderTipTapToHtml(post.content[locale]))`, `readingTime = calculateReadingTime(post.content[locale])`, `readingTimeLabel = t('blog.readingTime', locale).replace('{minutes}', String(readingTime))`
-  - [ ] 6.5 BaseLayout props: `title={post.title[locale] + ' — ChrisBP'}`, `description={extractTextFromTipTap(post.content[locale]).slice(0, 160)}`, `currentPage="blog"`, `ogImage={post.coverImage?.url}`, `ogType="article"`, `ogDescription={extractTextFromTipTap(post.content[locale]).slice(0, 160)}`
+  - [ ] 6.5 In frontmatter: `const ogDesc = extractTextFromTipTap(post.content[locale]).slice(0, 160);`. BaseLayout props: `title={post.title[locale] + ' — ChrisBP'}`, `description={ogDesc}`, `currentPage="blog"`, `ogImage={post.coverImage?.url}`, `ogType="article"`  — `ogDescription` omitted; BaseLayout uses `ogDescription ?? description` fallback, so passing only `description` avoids redundancy
   - [ ] 6.6 Structure:
     - Back link: `<a href={localizeHref('/blog', locale)}>` with `t('blog.article.backToBlog', locale)`
     - `<h1>` with `post.title[locale]`
-    - Meta row: `<time datetime={post.createdAt.toISOString()}>` formatted date + reading time label
+    - Meta row: `<p class="text-sm text-[var(--color-text-secondary)] mb-6"><time datetime={post.createdAt.toISOString()}>{t('blog.article.publishedOn', locale)} {formatBlogDate(post.createdAt, locale)}</time>{' · '}{readingTimeLabel}</p>`
     - Cover image: `{post.coverImage && (<img src={post.coverImage.url} alt={post.title[locale]} fetchpriority="high" class="w-full rounded-xl object-cover max-h-96 aspect-video mb-8" />)}` — only render when coverImage exists (field is optional in schema)
     - `<BlogContent contentHtml={contentHtml} />`
   - [ ] 6.7 Wrap all content inside Section/Container with `<article>` semantic tag (accessibility requirement — single article per page)
 
 - [ ] Task 7: Blog article page — ES (AC: #7)
-  - [ ] 7.1 Create `src/pages/es/blog/[slug].astro` — identical content to EN page, only import paths differ: all `../../` become `../../../` — see exact pattern in `src/pages/es/projects/[slug].astro`
+  - [ ] 7.1 Create `src/pages/es/blog/[slug].astro` — copy `src/pages/blog/[slug].astro` and change ALL import paths from `../../` to `../../../` (3 levels deep). No other changes needed. See exact pattern in `src/pages/es/projects/[slug].astro`. Affected imports: `BaseLayout` (`../../../layouts/`), `Section`, `Container` (`../../../components/common/`), `BlogContent` (`../../../components/blog/`), `adminDb` (`../../../lib/firebase/admin`), `getPublishedBlogPosts` (`../../../lib/firebase/collections`), `getLocaleFromUrl` (`../../../lib/i18n/config`), `t` (`../../../lib/i18n/translations`), `localizeHref` (`../../../data/navigation`), utilities (`../../../lib/utils/`)
   - [ ] 7.2 Locale auto-detected from URL via `getLocaleFromUrl(Astro.url)` — no hardcoded locale
 
 - [ ] Task 8: Unit tests — TipTap renderer (AC: #1, #3)
@@ -257,7 +257,7 @@ If content is empty/short, the description will just be shorter — no special h
 │ │ ← Back to Blog (link)                         │ │
 │ │                                               │ │
 │ │ <h1> Article Title </h1>                      │ │
-│ │ <time> March 24, 2026 </time> · 5 min read    │ │
+│ │ Published on March 24, 2026 · 5 min read       │ │
 │ │                                               │ │
 │ │ ┌────────────────────────────────┐            │ │
 │ │ │ Cover Image (if exists)        │            │ │
@@ -311,7 +311,7 @@ JetBrains Mono is already configured in the project as the code font (Astro Font
 - **`extractTextFromTipTap()`** — `src/lib/utils/reading-time.ts:12-21` — reuse for OG description
 - **`formatBlogDate()`** — `src/lib/utils/format-date.ts:3-10` — reuse for article date
 - **`localizeHref()`** — `src/data/navigation.ts:14-17` — reuse for back link and hreflang
-- **`getLocaleFromUrl()`** — `src/lib/i18n/config.ts:5-9` — reuse for locale detection
+- **`getLocaleFromUrl()`** — `src/lib/i18n/config.ts:9-13` — reuse for locale detection
 - **`Section`, `Container`** — `src/components/common/` — reuse for layout
 - **`BaseLayout`** — `src/layouts/BaseLayout.astro` — extend with OG props (Task 3)
 - **Blog translations** — `blog.readingTime` already exists from story 4-4
