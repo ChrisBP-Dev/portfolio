@@ -1,6 +1,6 @@
 # Story 5.2: Sitemap, robots.txt y Structured Data
 
-Status: review
+Status: done
 
 ## Story
 
@@ -469,11 +469,14 @@ Claude Opus 4.6 (1M context)
 - Task 2: Added `Sitemap: https://portfolio-chrisbp.web.app/sitemap-index.xml` directive to `public/robots.txt`
 - Task 3: Created 3 JSON-LD generator functions in `src/lib/utils/seo.ts`: `generatePersonJsonLd()`, `generateCreativeWorkJsonLd()`, `generateBlogPostingJsonLd()` — all vanilla objects, no external libraries
 - Task 4: Added `jsonLd` optional prop to `BaseLayout.astro` with `<script type="application/ld+json">` rendering. Integrated Person JSON-LD in Home pages, CreativeWork in project detail pages (using `resolvedTechs.map(t => t.name)` for tech names), BlogPosting in blog article pages (using `ogDesc` variable)
-- Task 5: Added 21 unit tests for JSON-LD generators covering @context/@type, required fields, optional fields, edge cases. All 1227 Vitest tests pass
-- Task 6: Created `tests/e2e/seo-validation.spec.ts` with 7 E2E tests: sitemap-index.xml accessibility, sitemap-0.xml locale coverage, robots.txt directives, Person JSON-LD on Home, CreativeWork JSON-LD on Project Detail, BlogPosting JSON-LD on Blog Article
-- Task 7: Full regression suite: 1227 unit tests pass, 125/125 public E2E tests pass. Fixed pre-existing E-052 test (strict mode violation with `.first()`)
+- Task 5: Added 21 unit tests for JSON-LD generators covering @context/@type, required fields, optional fields, edge cases. All 1230 Vitest tests pass (post code review)
+- Task 6: Created `tests/e2e/seo-validation.spec.ts` with 10 E2E tests: sitemap-index.xml accessibility, sitemap-0.xml locale coverage, robots.txt directives, Person JSON-LD on Home (EN+ES), CreativeWork JSON-LD on Project Detail, BlogPosting JSON-LD on Blog Article, + 3 negative tests (no JSON-LD on listings/contact)
+- Task 7: Full regression suite: 1230 unit tests pass, 128 public E2E tests (111 pass, 17 skipped). Code review fixes: XSS escape, toast deduplication, negative E2E tests
 - Extra: Created `cleanup:e2e` script (`src/lib/scripts/cleanup-e2e-data.ts`) to remove orphan E2E test data from Firestore. Checks both `slug` and `name` fields for `e2e-*` prefix. Executed cleanup: 22 documents deleted (17 Projects + 3 BlogPosts + 2 Technologies). Supports `--dry-run` flag for safe preview.
 - Extra: Created `cleanup:images` script (`src/lib/scripts/cleanup-orphan-images.ts`) to remove orphan images from Firebase Storage. Compares all Storage files against all Firestore image references. DRY RUN by default, requires `--execute` to delete. Executed cleanup: 37 orphan files deleted (E2E test images, Flutter migration leftovers from `projectss/`/`technologiess/` paths, old tech UUID paths). Storage now clean: 47 files = 47 references.
+- Code Review Fix P-1: Escaped `</` sequences in JSON-LD inline script (`BaseLayout.astro`) to prevent XSS via `</script>` injection in CMS-controlled fields. Applied `.replaceAll('</', '<\\/')` to `JSON.stringify` output.
+- Code Review Fix IG-1: Added 3 negative E2E tests (`seo-validation.spec.ts`) verifying listing pages (projects, blog, contact) do NOT render JSON-LD scripts — prevents regressions if someone accidentally adds JSON-LD to non-detail pages.
+- Code Review Fix D-1: Added toast deduplication to `toast-store.svelte.ts` — same message+type returns existing toast ID instead of creating duplicates. Root cause: when production Firestore already has 3+ featured projects, E2E featured test triggers multiple warning toasts. Reverted `.first()` workaround in `admin-projects.spec.ts`. Added 3 unit tests for deduplication behavior.
 
 ### File List
 
@@ -492,6 +495,8 @@ Claude Opus 4.6 (1M context)
 | MODIFY | `src/lib/utils/__tests__/seo.test.ts` |
 | CREATE | `tests/e2e/seo-validation.spec.ts` |
 | MODIFY | `tests/e2e/admin-projects.spec.ts` |
+| MODIFY | `src/lib/utils/toast-store.svelte.ts` |
+| MODIFY | `src/lib/utils/__tests__/toast-store.test.ts` |
 | CREATE | `src/lib/scripts/cleanup-e2e-data.ts` |
 | CREATE | `src/lib/scripts/cleanup-orphan-images.ts` |
 | MODIFY | `package.json` |

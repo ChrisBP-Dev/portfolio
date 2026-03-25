@@ -75,7 +75,7 @@ const enHref = new URL(getRelativeLocaleUrl('en', routePath), Astro.url).href;
     <meta name="twitter:image" content={resolvedOgImage} />
     <title>{title}</title>
     {jsonLd && (
-      <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+      <script type="application/ld+json" set:html={JSON.stringify(jsonLd).replaceAll('</', '<\\/')} />
     )}
     <ClientRouter />
   </head>

@@ -16,6 +16,10 @@ let toasts = $state<Toast[]>([]);
 const timers = new Map<string, ReturnType<typeof setTimeout>>();
 
 function add(message: string, type: ToastType): string {
+  // Deduplicate: if a toast with the same message and type already exists, return its id
+  const existing = toasts.find((t) => t.message === message && t.type === type);
+  if (existing) return existing.id;
+
   const id = crypto.randomUUID();
   const toast: Toast = { id, message, type, dismissible: type !== 'success' };
 

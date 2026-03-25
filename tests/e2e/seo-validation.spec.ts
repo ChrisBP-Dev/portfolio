@@ -79,6 +79,26 @@ test.describe('JSON-LD — Home Page (Person)', () => {
   });
 });
 
+test.describe('JSON-LD — Listing Pages (no JSON-LD)', () => {
+  test('projects listing does NOT have JSON-LD', async ({ page }) => {
+    await page.goto('/projects');
+    const ldScripts = page.locator('script[type="application/ld+json"]');
+    await expect(ldScripts).toHaveCount(0);
+  });
+
+  test('blog listing does NOT have JSON-LD', async ({ page }) => {
+    await page.goto('/blog');
+    const ldScripts = page.locator('script[type="application/ld+json"]');
+    await expect(ldScripts).toHaveCount(0);
+  });
+
+  test('contact page does NOT have JSON-LD', async ({ page }) => {
+    await page.goto('/contact');
+    const ldScripts = page.locator('script[type="application/ld+json"]');
+    await expect(ldScripts).toHaveCount(0);
+  });
+});
+
 test.describe('JSON-LD — Project Detail (CreativeWork)', () => {
   test('project detail page has valid CreativeWork JSON-LD', async ({ page }) => {
     // Navigate to projects listing to discover first project slug

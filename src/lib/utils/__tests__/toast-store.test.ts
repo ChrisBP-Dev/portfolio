@@ -90,4 +90,25 @@ describe('toast-store', () => {
     vi.advanceTimersByTime(4000);
     expect(toastStore.toasts).toHaveLength(1);
   });
+
+  it('deduplicates: same message+type returns existing toast id', () => {
+    const id1 = toastStore.warning('Duplicado');
+    const id2 = toastStore.warning('Duplicado');
+    expect(id1).toBe(id2);
+    expect(toastStore.toasts).toHaveLength(1);
+  });
+
+  it('deduplicates: different type creates separate toast', () => {
+    toastStore.warning('Msg');
+    toastStore.error('Msg');
+    expect(toastStore.toasts).toHaveLength(2);
+  });
+
+  it('deduplicates: after removal, same message can be re-added', () => {
+    const id1 = toastStore.warning('Temp');
+    toastStore.remove(id1);
+    const id2 = toastStore.warning('Temp');
+    expect(id2).not.toBe(id1);
+    expect(toastStore.toasts).toHaveLength(1);
+  });
 });
