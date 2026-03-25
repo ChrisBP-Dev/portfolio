@@ -37,14 +37,16 @@
       : projects.filter((p) => p.technologies.includes(selectedTech))
   );
 
+  let hasInteracted = $state(false);
+
   let resultsAnnouncement = $derived(
-    `${filteredProjects.length} ${t('projects.results', locale)}`
+    hasInteracted ? `${filteredProjects.length} ${t('projects.results', locale)}` : ''
   );
 
   function getTechByIds(techIds: string[]): Technology[] {
     return techIds
-      .map((id) => technologies.find((t) => t.id === id))
-      .filter((t): t is Technology => t !== undefined);
+      .map((id) => technologies.find((tech) => tech.id === id))
+      .filter((tech): tech is Technology => tech !== undefined);
   }
 </script>
 
@@ -54,6 +56,7 @@
   <select
     id="tech-filter"
     bind:value={selectedTech}
+    onchange={() => { hasInteracted = true; }}
     class="bg-surface border border-border rounded-lg px-3 py-2 text-body-sm text-text-primary"
   >
     <option value="">{allProjectsLabel}</option>
@@ -64,7 +67,7 @@
 </div>
 
 <!-- Live region for screen readers -->
-<div aria-live="polite" class="sr-only">{resultsAnnouncement}</div>
+<div aria-live="polite" aria-atomic="true" class="sr-only">{resultsAnnouncement}</div>
 
 <!-- Project cards grid -->
 {#if filteredProjects.length === 0}
@@ -128,7 +131,7 @@
         {#if project.screenshots.length > 0}
           <div class="px-4 py-2">
             <h3 class="text-body-sm font-semibold mb-2">{screenshotsLabel}</h3>
-            <div class="flex gap-2 overflow-x-auto pb-4" tabindex="0" role="region" aria-label={screenshotsLabel}>
+            <div class="flex gap-2 overflow-x-auto pb-4" tabindex="0" role="region" aria-label={`${project.companyName[locale]} - ${screenshotsLabel}`}>
               {#each project.screenshots as ss (ss.url)}
                 <img
                   src={ss.url}

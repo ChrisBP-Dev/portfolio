@@ -25,7 +25,7 @@ function contrastRatio(hex1: string, hex2: string): number {
 
 // Colores del design system (theme-aware primary and primary-dark)
 const colors = {
-  dark: { bg: '#0F1419', surface: '#1A1F2E', textPrimary: '#E8ECF1', textSecondary: '#8B95A5', textMuted: '#5A6270', primary: '#48A1CD', primaryDark: '#108385' },
+  dark: { bg: '#0F1419', surface: '#1A1F2E', textPrimary: '#E8ECF1', textSecondary: '#8B95A5', textMuted: '#8090A0', primary: '#48A1CD', primaryDark: '#108385' },
   light: { bg: '#FAFBFC', surface: '#FFFFFF', textPrimary: '#1A1F2E', textSecondary: '#5A6270', textMuted: '#6B7585', primary: '#1F6B87', primaryDark: '#0D7577' },
 };
 
@@ -72,8 +72,12 @@ describe('WCAG AA Contrast Ratios', () => {
     expect(contrastRatio(colors.light.textMuted, colors.light.surface)).toBeGreaterThan(4.5);
   });
 
-  // primary-dark on surface: WCAG AA >4.5:1 for text use
-  test('dark: primary-dark on surface > 3:1', () => {
+  test('dark: text-muted on surface > 4.5:1', () => {
+    expect(contrastRatio(colors.dark.textMuted, colors.dark.surface)).toBeGreaterThan(4.5);
+  });
+
+  // primary-dark on surface: gradient endpoint / large text / UI components (3:1 AA threshold)
+  test('dark: primary-dark on surface > 3:1 (large text & UI components)', () => {
     expect(contrastRatio(colors.dark.primaryDark, colors.dark.surface)).toBeGreaterThan(3);
   });
 

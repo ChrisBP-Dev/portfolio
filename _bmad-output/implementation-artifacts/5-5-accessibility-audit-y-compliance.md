@@ -1,6 +1,6 @@
 # Story 5.5: Accessibility Audit y Compliance
 
-Status: review
+Status: done
 
 ## Story
 
@@ -361,6 +361,30 @@ Claude Opus 4.6 (1M context)
 - Test mobile menu keyboard: `hamburger.press('Enter')` fallaba por timing de hydration de Svelte — fix: usar `.click()` (espera actionability) en vez de `.focus()` + `.press('Enter')`
 - `--theme-text-muted` light mode oscurecido de #8B95A5 (3.02:1) a #6B7585 (4.73:1 vs white)
 
+### Code Review Record
+
+**Reviewer:** Claude Opus 4.6 (1M context) — 3-layer adversarial review (Blind Hunter, Edge Case Hunter, Acceptance Auditor)
+**Date:** 2026-03-25
+**Diff scope:** commits `55ee59e..6b97596` (3 commits, 11 files, +628/-17)
+
+**Findings triaged:** 16 raw → 7 actionable (6 patch + 1 defer resolved as patch) + 9 rejected as noise
+**All 7 findings resolved:**
+
+| ID | Finding | Fix Applied |
+|----|---------|-------------|
+| P1 | Variable shadowing: `t` imported from translations shadowed by arrow param `t` in `getTechByIds` | Renamed arrow params to `tech` in `.find()` and `.filter()` |
+| P2 | `aria-live` region announces on initial render (screen reader noise on page load) | Added `hasInteracted` state guard + `onchange` handler; live region starts empty. Added `aria-atomic="true"` |
+| P3 | Dark mode `--theme-text-muted` (#5A6270) on surface (#1A1F2E) = 2.67:1, fails WCAG AA 4.5:1. No test coverage | Changed dark `--theme-text-muted` to `#8090A0` (~5.0:1). Added `dark: text-muted on surface > 4.5:1` test |
+| P4 | `dark: primary-dark on surface` test uses 3:1 threshold vs 4.5:1 for light — inconsistent and unexplained | Updated test name to `dark: primary-dark on surface > 3:1 (large text & UI components)` with comment explaining the threshold applies to gradient endpoints and non-text UI |
+| P5 | Duplicate `aria-label` on screenshot regions across project cards (all say "Screenshots") | Changed to `aria-label={\`${project.companyName[locale]} - ${screenshotsLabel}\`}` for unique landmark labels |
+| P6 | Focus indicator test only checks 1 element on 1 page (spec says 10-15) | Refactored to loop through 10 interactive elements verifying `outlineStyle !== 'none'` on each |
+| D1 | Mobile menu test uses `.click()` instead of keyboard — doesn't validate Enter opens menu (AC #3) | Replaced with `toPass()` retry pattern: `hamburger.focus()` → `hamburger.press('Enter')` retried until Svelte hydration completes |
+
+**Post-review verification:**
+- 1246 unit tests passing (48 files) — +1 new contrast test
+- 160 E2E tests passing (19 skipped) — all accessibility tests green
+- Build: 30 pages OK
+
 ### Completion Notes List
 
 - ✅ Task 1: Instalado @axe-core/playwright 4.11.1, creado fixture compartido `axe-test.ts` con WCAG 2.1 AA tags
@@ -369,11 +393,13 @@ Claude Opus 4.6 (1M context)
 - ✅ Task 4: 6 tests axe-core E2E creados (Home, Projects, Blog, Contact, Project detail, Blog article) — todos pasan sin violaciones critical/serious
 - ✅ Task 5: 3 tests keyboard E2E creados (skip nav, focus indicators, mobile menu Escape) — todos pasan
 - ✅ Task 6: Color contrast fixes (theme-aware primary/primary-dark, text-muted oscurecido), scrollable screenshots fix, contrast unit tests actualizados (11 tests)
-- 1245 unit tests passing (48 files), 160 E2E tests passing (19 skipped), build 30 pages OK
+- ✅ Code Review: 7 findings corregidos — variable shadowing, aria-live initial announce, dark text-muted contrast, inconsistent test threshold, duplicate aria-label, focus test coverage, mobile menu keyboard
+- 1246 unit tests passing (48 files), 160 E2E tests passing (19 skipped), build 30 pages OK
 
 ### Change Log
 
 - 2026-03-25: Story 5.5 implementación completa — accessibility audit y compliance WCAG 2.1 AA
+- 2026-03-25: Code review 3-layer — 7 findings corregidos (dark text-muted contrast, variable shadowing, aria-live guard, unique aria-labels, focus test loop, keyboard menu test)
 
 ### File List
 
@@ -382,9 +408,10 @@ Claude Opus 4.6 (1M context)
 - `tests/e2e/accessibility.spec.ts` — 9 tests E2E (6 axe-core scans + 3 keyboard nav)
 
 **Modificados:**
-- `src/styles/global.css` — theme-aware `--theme-primary`/`--theme-primary-dark`, `--theme-text-muted` oscurecido, `prefers-reduced-motion` global ampliado, `@theme inline` usa `var()` refs
+- `src/styles/global.css` — theme-aware `--theme-primary`/`--theme-primary-dark`, `--theme-text-muted` oscurecido (light + dark), `prefers-reduced-motion` global ampliado, `@theme inline` usa `var()` refs
 - `src/components/layout/Footer.astro` — `<div>` → `<nav aria-label>` para social links
-- `src/components/projects/ProjectFilter.svelte` — import `t()`, live region `aria-live="polite"`, screenshots container `tabindex="0" role="region"`
+- `src/components/projects/ProjectFilter.svelte` — import `t()`, live region `aria-live="polite"` con guard `hasInteracted`, `aria-atomic="true"`, screenshots container con unique `aria-label`, variable shadowing fix en `getTechByIds`
 - `src/lib/i18n/translations.ts` — keys `social.nav` y `projects.results`
-- `src/styles/__tests__/contrast.test.ts` — colores actualizados (theme-aware primary), tests para primary/muted contrast
+- `src/styles/__tests__/contrast.test.ts` — colores actualizados (theme-aware primary, dark text-muted #8090A0), tests para primary/muted contrast en ambos temas (12 tests)
+- `tests/e2e/accessibility.spec.ts` — focus indicator test ampliado (10 elementos), mobile menu keyboard con `toPass()` hydration retry
 - `package.json` / `pnpm-lock.yaml` — `@axe-core/playwright` 4.11.1 dev dependency

@@ -124,23 +124,33 @@ test.describe('Keyboard Navigation & Focus', () => {
 
   test('interactive elements have visible focus indicators', async ({ page }) => {
     await page.goto('/');
-    // Tab past skip nav to first interactive element
+    // Tab past skip nav
     await page.keyboard.press('Tab');
-    await page.keyboard.press('Tab');
-    const focused = page.locator(':focus');
-    const outlineStyle = await focused.evaluate(
-      (el) => getComputedStyle(el).outlineStyle
-    );
-    expect(outlineStyle).not.toBe('none');
+
+    // Check next 10 interactive elements for visible focus indicators
+    for (let i = 0; i < 10; i++) {
+      await page.keyboard.press('Tab');
+      const focused = page.locator(':focus');
+      const count = await focused.count();
+      if (count === 0) break;
+      const outlineStyle = await focused.evaluate(
+        (el) => getComputedStyle(el).outlineStyle
+      );
+      expect(outlineStyle, `Element ${i + 1} should have visible focus indicator`).not.toBe('none');
+    }
   });
 
-  test('Escape closes mobile menu and restores focus', async ({ page }) => {
+  test('keyboard opens and Escape closes mobile menu', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/');
     const hamburger = page.locator('button[aria-expanded]');
-    // Use click() which waits for Svelte hydration (onclick handler attached)
-    await hamburger.click();
-    await expect(hamburger).toHaveAttribute('aria-expanded', 'true');
+    await hamburger.waitFor();
+    // Retry Enter until Svelte hydration attaches the event handler
+    await expect(async () => {
+      await hamburger.focus();
+      await hamburger.press('Enter');
+      await expect(hamburger).toHaveAttribute('aria-expanded', 'true');
+    }).toPass({ timeout: 5000 });
     await page.keyboard.press('Escape');
     await expect(hamburger).toHaveAttribute('aria-expanded', 'false');
     await expect(hamburger).toBeFocused();
