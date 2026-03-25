@@ -41,14 +41,17 @@ So that I can navigate and consume all content regardless of my abilities.
     ```
 
 - [ ] Task 2: Fix semántica HTML y ARIA gaps (AC: #3, #7, #9)
-  - [ ] 2.1 `src/components/layout/Footer.astro` — Envolver los 3 social links (TikTok, GitHub, LinkedIn, actualmente en `<div>` sin landmark semántico, líneas ~19-55) dentro de `<nav aria-label={t('social.nav', locale)}>`. Agregar traducción `social.nav` en diccionario: EN = "Social media links", ES = "Enlaces a redes sociales"
-  - [ ] 2.2 `src/components/projects/ProjectFilter.svelte` — Agregar live region para anunciar resultados filtrados a screen readers. Agregar un `<div aria-live="polite" class="sr-only">` que contenga texto como "{count} {t('projects.results', locale)}" actualizado con `$derived` cada vez que `filteredProjects` cambie. Agregar traducciones: EN = "{count} projects shown", ES = "{count} proyectos mostrados". El `<select id="tech-filter">` ya tiene `<label for="tech-filter">` (línea 48) — OK
+  - [ ] 2.1 `src/components/layout/Footer.astro` — Envolver los 3 social links (TikTok, GitHub, LinkedIn, actualmente en `<div>` sin landmark semántico, líneas ~19-55) dentro de `<nav aria-label={t('social.nav', locale)}>`. Agregar traducción `social.nav` en `src/lib/i18n/translations.ts` (junto a las keys `social.tiktok/github/linkedin` existentes en línea ~105): EN = "Social media links", ES = "Enlaces a redes sociales"
+  - [ ] 2.2 `src/components/projects/ProjectFilter.svelte` — Agregar live region para anunciar resultados filtrados a screen readers. **IMPORTANTE:** El componente actualmente NO importa `t()` (recibe textos traducidos como props). Agregar `import { t } from '../../lib/i18n/translations';` al inicio del `<script>` (el prop `locale` ya existe). Agregar un `<div aria-live="polite" class="sr-only">` que contenga texto como "{count} {t('projects.results', locale)}" actualizado con `$derived` cada vez que `filteredProjects` cambie. Agregar traducción `projects.results` en `src/lib/i18n/translations.ts` (junto a `projects.noResults` existente en línea ~90): EN = "projects shown", ES = "proyectos mostrados". El `<select id="tech-filter">` ya tiene `<label for="tech-filter">` (línea 48) — OK
   - [ ] 2.3 Auditar heading hierarchy en todas las páginas públicas. Estado actual verificado:
-    - Home (`/`): h1 visible en HeroSection.astro:35 ✅
+    - Home (`/`): h1 visible en `src/components/home/HeroSection.astro:35` ✅
     - Projects (`/projects`): h1 sr-only en projects/index.astro:23 ✅ (válido para a11y)
     - Blog (`/blog`): h1 sr-only en blog/index.astro:22 ✅ (válido para a11y)
     - Contact (`/contact`): h1 visible en contact.astro:19 ✅
-    - Verificar project detail y blog article pages: deben tener h1 para el título del proyecto/artículo, h2 para secciones internas. Si hay saltos de nivel (e.g., h1 → h3 sin h2), corregirlos
+    - Project detail (`/projects/[slug]`): h1 en `src/pages/projects/[slug].astro:66` ✅, h2 para Features(:87), Technologies(:101), Screenshots(:146) ✅ — jerarquía correcta, sin saltos
+    - Blog article (`/blog/[slug]`): h1 en `src/pages/blog/[slug].astro:68` ✅ — contenido body viene de TipTap (user-generated), headings internos fuera de control del template
+    - Variantes ES (`src/pages/es/projects/[slug].astro`, `src/pages/es/blog/[slug].astro`): misma estructura, mismos templates — OK
+    - **No se requieren correcciones** de heading hierarchy — todas las páginas públicas tienen h1 y progresión h1→h2 correcta
 
 - [ ] Task 3: Ampliar `prefers-reduced-motion` support (AC: #8)
   - [ ] 3.1 `src/styles/global.css` — Actualmente la regla `@media (prefers-reduced-motion: reduce)` (líneas 25-32) solo cubre `.theme-transitioning`. Ampliar para desactivar TODAS las transiciones y animaciones no esenciales en todo el sitio:
@@ -217,15 +220,20 @@ Después:
 </nav>
 ```
 
-Agregar traducción en diccionario i18n:
-- `social.nav`: EN = "Social media links", ES = "Enlaces a redes sociales"
+Agregar traducción en `src/lib/i18n/translations.ts` (junto a keys `social.tiktok/github/linkedin` en línea ~105):
+```typescript
+'social.nav': { es: 'Enlaces a redes sociales', en: 'Social media links' },
+```
 
 ### ProjectFilter Live Region — Patrón
 
-Agregar en ProjectFilter.svelte un `$derived` que compute el texto de anuncio y un div sr-only con aria-live:
+Agregar en ProjectFilter.svelte. **Nota:** El componente usa Svelte 5 runes mode (`<script lang="ts">`). Actualmente NO importa `t()` — recibe textos como props. Para el live region, agregar el import de `t`:
 
 ```svelte
-<script>
+<script lang="ts">
+  import { t } from '../../lib/i18n/translations';  // ← AGREGAR este import
+  // ... imports existentes ...
+
   let resultsAnnouncement = $derived(
     `${filteredProjects.length} ${t('projects.results', locale)}`
   );
@@ -235,8 +243,10 @@ Agregar en ProjectFilter.svelte un `$derived` que compute el texto de anuncio y 
 <div aria-live="polite" class="sr-only">{resultsAnnouncement}</div>
 ```
 
-Agregar traducciones:
-- `projects.results`: EN = "projects shown", ES = "proyectos mostrados"
+Agregar traducción en `src/lib/i18n/translations.ts` (junto a `projects.noResults` en línea ~90):
+```typescript
+'projects.results': { es: 'proyectos mostrados', en: 'projects shown' },
+```
 
 ### E2E Test Patterns — Skip Nav y Keyboard
 
@@ -293,16 +303,17 @@ test('Escape closes mobile menu and restores focus', async ({ page }) => {
 
 ### Project Structure Notes
 
-- Se crea 1 nuevo directorio: `tests/e2e/fixtures/`
+- El directorio `tests/e2e/fixtures/` ya existe (contiene `test-image.png` de story 5-4)
 - Se crean 2 archivos nuevos:
   - `tests/e2e/fixtures/axe-test.ts` (fixture compartido axe-core)
   - `tests/e2e/accessibility.spec.ts` (tests E2E de a11y)
-- Se modifican 3 archivos existentes:
+- Se modifican 4 archivos existentes:
   - `src/styles/global.css` (ampliar prefers-reduced-motion)
   - `src/components/layout/Footer.astro` (nav wrapper social links)
-  - `src/components/projects/ProjectFilter.svelte` (live region)
-- Se agrega traducción en el diccionario i18n para `social.nav` y `projects.results`
+  - `src/components/projects/ProjectFilter.svelte` (live region + import `t`)
+  - `src/lib/i18n/translations.ts` (agregar keys `social.nav` y `projects.results`)
 - Se agrega 1 dependencia dev: `@axe-core/playwright`
+- `accessibility.spec.ts` NO matchea `admin-*.spec.ts` → correrá automáticamente en el project "public" de `playwright.config.ts` sin configuración adicional
 
 ### References
 
