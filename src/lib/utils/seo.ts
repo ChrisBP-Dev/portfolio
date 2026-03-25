@@ -8,6 +8,7 @@ export function resolveOgImage(ogImage: string | undefined, siteUrl: URL): strin
 // --- JSON-LD Structured Data ---
 
 export interface PersonJsonLd {
+  [key: string]: unknown;
   '@context': 'https://schema.org';
   '@type': 'Person';
   name: string;
@@ -33,6 +34,7 @@ export function generatePersonJsonLd(siteUrl: string): PersonJsonLd {
 }
 
 export interface CreativeWorkJsonLd {
+  [key: string]: unknown;
   '@context': 'https://schema.org';
   '@type': 'CreativeWork';
   name: string;
@@ -46,7 +48,7 @@ export interface CreativeWorkJsonLd {
 export function generateCreativeWorkJsonLd(params: {
   name: string;
   description: string;
-  imageUrl?: string;
+  imageUrl?: string | undefined;
   pageUrl: string;
   technologies: string[];
 }): CreativeWorkJsonLd {
@@ -63,6 +65,7 @@ export function generateCreativeWorkJsonLd(params: {
 }
 
 export interface BlogPostingJsonLd {
+  [key: string]: unknown;
   '@context': 'https://schema.org';
   '@type': 'BlogPosting';
   headline: string;
@@ -79,7 +82,7 @@ export function generateBlogPostingJsonLd(params: {
   description: string;
   createdAt: Date;
   updatedAt: Date;
-  coverImageUrl?: string;
+  coverImageUrl?: string | undefined;
   pageUrl: string;
   siteUrl: string;
 }): BlogPostingJsonLd {
