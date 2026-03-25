@@ -68,6 +68,13 @@ test.describe('Project Detail Page — EN', () => {
   test('page title includes project name and ChrisBP', async ({ page }) => {
     await expect(page).toHaveTitle(/.*— ChrisBP/);
   });
+
+  test('URL uses clean slug format — no IDs or hashes', async ({ page }) => {
+    const url = page.url();
+    const slugMatch = url.match(/\/projects\/([^/]+)$/);
+    expect(slugMatch).toBeTruthy();
+    expect(slugMatch![1]).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
+  });
 });
 
 test.describe('Project Detail Page — ES', () => {
@@ -82,12 +89,19 @@ test.describe('Project Detail Page — ES', () => {
   });
 
   test('page loads with Spanish content at /es/projects/[slug]', async ({ page }) => {
-    await expect(page).toHaveURL(/\/es\/projects\/.+/);
+    await expect(page).toHaveURL(/\/es\/projects\/[a-z0-9-]+$/);
 
     const h1 = page.locator('main h1');
     await expect(h1).toBeVisible();
 
     await expect(page).toHaveTitle(/.*— ChrisBP/);
+  });
+
+  test('URL uses clean slug format — no IDs or hashes (ES)', async ({ page }) => {
+    const url = page.url();
+    const slugMatch = url.match(/\/es\/projects\/([^/]+)$/);
+    expect(slugMatch).toBeTruthy();
+    expect(slugMatch![1]).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
   });
 
   test('back link navigates to /es/projects', async ({ page }) => {

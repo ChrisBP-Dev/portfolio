@@ -1,6 +1,6 @@
 # Story 5.3: URLs Limpias y Slug System
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -20,29 +20,29 @@ So that URLs are meaningful, shareable and SEO-friendly.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Slug uniqueness en ProjectForm (AC: #4)
-  - [ ] 1.1 Agregar función `isSlugUnique()` en `ProjectForm.svelte` (replicar patrón de BlogForm: query Firestore `where('slug', '==', value)`, `limit(1)`, excluir ID actual en modo edit)
-  - [ ] 1.2 Agregar clave de traducción `admin.projects.slugInUse` en `translations.ts`
-  - [ ] 1.3 Integrar validación de unicidad en el flujo `validate()` de ProjectForm, después de la validación de formato Zod
-  - [ ] 1.4 Mostrar error `slugInUse` inline con `role="alert"` (mismo patrón de BlogForm)
+- [x] Task 1: Slug uniqueness en ProjectForm (AC: #4)
+  - [x] 1.1 Agregar función `isSlugUnique()` en `ProjectForm.svelte` (replicar patrón de BlogForm: query Firestore `where('slug', '==', value)`, `limit(1)`, excluir ID actual en modo edit)
+  - [x] 1.2 Agregar clave de traducción `admin.projects.slugInUse` en `translations.ts`
+  - [x] 1.3 Integrar validación de unicidad en el flujo `validate()` de ProjectForm, después de la validación de formato Zod
+  - [x] 1.4 Mostrar error `slugInUse` inline con `role="alert"` (mismo patrón de BlogForm)
 
-- [ ] Task 2: Unit tests para slug uniqueness de projects (AC: #4)
-  - [ ] 2.1 Crear `src/components/admin/__tests__/project-form.test.ts` replicando el patrón exacto de `blog-form.test.ts:137-180` — mockear `firebase/firestore` con `vi.hoisted()` + `vi.mock()`, NO montar el componente Svelte
-  - [ ] 2.2 Tests: query usa collection `Projects` y field `slug`, retorna `true` cuando vacío, retorna `false` cuando slug existe sin excludeId, retorna `true` cuando slug existe pero matches excludeId (edit mode)
+- [x] Task 2: Unit tests para slug uniqueness de projects (AC: #4)
+  - [x] 2.1 Crear `src/components/admin/__tests__/project-form.test.ts` replicando el patrón exacto de `blog-form.test.ts:137-180` — mockear `firebase/firestore` con `vi.hoisted()` + `vi.mock()`, NO montar el componente Svelte
+  - [x] 2.2 Tests: query usa collection `Projects` y field `slug`, retorna `true` cuando vacío, retorna `false` cuando slug existe sin excludeId, retorna `true` cuando slug existe pero matches excludeId (edit mode)
 
-- [ ] Task 3: E2E — URLs limpias en sitio público (AC: #1, #2, #3)
-  - [ ] 3.1 En `tests/e2e/project-detail.spec.ts`, agregar test en bloque `'Project Detail Page — EN'` que extraiga el slug de `page.url()` y valide con regex `/^[a-z0-9]+(-[a-z0-9]+)*$/` — NO contiene IDs, hashes ni caracteres especiales
-  - [ ] 3.2 Blog: los tests de URL limpia YA EXISTEN en `blog-article.spec.ts` (líneas 15, 21, 99, 105 — `waitForURL(/\/blog\/[a-z0-9-]+$/)` y `toHaveURL`). Verificar que cubren el AC — NO crear tests duplicados
-  - [ ] 3.3 EN: agregar test en bloque `'Project Detail Page — EN'`. ES: actualizar regex en `project-detail.spec.ts:85` de `/\/es\/projects\/.+/` (demasiado permisiva) a `/\/es\/projects\/[a-z0-9-]+$/` + agregar test equivalente de slug extraction en bloque ES
+- [x] Task 3: E2E — URLs limpias en sitio público (AC: #1, #2, #3)
+  - [x] 3.1 En `tests/e2e/project-detail.spec.ts`, agregar test en bloque `'Project Detail Page — EN'` que extraiga el slug de `page.url()` y valide con regex `/^[a-z0-9]+(-[a-z0-9]+)*$/` — NO contiene IDs, hashes ni caracteres especiales
+  - [x] 3.2 Blog: los tests de URL limpia YA EXISTEN en `blog-article.spec.ts` (líneas 15, 21, 99, 105 — `waitForURL(/\/blog\/[a-z0-9-]+$/)` y `toHaveURL`). Verificar que cubren el AC — NO crear tests duplicados
+  - [x] 3.3 EN: agregar test en bloque `'Project Detail Page — EN'`. ES: actualizar regex en `project-detail.spec.ts:85` de `/\/es\/projects\/.+/` (demasiado permisiva) a `/\/es\/projects\/[a-z0-9-]+$/` + agregar test equivalente de slug extraction en bloque ES
 
-- [ ] Task 4: E2E — Slug uniqueness en admin projects (AC: #4)
-  - [ ] 4.1 En `tests/e2e/admin-projects.spec.ts`, agregar test en nuevo `test.describe` serial: crear proyecto con `UNIQUE()`, luego crear segundo proyecto, activar checkbox de slug manual (`input[type="checkbox"]` junto a label slug), pegar slug del primero, submit → esperar error `slugInUse` con `role="alert"`
-  - [ ] 4.2 Cleanup: eliminar ambos proyectos de test al finalizar (usar `clickListAction` + confirm dialog)
+- [x] Task 4: E2E — Slug uniqueness en admin projects (AC: #4)
+  - [x] 4.1 En `tests/e2e/admin-projects.spec.ts`, agregar test en nuevo `test.describe` serial: crear proyecto con `UNIQUE()`, luego crear segundo proyecto, activar checkbox de slug manual (`input[type="checkbox"]` junto a label slug), pegar slug del primero, submit → esperar error `slugInUse` con `role="alert"`
+  - [x] 4.2 Cleanup: eliminar ambos proyectos de test al finalizar (usar `clickListAction` + confirm dialog)
 
-- [ ] Task 5: Verificación completa del sistema (AC: #3, #5)
-  - [ ] 5.1 Ejecutar `pnpm test` — todos los unit tests deben pasar (esperado: ~1234+, 4 nuevos de slug uniqueness)
-  - [ ] 5.2 Ejecutar `pnpm test:e2e` — todos los E2E tests deben pasar (esperado: ~132+, 3-4 nuevos de URL limpia y slug uniqueness)
-  - [ ] 5.3 Verificar build `pnpm build` sin errores
+- [x] Task 5: Verificación completa del sistema (AC: #3, #5)
+  - [x] 5.1 Ejecutar `pnpm test` — todos los unit tests deben pasar (esperado: ~1234+, 4 nuevos de slug uniqueness)
+  - [x] 5.2 Ejecutar `pnpm test:e2e` — todos los E2E tests deben pasar (esperado: ~132+, 3-4 nuevos de URL limpia y slug uniqueness)
+  - [x] 5.3 Verificar build `pnpm build` sin errores
 
 ## Dev Notes
 
@@ -294,9 +294,25 @@ describe('ProjectForm — slug uniqueness', () => {
 ## Dev Agent Record
 
 ### Agent Model Used
+Claude Opus 4.6 (1M context)
 
 ### Debug Log References
+- Unit tests: 1236 passed (4 nuevos de slug uniqueness)
+- Build: exitoso sin errores (30 páginas, 7.74s)
+- E2E tests: 147 passed, 0 failed, 17 skipped (4 nuevos: 2 URL limpia + slug uniqueness + cleanup)
+- Diagnóstico de fallos iniciales: cache de Vite obsoleto por servidor dev reutilizado en puerto 4321 — resuelto matando proceso y re-ejecutando con preview server fresco
+- Limpieza de datos huérfanos: 4 proyectos `e2e-feat-*` de corrida fallida eliminados con `pnpm cleanup:e2e`
 
 ### Completion Notes List
+- Task 1: Implementado `isSlugUnique()` en ProjectForm.svelte replicando patrón exacto de BlogForm. `validateAll()` convertido a async. Import de `query`, `where`, `limit` agregados. Traducción `admin.projects.slugInUse` agregada. Error inline con `role="alert"` ya existía en el template.
+- Task 2: Creado `project-form.test.ts` con 4 tests de slug uniqueness usando `vi.hoisted()` + `vi.mock()` patrón idéntico a blog-form.test.ts. Tests: collection Projects, field slug, empty=true, exists=false, excludeId=true.
+- Task 3: Agregados 2 tests de URL limpia en project-detail.spec.ts (EN y ES). Regex ES actualizada de `/\/es\/projects\/.+/` a `/\/es\/projects\/[a-z0-9-]+$/`. Blog URL tests verificados como existentes en `blog-article.spec.ts:15,21,99,105` — no duplicados.
+- Task 4: Agregado `test.describe('Admin Projects — Slug Uniqueness')` con test serial de slug duplicado y cleanup. Verificado: 147/147 E2E pasando.
+- Task 5: `pnpm test` ✅ 1236 passed, `pnpm build` ✅ exitoso, `pnpm test:e2e` ✅ 147 passed.
 
 ### File List
+- `src/components/admin/ProjectForm.svelte` (modificado — imports query/where/limit, isSlugUnique(), async validateAll con check de unicidad, await en handleSubmit)
+- `src/lib/i18n/translations.ts` (modificado — admin.projects.slugInUse en ES/EN)
+- `src/components/admin/__tests__/project-form.test.ts` (nuevo — 4 unit tests de slug uniqueness)
+- `tests/e2e/project-detail.spec.ts` (modificado — 2 nuevos tests URL limpia EN/ES, regex ES estricta)
+- `tests/e2e/admin-projects.spec.ts` (modificado — nuevo describe Slug Uniqueness con test de rechazo y cleanup)

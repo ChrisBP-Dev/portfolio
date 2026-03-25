@@ -1,6 +1,6 @@
 <script lang="ts">
   import { tick } from 'svelte';
-  import { collection, addDoc, updateDoc, deleteDoc, doc, deleteField, getDocs } from 'firebase/firestore';
+  import { collection, addDoc, updateDoc, deleteDoc, doc, deleteField, getDocs, query, where, limit } from 'firebase/firestore';
   import { db } from '../../lib/firebase/client';
   import { imageService, type UploadHandle } from '../../lib/firebase/image-service';
   import {
@@ -194,7 +194,16 @@
     errors = newErrors;
   }
 
-  function validateAll(): boolean {
+  // Slug uniqueness check (client-side best-effort — TOCTOU race exists between
+  // this check and addDoc; true uniqueness requires server-side constraints)
+  async function isSlugUnique(slugValue: string, excludeId?: string): Promise<boolean> {
+    const q = query(collection(db, PROJECTS_COLLECTION), where('slug', '==', slugValue), limit(1));
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) return true;
+    return excludeId ? snapshot.docs[0]!.id === excludeId : false;
+  }
+
+  async function validateAll(): Promise<boolean> {
     const newErrors: Record<string, string> = {};
 
     const formData = buildFormData();
@@ -244,6 +253,15 @@
     // Main image validation — reject empty AND removed
     if (mainImageSlot.type === 'empty' || mainImageSlot.type === 'removed') {
       newErrors.mainImage = t('admin.validation.imageRequired', locale);
+    }
+
+    // Slug uniqueness check — only if slug itself is valid
+    if (!newErrors.slug && slug.trim()) {
+      const excludeId = mode === 'edit' && initialData ? initialData.id : undefined;
+      const unique = await isSlugUnique(slug.trim(), excludeId);
+      if (!unique) {
+        newErrors.slug = t('admin.projects.slugInUse', locale);
+      }
     }
 
     errors = newErrors;
@@ -418,7 +436,7 @@
 
   async function handleSubmit(): Promise<void> {
     if (saving) return;
-    if (!validateAll()) {
+    if (!(await validateAll())) {
       scrollToFirstError();
       return;
     }

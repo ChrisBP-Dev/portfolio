@@ -237,3 +237,59 @@ test.describe('Admin Projects — Featured & Ordering', () => {
     }
   });
 });
+
+test.describe('Admin Projects — Slug Uniqueness', () => {
+  test.describe.configure({ mode: 'serial' });
+  let firstName: string;
+  const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
+  test.beforeEach(async ({ page }) => {
+    await ensureAdminLogin(page);
+  });
+
+  test('rejects duplicate slug on create', async ({ page }) => {
+    firstName = UNIQUE();
+    // 1. Create first project
+    await page.goto('/admin/projects');
+    await page.locator('button', { hasText: /crear nuevo/i }).click();
+    await fillVisible(page.locator('#project-companyName-es'), firstName);
+    await fillVisible(page.locator('#project-companyName-en'), `${firstName}-en`);
+    await fillVisible(page.locator('#project-shortDescription-es'), 'Desc ES');
+    await fillVisible(page.locator('#project-shortDescription-en'), 'Desc EN');
+    await page.locator('input[type="file"][accept="image/*"]').first().setInputFiles(TEST_IMAGE);
+    await page.waitForTimeout(1_000);
+    await page.locator('button[type="submit"]').click();
+    await expect(page.locator('text=/guardado exitosamente/i')).toBeVisible({ timeout: 20_000 });
+
+    // 2. Create second project, activate manual slug, paste first project's slug
+    await page.locator('button', { hasText: /crear nuevo/i }).click();
+    await fillVisible(page.locator('#project-companyName-es'), UNIQUE());
+    await fillVisible(page.locator('#project-companyName-en'), UNIQUE());
+    await fillVisible(page.locator('#project-shortDescription-es'), 'Desc ES 2');
+    await fillVisible(page.locator('#project-shortDescription-en'), 'Desc EN 2');
+    // Activate manual slug checkbox
+    await page.locator('input[type="checkbox"]').first().check();
+    await clearAndFillVisible(page.locator('#slug'), slugify(`${firstName}-en`));
+    await page.locator('input[type="file"][accept="image/*"]').first().setInputFiles(TEST_IMAGE);
+    await page.waitForTimeout(1_000);
+    await page.locator('button[type="submit"]').click();
+
+    // 3. Verify uniqueness error
+    await expect(page.locator('[role="alert"]').filter({ hasText: /ya está en uso|already in use/i })).toBeVisible({ timeout: 10_000 });
+  });
+
+  test('cleanup: delete slug uniqueness test project', async ({ page }) => {
+    test.skip(!firstName, 'Depends on previous test');
+    await page.goto('/admin/projects');
+
+    try {
+      await clickListAction(page, firstName, 'delete');
+      const dialog = page.locator('[role="alertdialog"]');
+      await expect(dialog).toBeVisible({ timeout: 5_000 });
+      await dialog.locator('button', { hasText: /eliminar/i }).click();
+      await expect(page.locator('text=/eliminado/i')).toBeVisible({ timeout: 15_000 });
+    } catch {
+      // Best effort cleanup
+    }
+  });
+});
