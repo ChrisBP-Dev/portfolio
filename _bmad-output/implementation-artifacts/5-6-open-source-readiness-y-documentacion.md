@@ -26,7 +26,7 @@ So that I can set up my own portfolio following only the README.
   - [ ] 1.2 Verificar que `.gitignore` no excluye LICENSE (actualmente no lo excluye — OK)
 
 - [ ] Task 2: Reescribir README.md con todas las secciones requeridas (AC: #1, #5)
-  - [ ] 2.1 Reescribir `README.md` preservando contenido existente útil pero reorganizando y expandiendo. El README debe estar en **inglés** (el repo es open source para audiencia internacional, `defaultLocale = 'en'`). Secciones requeridas:
+  - [ ] 2.1 Crear README.md **nuevo en inglés** con las secciones definidas abajo. El README actual (español, ~132 líneas) sirve como referencia de contenido pero NO como base para traducción — reescribir desde cero en inglés (el repo es open source para audiencia internacional, `defaultLocale = 'en'`). Las secciones deben aparecer en el README **en el orden listado**:
     - **Header**: Título "Portfolio — ChrisBP", descripción breve, badges opcionales (Node version, license)
     - **Tech Stack**: Tabla con Astro 6, Svelte 5, Tailwind CSS 4, Firebase, TypeScript, Vitest, Playwright
     - **Architecture Overview**: Astro Islands pattern — SSG estático, Svelte islands para interactividad, Firebase para datos y auth. Mencionar: file-based routing, i18n (EN/ES), dark/light theme, WCAG 2.1 AA
@@ -54,7 +54,7 @@ So that I can set up my own portfolio following only the README.
     ```bash
     grep -rn "AKIA\|sk_live\|sk_test\|BEGIN.*PRIVATE.*KEY\|firebase.*apiKey.*=.*\"AIza" src/ --include='*.ts' --include='*.js' --include='*.astro' --include='*.svelte'
     ```
-    Resultado esperado: cero matches (las API keys deben estar solo en `.env` referenciadas via `import.meta.env`)
+    Resultado esperado: cero matches reales (las API keys deben estar solo en `.env` referenciadas via `import.meta.env`). **Excepción esperada:** `src/lib/firebase/__tests__/admin.test.ts` contiene un mock private key (`'-----BEGIN PRIVATE KEY-----\\ntest\\n...'`) — es un stub de test, NO un secret real. Ignorar ese match
   - [ ] 3.3 Verificar que `.gitignore` tiene protección completa de secrets:
     - `.env` y `.env.*` (excepto `.env.example`) ✓
     - `*.pem` ✓
@@ -80,7 +80,7 @@ So that I can set up my own portfolio following only the README.
     5. `pnpm emulators` — inicia Firebase Emulator Suite
     6. `pnpm dev` — inicia servidor de desarrollo
     7. Verificar que `localhost:4321` sirve la página home
-  - [ ] 5.2 Verificar que `pnpm build` funciona con las variables de entorno del Admin SDK (necesita credenciales reales o mock para build)
+  - [ ] 5.2 Verificar que `pnpm build` funciona con las variables de entorno del Admin SDK. **Nota crítica:** El build SSG ejecuta queries Admin SDK en build time que requieren credenciales reales de un proyecto Firebase existente — los emulators NO soportan queries Admin SDK en build time. Para fresh clone sin proyecto Firebase real, el build fallará en las páginas SSG que fetchean datos. Documentar este requisito en README (sección Firebase Setup)
   - [ ] 5.3 Documentar en README si hay pasos adicionales necesarios (e.g., `pnpm exec playwright install` para E2E)
 
 - [ ] Task 6: Verificación final — build, tests, y CI impact (AC: #1-#6)
@@ -170,26 +170,26 @@ Los scripts de datos ya existen y tienen dry-run mode. Documentar en README:
 
 Para la tabla en README:
 
-| Variable | Tipo | Requerida | Descripción |
-|----------|------|-----------|-------------|
-| `PUBLIC_FIREBASE_API_KEY` | Client | Sí | Firebase Web API key |
-| `PUBLIC_FIREBASE_AUTH_DOMAIN` | Client | Sí | Firebase Auth domain |
-| `PUBLIC_FIREBASE_PROJECT_ID` | Client | Sí | Firebase project ID |
-| `PUBLIC_FIREBASE_STORAGE_BUCKET` | Client | Sí | Firebase Storage bucket |
-| `PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Client | Sí | FCM sender ID |
-| `PUBLIC_FIREBASE_APP_ID` | Client | Sí | Firebase app ID |
-| `PUBLIC_ADMIN_UID` | Client | Sí | UID del admin user |
-| `FIREBASE_ADMIN_PROJECT_ID` | Admin | Solo build | Project ID (Admin SDK) |
-| `FIREBASE_ADMIN_CLIENT_EMAIL` | Admin | Solo build | Service account email |
-| `FIREBASE_ADMIN_PRIVATE_KEY` | Admin | Solo build | Service account private key |
-| `PUBLIC_CONTACT_EMAIL` | Contact | Sí | Email para contacto |
-| `PUBLIC_WHATSAPP_NUMBER` | Contact | Sí | Número WhatsApp |
-| `E2E_ADMIN_EMAIL` | Testing | Solo E2E | Email admin para tests — acceso via `process.env` (Node/Playwright), NO `import.meta.env` |
-| `E2E_ADMIN_PASSWORD` | Testing | Solo E2E | Password admin para tests — acceso via `process.env` (Node/Playwright), NO `import.meta.env` |
-| `PUBLIC_USE_EMULATORS` | Dev | No | Conectar client SDK a emuladores |
-| `USE_EMULATORS` | Dev | No | Conectar Admin SDK a emuladores |
+| Variable | Tipo | Requerida | Contexto acceso | Descripción |
+|----------|------|-----------|-----------------|-------------|
+| `PUBLIC_FIREBASE_API_KEY` | Client | Sí | `import.meta.env` (Astro) | Firebase Web API key |
+| `PUBLIC_FIREBASE_AUTH_DOMAIN` | Client | Sí | `import.meta.env` (Astro) | Firebase Auth domain |
+| `PUBLIC_FIREBASE_PROJECT_ID` | Client | Sí | `import.meta.env` (Astro) | Firebase project ID |
+| `PUBLIC_FIREBASE_STORAGE_BUCKET` | Client | Sí | `import.meta.env` (Astro) | Firebase Storage bucket |
+| `PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Client | Sí | `import.meta.env` (Astro) | FCM sender ID |
+| `PUBLIC_FIREBASE_APP_ID` | Client | Sí | `import.meta.env` (Astro) | Firebase app ID |
+| `PUBLIC_ADMIN_UID` | Client | Sí | `import.meta.env` (Astro) | UID del admin user |
+| `FIREBASE_ADMIN_PROJECT_ID` | Admin | Solo build | `import.meta.env` (Astro) | Project ID (Admin SDK) |
+| `FIREBASE_ADMIN_CLIENT_EMAIL` | Admin | Solo build | `import.meta.env` (Astro) | Service account email |
+| `FIREBASE_ADMIN_PRIVATE_KEY` | Admin | Solo build | `import.meta.env` (Astro) | Service account private key |
+| `PUBLIC_CONTACT_EMAIL` | Contact | Sí | `import.meta.env` (Astro) | Email para contacto |
+| `PUBLIC_WHATSAPP_NUMBER` | Contact | Sí | `import.meta.env` (Astro) | Número WhatsApp |
+| `E2E_ADMIN_EMAIL` | Testing | Solo E2E | `process.env` (Node.js) | Email admin para tests |
+| `E2E_ADMIN_PASSWORD` | Testing | Solo E2E | `process.env` (Node.js) | Password admin para tests |
+| `PUBLIC_USE_EMULATORS` | Dev | No | `import.meta.env` (Astro) | Conectar client SDK a emuladores |
+| `USE_EMULATORS` | Dev | No | `import.meta.env` (Astro) | Conectar Admin SDK a emuladores |
 
-**Nota:** Variables `PUBLIC_*` y `FIREBASE_ADMIN_*` se acceden via `import.meta.env` (contexto Astro, tipadas en `src/env.d.ts`). Variables `E2E_*` se acceden via `process.env` en `playwright.config.ts` (contexto Node.js, NO tipadas en env.d.ts). Documentar esta distinción en la tabla del README
+**Nota importante:** Variables `PUBLIC_*` y `FIREBASE_ADMIN_*` están tipadas en `src/env.d.ts` y se acceden via `import.meta.env` (contexto Astro). Variables `E2E_*` se acceden via `process.env` en `playwright.config.ts` (contexto Node.js, NO tipadas en env.d.ts — solo disponibles en Playwright runner). Documentar esta distinción en la tabla del README
 
 ### CI Impact — Doc-Only Changes
 
