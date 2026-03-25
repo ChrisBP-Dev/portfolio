@@ -29,23 +29,36 @@
   .theme-transitioning *::after {
     transition-duration: 0ms !important;
   }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 :root {
+  --theme-primary: #1F6B87;
+  --theme-primary-dark: #0D7577;
   --theme-bg: #FAFBFC;
   --theme-surface: #FFFFFF;
   --theme-surface-elevated: #F5F7FA;
   --theme-text-primary: #1A1F2E;
   --theme-text-secondary: #5A6270;
-  --theme-text-muted: #8B95A5;
+  --theme-text-muted: #6B7585;
   --theme-border: #E2E6EB;
   --theme-success: #10B981;
   --theme-warning: #F59E0B;
   --theme-error: #EF4444;
-  --brand-gradient: linear-gradient(135deg, #48A1CD, #108385);
+  --brand-gradient: linear-gradient(135deg, var(--theme-primary), var(--theme-primary-dark));
 }
 
 .dark {
+  --theme-primary: #48A1CD;
+  --theme-primary-dark: #108385;
   --theme-bg: #0F1419;
   --theme-surface: #1A1F2E;
   --theme-surface-elevated: #242938;
@@ -63,8 +76,8 @@
  * @theme inline preserva var() references
  * ============================================ */
 @theme inline {
-  --color-primary: #48A1CD;
-  --color-primary-dark: #108385;
+  --color-primary: var(--theme-primary);
+  --color-primary-dark: var(--theme-primary-dark);
   --color-background: var(--theme-bg);
   --color-surface: var(--theme-surface);
   --color-surface-elevated: var(--theme-surface-elevated);

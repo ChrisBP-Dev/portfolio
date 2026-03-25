@@ -87,6 +87,7 @@ const translations: Record<string, Record<Locale, string>> = {
   'projects.website': { es: 'Website', en: 'Website' },
   'projects.sourceCode': { es: 'Código Fuente', en: 'Source Code' },
   'projects.screenshots': { es: 'Screenshots', en: 'Screenshots' },
+  'projects.results': { es: 'proyectos mostrados', en: 'projects shown' },
   'projects.noResults': {
     es: 'No se encontraron proyectos con esta tecnología',
     en: 'No projects found with this technology',
@@ -102,6 +103,7 @@ const translations: Record<string, Record<Locale, string>> = {
   'imageViewer.counter': { es: 'de', en: 'of' },
 
   // Social aria
+  'social.nav': { es: 'Enlaces a redes sociales', en: 'Social media links' },
   'social.tiktok': { es: 'Visitar perfil de TikTok', en: 'Visit TikTok profile' },
   'social.github': { es: 'Visitar perfil de GitHub', en: 'Visit GitHub profile' },
   'social.linkedin': { es: 'Visitar perfil de LinkedIn', en: 'Visit LinkedIn profile' },

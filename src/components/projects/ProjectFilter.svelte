@@ -2,6 +2,7 @@
   import type { Project } from '../../lib/schemas/project-schema';
   import type { Technology } from '../../lib/schemas/technology-schema';
   import type { Locale } from '../../lib/i18n/config';
+  import { t } from '../../lib/i18n/translations';
   import { localizeHref } from '../../data/navigation';
 
   let {
@@ -36,6 +37,10 @@
       : projects.filter((p) => p.technologies.includes(selectedTech))
   );
 
+  let resultsAnnouncement = $derived(
+    `${filteredProjects.length} ${t('projects.results', locale)}`
+  );
+
   function getTechByIds(techIds: string[]): Technology[] {
     return techIds
       .map((id) => technologies.find((t) => t.id === id))
@@ -57,6 +62,9 @@
     {/each}
   </select>
 </div>
+
+<!-- Live region for screen readers -->
+<div aria-live="polite" class="sr-only">{resultsAnnouncement}</div>
 
 <!-- Project cards grid -->
 {#if filteredProjects.length === 0}
@@ -120,7 +128,7 @@
         {#if project.screenshots.length > 0}
           <div class="px-4 py-2">
             <h3 class="text-body-sm font-semibold mb-2">{screenshotsLabel}</h3>
-            <div class="flex gap-2 overflow-x-auto pb-4">
+            <div class="flex gap-2 overflow-x-auto pb-4" tabindex="0" role="region" aria-label={screenshotsLabel}>
               {#each project.screenshots as ss (ss.url)}
                 <img
                   src={ss.url}
