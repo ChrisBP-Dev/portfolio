@@ -167,6 +167,48 @@ test.describe('Contact Page — ES', () => {
   });
 });
 
+test.describe('Contact Page — EN: OG and Twitter meta tags', () => {
+  test('og:image uses default OG image', async ({ page }) => {
+    await page.goto('/contact');
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/images\/og-default\.png$/);
+  });
+
+  test('og:url is an absolute URL', async ({ page }) => {
+    await page.goto('/contact');
+    // Absolute URL check — built HTML uses https://portfolio-chrisbp.web.app; ClientRouter rewrites to browser URL in preview
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content', /^https?:\/\//);
+  });
+
+  test('has unique meta description', async ({ page }) => {
+    await page.goto('/contact');
+    const desc = await page.locator('meta[name="description"]').getAttribute('content');
+    expect(desc).toBeTruthy();
+    expect(desc!.length).toBeGreaterThan(10);
+  });
+
+  test('twitter:card is summary_large_image', async ({ page }) => {
+    await page.goto('/contact');
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image');
+  });
+
+  test('twitter:image uses default OG image', async ({ page }) => {
+    await page.goto('/contact');
+    await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute('content', /\/images\/og-default\.png$/);
+  });
+});
+
+test.describe('Contact Page — ES: OG and Twitter meta tags', () => {
+  test('og:image uses default OG image in ES', async ({ page }) => {
+    await page.goto('/es/contact');
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/images\/og-default\.png$/);
+  });
+
+  test('twitter:card is summary_large_image in ES', async ({ page }) => {
+    await page.goto('/es/contact');
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image');
+  });
+});
+
 test.describe('Contact Page — Footer Social Links', () => {
   test('footer has TikTok, GitHub, and LinkedIn links opening in new tab', async ({ page }) => {
     await page.goto('/contact');

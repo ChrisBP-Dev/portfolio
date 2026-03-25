@@ -11,6 +11,7 @@ import { t } from '../lib/i18n/translations';
 import type { Locale } from '../lib/i18n/config';
 import { ClientRouter } from 'astro:transitions';
 import { getRelativeLocaleUrl } from 'astro:i18n';
+import { resolveOgImage } from '../lib/utils/seo';
 
 interface Props {
   title: string;
@@ -31,6 +32,9 @@ const {
   ogDescription,
 } = Astro.props;
 
+// OG image fallback: always provide an image (page-specific or site default)
+const resolvedOgImage = resolveOgImage(ogImage, Astro.site!);
+
 // Strip locale prefix to get the base route path for hreflang generation
 const routePath = locale === 'es'
   ? Astro.url.pathname.replace(/^\/es(\/|$)/, '$1') || '/'
@@ -45,8 +49,8 @@ const enHref = new URL(getRelativeLocaleUrl('en', routePath), Astro.url).href;
   <head>
     <meta charset="utf-8" />
     <ThemeScript />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
@@ -60,11 +64,11 @@ const enHref = new URL(getRelativeLocaleUrl('en', routePath), Astro.url).href;
     <meta property="og:locale" content={locale === 'en' ? 'en_US' : 'es_ES'} />
     <meta property="og:site_name" content="ChrisBP" />
     <meta property="og:type" content={ogType ?? 'website'} />
-    {ogImage && <meta property="og:image" content={ogImage} />}
-    <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+    <meta property="og:image" content={resolvedOgImage} />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={ogDescription ?? description} />
-    {ogImage && <meta name="twitter:image" content={ogImage} />}
+    <meta name="twitter:image" content={resolvedOgImage} />
     <title>{title}</title>
     <ClientRouter />
   </head>

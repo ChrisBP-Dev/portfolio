@@ -95,3 +95,79 @@ test.describe('Home Page — ES', () => {
     await expect(page.getByRole('heading', { name: 'EXPERIENCIA', exact: true })).toBeVisible();
   });
 });
+
+test.describe('Home Page — EN: OG and Twitter meta tags', () => {
+  test('has all required OG meta tags', async ({ page }) => {
+    await page.goto('/');
+
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', /.+/);
+    await expect(page.locator('meta[property="og:description"]')).toHaveAttribute('content', /.+/);
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/images\/og-default\.png$/);
+    // Absolute URL check — built HTML uses https://portfolio-chrisbp.web.app; ClientRouter rewrites to browser URL in preview
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content', /^https?:\/\//);
+    await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'website');
+  });
+
+  test('has all required Twitter meta tags', async ({ page }) => {
+    await page.goto('/');
+
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image');
+    await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute('content', /.+/);
+    await expect(page.locator('meta[name="twitter:description"]')).toHaveAttribute('content', /.+/);
+    await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute('content', /\/images\/og-default\.png$/);
+  });
+});
+
+test.describe('Home Page — ES: OG and Twitter meta tags', () => {
+  test('has all required OG meta tags in ES locale', async ({ page }) => {
+    await page.goto('/es/');
+
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', /.+/);
+    await expect(page.locator('meta[property="og:description"]')).toHaveAttribute('content', /.+/);
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/images\/og-default\.png$/);
+    // Absolute URL check — built HTML uses https://portfolio-chrisbp.web.app; ClientRouter rewrites to browser URL in preview
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content', /^https?:\/\//);
+    await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'website');
+  });
+
+  test('has all required Twitter meta tags in ES locale', async ({ page }) => {
+    await page.goto('/es/');
+
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image');
+    await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute('content', /.+/);
+    await expect(page.locator('meta[name="twitter:description"]')).toHaveAttribute('content', /.+/);
+    await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute('content', /\/images\/og-default\.png$/);
+  });
+});
+
+test.describe('Cross-page — meta description uniqueness', () => {
+  test('each public page has a unique meta description', async ({ page }) => {
+    const descriptions = new Map<string, string>();
+    const pages = ['/', '/es/', '/projects', '/es/projects', '/blog', '/es/blog', '/contact', '/es/contact'];
+
+    for (const url of pages) {
+      await page.goto(url);
+      const desc = await page.locator('meta[name="description"]').getAttribute('content');
+      expect(desc, `meta description missing on ${url}`).toBeTruthy();
+      descriptions.set(url, desc!);
+    }
+
+    // Group by locale and verify uniqueness within each locale
+    const enDescs = [descriptions.get('/')!, descriptions.get('/projects')!, descriptions.get('/blog')!, descriptions.get('/contact')!];
+    const esDescs = [descriptions.get('/es/')!, descriptions.get('/es/projects')!, descriptions.get('/es/blog')!, descriptions.get('/es/contact')!];
+
+    expect(new Set(enDescs).size, 'EN descriptions should all be unique').toBe(enDescs.length);
+    expect(new Set(esDescs).size, 'ES descriptions should all be unique').toBe(esDescs.length);
+  });
+});
+
+test.describe('Cross-page — twitter:card on all public pages', () => {
+  test('all public pages have twitter:card=summary_large_image', async ({ page }) => {
+    const pages = ['/', '/es/', '/projects', '/es/projects', '/blog', '/es/blog', '/contact', '/es/contact'];
+
+    for (const url of pages) {
+      await page.goto(url);
+      await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image');
+    }
+  });
+});

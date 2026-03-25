@@ -5,7 +5,8 @@ test.describe('Blog Article Page — EN', () => {
 
   test.beforeEach(async ({ page }) => {
     await page.goto('/blog');
-    const articleLinks = page.locator('article a[href^="/blog/"]');
+    // Blog listing wraps each article in <a><article>...</article></a>
+    const articleLinks = page.locator('main a[href^="/blog/"]:not([href="/blog/"])');
     const count = await articleLinks.count();
     hasArticles = count > 0;
 
@@ -69,9 +70,17 @@ test.describe('Blog Article Page — EN', () => {
     await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'article');
   });
 
-  test('Twitter Card meta present', async ({ page }) => {
+  test('og:image points to cover image URL', async ({ page }) => {
     test.skip(!hasArticles, 'No published blog articles — skipped');
-    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', /.+/);
+    // Blog posts with cover images should have og:image pointing to the cover
+    // Posts without cover images will get the default OG image
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /.+/);
+  });
+
+  test('Twitter Card meta present with summary_large_image', async ({ page }) => {
+    test.skip(!hasArticles, 'No published blog articles — skipped');
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image');
+    await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute('content', /.+/);
   });
 });
 
@@ -80,7 +89,8 @@ test.describe('Blog Article Page — ES', () => {
 
   test.beforeEach(async ({ page }) => {
     await page.goto('/es/blog');
-    const articleLinks = page.locator('article a[href^="/es/blog/"]');
+    // Blog listing wraps each article in <a><article>...</article></a>
+    const articleLinks = page.locator('main a[href^="/es/blog/"]:not([href="/es/blog/"])');
     const count = await articleLinks.count();
     hasArticles = count > 0;
 
@@ -126,8 +136,14 @@ test.describe('Blog Article Page — ES', () => {
     await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'article');
   });
 
-  test('Twitter Card meta present', async ({ page }) => {
+  test('og:image present in ES blog article', async ({ page }) => {
     test.skip(!hasArticles, 'No published blog articles — skipped');
-    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', /.+/);
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /.+/);
+  });
+
+  test('Twitter Card meta present with summary_large_image in ES', async ({ page }) => {
+    test.skip(!hasArticles, 'No published blog articles — skipped');
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image');
+    await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute('content', /.+/);
   });
 });

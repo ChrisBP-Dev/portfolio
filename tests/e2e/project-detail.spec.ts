@@ -97,3 +97,39 @@ test.describe('Project Detail Page — ES', () => {
     await expect(page).toHaveURL(/\/es\/projects$/);
   });
 });
+
+test.describe('Project Detail Page — EN: OG and Twitter meta tags', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/projects');
+    const firstCardLink = page.locator('main a[href*="/projects/"]').first();
+    await expect(firstCardLink).toBeVisible();
+    const detailUrl = (await firstCardLink.getAttribute('href'))!;
+    await page.goto(detailUrl);
+  });
+
+  test('og:image points to Firebase Storage (project-specific image)', async ({ page }) => {
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /firebasestorage\.googleapis\.com/);
+  });
+
+  test('og:url is an absolute URL', async ({ page }) => {
+    // Absolute URL check — built HTML uses https://portfolio-chrisbp.web.app; ClientRouter rewrites to browser URL in preview
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content', /^https?:\/\//);
+  });
+
+  test('og:type is website', async ({ page }) => {
+    await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'website');
+  });
+
+  test('twitter:card is summary_large_image', async ({ page }) => {
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image');
+  });
+
+  test('twitter:title and twitter:description are present', async ({ page }) => {
+    await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute('content', /.+/);
+    await expect(page.locator('meta[name="twitter:description"]')).toHaveAttribute('content', /.+/);
+  });
+
+  test('twitter:image points to Firebase Storage', async ({ page }) => {
+    await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute('content', /firebasestorage\.googleapis\.com/);
+  });
+});
