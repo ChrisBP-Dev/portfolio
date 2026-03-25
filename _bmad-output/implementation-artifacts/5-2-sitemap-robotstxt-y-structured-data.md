@@ -477,6 +477,7 @@ Claude Opus 4.6 (1M context)
 - Code Review Fix P-1: Escaped `</` sequences in JSON-LD inline script (`BaseLayout.astro`) to prevent XSS via `</script>` injection in CMS-controlled fields. Applied `.replaceAll('</', '<\\/')` to `JSON.stringify` output.
 - Code Review Fix IG-1: Added 3 negative E2E tests (`seo-validation.spec.ts`) verifying listing pages (projects, blog, contact) do NOT render JSON-LD scripts — prevents regressions if someone accidentally adds JSON-LD to non-detail pages.
 - Code Review Fix D-1: Added toast deduplication to `toast-store.svelte.ts` — same message+type returns existing toast ID instead of creating duplicates. Root cause: when production Firestore already has 3+ featured projects, E2E featured test triggers multiple warning toasts. Reverted `.first()` workaround in `admin-projects.spec.ts`. Added 3 unit tests for deduplication behavior.
+- Post-review: Removed "Experience" tab from public navigation. **Decision:** The UX spec (UX-DR21) defined 5 header items including "Experience", but the epics never included a story to create a dedicated `/experience` page. The route pointed to a non-existent page (404). Experience content is only displayed in the home page ExperienceSection. Rather than create an unplanned page, the dead nav link was removed. Admin CRUD (`/admin/experiences`) and ExperienceSection on home remain unchanged. Updated `navigation.ts`, `BaseLayout.astro`, `Header.astro` type definitions, and `navigation.test.ts`.
 
 ### File List
 
@@ -499,5 +500,8 @@ Claude Opus 4.6 (1M context)
 | MODIFY | `src/lib/utils/__tests__/toast-store.test.ts` |
 | CREATE | `src/lib/scripts/cleanup-e2e-data.ts` |
 | CREATE | `src/lib/scripts/cleanup-orphan-images.ts` |
+| MODIFY | `src/data/navigation.ts` |
+| MODIFY | `src/data/__tests__/navigation.test.ts` |
+| MODIFY | `src/components/layout/Header.astro` |
 | MODIFY | `package.json` |
 | MODIFY | `pnpm-lock.yaml` |

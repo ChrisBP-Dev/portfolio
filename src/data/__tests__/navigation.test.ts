@@ -3,8 +3,8 @@ import { navItems, localizeHref } from '../navigation';
 
 describe('navigation', () => {
   describe('navItems', () => {
-    it('has 5 navigation items', () => {
-      expect(navItems).toHaveLength(5);
+    it('has 4 navigation items', () => {
+      expect(navItems).toHaveLength(4);
     });
 
     it('each item has bilingual labels', () => {
@@ -30,8 +30,8 @@ describe('navigation', () => {
     });
 
     it('handles nested paths for "es" locale', () => {
-      expect(localizeHref('/experience', 'es')).toBe('/es/experience');
       expect(localizeHref('/blog', 'es')).toBe('/es/blog');
+      expect(localizeHref('/contact', 'es')).toBe('/es/contact');
     });
   });
 });
