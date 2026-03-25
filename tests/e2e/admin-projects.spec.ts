@@ -210,8 +210,8 @@ test.describe('Admin Projects — Featured & Ordering', () => {
     const fourthStar = fourthCard.locator('button[data-testid^="featured-toggle-"]');
     await fourthStar.click();
 
-    // Verify warning toast appears
-    await expect(page.locator('text=/máximo 3 proyectos destacados/i')).toBeVisible({ timeout: 5_000 });
+    // Verify warning toast appears (use .first() — multiple toasts may appear)
+    await expect(page.locator('text=/máximo 3 proyectos destacados/i').first()).toBeVisible({ timeout: 5_000 });
   });
 
   // Cleanup: delete test projects

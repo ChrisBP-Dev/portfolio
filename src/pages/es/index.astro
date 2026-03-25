@@ -8,8 +8,10 @@ import { adminDb } from '../../lib/firebase/admin';
 import { getAllTechnologies, getAllProjects, getAllExperiences } from '../../lib/firebase/collections';
 import { getLocaleFromUrl } from '../../lib/i18n/config';
 import { t } from '../../lib/i18n/translations';
+import { generatePersonJsonLd } from '../../lib/utils/seo';
 
 const locale = getLocaleFromUrl(Astro.url);
+const personJsonLd = generatePersonJsonLd(Astro.site!.href);
 const technologies = await getAllTechnologies(adminDb);
 const projects = await getAllProjects(adminDb);
 const featured = projects.filter(p => p.featured);
@@ -22,6 +24,7 @@ const experiences = await getAllExperiences(adminDb);
   title={t('home.meta.title', locale)}
   description={t('home.meta.description', locale)}
   currentPage="home"
+  jsonLd={personJsonLd}
 >
   <HeroSection locale={locale} />
   <TechnologiesSection technologies={technologies} locale={locale} />

@@ -20,6 +20,7 @@ interface Props {
   ogImage?: string | undefined;
   ogType?: string | undefined;
   ogDescription?: string | undefined;
+  jsonLd?: Record<string, unknown>;
 }
 
 const locale = (Astro.currentLocale ?? 'en') as Locale;
@@ -30,6 +31,7 @@ const {
   ogImage,
   ogType,
   ogDescription,
+  jsonLd,
 } = Astro.props;
 
 // OG image fallback: always provide an image (page-specific or site default)
@@ -72,6 +74,9 @@ const enHref = new URL(getRelativeLocaleUrl('en', routePath), Astro.url).href;
     <meta name="twitter:description" content={ogDescription ?? description} />
     <meta name="twitter:image" content={resolvedOgImage} />
     <title>{title}</title>
+    {jsonLd && (
+      <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    )}
     <ClientRouter />
   </head>
   <body class="bg-background text-text-primary min-h-screen flex flex-col">

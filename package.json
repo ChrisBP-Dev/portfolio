@@ -18,7 +18,9 @@
     "test:e2e": "playwright test --pass-with-no-tests",
     "emulators": "firebase emulators:start --only auth,firestore,storage",
     "migrate": "node --env-file=.env --import tsx src/lib/scripts/migrate-firestore-data.ts",
-    "seed:experiences": "node --env-file=.env --import tsx src/lib/scripts/seed-experiences.ts"
+    "seed:experiences": "node --env-file=.env --import tsx src/lib/scripts/seed-experiences.ts",
+    "cleanup:e2e": "node --env-file=.env --import tsx src/lib/scripts/cleanup-e2e-data.ts",
+    "cleanup:images": "node --env-file=.env --import tsx src/lib/scripts/cleanup-orphan-images.ts"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -29,6 +31,7 @@
     ]
   },
   "dependencies": {
+    "@astrojs/sitemap": "^3.7.1",
     "@astrojs/svelte": "^8.0.1",
     "@tiptap/core": "^3.20.4",
     "@tiptap/extension-image": "^3.20.4",

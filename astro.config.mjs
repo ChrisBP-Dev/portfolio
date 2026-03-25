@@ -1,5 +1,6 @@
 import { defineConfig, fontProviders } from 'astro/config';
 import svelte from '@astrojs/svelte';
+import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
@@ -12,7 +13,19 @@ export default defineConfig({
       prefixDefaultLocale: false,
     },
   },
-  integrations: [svelte()],
+  integrations: [
+    svelte(),
+    sitemap({
+      filter: (page) => !page.includes('/admin'),
+      i18n: {
+        defaultLocale: 'en',
+        locales: {
+          en: 'en',
+          es: 'es',
+        },
+      },
+    }),
+  ],
   vite: {
     plugins: [tailwindcss()],
   },

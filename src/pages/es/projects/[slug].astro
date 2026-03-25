@@ -11,6 +11,7 @@ import { getLocaleFromUrl } from '../../../lib/i18n/config';
 import { t } from '../../../lib/i18n/translations';
 import { localizeHref } from '../../../data/navigation';
 import type { Technology } from '../../../lib/schemas/technology-schema';
+import { generateCreativeWorkJsonLd } from '../../../lib/utils/seo';
 
 export async function getStaticPaths() {
   const [projects, allTechnologies] = await Promise.all([
@@ -37,6 +38,14 @@ function getTechByIds(techIds: string[]): Technology[] {
 }
 
 const resolvedTechs = getTechByIds(project.technologies);
+
+const creativeWorkJsonLd = generateCreativeWorkJsonLd({
+  name: project.companyName[locale],
+  description: project.shortDescription[locale],
+  imageUrl: project.mainImage.url,
+  pageUrl: new URL(Astro.url.pathname, Astro.site).href,
+  technologies: resolvedTechs.map(t => t.name),
+});
 ---
 
 <BaseLayout
@@ -44,6 +53,7 @@ const resolvedTechs = getTechByIds(project.technologies);
   description={project.shortDescription[locale]}
   currentPage="projects"
   ogImage={project.mainImage.url}
+  jsonLd={creativeWorkJsonLd}
 >
   <Section variant="default">
     <Container variant="default">

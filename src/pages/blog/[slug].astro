@@ -12,6 +12,7 @@ import { calculateReadingTime, extractTextFromTipTap } from '../../lib/utils/rea
 import { formatBlogDate } from '../../lib/utils/format-date';
 import { renderTipTapToHtml } from '../../lib/utils/tiptap-renderer';
 import { sanitizeBlogHtml } from '../../lib/utils/sanitize-blog-html';
+import { generateBlogPostingJsonLd } from '../../lib/utils/seo';
 
 export async function getStaticPaths() {
   const posts = await getPublishedBlogPosts(adminDb);
@@ -37,6 +38,16 @@ if (rawText.length > 160) {
   ogDesc = (trimmed || rawText.slice(0, 157)) + '…';
 }
 if (!ogDesc) ogDesc = post.title[locale];
+
+const blogPostingJsonLd = generateBlogPostingJsonLd({
+  title: post.title[locale],
+  description: ogDesc,
+  createdAt: post.createdAt,
+  updatedAt: post.updatedAt,
+  coverImageUrl: post.coverImage?.url,
+  pageUrl: new URL(Astro.url.pathname, Astro.site).href,
+  siteUrl: Astro.site!.href,
+});
 ---
 
 <BaseLayout
@@ -45,6 +56,7 @@ if (!ogDesc) ogDesc = post.title[locale];
   currentPage="blog"
   ogImage={post.coverImage?.url}
   ogType="article"
+  jsonLd={blogPostingJsonLd}
 >
   <Section variant="default">
     <Container variant="default">
