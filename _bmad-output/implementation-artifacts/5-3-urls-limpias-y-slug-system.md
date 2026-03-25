@@ -1,6 +1,6 @@
 # Story 5.3: URLs Limpias y Slug System
 
-Status: review
+Status: done
 
 ## Story
 
@@ -310,9 +310,32 @@ Claude Opus 4.6 (1M context)
 - Task 4: Agregado `test.describe('Admin Projects — Slug Uniqueness')` con test serial de slug duplicado y cleanup. Verificado: 147/147 E2E pasando.
 - Task 5: `pnpm test` ✅ 1236 passed, `pnpm build` ✅ exitoso, `pnpm test:e2e` ✅ 147 passed.
 
+### Code Review Record
+
+**Date:** 2026-03-25
+**Reviewer Model:** Claude Opus 4.6 (1M context)
+**Review Method:** 3-layer adversarial (Blind Hunter + Edge Case Hunter + Acceptance Auditor)
+**Commit:** `292d711`
+
+**Triage Summary:** 1 bad_spec, 2 patch, 2 defer, 7 rejected as noise
+
+**Findings resolved:**
+
+| ID | Category | Finding | Resolution |
+|----|----------|---------|------------|
+| F1 | bad_spec | Unit tests verify mock wiring, not actual `isSlugUnique` | Acknowledged — spec mandated replicating blog-form.test.ts pattern which has same limitation. Note for future stories. |
+| F2 | patch | No error handling on `isSlugUnique` Firestore query | Try-catch fail-closed added to both ProjectForm and BlogForm |
+| F3 | patch | E2E checkbox selector `input[type="checkbox"]`.first() fragile | Replaced with label-text selector `label:has-text(/slug manual\|edit slug/i)` |
+| F4 | defer→fixed | `limit(1)` insufficient for corrupt data with duplicate slugs | Upgraded to `limit(2)` with filter logic in both forms + tests updated |
+| F5 | defer→fixed | E2E cleanup bare `catch {}` swallows errors silently | Added `console.warn` with error context |
+
+**All defers resolved — zero remaining.**
+
 ### File List
-- `src/components/admin/ProjectForm.svelte` (modificado — imports query/where/limit, isSlugUnique(), async validateAll con check de unicidad, await en handleSubmit)
+- `src/components/admin/ProjectForm.svelte` (modificado — imports query/where/limit, isSlugUnique() con try-catch y limit(2), async validateAll con check de unicidad, await en handleSubmit)
+- `src/components/admin/BlogForm.svelte` (modificado — code review: try-catch en isSlugUnique, limit(2) con filtrado)
 - `src/lib/i18n/translations.ts` (modificado — admin.projects.slugInUse en ES/EN)
-- `src/components/admin/__tests__/project-form.test.ts` (nuevo — 4 unit tests de slug uniqueness)
+- `src/components/admin/__tests__/project-form.test.ts` (nuevo — 4 unit tests de slug uniqueness, limit(2))
+- `src/components/admin/__tests__/blog-form.test.ts` (modificado — code review: limit(2) en test)
 - `tests/e2e/project-detail.spec.ts` (modificado — 2 nuevos tests URL limpia EN/ES, regex ES estricta)
-- `tests/e2e/admin-projects.spec.ts` (modificado — nuevo describe Slug Uniqueness con test de rechazo y cleanup)
+- `tests/e2e/admin-projects.spec.ts` (modificado — nuevo describe Slug Uniqueness con test de rechazo, selector por label, cleanup con console.warn)
