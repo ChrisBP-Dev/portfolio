@@ -15,8 +15,8 @@ describe('resolveOgImage', () => {
     );
   });
 
-  it('returns default OG image URL when ogImage is not provided', () => {
-    expect(resolveOgImage(undefined, siteUrl)).toBe(
+  it('falls back to default when ogImage is empty string', () => {
+    expect(resolveOgImage('', siteUrl)).toBe(
       'https://portfolio-chrisbp.web.app/images/og-default.png',
     );
   });

@@ -1,6 +1,6 @@
 # Story 5.1: Meta Tags y OpenGraph por Página
 
-Status: review
+Status: done
 
 ## Story
 
@@ -251,3 +251,55 @@ Claude Opus 4.6 (1M context)
 
 **Archivos eliminados:**
 - `public/favicon.svg` — Removido placeholder genérico de Astro (cohete)
+
+## Code Review Record
+
+### Review Model Used
+
+Claude Opus 4.6 (1M context) — 3-layer adversarial review (Blind Hunter, Edge Case Hunter, Acceptance Auditor)
+
+### Review Date
+
+2026-03-24
+
+### Review Scope
+
+Commit range `84d3adc..03fe470` — 18 archivos, +389/-49 líneas
+
+### Findings Summary
+
+| Categoría | Cantidad | Acción |
+|-----------|----------|--------|
+| Patch | 3 | Todos corregidos |
+| Defer | 2 | 1 resuelto, 1 defer válido |
+| Rejected | 9 | Ruido / falsos positivos |
+| Intent Gap | 0 | — |
+| Bad Spec | 0 | — |
+
+### Patches Corregidos
+
+- **P-1: AdminLayout referencia `favicon.svg` eliminado** — `favicon.svg` fue eliminado del proyecto pero `AdminLayout.astro` aún lo referenciaba → 404 en admin. Corregido: replicados los favicon links de BaseLayout (favicon.ico + apple-touch-icon).
+- **P-2: Test duplicado en `seo.test.ts`** — Tests "when ogImage is undefined" y "when ogImage is not provided" eran idénticos. Reemplazado el duplicado con test de edge case empty string `""`.
+- **P-3: Parámetro `quality` inválido en PNG** — `sharp().png({ quality: 85 })` no tiene efecto en PNG (solo aplica a JPEG/WebP). Removido parámetro inválido.
+
+### Defers Evaluados
+
+- **D-1: Schema mismatch mainImage required vs optional** — DEFER VÁLIDO. `projectSchema` requiere mainImage, `projectFirestoreSchema` lo tiene como optional. `parseProject()` usa el schema estricto → acceso `project.mainImage.url` es type-safe. Riesgo de build failure por docs huérfanos gestionado por orphan cleanup feature (commit `5be498f`). Resolverlo requeriría rediseñar el data layer error handling (fuera de scope de esta story).
+- **D-2: Falta `og:image:width` y `og:image:height`** — RESUELTO. Sin story planificada para esto. Agregados condicionalmente en BaseLayout: solo cuando se usa la imagen default (dimensiones conocidas 1200×630). Pages con imagen dinámica no incluyen dimensiones (desconocidas en build time).
+
+### Acceptance Audit
+
+Todos los 6 Acceptance Criteria: **PASS**. Todos los 5 anti-patterns del spec: **PASS**. Sin violaciones encontradas.
+
+### Post-Review Test Results
+
+- Unit tests: 1206 passed (47 files), 0 regressions
+- E2E (4 spec files afectados): 65 passed, 0 failures
+- Build: clean, 48 pages
+
+### Post-Review File Changes
+
+- `src/layouts/AdminLayout.astro` — Corregido favicon references (favicon.svg → favicon.ico + apple-touch-icon)
+- `src/layouts/BaseLayout.astro` — Agregados og:image:width/height condicionales para imagen default
+- `src/lib/utils/__tests__/seo.test.ts` — Reemplazado test duplicado con edge case empty string
+- `scripts/generate-og-image.mjs` — Removido parámetro `quality` inválido para PNG

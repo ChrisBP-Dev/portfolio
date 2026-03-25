@@ -81,7 +81,7 @@ const svg = `
 
 const image = await sharp(Buffer.from(svg))
   .resize(WIDTH, HEIGHT)
-  .png({ compressionLevel: 9, quality: 85 })
+  .png({ compressionLevel: 9 })
   .toFile(OUTPUT);
 
 console.log(`✅ OG image generated: ${OUTPUT}`);
