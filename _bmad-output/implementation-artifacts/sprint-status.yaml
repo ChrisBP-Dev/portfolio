@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-03-16
-last_updated: 2026-03-25  # story 5-5 done (code review passed)
+last_updated: 2026-03-25  # story 5-6 ready-for-dev
 project: portfolio
 project_key: NOKEY
 tracking_system: file-system
@@ -96,5 +96,5 @@ development_status:
   5-3-urls-limpias-y-slug-system: done
   5-4-performance-optimization-y-bundle-audit: done
   5-5-accessibility-audit-y-compliance: done
-  5-6-open-source-readiness-y-documentacion: backlog
+  5-6-open-source-readiness-y-documentacion: ready-for-dev
   epic-5-retrospective: optional
