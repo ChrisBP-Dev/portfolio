@@ -316,7 +316,7 @@ Ninguno — implementación limpia sin errores.
 - **Reviewer Model:** Claude Opus 4.6 (1M context)
 - **Review Method:** 3-layer adversarial (Blind Hunter, Edge Case Hunter, Acceptance Auditor)
 - **Implementation Commit:** `98e7e45`
-- **Fix Commit:** (pending — fixes applied, commit pending)
+- **Fix Commit:** `f7289b5`
 
 ### Triage Summary
 
