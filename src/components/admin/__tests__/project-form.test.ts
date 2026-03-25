@@ -34,12 +34,12 @@ describe('ProjectForm — slug uniqueness', () => {
     await mockGetDocs(mockQuery(
       mockCollection({}, 'Projects'),
       mockWhere('slug', '==', 'test-slug'),
-      mockLimit(1),
+      mockLimit(2),
     ));
 
     expect(mockCollection).toHaveBeenCalledWith({}, 'Projects');
     expect(mockWhere).toHaveBeenCalledWith('slug', '==', 'test-slug');
-    expect(mockLimit).toHaveBeenCalledWith(1);
+    expect(mockLimit).toHaveBeenCalledWith(2);
   });
 
   it('returns true when no matching slug found', async () => {

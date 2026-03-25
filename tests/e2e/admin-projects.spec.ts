@@ -267,8 +267,8 @@ test.describe('Admin Projects — Slug Uniqueness', () => {
     await fillVisible(page.locator('#project-companyName-en'), UNIQUE());
     await fillVisible(page.locator('#project-shortDescription-es'), 'Desc ES 2');
     await fillVisible(page.locator('#project-shortDescription-en'), 'Desc EN 2');
-    // Activate manual slug checkbox
-    await page.locator('input[type="checkbox"]').first().check();
+    // Activate manual slug checkbox (locate by label text to avoid fragility)
+    await page.locator('label', { hasText: /slug manual|edit slug/i }).locator('input[type="checkbox"]').check();
     await clearAndFillVisible(page.locator('#slug'), slugify(`${firstName}-en`));
     await page.locator('input[type="file"][accept="image/*"]').first().setInputFiles(TEST_IMAGE);
     await page.waitForTimeout(1_000);
@@ -288,8 +288,8 @@ test.describe('Admin Projects — Slug Uniqueness', () => {
       await expect(dialog).toBeVisible({ timeout: 5_000 });
       await dialog.locator('button', { hasText: /eliminar/i }).click();
       await expect(page.locator('text=/eliminado/i')).toBeVisible({ timeout: 15_000 });
-    } catch {
-      // Best effort cleanup
+    } catch (e) {
+      console.warn('Cleanup failed for slug uniqueness test project:', e);
     }
   });
 });

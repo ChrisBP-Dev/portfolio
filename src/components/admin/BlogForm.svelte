@@ -139,10 +139,19 @@
   // Slug uniqueness check (client-side best-effort — TOCTOU race exists between
   // this check and addDoc; true uniqueness requires server-side constraints)
   async function isSlugUnique(slugValue: string, excludeId?: string): Promise<boolean> {
-    const q = query(collection(db, BLOG_COLLECTION), where('slug', '==', slugValue), limit(1));
-    const snapshot = await getDocs(q);
-    if (snapshot.empty) return true;
-    return excludeId ? snapshot.docs[0]!.id === excludeId : false;
+    try {
+      const q = query(collection(db, BLOG_COLLECTION), where('slug', '==', slugValue), limit(2));
+      const snapshot = await getDocs(q);
+      if (snapshot.empty) return true;
+      if (!excludeId) return false;
+      // With limit(2), detect conflicts even if one doc matches excludeId
+      const others = snapshot.docs.filter((d) => d.id !== excludeId);
+      return others.length === 0;
+    } catch {
+      // Fail-closed: treat network/permission errors as "not unique" so the
+      // user retries rather than silently saving a potentially duplicate slug
+      return false;
+    }
   }
 
   function validateTitleEs(): boolean {
