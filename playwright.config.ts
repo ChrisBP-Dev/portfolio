@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
+  globalTeardown: './tests/e2e/global-teardown.ts',
   testDir: './tests/e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,

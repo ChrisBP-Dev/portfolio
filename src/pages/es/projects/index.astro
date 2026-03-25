@@ -25,7 +25,7 @@ const technologies = await getAllTechnologies(adminDb);
         {t('projects.intro', locale)}
       </p>
       <ProjectFilter
-        client:load
+        client:idle
         projects={projects}
         technologies={technologies}
         locale={locale}

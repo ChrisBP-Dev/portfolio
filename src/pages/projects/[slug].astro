@@ -72,6 +72,8 @@ const creativeWorkJsonLd = generateCreativeWorkJsonLd({
         class="w-full rounded-xl object-cover max-h-96 aspect-video mb-8"
         fetchpriority="high"
         decoding="async"
+        width="672"
+        height="378"
       />
 
       <!-- Description -->
@@ -102,7 +104,7 @@ const creativeWorkJsonLd = generateCreativeWorkJsonLd({
           <div class="flex flex-wrap gap-2">
             {resolvedTechs.map((tech) => (
               <Badge variant="technology">
-                <img src={tech.image.url} alt={tech.name} loading="lazy" class="w-4 h-4" data-testid="tech-icon" />
+                <img src={tech.image.url} alt={tech.name} loading="lazy" decoding="async" width="16" height="16" class="w-4 h-4" data-testid="tech-icon" />
                 {tech.name}
               </Badge>
             ))}

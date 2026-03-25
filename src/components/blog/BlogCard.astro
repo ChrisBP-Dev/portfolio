@@ -24,6 +24,9 @@ const readingTime = readingTimeLabel.replace('{minutes}', String(calculateReadin
         src={post.coverImage.url}
         alt={post.title[locale]}
         loading="lazy"
+        decoding="async"
+        width="640"
+        height="360"
         class="w-full aspect-video object-cover rounded-t-xl"
       />
     )}

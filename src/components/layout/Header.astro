@@ -39,7 +39,7 @@ const { currentPage = 'home', locale } = Astro.props;
         ))}
       </nav>
 
-      <MobileMenu client:load currentPage={currentPage} locale={locale} />
+      <MobileMenu client:idle currentPage={currentPage} locale={locale} />
     </div>
   </Container>
 </header>

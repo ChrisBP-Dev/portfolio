@@ -12,6 +12,7 @@ import type { Locale } from '../lib/i18n/config';
 import { ClientRouter } from 'astro:transitions';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import { resolveOgImage } from '../lib/utils/seo';
+import Font from 'astro/components/Font.astro';
 
 interface Props {
   title: string;
@@ -50,10 +51,13 @@ const enHref = new URL(getRelativeLocaleUrl('en', routePath), Astro.url).href;
 <html lang={locale} class="dark">
   <head>
     <meta charset="utf-8" />
+    <Font cssVariable="--font-poppins" preload />
+    <Font cssVariable="--font-jetbrains-mono" preload />
     <ThemeScript />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width" />
+    <link rel="preconnect" href="https://firebasestorage.googleapis.com" crossorigin />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
     <link rel="canonical" href={locale === 'en' ? enHref : esHref} />
@@ -87,7 +91,7 @@ const enHref = new URL(getRelativeLocaleUrl('en', routePath), Astro.url).href;
       <slot />
     </main>
     <Footer locale={locale} />
-    <ThemeToggle client:load currentLocale={locale} transition:persist />
-    <LocaleToggle client:load currentLocale={locale} currentPath={Astro.url.pathname} />
+    <ThemeToggle client:idle currentLocale={locale} transition:persist />
+    <LocaleToggle client:idle currentLocale={locale} currentPath={Astro.url.pathname} />
   </body>
 </html>
