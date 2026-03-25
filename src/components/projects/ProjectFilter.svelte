@@ -108,7 +108,7 @@
             <div class="flex flex-wrap gap-2">
               {#each getTechByIds(project.technologies) as tech (tech.id)}
                 <span class="inline-flex items-center gap-1 bg-primary/10 text-primary border border-primary/30 rounded-full px-2 py-1 text-caption">
-                  <img src={tech.image.url} alt={tech.name} loading="lazy" class="w-4 h-4" />
+                  <img src={tech.image.url} alt={tech.name} loading="lazy" decoding="async" width="16" height="16" class="w-4 h-4" />
                   {tech.name}
                 </span>
               {/each}
@@ -126,6 +126,9 @@
                   src={ss.url}
                   alt={project.companyName[locale] + ' screenshot'}
                   loading="lazy"
+                  decoding="async"
+                  width="160"
+                  height="96"
                   class="h-24 rounded-lg object-cover"
                 />
               {/each}

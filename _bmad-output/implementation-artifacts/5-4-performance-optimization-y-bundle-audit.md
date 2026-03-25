@@ -1,6 +1,6 @@
 # Story 5.4: Performance Optimization y Bundle Audit
 
-Status: review
+Status: done
 
 ## Story
 
@@ -307,3 +307,34 @@ Ninguno — implementación limpia sin errores.
 - `tests/e2e/performance-optimization.spec.ts` — NUEVO: E2E tests de performance optimization
 - `tests/e2e/global-teardown.ts` — NUEVO: globalTeardown que ejecuta cleanup scripts post-E2E
 - `playwright.config.ts` — agregado globalTeardown
+
+## Code Review Record
+
+### Review Metadata
+
+- **Date:** 2026-03-25
+- **Reviewer Model:** Claude Opus 4.6 (1M context)
+- **Review Method:** 3-layer adversarial (Blind Hunter, Edge Case Hunter, Acceptance Auditor)
+- **Implementation Commit:** `98e7e45`
+- **Fix Commit:** (pending — fixes applied, commit pending)
+
+### Triage Summary
+
+- **Raw findings:** 15 (Blind Hunter: 12, Edge Case Hunter: 0, Acceptance Auditor: 3)
+- **Rejected as noise:** 13
+- **Patch:** 2
+- **Intent gap / Bad spec / Defer:** 0
+
+### Findings Resolved
+
+| ID | Category | Finding | Resolution |
+|----|----------|---------|------------|
+| P1 | patch | `ProjectFilter.svelte` — tech icons (ln 111) y screenshots (ln 125-130) de Firebase Storage sin `width`/`height`/`decoding="async"` — viola AC 8 (CLS prevention). Spec task list omitió este componente Svelte. | Fix: agregado `width="16" height="16" decoding="async"` en tech icons, `width="160" height="96" decoding="async"` en screenshots. Ratio 5:3 coincide con `h-24` thumbnail layout. |
+| P2 | patch | `crossorigin` en `<link rel="preconnect">` para Firebase Storage — abre conexión CORS que no es reutilizada por `<img>` (no-CORS). DNS se comparte pero TCP+TLS se desperdicia. Spec indicó agregar `crossorigin` incorrectamente. | Fix: eliminado `crossorigin` del preconnect en `BaseLayout.astro`. Ahora la conexión pre-abierta coincide con el pool no-CORS usado por `<img>`. |
+
+### Verification Post-Fix
+
+- **Build:** ✅ 30 pages, 7.65s, sin errores
+- **Unit tests:** ✅ 1236 passed (48 files)
+- **E2E tests:** ✅ 152 passed, 18 skipped, 0 failed
+- **All issues resolved:** Sí — 0 findings pendientes
