@@ -27,21 +27,21 @@ So that URLs are meaningful, shareable and SEO-friendly.
   - [ ] 1.4 Mostrar error `slugInUse` inline con `role="alert"` (mismo patrón de BlogForm)
 
 - [ ] Task 2: Unit tests para slug uniqueness de projects (AC: #4)
-  - [ ] 2.1 Agregar tests en `src/components/admin/__tests__/` que verifiquen que la validación de slug duplicado rechaza el submit con mensaje de error apropiado
-  - [ ] 2.2 Verificar que modo edit excluye correctamente el ID propio del check de unicidad
+  - [ ] 2.1 Crear `src/components/admin/__tests__/project-form.test.ts` replicando el patrón exacto de `blog-form.test.ts:137-180` — mockear `firebase/firestore` con `vi.hoisted()` + `vi.mock()`, NO montar el componente Svelte
+  - [ ] 2.2 Tests: query usa collection `Projects` y field `slug`, retorna `true` cuando vacío, retorna `false` cuando slug existe sin excludeId, retorna `true` cuando slug existe pero matches excludeId (edit mode)
 
 - [ ] Task 3: E2E — URLs limpias en sitio público (AC: #1, #2, #3)
-  - [ ] 3.1 En `tests/e2e/project-detail.spec.ts`, agregar test que verifique que URLs de detalle de proyecto NO contienen IDs, hashes ni caracteres especiales — solo el patrón `/projects/[a-z0-9-]+`
-  - [ ] 3.2 En `tests/e2e/blog-article.spec.ts`, agregar test equivalente para blog: URL debe seguir `/blog/[a-z0-9-]+`
-  - [ ] 3.3 Verificar URLs en ambos locales: EN sin prefijo, ES con `/es/`
+  - [ ] 3.1 En `tests/e2e/project-detail.spec.ts`, agregar test en bloque `'Project Detail Page — EN'` que extraiga el slug de `page.url()` y valide con regex `/^[a-z0-9]+(-[a-z0-9]+)*$/` — NO contiene IDs, hashes ni caracteres especiales
+  - [ ] 3.2 Blog: los tests de URL limpia YA EXISTEN en `blog-article.spec.ts` (líneas 15, 21, 99, 105 — `waitForURL(/\/blog\/[a-z0-9-]+$/)` y `toHaveURL`). Verificar que cubren el AC — NO crear tests duplicados
+  - [ ] 3.3 EN: agregar test en bloque `'Project Detail Page — EN'`. ES: actualizar regex en `project-detail.spec.ts:85` de `/\/es\/projects\/.+/` (demasiado permisiva) a `/\/es\/projects\/[a-z0-9-]+$/` + agregar test equivalente de slug extraction en bloque ES
 
 - [ ] Task 4: E2E — Slug uniqueness en admin projects (AC: #4)
-  - [ ] 4.1 En `tests/e2e/admin-projects.spec.ts`, agregar test que cree un proyecto, luego intente crear otro con el mismo slug y verifique el error de unicidad
-  - [ ] 4.2 Cleanup: eliminar proyectos de test al finalizar
+  - [ ] 4.1 En `tests/e2e/admin-projects.spec.ts`, agregar test en nuevo `test.describe` serial: crear proyecto con `UNIQUE()`, luego crear segundo proyecto, activar checkbox de slug manual (`input[type="checkbox"]` junto a label slug), pegar slug del primero, submit → esperar error `slugInUse` con `role="alert"`
+  - [ ] 4.2 Cleanup: eliminar ambos proyectos de test al finalizar (usar `clickListAction` + confirm dialog)
 
 - [ ] Task 5: Verificación completa del sistema (AC: #3, #5)
-  - [ ] 5.1 Ejecutar `pnpm test` — todos los unit tests deben pasar
-  - [ ] 5.2 Ejecutar `pnpm test:e2e` — todos los E2E tests deben pasar (incluyendo los nuevos)
+  - [ ] 5.1 Ejecutar `pnpm test` — todos los unit tests deben pasar (esperado: ~1234+, 4 nuevos de slug uniqueness)
+  - [ ] 5.2 Ejecutar `pnpm test:e2e` — todos los E2E tests deben pasar (esperado: ~132+, 3-4 nuevos de URL limpia y slug uniqueness)
   - [ ] 5.3 Verificar build `pnpm build` sin errores
 
 ## Dev Notes
@@ -58,14 +58,15 @@ El 90% del slug system ya está implementado. El dev DEBE verificar que existe a
 | BlogPost schema con slug regex | ✅ Completo | `src/lib/schemas/blog-post-schema.ts` |
 | Rutas `[slug].astro` para projects | ✅ Completo | `src/pages/projects/[slug].astro`, `src/pages/es/projects/[slug].astro` |
 | Rutas `[slug].astro` para blog | ✅ Completo | `src/pages/blog/[slug].astro`, `src/pages/es/blog/[slug].astro` |
-| Auto-slug desde EN en ProjectForm | ✅ Completo | `src/components/admin/ProjectForm.svelte:95-100` |
+| Auto-slug desde EN en ProjectForm | ✅ Completo | `src/components/admin/ProjectForm.svelte:95-100` (solo en CREATE mode, usa `manualSlug` flag) |
 | Auto-slug desde EN en BlogForm | ✅ Completo | `src/components/admin/BlogForm.svelte` |
 | `isSlugUnique()` para blog | ✅ Completo | `src/components/admin/BlogForm.svelte:141-146` |
 | Traducción `admin.blog.slugInUse` | ✅ Completo | `src/lib/i18n/translations.ts` |
 | `getStaticPaths()` con slugs | ✅ Completo | Todas las pages `[slug].astro` |
 | **`isSlugUnique()` para projects** | **❌ FALTA** | `src/components/admin/ProjectForm.svelte` |
 | **Traducción `admin.projects.slugInUse`** | **❌ FALTA** | `src/lib/i18n/translations.ts` |
-| **E2E de URL limpia (regex en URL)** | **❌ FALTA** | `tests/e2e/project-detail.spec.ts`, `tests/e2e/blog-article.spec.ts` |
+| E2E de URL limpia para blog | ✅ Ya existe | `tests/e2e/blog-article.spec.ts:15,21,99,105` — `waitForURL(/\/blog\/[a-z0-9-]+$/)` |
+| **E2E de URL limpia para projects** | **❌ FALTA** | `tests/e2e/project-detail.spec.ts` (EN no valida regex, ES usa `.+` demasiado permisiva) |
 | **E2E de slug duplicado en projects** | **❌ FALTA** | `tests/e2e/admin-projects.spec.ts` |
 
 ### Implementación de isSlugUnique para Projects
@@ -84,18 +85,17 @@ async function isSlugUnique(slugValue: string, excludeId?: string): Promise<bool
 }
 ```
 
-Integrar en `validateAll()` — actualmente es síncrona (`function validateAll(): boolean`). Cambios requeridos:
+Integrar en `validateAll()` — actualmente es síncrona (línea 197: `function validateAll(): boolean`). Cambios requeridos:
 
-**Paso A:** Convertir `validateAll()` a async:
+**Paso A:** Convertir `validateAll()` a async (línea 197):
 ```typescript
 // ANTES:  function validateAll(): boolean {
 // DESPUÉS: async function validateAll(): Promise<boolean> {
 ```
 
-**Paso B:** Agregar check de unicidad DESPUÉS de la validación Zod (antes del `return`):
+**Paso B:** Agregar check de unicidad DESPUÉS de la validación de mainImage (línea 247) y ANTES de `errors = newErrors` (línea 249). Alinear con patrón de BlogForm (early return):
 ```typescript
-// Justo antes de: return Object.keys(newErrors).length === 0;
-// Agregar:
+// Insertar entre línea 247 (mainImage check) y línea 249 (errors = newErrors):
 if (!newErrors.slug && slug.trim()) {
   const excludeId = mode === 'edit' && initialData ? initialData.id : undefined;
   const unique = await isSlugUnique(slug.trim(), excludeId);
@@ -108,7 +108,7 @@ errors = newErrors;
 return Object.keys(newErrors).length === 0;
 ```
 
-**Paso C:** Actualizar `handleSubmit()` para usar `await`:
+**Paso C:** Actualizar `handleSubmit()` para usar `await` (línea 421):
 ```typescript
 // ANTES:  if (!validateAll()) {
 // DESPUÉS: if (!(await validateAll())) {
@@ -116,16 +116,19 @@ return Object.keys(newErrors).length === 0;
 
 El patrón es idéntico a `BlogForm.svelte:205-238` donde `validateAll()` ya es async.
 
+**NOTA:** ProjectForm usa `manualSlug` (no `slugManuallyEdited` como BlogForm). Auto-slug solo se genera en CREATE mode (`if (!manualSlug && mode === 'create')`). En EDIT mode el slug siempre es manual.
+
 ### Imports necesarios en ProjectForm.svelte
 
-Import actual (línea 3):
+Línea 3 — agregar `query`, `where`, `limit` al import existente:
 ```typescript
+// ANTES:
 import { collection, addDoc, updateDoc, deleteDoc, doc, deleteField, getDocs } from 'firebase/firestore';
-```
-Agregar `query`, `where`, `limit` al import existente:
-```typescript
+// DESPUÉS:
 import { collection, addDoc, updateDoc, deleteDoc, doc, deleteField, getDocs, query, where, limit } from 'firebase/firestore';
 ```
+
+`PROJECTS_COLLECTION` ya existe en línea 26: `const PROJECTS_COLLECTION = 'Projects';` — NO duplicar.
 
 ### Traducción a agregar
 
@@ -149,7 +152,7 @@ ES (con prefijo /es/):         /es/projects/{slug}  /es/blog/{slug}
 
 ### E2E Test Patterns
 
-**URL limpia validation pattern** (agregar a tests existentes):
+**URL limpia — projects** (agregar DENTRO de `test.describe('Project Detail Page — EN')` en `project-detail.spec.ts`):
 ```typescript
 test('URL uses clean slug format — no IDs or hashes', async ({ page }) => {
   const url = page.url();
@@ -159,18 +162,91 @@ test('URL uses clean slug format — no IDs or hashes', async ({ page }) => {
 });
 ```
 
-**Slug uniqueness E2E** (agregar a admin-projects.spec.ts):
+**URL limpia — projects ES** (actualizar regex existente en `test.describe('Project Detail Page — ES')` línea 85):
 ```typescript
-test('rejects duplicate slug on create', async ({ page }) => {
-  // 1. Crear proyecto con nombre único
-  // 2. Intentar crear otro proyecto con el MISMO companyName EN (genera mismo slug)
-  // 3. Activar "Edit slug manually" y poner el slug del primer proyecto
-  // 4. Submit → esperar error "already in use"
-  // 5. Cleanup: eliminar proyecto creado
+// ANTES:  await expect(page).toHaveURL(/\/es\/projects\/.+/);
+// DESPUÉS: await expect(page).toHaveURL(/\/es\/projects\/[a-z0-9-]+$/);
+```
+Y agregar test equivalente de slug extraction en el bloque ES.
+
+**URL limpia — blog**: YA EXISTE. `blog-article.spec.ts` ya tiene `waitForURL(/\/blog\/[a-z0-9-]+$/)` en líneas 15, 21 (EN) y 99, 105 (ES). NO crear tests duplicados.
+
+**Slug uniqueness E2E** (nuevo `test.describe` serial en `admin-projects.spec.ts`):
+```typescript
+test.describe('Admin Projects — Slug Uniqueness', () => {
+  test.describe.configure({ mode: 'serial' });
+  let firstName: string;
+
+  test.beforeEach(async ({ page }) => {
+    await ensureAdminLogin(page);
+  });
+
+  test('rejects duplicate slug on create', async ({ page }) => {
+    firstName = UNIQUE();
+    // 1. Crear primer proyecto con firstName
+    await page.goto('/admin/projects');
+    await page.locator('button', { hasText: /crear nuevo/i }).click();
+    await fillVisible(page.locator('#project-companyName-es'), firstName);
+    await fillVisible(page.locator('#project-companyName-en'), `${firstName}-en`);
+    await fillVisible(page.locator('#project-shortDescription-es'), 'Desc ES');
+    await fillVisible(page.locator('#project-shortDescription-en'), 'Desc EN');
+    await page.locator('input[type="file"][accept="image/*"]').first().setInputFiles(TEST_IMAGE);
+    await page.waitForTimeout(1_000);
+    await page.locator('button[type="submit"]').click();
+    await expect(page.locator('text=/guardado exitosamente/i')).toBeVisible({ timeout: 20_000 });
+
+    // 2. Crear segundo proyecto, activar slug manual, pegar slug del primero
+    await page.locator('button', { hasText: /crear nuevo/i }).click();
+    await fillVisible(page.locator('#project-companyName-es'), UNIQUE());
+    await fillVisible(page.locator('#project-companyName-en'), UNIQUE());
+    await fillVisible(page.locator('#project-shortDescription-es'), 'Desc ES 2');
+    await fillVisible(page.locator('#project-shortDescription-en'), 'Desc EN 2');
+    // Activar checkbox de slug manual
+    const slugCheckbox = page.locator('input[type="checkbox"]').filter({ hasText: /manual/i });
+    // NOTA: si el checkbox no tiene texto visible, localizar por proximity al label de slug
+    await slugCheckbox.check();
+    await clearAndFillVisible(page.locator('#slug'), slugify(`${firstName}-en`));
+    await page.locator('input[type="file"][accept="image/*"]').first().setInputFiles(TEST_IMAGE);
+    await page.waitForTimeout(1_000);
+    await page.locator('button[type="submit"]').click();
+
+    // 3. Verificar error de unicidad
+    await expect(page.locator('[role="alert"]').filter({ hasText: /ya está en uso|already in use/i })).toBeVisible({ timeout: 10_000 });
+
+    // 4. Cleanup: navegar atrás y eliminar primer proyecto
+  });
 });
 ```
 
 **Admin E2E helpers disponibles:** `ensureAdminLogin()`, `fillVisible()`, `clearAndFillVisible()`, `clickListAction()` — importar desde `./admin-helpers`.
+**Constantes establecidas:** `UNIQUE = () => \`e2e-test-\${Date.now()}\``, `TEST_IMAGE = path.join(process.cwd(), 'tests', 'e2e', 'fixtures', 'test-image.png')`.
+
+### Unit Test Pattern para Slug Uniqueness (Task 2)
+
+Replicar patrón exacto de `blog-form.test.ts:137-180`. Crear `project-form.test.ts`:
+```typescript
+// Mock con vi.hoisted() — ANTES de vi.mock()
+const { mockGetDocs, mockQuery, mockWhere, mockLimit, mockCollection } = vi.hoisted(() => ({
+  mockGetDocs: vi.fn(() => Promise.resolve({ empty: true, docs: [] })),
+  mockQuery: vi.fn((..._args: unknown[]) => ({ _query: true })),
+  mockWhere: vi.fn((_f: string, _op: string, _v: unknown) => ({ _where: true })),
+  mockLimit: vi.fn((_n: number) => ({ _limit: true })),
+  mockCollection: vi.fn((_db: unknown, _col: string) => ({ _col })),
+}));
+
+vi.mock('firebase/firestore', () => ({
+  getDocs: mockGetDocs, query: mockQuery, where: mockWhere,
+  limit: mockLimit, collection: mockCollection,
+  // ... otros mocks necesarios
+}));
+
+describe('ProjectForm — slug uniqueness', () => {
+  it('query uses collection Projects and field slug', async () => { ... });
+  it('returns true when no matching slug found', async () => { ... });
+  it('returns false when slug exists and no excludeId', async () => { ... });
+  it('returns true when slug exists but matches excludeId (edit mode)', async () => { ... });
+});
+```
 
 ### Anti-patterns — NO Hacer
 
