@@ -49,8 +49,8 @@ So that my first impression is speed and technical competence.
   - [ ] 3.4 Auditoría de `<Image />` en assets locales: verificar que TODOS los imports de imágenes estáticas de `src/assets/` usan `<Image />` de `astro:assets` (NO `<img>`) para aprovechar WebP/AVIF optimization. Actualmente: `HeroSection.astro` (avatar) ✅, `Header.astro` (logo) ✅. Buscar con `grep -r "src/assets" src/components/ src/pages/ src/layouts/` si hay otros imports de assets locales que no usen `<Image />` (AC: #7)
 
 - [ ] Task 4: E2E tests — verificación de atributos de performance (AC: #4, #6, #8)
-  - [ ] 4.1 Crear `tests/e2e/performance-optimization.spec.ts` con tests para Home page: todas las `<img>` below-fold tienen `loading="lazy"`, todas las `<img>` de Firebase Storage tienen `width` y `height` explícitos
-  - [ ] 4.2 Test para project detail page: main image tiene `width`/`height` y `fetchpriority="high"`, thumbnails tienen `loading="lazy"` y `width`/`height`
+  - [ ] 4.1 Crear `tests/e2e/performance-optimization.spec.ts` con tests para Home page: todas las `<img>` below-fold tienen `loading="lazy"`, todas las `<img>` de Firebase Storage tienen `width` y `height` explícitos, y existe `<link rel="preconnect">` para Firebase Storage
+  - [ ] 4.2 Test para project detail page: main image tiene `width`/`height` y `fetchpriority="high"`, thumbnails tienen `loading="lazy"` y `width`/`height`. Usar `test.skip()` si no hay proyectos publicados en el entorno de test (misma protección que blog tests)
   - [ ] 4.3 Test para blog article page: cover image tiene `width`/`height` y `fetchpriority="high"`
 
 - [ ] Task 5: Build verification y bundle audit (AC: #1, #5, #9)
@@ -135,74 +135,41 @@ Esto establece la conexión TCP+TLS anticipadamente. Beneficio: ~100-200ms menos
 
 **Archivo:** `tests/e2e/performance-optimization.spec.ts`
 
+**3 test.describe blocks — patrones clave:**
+
+| Test | Selector | Assertions | Guard |
+|------|----------|------------|-------|
+| Home: below-fold lazy | `main img[src*="firebasestorage"]` | `loading="lazy"` en cada img | `count > 0` |
+| Home: Firebase imgs w/h | `img[src*="firebasestorage"]` | `width` y `height` match `/^\d+$/` | `count > 0` |
+| Home: preconnect hint | `link[rel="preconnect"][href*="firebasestorage"]` | `toHaveCount(1)` | — |
+| Project detail: main img | `main > * img[fetchpriority="high"]` | `width`, `height` | `test.skip(!hasProjects)` |
+| Blog: cover img | `img[fetchpriority="high"]` | `width`, `height` | `test.skip(!hasArticles)`, `test.skip(!hasCover)` |
+
+**Patrón de iteración para verificar atributos en múltiples imágenes:**
 ```typescript
-import { test, expect } from '@playwright/test';
-
-test.describe('Performance Optimization — Home Page', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-  });
-
-  test('below-fold images have loading="lazy"', async ({ page }) => {
-    // Seleccionar imágenes que NO son hero/logo (above-fold)
-    const belowFoldImages = page.locator('main img[src*="firebasestorage"]');
-    const count = await belowFoldImages.count();
-    expect(count).toBeGreaterThan(0);
-    for (let i = 0; i < count; i++) {
-      await expect(belowFoldImages.nth(i)).toHaveAttribute('loading', 'lazy');
-    }
-  });
-
-  test('Firebase Storage images have explicit width and height', async ({ page }) => {
-    const storageImages = page.locator('img[src*="firebasestorage"]');
-    const count = await storageImages.count();
-    expect(count).toBeGreaterThan(0);
-    for (let i = 0; i < count; i++) {
-      const img = storageImages.nth(i);
-      await expect(img).toHaveAttribute('width', /^\d+$/);
-      await expect(img).toHaveAttribute('height', /^\d+$/);
-    }
-  });
-});
-
-test.describe('Performance Optimization — Project Detail', () => {
-  test('main image has width/height and fetchpriority', async ({ page }) => {
-    // Navegar al primer proyecto disponible
-    await page.goto('/projects');
-    const firstProject = page.locator('a[href^="/projects/"]').first();
-    await firstProject.click();
-    await page.waitForURL(/\/projects\/[a-z0-9-]+$/);
-
-    const mainImg = page.locator('main > * img[fetchpriority="high"]').first();
-    await expect(mainImg).toHaveAttribute('width', /^\d+$/);
-    await expect(mainImg).toHaveAttribute('height', /^\d+$/);
-  });
-});
-
-test.describe('Performance Optimization — Blog Article', () => {
-  test('cover image has width/height and fetchpriority', async ({ page }) => {
-    await page.goto('/blog');
-    const firstArticle = page.locator('a[href^="/blog/"]').first();
-    const hasArticles = (await firstArticle.count()) > 0;
-    test.skip(!hasArticles, 'No published blog posts available for testing');
-
-    await firstArticle.click();
-    await page.waitForURL(/\/blog\/[a-z0-9-]+$/);
-    const coverImg = page.locator('img[fetchpriority="high"]').first();
-    const hasCover = (await coverImg.count()) > 0;
-    test.skip(!hasCover, 'Blog post has no cover image');
-
-    await expect(coverImg).toHaveAttribute('width', /^\d+$/);
-    await expect(coverImg).toHaveAttribute('height', /^\d+$/);
-  });
-});
+const imgs = page.locator('main img[src*="firebasestorage"]');
+const count = await imgs.count();
+expect(count).toBeGreaterThan(0);
+for (let i = 0; i < count; i++) {
+  await expect(imgs.nth(i)).toHaveAttribute('loading', 'lazy');
+}
 ```
 
-**Notas sobre los E2E:**
+**Patrón de navegación con guard para pages con contenido dinámico:**
+```typescript
+await page.goto('/projects');
+const firstProject = page.locator('main a[href^="/projects/"]').first();
+const hasProjects = (await firstProject.count()) > 0;
+test.skip(!hasProjects, 'No published projects available for testing');
+await firstProject.click();
+await page.waitForURL(/\/projects\/[a-z0-9-]+$/);
+```
+
+**Reglas clave:**
+- Usar `main a[href^="..."]` (NO `a[href^="..."]`) para evitar capturar links del Header nav
+- `test.skip()` en project detail Y blog tests (puede no haber contenido publicado en entorno de test)
+- NO testear `<Image />` de Astro — ya tienen w/h auto-generado
 - Selector `img[src*="firebasestorage"]` captura todas las imágenes remotas de Firebase Storage
-- No testear `<Image />` de Astro — esas ya tienen w/h auto-generado
-- Tests de blog son condicionales (puede no haber posts publicados en el entorno de test)
-- El proyecto E2E default project `public` puede usarse para testing de project detail
 
 ### Bundle Audit — Qué Verificar
 
