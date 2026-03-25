@@ -239,7 +239,20 @@ interface Props {
 
 ### Page Integration Examples
 
-**Home page** (`src/pages/index.astro` and `src/pages/es/index.astro`):
+**CRITICAL — Import paths differ by nesting depth:**
+
+| Page file | Import path for `seo.ts` |
+|-----------|--------------------------|
+| `src/pages/index.astro` | `'../lib/utils/seo'` |
+| `src/pages/es/index.astro` | `'../../lib/utils/seo'` |
+| `src/pages/projects/[slug].astro` | `'../../lib/utils/seo'` |
+| `src/pages/es/projects/[slug].astro` | `'../../../lib/utils/seo'` |
+| `src/pages/blog/[slug].astro` | `'../../lib/utils/seo'` |
+| `src/pages/es/blog/[slug].astro` | `'../../../lib/utils/seo'` |
+
+**Note:** `Astro.site!.href` returns `'https://portfolio-chrisbp.web.app/'` (with trailing slash). This is correct and expected for schema.org URLs.
+
+**Home page** (`src/pages/index.astro`):
 ```astro
 import { generatePersonJsonLd } from '../lib/utils/seo';
 
@@ -251,29 +264,34 @@ const personJsonLd = generatePersonJsonLd(Astro.site!.href);
   jsonLd={personJsonLd}
 />
 ```
+ES variant (`src/pages/es/index.astro`) — identical logic, import from `'../../lib/utils/seo'`.
 
 **Project detail** (`src/pages/projects/[slug].astro`):
 ```astro
 import { generateCreativeWorkJsonLd } from '../../lib/utils/seo';
 
+// IMPORTANT: resolvedTechs already exists on this page (line 39) — reuse it for tech NAMES
+// DO NOT use project.technologies directly — those are Firestore IDs, not display names
 const creativeWorkJsonLd = generateCreativeWorkJsonLd({
   name: project.companyName[locale],
   description: project.shortDescription[locale],
   imageUrl: project.mainImage.url,
   pageUrl: new URL(Astro.url.pathname, Astro.site).href,
-  technologies: project.technologies,
+  technologies: resolvedTechs.map(t => t.name),
 });
 
 <BaseLayout jsonLd={creativeWorkJsonLd} ... />
 ```
+ES variant (`src/pages/es/projects/[slug].astro`) — identical logic, import from `'../../../lib/utils/seo'`.
 
 **Blog article** (`src/pages/blog/[slug].astro`):
 ```astro
 import { generateBlogPostingJsonLd } from '../../lib/utils/seo';
 
+// IMPORTANT: variable is ogDesc (not ogDescription) — already computed on line 34
 const blogPostingJsonLd = generateBlogPostingJsonLd({
   title: post.title[locale],
-  description: ogDescription,
+  description: ogDesc,
   createdAt: post.createdAt,
   updatedAt: post.updatedAt,
   coverImageUrl: post.coverImage?.url,
@@ -283,23 +301,24 @@ const blogPostingJsonLd = generateBlogPostingJsonLd({
 
 <BaseLayout jsonLd={blogPostingJsonLd} ... />
 ```
+ES variant (`src/pages/es/blog/[slug].astro`) — identical logic, import from `'../../../lib/utils/seo'`.
 
 ### Files To Create/Modify
 
-| Action | File | Description |
-|--------|------|-------------|
-| MODIFY | `astro.config.mjs` | Add `@astrojs/sitemap` integration with i18n + admin filter |
-| MODIFY | `public/robots.txt` | Add `Sitemap:` directive |
-| MODIFY | `src/lib/utils/seo.ts` | Add JSON-LD generator functions + types |
-| MODIFY | `src/layouts/BaseLayout.astro` | Add `jsonLd` optional prop + `<script>` render |
-| MODIFY | `src/pages/index.astro` | Pass Person JSON-LD |
-| MODIFY | `src/pages/es/index.astro` | Pass Person JSON-LD |
-| MODIFY | `src/pages/projects/[slug].astro` | Pass CreativeWork JSON-LD |
-| MODIFY | `src/pages/es/projects/[slug].astro` | Pass CreativeWork JSON-LD |
-| MODIFY | `src/pages/blog/[slug].astro` | Pass BlogPosting JSON-LD |
-| MODIFY | `src/pages/es/blog/[slug].astro` | Pass BlogPosting JSON-LD |
-| MODIFY | `src/lib/utils/__tests__/seo.test.ts` | Add JSON-LD unit tests |
-| CREATE | `tests/e2e/seo-validation.spec.ts` | E2E for sitemap, robots.txt, JSON-LD |
+| Action | File | Import for `seo.ts` | Description |
+|--------|------|---------------------|-------------|
+| MODIFY | `astro.config.mjs` | N/A | Add `@astrojs/sitemap` integration with i18n + admin filter |
+| MODIFY | `public/robots.txt` | N/A | Add `Sitemap:` directive |
+| MODIFY | `src/lib/utils/seo.ts` | N/A (source file) | Add JSON-LD generator functions + types |
+| MODIFY | `src/layouts/BaseLayout.astro` | N/A | Add `jsonLd` optional prop + `<script>` render |
+| MODIFY | `src/pages/index.astro` | `'../lib/utils/seo'` | Pass Person JSON-LD |
+| MODIFY | `src/pages/es/index.astro` | `'../../lib/utils/seo'` | Pass Person JSON-LD |
+| MODIFY | `src/pages/projects/[slug].astro` | `'../../lib/utils/seo'` | Pass CreativeWork JSON-LD (use `resolvedTechs.map(t => t.name)`) |
+| MODIFY | `src/pages/es/projects/[slug].astro` | `'../../../lib/utils/seo'` | Pass CreativeWork JSON-LD (use `resolvedTechs.map(t => t.name)`) |
+| MODIFY | `src/pages/blog/[slug].astro` | `'../../lib/utils/seo'` | Pass BlogPosting JSON-LD (use `ogDesc` variable) |
+| MODIFY | `src/pages/es/blog/[slug].astro` | `'../../../lib/utils/seo'` | Pass BlogPosting JSON-LD (use `ogDesc` variable) |
+| MODIFY | `src/lib/utils/__tests__/seo.test.ts` | `'../seo'` | Add JSON-LD unit tests |
+| CREATE | `tests/e2e/seo-validation.spec.ts` | N/A | E2E for sitemap, robots.txt, JSON-LD |
 
 ### Testing Strategy
 
@@ -311,39 +330,51 @@ const blogPostingJsonLd = generateBlogPostingJsonLd({
 
 **E2E tests** (`tests/e2e/seo-validation.spec.ts` — new file):
 
-Run against `pnpm preview` (built static output). Tests:
+Run against `pnpm preview` (built static output). **No existing E2E tests fetch non-HTML content** — this will be the first.
+
+**CRITICAL — `page.goto()` for non-HTML returns `Response | null`**. Always null-check before calling `.text()`:
 
 ```typescript
-// Sitemap
-const sitemapIndex = await page.goto('/sitemap-index.xml');
-// Verify response OK and contains <sitemap> entries
+// Sitemap — use page.goto() which returns Response | null
+const sitemapIndexResponse = await page.goto('/sitemap-index.xml');
+expect(sitemapIndexResponse).not.toBeNull();
+expect(sitemapIndexResponse!.status()).toBe(200);
+const sitemapIndexText = await sitemapIndexResponse!.text();
+// Verify contains <sitemap> entries pointing to sitemap-0.xml
 
-const sitemap = await page.goto('/sitemap-0.xml');
+const sitemapResponse = await page.goto('/sitemap-0.xml');
+expect(sitemapResponse).not.toBeNull();
+const sitemapText = await sitemapResponse!.text();
 // Verify contains <url> entries for /, /es/, /projects, /es/projects/, /blog, /es/blog/, /contact, /es/contact/
 // Verify contains dynamic project slugs and blog slugs
 // Verify does NOT contain /admin URLs
 
 // Robots.txt
-const robots = await page.goto('/robots.txt');
+const robotsResponse = await page.goto('/robots.txt');
+expect(robotsResponse).not.toBeNull();
+const robotsText = await robotsResponse!.text();
 // Verify contains 'Sitemap: https://portfolio-chrisbp.web.app/sitemap-index.xml'
 // Verify contains 'Disallow: /admin'
 
-// JSON-LD Home
+// JSON-LD Home — use page.locator for script tags inside HTML pages
 await page.goto('/');
 const personLd = await page.locator('script[type="application/ld+json"]').textContent();
-const personData = JSON.parse(personLd);
+expect(personLd).not.toBeNull();
+const personData = JSON.parse(personLd!);
 // Assert @type === 'Person', name, sameAs.length === 3
 
-// JSON-LD Project Detail
+// JSON-LD Project Detail — discover first slug dynamically (same pattern as project-detail.spec.ts)
 await page.goto('/projects/<first-slug>');
 const projectLd = await page.locator('script[type="application/ld+json"]').textContent();
-const projectData = JSON.parse(projectLd);
+expect(projectLd).not.toBeNull();
+const projectData = JSON.parse(projectLd!);
 // Assert @type === 'CreativeWork', name, description, author.name
 
-// JSON-LD Blog Article
+// JSON-LD Blog Article — discover first slug dynamically (same pattern as blog-article.spec.ts)
 await page.goto('/blog/<first-slug>');
 const blogLd = await page.locator('script[type="application/ld+json"]').textContent();
-const blogData = JSON.parse(blogLd);
+expect(blogLd).not.toBeNull();
+const blogData = JSON.parse(blogLd!);
 // Assert @type === 'BlogPosting', headline, datePublished, author.name, author.url
 ```
 
@@ -352,7 +383,7 @@ const blogData = JSON.parse(blogLd);
 | Page | Data Source | Available Fields for JSON-LD |
 |------|------------|------------------------------|
 | Home | Static (hardcoded) | name, jobTitle, siteUrl, social links |
-| Project `[slug]` | `getProjects()` via Admin SDK | `companyName[locale]`, `shortDescription[locale]`, `mainImage.url`, `technologies[]`, `slug` |
+| Project `[slug]` | `getProjects()` via Admin SDK | `companyName[locale]`, `shortDescription[locale]`, `mainImage.url`, `technologies[]` (IDs — resolve via `resolvedTechs` already on page), `slug` |
 | Blog `[slug]` | `getBlogPosts()` via Admin SDK | `title[locale]`, `content[locale]`, `coverImage?.url`, `createdAt`, `updatedAt`, `slug` |
 
 ### Anti-Patterns to Avoid
@@ -361,6 +392,7 @@ const blogData = JSON.parse(blogLd);
 - **DO NOT** add JSON-LD to listing pages (Projects list, Blog list) — only detail pages need structured data
 - **DO NOT** add JSON-LD to admin pages
 - **DO NOT** add client-side JavaScript for JSON-LD — it's `<script type="application/ld+json">` which is purely declarative
+- **DO NOT** use `project.technologies` directly for JSON-LD keywords — those are Firestore IDs, use `resolvedTechs.map(t => t.name)` for display names
 - **DO NOT** hardcode page URLs in JSON-LD — use `Astro.url` and `Astro.site` for absolute URL construction
 - **DO NOT** forget to filter admin pages from sitemap
 - **DO NOT** import the `@astrojs/sitemap` filter in page files — it's only configured in `astro.config.mjs`
@@ -383,6 +415,14 @@ const blogData = JSON.parse(blogLd);
 - AdminLayout has `<meta name="robots" content="noindex, nofollow" />` (already SEO-excluded)
 - Blog pages already have `ogType="article"` and pass `ogImage={post.coverImage?.url}`
 - All existing meta tag E2E tests pass (1206 unit + 150 E2E total)
+
+**Exact variable names in current code (verified):**
+- Blog pages: `ogDesc` (NOT `ogDescription`) — computed on line 34 of `blog/[slug].astro`
+- Project pages: `resolvedTechs` — computed on line 39 of `projects/[slug].astro`, contains `Technology[]` with `.name` field
+- `project.technologies` is `string[]` of Firestore IDs — never use directly for JSON-LD keywords
+- BaseLayout Props: `{ title, description, currentPage, ogImage, ogType, ogDescription }` — add `jsonLd` here
+- `Astro.site!` is safe (always defined via `astro.config.mjs` `site` field)
+- E2E tests: `page.goto()` for non-HTML returns `Response | null` — always null-check
 
 **Review corrections from 5-1 to avoid repeating:**
 - Always check all layout files when modifying shared patterns
