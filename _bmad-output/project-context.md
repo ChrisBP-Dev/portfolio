@@ -1,10 +1,11 @@
 ---
 project_name: 'portfolio'
 user_name: 'Christopher'
-date: '2026-03-24'
+date: '2026-03-26'
 sections_completed: ['technology_stack', 'language_rules', 'framework_rules', 'testing_rules', 'code_quality', 'workflow_rules', 'critical_rules']
 status: 'complete'
-rule_count: 165
+rule_count: 199
+lines: 510
 optimized_for_llm: true
 ---
 
@@ -40,13 +41,18 @@ _Este archivo contiene reglas y patrones críticos que los agentes de IA deben s
 - Astro i18n nativo — `en` (default, sin prefijo) / `es` (prefijo `/es/`)
 - Diccionario custom de traducciones + `localizedString` Zod schema
 
+### SEO & Structured Data
+- **@astrojs/sitemap** 3.7.1 — XML sitemap con filtro admin + i18n locales
+- **JSON-LD** inline — Person (home), CreativeWork (projects), BlogPosting (blog)
+
 ### Testing
-- **Vitest** 4.1.0 (unit) + **Playwright** 1.58.2 (e2e)
+- **Vitest** 4.1.0 (unit) + **Playwright** 1.58.2 (e2e) + **axe-core/playwright** 4.11.1 (WCAG)
 - **Lighthouse CI** 0.15.1 (performance/a11y/seo gates)
 
 ### Tooling
 - pnpm, Node.js >= 22.12.0, ESLint 10 + Prettier 3.8.1
 - Firebase Hosting con cache headers inmutables
+- Scripts de mantenimiento: `cleanup:e2e`, `cleanup:images` (dry-run por defecto)
 
 ### Dependencias Adicionales
 - sanitize-html 2.17.1, sharp 0.34.5, tsx 4.21.0
@@ -78,6 +84,8 @@ _Este archivo contiene reglas y patrones críticos que los agentes de IA deben s
 - **`escapeHtml` obligatorio en renderers custom**: Todo texto Y atributos (href, alt, src) deben escaparse con la secuencia correcta: `&` primero (evita double-escaping), luego `<`, `>`, `"`, `'`. Single-quote se escapa por defense-in-depth
 - **TipTap empty detection**: `{ type: 'doc', content: [{ type: 'paragraph' }] }` es el estado inicial de TipTap — detectar como "vacío" para validación con `isTipTapContentEmpty()`
 - **Image dedup en contenido bilingüe**: Extraer imágenes de ambos locales con `extractImagesFromContent()`, merge con `mergeUniqueImages()` deduplicando por `storagePath`. Guardar solo imágenes realmente referenciadas en `images[]`
+- **JSON-LD XSS escape obligatorio**: Contenido de usuario (TipTap) embebido en `<script type="application/ld+json">` debe escapar secuencias `</` como `<\/` con `.replaceAll('</', '<\\/')`. Previene inyección de script tag dentro del JSON-LD inline
+- **Slug uniqueness con `limit(2)`**: Queries de unicidad de slug usan `where('slug', '==', value), limit(2)` — no `limit(1)`. Detecta datos corruptos con slugs duplicados. Try-catch fail-closed para prevenir race conditions
 
 ### Reglas Específicas del Framework
 
@@ -169,6 +177,27 @@ _Este archivo contiene reglas y patrones críticos que los agentes de IA deben s
 - **ImageUploadDialog**: Estado como mini state machine — upload disabled hasta seleccionar archivo (`type === 'new'`). Path: `blog/{postId}/images/{uuid}.webp`. Alt text separado del slot state. Upload handle cancelable en unmount
 - **`allowBase64: false`**: sanitize-html bloquea imágenes base64 en contenido — solo URLs de Firebase Storage permitidas
 
+#### SEO & Structured Data (Epic 5)
+- **JSON-LD por tipo de página**: Person schema en home, CreativeWork en project detail, BlogPosting en blog article. Listing pages (projects index, blog index, contact) NO llevan JSON-LD
+- **OpenGraph siempre presente**: `resolveOgImage()` garantiza og:image en toda página — fallback a `/images/og-default.png`. Width/height solo en imagen default, omitidos en custom
+- **`ogType` override**: Default `"website"` para páginas normales, `"article"` para blog posts. Pasar como prop a BaseLayout
+- **Hreflang automático**: BaseLayout genera `<link rel="alternate" hreflang="en|es|x-default">` con URLs absolutas para ambos locales
+- **Sitemap con filtro admin**: `@astrojs/sitemap` configurado con `filter: (page) => !page.includes('/admin')` + i18n locales
+- **Preconnect obligatorio**: `<link rel="preconnect" href="https://firebasestorage.googleapis.com" />` en BaseLayout — SIN atributo `crossorigin` (viola fetch pool semantics para imágenes)
+
+#### Performance Optimization (Epic 5)
+- **Hydration directives selectivos**: `client:idle` para componentes no-críticos (ThemeToggle, LocaleToggle, ProjectFilter, MobileMenu). `client:load` solo para componentes que necesitan JS inmediatamente (AuthGuard). Reducción validada: 25.8KB JS en home
+- **Imágenes con dimensiones explícitas**: TODAS las imágenes de Firebase Storage deben tener `width` y `height` HTML para prevenir CLS. Tech icons: `width="16" height="16"` en HTML, styling con `class="w-4 h-4"`
+- **`fetchpriority="high"`**: Solo en imagen hero/principal de páginas detail (mainImage de projects, coverImage de blog). Resto usa `loading="lazy" decoding="async"`
+- **Font preload via Astro Fonts API**: `display: 'swap'` obligatorio para prevenir FOIT. Pesos explícitos: Poppins 400/500/600/700, JetBrains Mono 400
+
+#### Accessibility WCAG 2.1 AA (Epic 5)
+- **Contraste theme-aware**: CSS variables con valores diferentes por tema. Dark: `--theme-text-muted: #8090A0` (5.0:1 vs superficie). Light: `--theme-text-muted: #6B7585` (4.73:1 vs white). NUNCA un solo valor para ambos modos
+- **Skip navigation**: Primer elemento focusable debe ser skip nav con `href="#main"`. `<main id="main">` obligatorio en layout
+- **`aria-live` para filtros dinámicos**: ProjectFilter anuncia resultados con `aria-live="polite" aria-atomic="true"` en región sr-only
+- **`prefers-reduced-motion`**: Respetar `@media (prefers-reduced-motion: reduce)` — deshabilitar View Transitions y animaciones CSS
+- **Focus visible obligatorio**: Todos los elementos interactivos deben tener `outline-style` visible en `:focus-visible`
+
 #### Firebase Dual SDK Pattern
 - **Build time (Admin SDK)**: `src/lib/firebase/firebase-admin.ts` — queries Firestore para generar HTML estático
 - **Browser (Client SDK)**: `src/lib/firebase/client.ts` — singleton: Auth, Firestore, Storage para admin UI
@@ -233,8 +262,31 @@ _Este archivo contiene reglas y patrones críticos que los agentes de IA deben s
 - 2 matrices: páginas de proyecto (performance >= 0.7 warn) y resto (>= 0.95 error)
 - Accessibility, Best Practices, SEO: siempre >= 0.95 error. Preset desktop
 
+#### axe-core E2E (WCAG 2.1 AA) — Epic 5
+- **Fixture custom `axe-test.ts`**: Extiende base test de Playwright con `makeAxeBuilder` pre-configurado con tags `['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']`
+- **Filtro por severidad**: Solo fallar en violations con impact `critical` o `serious` — ignorar minor/moderate
+- **Attachment de resultados**: JSON de violations adjunto al reporte Playwright para debugging
+- **Cobertura axe**: Todas las páginas públicas deben tener test axe (home, projects, blog, contact, detail pages)
+
+#### E2E Data Management — Epic 5
+- **Global teardown automático**: `globalTeardown` en Playwright config ejecuta cleanup post-E2E sin intervención manual
+- **Script `cleanup:e2e`**: Elimina docs Firestore + imágenes Storage con patrón `e2e-*` en slug. Dry-run por defecto (`--execute` para borrar)
+- **Script `cleanup:images`**: Compara archivos Storage vs referencias Firestore, identifica orphans. Dry-run por defecto (`--execute` para borrar)
+- **Tests idempotentes obligatorio**: Cada test E2E crea y limpia sus datos. Patrón slug: `e2e-{feature}-{timestamp}` para identificación
+
+#### SEO E2E Validation — Epic 5
+- **Sitemap testing**: Validar accesibilidad y contenido de sitemap-index.xml, sitemap-0.xml, robots.txt
+- **JSON-LD verification**: Parsear `script[type="application/ld+json"]` y validar estructura del schema por tipo de página
+- **Exclusión admin**: Tests verifican que rutas `/admin` NO aparecen en sitemap
+
+#### Proceso de Testing (Lecciones Epics 3-5)
+- **Accessibility desde Epic 1**: axe-core WCAG debe integrarse desde el primer epic — detección tardía multiplica rework (contraste de colores descubierto en Epic 5 requirió cambio sistémico de CSS variables)
+- **E2E contra producción requiere cleanup**: Sin scripts automáticos, datos orphan se acumulan (~20 docs + ~37 imágenes por epic). `globalTeardown` es infraestructura esencial
+
 #### Comandos
 - `pnpm test` (unit), `pnpm test:watch`, `pnpm test:coverage`, `pnpm test:e2e` (Playwright)
+- `pnpm cleanup:e2e` (preview E2E data), `pnpm cleanup:e2e --execute` (borrar)
+- `pnpm cleanup:images` (preview orphans), `pnpm cleanup:images --execute` (borrar)
 
 ### Reglas de Calidad de Código & Estilo
 
@@ -271,9 +323,9 @@ src/
 ├── lib/types/               # Tipos derivados de schemas
 ├── lib/utils/               # Utilidades puras (formatDate, slugify, toast-store, error-messages,
 │                            #   tiptap-renderer.ts, tiptap-helpers.ts, reading-time.ts,
-│                            #   sanitize-blog-html.ts)
-├── lib/scripts/             # Scripts de build/seed (migrate, seed)
-├── pages/                   # File-based routing
+│                            #   sanitize-blog-html.ts, seo.ts)
+├── lib/scripts/             # Scripts de build/seed (migrate, seed) + cleanup (e2e, orphans)
+├── pages/                   # File-based routing + robots.txt.ts (dynamic route)
 ├── pages/admin/             # Admin pages (index, login, projects, technologies, experiences, blog)
 ├── pages/blog/              # Blog pages (index.astro, [slug].astro)
 ├── pages/es/blog/           # Blog pages ES (index.astro, [slug].astro)
@@ -304,6 +356,7 @@ src/
 - **Defense-in-depth para HTML dinámico**: Tres capas siempre: (1) escapeHtml en renderer, (2) sanitize-html whitelist, (3) Astro `set:html` solo con output sanitizado. NUNCA confiar en una sola capa
 - **Specs validados contra código real**: Antes de crear story specs, verificar Firestore/código actual contra arquitectura. La realidad del código manda sobre el doc
 - **No replicar defectos conocidos**: Si un patrón existente tiene un bug, NO copiarlo en componentes nuevos — corregir primero, luego implementar
+- **Proactive bug fixing**: Cada story incluye auditoría proactiva más allá del spec — bugs pre-existentes se corrigen en contexto, no se acumulan. Epic 5 corrigió 7+ bugs heredados (favicon placeholder, dead nav links, orphaned E2E data, contrast failures, toast duplicates)
 
 ### Reglas de Workflow de Desarrollo
 
@@ -335,12 +388,17 @@ src/
 - `pnpm migrate` — migración one-time Firestore (Flutter schema → schema profesional)
 - `pnpm seed:experiences` — seed de experiencias en emuladores
 
+#### Scripts de Mantenimiento (Epic 5)
+- `pnpm cleanup:e2e [--execute]` — elimina docs Firestore + imágenes Storage con slug `e2e-*`. Preview por defecto
+- `pnpm cleanup:images [--execute]` — compara Storage vs Firestore, identifica/elimina orphans. Preview por defecto
+- **Dry-run como default**: Ambos scripts muestran preview sin borrar nada — requieren flag explícito `--execute` para operar. Previene eliminación accidental
+
 #### Environment Variables
 - `.env` (local, no committed) + `.env.example` (template, committed)
 - CI/CD: GitHub Secrets para `FIREBASE_ADMIN_*` keys + `FIREBASE_CLIENT_CONFIG`
 - `PUBLIC_*` = browser. Sin prefijo = solo build-time
 
-#### Proceso de Desarrollo (Lecciones Retros Epics 3-4)
+#### Proceso de Desarrollo (Lecciones Retros Epics 3-5)
 - **Verificar datos reales antes de escribir stories**: Arquitectura es un plan, no realidad. Siempre verificar Firestore/código actual contra spec antes de crear story spec
 - **Decisiones estratégicas antes del epic, no durante**: Cambios como locale flip tocan 14+ archivos. Decidir en planning, no en implementación
 - **Project context actualizado al cierre de cada epic**: ANTES de crear stories del siguiente epic. Context desactualizado bloquea a los agentes. Epic 4 necesitó actualización post-cierre para TipTap, SortableJS, orphan cleanup, y anti-patrones de `$effect`
@@ -348,16 +406,18 @@ src/
 - **Defer solo con plan concreto (reafirmado Epic 4)**: Epic 3 tuvo 10 defers sin plan → Epic 4 redujo a 1 defer con quick-dev programado. Si no hay story futura que lo resuelva → corregir en story actual
 - **Tests substantivos (acuerdo Epic 4)**: Code review encontró tests tautológicos que verificaban mocks en vez de comportamiento real. Tests verifican lógica observable, no llamadas a mocks
 - **Quick devs para mejoras post-epic**: Mejoras de UX (SortableJS ordering, orphan cleanup) se implementan como quick-dev entre épicas. No requieren story spec completo pero sí code review y E2E
+- **Color contrast desde día 1**: Colores del design system deben validarse contra WCAG AA (4.5:1) en AMBOS temas antes de implementar. Detección tardía (Epic 5) requirió cambio sistémico de CSS variables en 5+ archivos
+- **Specs no son exhaustivos**: SM crea specs desde documentación pero puede omitir componentes o malinterpretar APIs. Pre-spec code audit (enumerar archivos afectados) y code review validando completitud son prácticas estándar — 2-3 patches por story es normal
 
 #### Code Review (3 Capas)
 - **Capa 1 — Implementación**: Story ACs cumplidos, funcionalidad correcta
 - **Capa 2 — Arquitectura**: Consistencia con schemas, error handling, patrones del proyecto
 - **Capa 3 — Seguridad de producción**: Atomicidad, cleanup, error cases, a11y, memory leaks
 
-#### Métricas de Calidad (Baseline Epic 4)
-- Stories completadas: 5/5. Tests agregados: +323 (+284 unit, +39 E2E)
-- Code review patches: ~26 (mejora vs ~38 en Epic 3). Deferred items: 1 con plan (vs 10 sin plan en Epic 3)
-- Bugs pre-existentes corregidos proactivamente: 3. Incidentes en producción: 0
+#### Métricas de Calidad (Baseline Epics 4-5)
+- Epic 4: Stories 5/5. Tests +323 (+284 unit, +39 E2E). Patches ~26. Defers 1. Bugs corregidos 3. Incidentes 0
+- Epic 5: Stories 6/6. Tests +127 (+83 unit, +44 E2E). Patches ~26. Defers 1. Bugs corregidos 7+. Incidentes 0
+- Totales acumulados: 1246 unit + 160 E2E tests. Bundle JS home: 25.8KB (budget <50KB)
 
 ### Reglas Críticas — No Olvidar
 
@@ -384,6 +444,12 @@ src/
 - NUNCA usar `Promise.all` para batch deletes de imágenes orphan — fire-and-forget individual con `.catch(console.warn)` para no bloquear al usuario
 - NUNCA confiar en que un spec refleja la realidad del código — verificar Firestore/codebase actual antes de implementar. Specs pueden tener bugs
 - NUNCA copiar patrones de componentes existentes sin verificar que no tengan defectos conocidos — corregir primero, luego implementar
+- NUNCA omitir `width` y `height` en imágenes de Firebase Storage — CLS penalty en Lighthouse y mala UX durante carga
+- NUNCA agregar `crossorigin` a preconnect hints de Firebase Storage — viola fetch pool semantics para imágenes (no son CORS requests)
+- NUNCA usar un solo valor de color para ambos temas (dark/light) — validar contraste WCAG AA (4.5:1) contra superficie de cada tema por separado
+- NUNCA agregar JSON-LD a listing pages — solo en home (Person), project detail (CreativeWork) y blog article (BlogPosting)
+- NUNCA ejecutar scripts de cleanup sin flag `--execute` — dry-run es el default por seguridad
+- NUNCA usar `display="block"` en fonts — `display="swap"` obligatorio para prevenir FOIT
 
 #### Defer Criteria (Post-Retros Epics 3-4)
 - **Defer SOLO con plan concreto**: Si code review encuentra defecto y no hay story futura planeada → corregir en story actual. "Pre-existente" sin plan = se resuelve ahora
@@ -409,6 +475,12 @@ src/
 - **OG description word boundary**: Truncar a 157 chars, luego `replace(/\s\S*$/, '')` para no cortar a mitad de palabra. Si regex deja string vacío (palabra única >157 chars), usar slice crudo. Fallback a título si no hay texto
 - **SortableJS `ghostClass` y `chosenClass`**: Clases de Tailwind aplicadas por Sortable directamente — deben existir en el contexto CSS. `opacity-50` para ghost, `border-primary` para chosen
 - **`allowBase64: false` en sanitize-html**: Bloquea imágenes base64 inline — solo URLs de Firebase Storage. Previene inyección de contenido pesado y bypasses de CSP
+- **`resolveOgImage()` centralizado**: Toda página pasa por esta función para garantizar og:image. Default: `/images/og-default.png` con width/height. Custom: sin dimensiones (pueden variar)
+- **JSON-LD escape en BaseLayout**: `.replaceAll('</', '<\\/')` antes de inyectar JSON-LD en `<script>` tag — defense-in-depth contra XSS de contenido CMS
+- **Slug uniqueness query pattern**: `where('slug', '==', value), limit(2)` + try-catch fail-closed. `limit(2)` detecta duplicados corruptos; `limit(1)` los ignora silenciosamente
+- **axe-core solo critical/serious**: Fixture filtra violations por `impact` — `critical` y `serious` fallan el test, `minor` y `moderate` se ignoran para evitar false positives
+- **Toast deduplication**: `toastStore` previene duplicados verificando mensaje existente antes de agregar. Sin esto, errores de red generan floods de toasts idénticos
+- **E2E cleanup como infraestructura**: `globalTeardown` en Playwright ejecuta `cleanup:e2e` automáticamente. Sin esto, ~20 docs + ~37 imágenes orphan por epic en Firestore/Storage
 
 #### Seguridad
 - API keys de Firebase en `.env` — NUNCA en código fuente
@@ -436,4 +508,4 @@ src/
 - Actualizar cuando cambie el stack tecnológico
 - Revisar después de cada epic para eliminar reglas obsoletas y agregar nuevas
 
-Última actualización: 2026-03-24
+Última actualización: 2026-03-26
