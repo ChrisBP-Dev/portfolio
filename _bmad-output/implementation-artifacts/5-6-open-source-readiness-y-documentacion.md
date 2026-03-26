@@ -1,6 +1,6 @@
 # Story 5.6: Open Source Readiness y Documentación
 
-Status: review
+Status: done
 
 ## Story
 
@@ -258,11 +258,31 @@ Claude Opus 4.6 (1M context)
 - ✅ Task 5: Fresh clone workflow verified. Build works with Admin SDK credentials (30 pages). Admin SDK build-time requirement documented in README Firebase Setup section. `pnpm exec playwright install` documented in Getting Started.
 - ✅ Task 6: Final verification — build OK (30 pages), 1246 unit tests passing, 126 public E2E tests passing (19 skipped). CI smart skip logic confirmed: README.md and LICENSE are outside monitored paths → skip build/Lighthouse/deploy correctly.
 
+### Code Review Record
+
+**Reviewer:** Claude Opus 4.6 (1M context) — 3-layer adversarial review (Blind Hunter, Edge Case Hunter, Acceptance Auditor)
+
+**Date:** 2026-03-25
+
+**Findings Summary:** 6 findings raised, 6 resolved, 0 deferred
+
+| # | Finding | Source | Resolution |
+|---|---------|--------|------------|
+| 1 | Lighthouse CI claim ">95 Performance" inexact — project detail pages use 70% warn-only | blind+edge | Fixed: qualified the claim with exception for project detail pages |
+| 2 | `FIREBASE_SERVICE_ACCOUNT` JSON example ambiguously minimal | blind | Fixed: added note to use full JSON from Firebase Console |
+| 3 | `src/data/` described as "translations, constants" but only has navigation | blind | Fixed: changed to "Navigation data and static constants" |
+| 4 | `firebase deploy` assumes global CLI | blind | Fixed: changed to `pnpm exec firebase deploy --only hosting` |
+| 5 | Version numbers shown as exact but package.json uses caret ranges | blind+edge | Fixed: added footnote noting versions are minimums from package.json |
+| 6 | CI pipeline doesn't run E2E tests, description unclear | edge | Fixed: changed "test" to "unit tests" in pipeline, added E2E-local-only note, clarified skip logic |
+
+**Acceptance Auditor:** All 6 ACs passed. All 14 README sections present in correct order. Both GitHub Secrets documented. Zero anti-pattern violations.
+
 ### Change Log
 
 - 2026-03-25: Story 5-6 implementation — created LICENSE (MIT), rewrote README.md in English with all required sections, verified secrets audit, .env.example completeness, fresh clone workflow, and CI impact.
+- 2026-03-25: Code review — 3-layer adversarial review. 6 findings found and fixed (Lighthouse claim, SERVICE_ACCOUNT JSON, data/ description, firebase deploy CLI, version footnote, CI E2E clarity). 0 deferred.
 
 ### File List
 
 - `LICENSE` — NEW (MIT License, full text)
-- `README.md` — MODIFIED (complete rewrite from Spanish to English, expanded from ~133 to ~220 lines with 14 sections)
+- `README.md` — MODIFIED (complete rewrite from Spanish to English, expanded from ~133 to ~280 lines with 14 sections, then 6 code review fixes applied)

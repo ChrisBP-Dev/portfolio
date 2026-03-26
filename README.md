@@ -17,6 +17,8 @@ Personal portfolio built with Astro 6, Svelte 5, Tailwind CSS 4, and Firebase. S
 | Playwright | 1.58.2 | End-to-end testing |
 | Lighthouse CI | 0.15.1 | Performance, a11y, SEO quality gates |
 
+> Versions reflect the minimum from `package.json` (caret ranges). Actual installed versions may be higher.
+
 ## Architecture Overview
 
 The site follows the **Astro Islands** pattern:
@@ -130,14 +132,14 @@ E2E tests use Playwright and require a production build first. Tests are located
 pnpm build && pnpm exec lhci autorun
 ```
 
-Validates scores >95 for Performance, Accessibility, Best Practices, and SEO. Configuration is in `lighthouserc.cjs`.
+Enforces scores >95 for Accessibility, Best Practices, and SEO on all pages. Performance >95 is enforced on most pages, with a relaxed threshold (>70, warn-only) for project detail pages due to dynamic image content. Configuration is in `lighthouserc.cjs`.
 
 ## Deployment
 
 ### Firebase Hosting
 
 ```bash
-firebase deploy --only hosting
+pnpm exec firebase deploy --only hosting
 ```
 
 ### CI/CD Pipeline (GitHub Actions)
@@ -145,12 +147,12 @@ firebase deploy --only hosting
 The pipeline runs on every push to `main` and supports manual trigger via `workflow_dispatch`:
 
 ```
-install → lint → type-check → test (with emulators) → build → Lighthouse CI → deploy
+install → lint → type-check → unit tests (with emulators) → build → Lighthouse CI → deploy
 ```
 
-If any step fails, the pipeline stops and deployment does not occur.
+If any step fails, the pipeline stops and deployment does not occur. E2E tests run locally only (`pnpm build && pnpm test:e2e`) and are not part of the CI pipeline.
 
-Smart skip logic: documentation-only changes (README, LICENSE, etc.) skip the build, Lighthouse, and deploy steps.
+Smart skip logic: documentation-only changes (README, LICENSE, etc.) skip the build, Lighthouse, and deploy steps. Lint, type-check, and unit tests always run.
 
 Manual rebuild from CLI:
 
@@ -162,7 +164,7 @@ gh workflow run ci.yml
 
 Two secrets are required for CI/CD:
 
-**`FIREBASE_SERVICE_ACCOUNT`** — Firebase Admin SDK service account JSON:
+**`FIREBASE_SERVICE_ACCOUNT`** — Firebase Admin SDK service account JSON. Use the full JSON file downloaded from Firebase Console (Project Settings → Service accounts → Generate new private key). Key fields used by CI:
 
 ```json
 {
@@ -203,7 +205,7 @@ src/
 │   ├── home/        # Homepage sections (About, Projects, Experience)
 │   ├── layout/      # Header, Footer, Sidebar, navigation
 │   └── projects/    # Project listing and detail components
-├── data/            # Static data files (translations, constants)
+├── data/            # Navigation data and static constants
 ├── layouts/         # Page layouts (BaseLayout, AdminLayout)
 ├── lib/             # Core libraries and utilities
 │   ├── firebase/    # Firebase client and admin SDK configuration
