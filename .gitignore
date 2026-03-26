@@ -40,5 +40,8 @@ coverage/
 # Lighthouse CI
 .lighthouseci/
 
+# Legacy Flutter project
+_flutter-archive/
+
 # Logs
 *.log
