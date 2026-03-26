@@ -1,6 +1,6 @@
 # Índice de Documentación del Proyecto — Portfolio ChrisBP
 
-> Generado: 2026-03-24 | Modo: Re-escaneo Exhaustivo | v2.0.0
+> Generado: 2026-03-26 | Modo: Re-escaneo Exhaustivo | v3.0.0
 
 ## Información del Proyecto
 
@@ -20,17 +20,17 @@
 - **Patrón arquitectónico:** Astro Islands — SSG con islas de interactividad Svelte
 - **Idiomas UI:** Inglés (default, sin prefijo), Español (prefijo `/es/`)
 - **Proyecto Firebase:** portfolio-chrisbp
-- **Node.js:** ≥22.12.0 | **Package Manager:** pnpm 10
+- **Node.js:** >=22.12.0 | **Package Manager:** pnpm 10
 
 ## Documentación Generada
 
 - [Visión General del Proyecto](./project-overview.md) — Resumen ejecutivo, stack tecnológico, módulos funcionales
-- [Arquitectura](./architecture.md) — Patrón Islands, capas, estado, datos, routing, auth, testing
-- [Árbol de Código Fuente](./source-tree-analysis.md) — Estructura de directorios anotada (158 archivos)
-- [Inventario de Componentes](./component-inventory.md) — 51 componentes categorizados (17 Astro + 34 Svelte)
-- [Modelos de Datos](./data-models.md) — Esquemas Zod, colecciones Firestore, relaciones
+- [Arquitectura](./architecture.md) — Patrón Islands, capas, estado, datos, routing, auth, testing, CI/CD
+- [Árbol de Código Fuente](./source-tree-analysis.md) — Estructura de directorios anotada (~160 archivos)
+- [Inventario de Componentes](./component-inventory.md) — 52 componentes categorizados (18 Astro + 32 Svelte + 2 Layouts)
+- [Modelos de Datos](./data-models.md) — Esquemas Zod, colecciones Firestore, relaciones, reglas de seguridad
 - [Guía de Desarrollo](./development-guide.md) — Setup, comandos, convenciones, testing
-- [Guía de Despliegue](./deployment-guide.md) — Firebase Hosting, CI/CD pipeline, Lighthouse CI
+- [Guía de Despliegue](./deployment-guide.md) — Firebase Hosting, CI/CD pipeline, Lighthouse CI, secrets
 
 ## Documentación Existente
 

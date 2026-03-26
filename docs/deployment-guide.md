@@ -1,97 +1,23 @@
 # Guía de Despliegue — Portfolio ChrisBP
 
-> Generado: 2026-03-24 | Escaneo Exhaustivo | Firebase Hosting + GitHub Actions
+> Generado: 2026-03-26 | Modo: Re-escaneo Exhaustivo | v3.0.0
 
-## Infraestructura
+## Plataforma de Hosting
 
-| Servicio | Proveedor | Propósito |
-|----------|-----------|-----------|
-| Hosting | Firebase Hosting | Sitio estático (dist/) |
-| Base de Datos | Cloud Firestore | Datos de contenido |
-| Storage | Firebase Storage | Imágenes (proyectos, tecnologías, blog) |
-| Auth | Firebase Auth | Autenticación admin |
-| CI/CD | GitHub Actions | Pipeline automatizado |
-| Performance | Lighthouse CI | Auditoría de calidad |
+- **Servicio:** Firebase Hosting
+- **Proyecto:** portfolio-chrisbp
+- **URL:** https://portfolio-chrisbp.web.app
+- **CDN:** Global (Firebase CDN)
+- **Output:** HTML/CSS/JS estático pre-renderizado
 
-**Proyecto Firebase:** `portfolio-chrisbp`
-**URL producción:** `https://portfolio-chrisbp.web.app`
-
-## Build de Producción
-
-```bash
-pnpm build
-```
-
-**Output:** `dist/` — sitio estático completo
-
-**Variables requeridas en build:**
-- Firebase Admin SDK: `FIREBASE_ADMIN_PROJECT_ID`, `FIREBASE_ADMIN_CLIENT_EMAIL`, `FIREBASE_ADMIN_PRIVATE_KEY`
-- Firebase Client SDK: `PUBLIC_FIREBASE_*` (6 variables)
-- App config: `PUBLIC_ADMIN_UID`, `PUBLIC_CONTACT_EMAIL`, `PUBLIC_WHATSAPP_NUMBER`
-
-## Despliegue Manual
-
-```bash
-# Build
-pnpm build
-
-# Deploy solo hosting
-firebase deploy --only hosting
-
-# Deploy reglas Firestore
-firebase deploy --only firestore:rules
-
-# Deploy reglas Storage
-firebase deploy --only storage
-
-# Deploy todo
-firebase deploy
-```
-
-## CI/CD Pipeline (GitHub Actions)
-
-**Trigger:** Push a `main` o `workflow_dispatch`
-
-### Etapas del Pipeline
-
-```
-1. Checkout + Setup (pnpm 10, Node via .nvmrc)
-2. Install (pnpm install --frozen-lockfile)
-3. Change Detection (smart skip si solo docs/config cambiaron)
-4. Quality Gates (siempre)
-   ├── Lint (pnpm lint)
-   └── Type Check (pnpm type-check)
-5. Tests con Firebase Emulators (siempre)
-   ├── Setup Java 21 (Temurin)
-   ├── Cache emuladores
-   └── firebase emulators:exec "pnpm test"
-6. Build (solo si hay cambios en código)
-7. Lighthouse CI (solo si hay cambios en código)
-   ├── Exclude admin pages
-   └── Assert scores ≥0.95
-8. Deploy a Firebase Hosting (solo si hay cambios en código)
-```
-
-### Smart Change Detection
-
-El pipeline detecta si solo cambiaron archivos de docs/config:
-- **Archivos monitoreados:** `src/**`, `public/**`, `tests/**`, `package.json`, `pnpm-lock.yaml`, configs de build, `.github/workflows/**`
-- **Si solo cambian otros archivos:** Se ejecutan lint, type-check y tests, pero se saltan build, Lighthouse y deploy
-
-### Secrets de GitHub
-
-| Secret | Contenido |
-|--------|-----------|
-| `FIREBASE_SERVICE_ACCOUNT` | JSON completo del service account |
-| `FIREBASE_CLIENT_CONFIG` | JSON con apiKey, authDomain, projectId, storageBucket, messagingSenderId, appId, adminUid, contactEmail, whatsappNumber |
-
-## Firebase Hosting Config
+## Configuración de Hosting (firebase.json)
 
 ```json
 {
   "hosting": {
     "public": "dist/",
     "cleanUrls": true,
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "headers": [
       {
         "source": "**/*.@(js|css|svg|png|jpg|webp|woff2)",
@@ -107,49 +33,120 @@ El pipeline detecta si solo cambiaron archivos de docs/config:
 }
 ```
 
-- **Clean URLs:** Habilitado (rutas sin `.html`)
-- **Cache:** Assets inmutables con cache de 1 año
-- **Ignore:** `firebase.json`, dotfiles, `node_modules`
+- **cleanUrls:** true — URLs sin extensión .html
+- **Caching:** Assets estáticos con cache inmutable (1 año)
+- **Formatos cacheados:** JS, CSS, SVG, PNG, JPG, WebP, WOFF2
 
-## Reglas de Seguridad
+## Pipeline CI/CD (GitHub Actions)
 
-### Firestore Rules
+**Archivo:** `.github/workflows/ci.yml`
+**Trigger:** Push a `main` + workflow_dispatch manual
+
+### Pasos del Pipeline
+
 ```
-read: público (cualquier visitante)
-write: solo auth.uid == 'G26dKlezR6cghnfv7NrBmQiXdUG3' (admin)
+1. Checkout (full history, fetch-depth: 0)
+   ↓
+2. Setup (pnpm 10 + Node desde .nvmrc + pnpm install --frozen-lockfile)
+   ↓
+3. Detección inteligente de cambios (git diff)
+   • Archivos monitoreados: src/**, public/**, tests/**, package.json,
+     pnpm-lock.yaml, astro.config.*, tsconfig.json, firebase.json,
+     firestore.rules, storage.rules, lighthouserc.cjs, eslint.config.js,
+     .github/workflows/**
+   • Output: has_code_changes=true|false
+   ↓
+4. Quality Gates [SIEMPRE se ejecutan]
+   • pnpm lint
+   • pnpm type-check
+   ↓
+5. Tests con Firebase Emulators [SIEMPRE se ejecutan]
+   • Setup Java 21
+   • Cache emuladores: ~/.cache/firebase/emulators
+   • firebase emulators:exec --only auth,firestore,storage "pnpm test"
+   ↓
+6. Build [CONDICIONAL: solo si has_code_changes]
+   • pnpm build
+   • Secrets inyectados desde GitHub Secrets
+   ↓
+7. Lighthouse CI [CONDICIONAL]
+   • Mueve dist/admin a /tmp (excluye admin del audit)
+   • lhci autorun
+   • Umbrales: ≥0.95 en todos (perf ≥0.70 para /projects/[slug])
+   • Restaura admin pages
+   ↓
+8. Deploy a Firebase Hosting [CONDICIONAL]
+   • FirebaseExtended/action-hosting-deploy@v0
+   • Channel: live
 ```
 
-### Storage Rules
-```
-read: público
-write: solo auth.uid == 'G26dKlezR6cghnfv7NrBmQiXdUG3' (admin)
-```
+## GitHub Secrets Requeridos
 
-## Lighthouse CI Config
+| Secret | Formato | Uso |
+|--------|---------|-----|
+| `FIREBASE_SERVICE_ACCOUNT` | JSON completo | Deploy a Firebase Hosting + Admin SDK en build |
+| `FIREBASE_CLIENT_CONFIG` | JSON con config pública | Variables PUBLIC_* + contacto + admin UID |
 
-```javascript
-// Thresholds estrictos
-performance: ≥0.95     // (≥0.70 para project detail pages con imágenes)
-accessibility: ≥0.95
-best-practices: ≥0.95
-seo: ≥0.95
-```
-
-- **Excepción:** Pages de detalle de proyecto (`/projects/[slug]`) tienen threshold de performance en `warn` ≥0.70 (por carga de screenshots)
-- **Admin pages** excluidas del escaneo Lighthouse
-
-## Emuladores Locales
-
+### Formato de FIREBASE_SERVICE_ACCOUNT
 ```json
 {
-  "auth": { "port": 9099 },
-  "firestore": { "port": 8080 },
-  "storage": { "port": 9199 },
-  "ui": { "port": 4000 }
+  "project_id": "portfolio-chrisbp",
+  "client_email": "...",
+  "private_key": "..."
 }
 ```
 
-**Inicio:** `pnpm emulators`
-**UI:** `http://127.0.0.1:4000`
+### Formato de FIREBASE_CLIENT_CONFIG
+```json
+{
+  "apiKey": "...",
+  "authDomain": "...",
+  "projectId": "...",
+  "storageBucket": "...",
+  "messagingSenderId": "...",
+  "appId": "...",
+  "adminUid": "...",
+  "contactEmail": "...",
+  "whatsappNumber": "..."
+}
+```
 
-Los emuladores se conectan automáticamente cuando `PUBLIC_USE_EMULATORS=true` y `USE_EMULATORS=true` están configurados en `.env`.
+## Lighthouse CI (lighthouserc.cjs)
+
+| Categoría | Umbral General | Umbral /projects/[slug] |
+|-----------|---------------|------------------------|
+| Performance | ≥0.95 (error) | ≥0.70 (warn) |
+| Accessibility | ≥0.95 (error) | ≥0.95 (error) |
+| Best Practices | ≥0.95 (error) | ≥0.95 (error) |
+| SEO | ≥0.95 (error) | ≥0.95 (error) |
+
+- **Preset:** desktop
+- **Runs:** 1 por URL
+- **Upload:** temporary-public-storage
+
+## Reglas de Seguridad
+
+### Firestore
+- Lectura: pública para todos los documentos
+- Escritura: solo UID admin hardcodeado
+
+### Storage
+- Lectura: pública para todos los archivos
+- Escritura: solo UID admin hardcodeado
+
+## Build Local
+
+```bash
+# Requiere variables de entorno Admin SDK configuradas
+pnpm build
+pnpm preview  # http://localhost:4321
+```
+
+## Deploy Manual (no recomendado)
+
+```bash
+pnpm build
+firebase deploy --only hosting
+```
+
+Se recomienda usar el pipeline CI/CD para deploys a producción.

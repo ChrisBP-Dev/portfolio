@@ -1,159 +1,52 @@
 # Modelos de Datos — Portfolio ChrisBP
 
-> Generado: 2026-03-24 | Escaneo Exhaustivo | Zod 4 + Firebase Firestore
+> Generado: 2026-03-26 | Modo: Re-escaneo Exhaustivo | v3.0.0
 
 ## Resumen
 
-| Entidad | Colección Firestore | Esquemas Zod | Campos L10n |
-|---------|-------------------|-------------|-------------|
-| Project | `Projects` | project, projectFirestore, projectForm | companyName, shortDescription, features |
-| Technology | `Technologies` | technology, technologyFirestore, technologyForm | — |
-| Experience | `Experiences` | experience, experienceFirestore, experienceForm | jobName, responsibilities |
-| BlogPost | `BlogPosts` | blogPost, blogPostFirestore, blogPostForm | title, content |
+- **Base de datos:** Cloud Firestore (NoSQL)
+- **Validacion:** Zod ^4.3.6
+- **Colecciones:** 4 (Projects, Technologies, Experiences, BlogPosts)
+- **Esquemas compartidos:** locale, localizedString, localizedStringArray, storedImage, imageSlot
+- **Patron de esquemas:** Cada entidad tiene 3 variantes: entity (completo), firestore (sin id), form (campos editables)
 
-## Esquemas Compartidos (`shared-schemas.ts`)
+## Esquemas Compartidos (src/lib/schemas/shared-schemas.ts)
 
-### Locale
+### localeSchema
 ```typescript
-type Locale = 'es' | 'en'
+z.enum(['es', 'en'])
 ```
+Tipo: `Locale = 'es' | 'en'`
 
-### LocalizedString
+### localizedString
 ```typescript
-type LocalizedString = { es: string; en: string }
-// Validación: min 1 char cada campo
+z.object({
+  es: z.string().min(1),
+  en: z.string().min(1)
+})
 ```
+Usado en: titulos, descripciones, nombres de cargo
 
-### LocalizedStringArray
+### localizedStringArray
 ```typescript
-type LocalizedStringArray = { es: string[]; en: string[] }
-// Validación: min 1 item en cada array, strings no vacíos
+z.object({
+  es: z.array(z.string().min(1)),
+  en: z.array(z.string().min(1))
+})
 ```
+Usado en: features de proyectos, responsabilidades de experiencias
 
-### StoredImage
+### storedImageSchema
 ```typescript
-type StoredImage = { url: string; storagePath: string }
-// url: URL válida, storagePath: ruta en Firebase Storage
+z.object({
+  url: z.url(),
+  storagePath: z.string().min(1)
+})
 ```
+Tipo: `StoredImage = { url: string; storagePath: string }`
+Usado en: todas las imagenes almacenadas en Firebase Storage
 
-## Project
-
-### Esquema Completo
-```typescript
-type Project = {
-  id: string
-  companyName: LocalizedString        // Nombre del proyecto
-  shortDescription: LocalizedString   // Descripción corta
-  features: LocalizedStringArray      // Lista de características
-  mainImage: StoredImage              // Imagen principal
-  screenshots: StoredImage[]          // Galería de screenshots
-  websiteUrl?: string                 // URL del sitio web (opcional)
-  sourceCodeUrl?: string              // URL del código fuente (opcional)
-  technologies: string[]              // IDs de tecnologías (min 1)
-  slug: string                        // URL slug (/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
-  order: number                       // Orden de display (≥0)
-  featured: boolean                   // Proyecto destacado
-}
-```
-
-### Esquema Firestore (`projectFirestoreSchema`)
-- Omite `id` (es el document ID)
-- `mainImage` y `screenshots` opcionales (para parsing robusto)
-
-### Esquema Form (`projectFormSchema`)
-- Omite `id`, `mainImage`, `screenshots`, `order`, `featured`
-- Solo campos editables por el usuario en formularios
-
-### Colección Firestore: `Projects`
-- **Queries:** Todos los documentos, ordenados por `order` ASC
-- **Storage paths:** `projects/{slug}/main.*`, `projects/{slug}/screenshots/*`
-
-## Technology
-
-### Esquema Completo
-```typescript
-type Technology = {
-  id: string
-  name: string                        // Nombre de la tecnología
-  image: StoredImage                  // Logo/ícono
-  experienceYears: number             // Años de experiencia (0-50)
-  order: number                       // Orden de display (≥0)
-}
-```
-
-### Esquema Firestore (`technologyFirestoreSchema`)
-- Omite `id`
-
-### Esquema Form (`technologyFormSchema`)
-- Omite `id`, `image`, `order`
-
-### Colección Firestore: `Technologies`
-- **Queries:** Todos los documentos, ordenados por `order` ASC
-- **Storage paths:** `technologies/{id}/image.*`
-
-## Experience
-
-### Esquema Completo
-```typescript
-type Experience = {
-  id: string
-  companyName: string                 // Nombre de la empresa
-  jobName: LocalizedString            // Puesto de trabajo (bilingüe)
-  responsibilities: LocalizedStringArray  // Responsabilidades (bilingüe)
-  startDate: Date                     // Fecha de inicio
-  endDate?: Date | null               // Fecha de fin (null = actualmente)
-}
-```
-
-### Validación
-- **Refinement:** Si `endDate` existe, debe ser ≥ `startDate`
-
-### Esquema Firestore (`experienceFirestoreSchema`)
-- Omite `id`
-
-### Esquema Form (`experienceFormSchema`)
-- Omite `id`, misma validación de fechas
-
-### Colección Firestore: `Experiences`
-- **Queries:** Todos los documentos
-- **Fechas:** Firestore Timestamps → JavaScript Dates
-
-## BlogPost
-
-### Esquema Completo
-```typescript
-type BlogPost = {
-  id: string
-  title: LocalizedString              // Título del artículo (bilingüe)
-  content: LocalizedString            // Contenido TipTap JSON (bilingüe)
-  slug: string                        // URL slug (/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
-  coverImage?: StoredImage | null     // Imagen de portada (opcional)
-  images: StoredImage[]               // Imágenes inline del contenido
-  status: 'published' | 'draft'       // Estado de publicación
-  createdAt: Date                     // Fecha de creación
-  updatedAt: Date                     // Fecha de última actualización
-}
-```
-
-### Validación
-- **Refinement:** `updatedAt` ≥ `createdAt`
-
-### Esquema Firestore (`blogPostFirestoreSchema`)
-- Omite `id`
-- `images` default a `[]`
-
-### Esquema Form (`blogPostFormSchema`)
-- Solo: `title`, `content`, `slug`, `status`
-
-### Colección Firestore: `BlogPosts`
-- **Queries:** Status = 'published', ordenados por `createdAt` DESC
-- **Storage paths:** `blog-posts/{id}/cover.*`, `blog-posts/{id}/images/*`
-- **Contenido:** TipTap JSON almacenado como string en campo bilingüe
-
-## ImageSlot (Discriminated Union)
-
-No es un esquema Zod — es un tipo TypeScript para gestión de estados de imagen en formularios:
-
+### ImageSlot (src/lib/schemas/image-slot.ts)
 ```typescript
 type ImageSlot =
   | { type: 'empty' }
@@ -162,47 +55,176 @@ type ImageSlot =
   | { type: 'replaced'; old: StoredImage; file: File; preview: string }
   | { type: 'removed'; old: StoredImage }
 ```
+Discriminated union para gestion type-safe del estado de upload de imagenes.
 
-## Triple Schema Pattern
+---
 
-Cada entidad sigue el patrón de 3 esquemas Zod:
+## Coleccion: Projects
 
+**Ruta Firestore:** `Projects`
+**Archivo esquema:** src/lib/schemas/project-schema.ts
+
+### Esquema Completo (projectSchema)
+
+| Campo | Tipo Zod | Requerido | Descripcion |
+|-------|----------|-----------|-------------|
+| id | z.string() | Si | ID del documento Firestore |
+| companyName | localizedString | Si | Nombre de empresa/proyecto bilingue |
+| shortDescription | localizedString | Si | Descripcion corta bilingue |
+| features | localizedStringArray | Si | Lista de caracteristicas bilingue |
+| mainImage | storedImageSchema | Si | Imagen principal del proyecto |
+| screenshots | z.array(storedImageSchema) | Si | Galeria de capturas de pantalla |
+| websiteUrl | z.url().optional() | No | URL del sitio web en produccion |
+| sourceCodeUrl | z.url().optional() | No | URL del repositorio de codigo |
+| technologies | z.array(z.string().min(1)) | Si | Nombres de tecnologias usadas |
+| slug | z.string().min(1).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/) | Si | Slug URL-safe (generado del campo EN) |
+| order | z.number().int().nonnegative().default(0) | Si | Orden de visualizacion |
+| featured | z.boolean().default(false) | Si | Proyecto destacado en home |
+
+### Variantes
+- **projectFirestoreSchema**: Omite `id`, hace `mainImage` y `screenshots` opcionales
+- **projectFormSchema**: Omite `id`, `mainImage`, `screenshots`, `order`, `featured`
+
+### Queries
+- `getAllProjects(db)`: Ordena por `order` ASC, luego `slug` ASC
+- `parseProject(data, id)`: Valida con projectSchema
+
+---
+
+## Coleccion: Technologies
+
+**Ruta Firestore:** `Technologies`
+**Archivo esquema:** src/lib/schemas/technology-schema.ts
+
+### Esquema Completo (technologySchema)
+
+| Campo | Tipo Zod | Requerido | Descripcion |
+|-------|----------|-----------|-------------|
+| id | z.string() | Si | ID del documento Firestore |
+| name | z.string().min(1) | Si | Nombre de la tecnologia |
+| image | storedImageSchema | Si | Logo/icono de la tecnologia |
+| experienceYears | z.number().int().nonnegative() | Si | Anios de experiencia |
+| order | z.number().int().nonnegative().default(0) | Si | Orden de visualizacion |
+
+### Variantes
+- **technologyFirestoreSchema**: Omite `id`
+- **technologyFormSchema**: Omite `id`, `image`, `order`
+
+### Queries
+- `getAllTechnologies(db)`: Ordena por `order` ASC, luego `name` ASC
+- `parseTechnology(data, id)`: Valida con technologySchema
+
+---
+
+## Coleccion: Experiences
+
+**Ruta Firestore:** `Experiences`
+**Archivo esquema:** src/lib/schemas/experience-schema.ts
+
+### Esquema Completo (experienceSchema)
+
+| Campo | Tipo Zod | Requerido | Descripcion |
+|-------|----------|-----------|-------------|
+| id | z.string() | Si | ID del documento Firestore |
+| companyName | z.string().min(1) | Si | Nombre de la empresa |
+| jobName | localizedString | Si | Cargo bilingue |
+| responsibilities | localizedStringArray | Si | Responsabilidades bilingue |
+| startDate | z.date() | Si | Fecha de inicio |
+| endDate | z.date().nullable() | Si | Fecha fin (null = actual) |
+
+### Refinamiento
+```typescript
+.refine(
+  (data) => data.endDate === null || data.endDate >= data.startDate,
+  { message: 'endDate must be >= startDate', path: ['endDate'] }
+)
 ```
-Full Schema (Project)
-├── Incluye id, todos los campos, campos computados
-├── Usado como tipo principal en la app
-│
-Firestore Schema (ProjectFirestoreData)
-├── Sin id (viene del document ID)
-├── Campos opcionales para parsing robusto
-├── Usado para parsear documentos de Firestore
-│
-Form Schema (ProjectFormSchema)
-├── Solo campos editables por el usuario
-├── Sin id, sin imágenes (manejo separado), sin order/featured
-├── Usado para validación de formularios
+
+### Variantes
+- **experienceFirestoreSchema**: Omite `id`
+- **experienceFormSchema**: Omite `id`, incluye mismo refinamiento
+
+### Queries
+- `getAllExperiences(db)`: Ordena por `startDate` DESC
+- `parseExperience(data, id)`: Convierte Firestore Timestamps a Date, valida y refine
+
+---
+
+## Coleccion: BlogPosts
+
+**Ruta Firestore:** `BlogPosts`
+**Archivo esquema:** src/lib/schemas/blog-post-schema.ts
+
+### Esquema Completo (blogPostSchema)
+
+| Campo | Tipo Zod | Requerido | Descripcion |
+|-------|----------|-----------|-------------|
+| id | z.string() | Si | ID del documento Firestore |
+| title | localizedString | Si | Titulo bilingue |
+| content | localizedString | Si | Contenido bilingue (TipTap JSON como string) |
+| slug | z.string().min(1).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/) | Si | Slug URL-safe (generado del campo EN) |
+| coverImage | storedImageSchema.optional() | No | Imagen de portada |
+| images | z.array(storedImageSchema) | Si | Imagenes embebidas en contenido |
+| status | z.enum(['published', 'draft']) | Si | Estado de publicacion |
+| createdAt | z.date() | Si | Fecha de creacion |
+| updatedAt | z.date() | Si | Ultima actualizacion |
+
+### Refinamiento
+```typescript
+.refine(
+  (data) => data.updatedAt >= data.createdAt,
+  { message: 'updatedAt must be >= createdAt' }
+)
 ```
+
+### Variantes
+- **blogPostFirestoreSchema**: Omite `id`, `images` tiene default `[]`
+- **blogPostFormSchema**: Solo `title`, `content`, `slug`, `status`
+
+### Queries
+- `getPublishedBlogPosts(db)`: WHERE `status == 'published'`, ordena por `createdAt` DESC
+- `parseBlogPost(data, id)`: Convierte Timestamps, valida y refine
+
+---
 
 ## Relaciones entre Entidades
 
 ```
-Projects ──→ Technologies (references: technologies[] = Technology IDs)
-Projects ──→ StoredImage (embedded: mainImage, screenshots[])
-Technologies ──→ StoredImage (embedded: image)
-BlogPosts ──→ StoredImage (embedded: coverImage?, images[])
-Experiences ──→ (sin imágenes ni referencias)
+Projects ──technologies[]──> Technologies (referencia por nombre, no ID)
+Projects ──mainImage──> Firebase Storage (StoredImage)
+Projects ──screenshots[]──> Firebase Storage (StoredImage[])
+Technologies ──image──> Firebase Storage (StoredImage)
+BlogPosts ──coverImage?──> Firebase Storage (StoredImage)
+BlogPosts ──images[]──> Firebase Storage (StoredImage[])
 ```
+
+**Nota:** No hay foreign keys en Firestore. La referencia `Project.technologies` es un array de strings que coinciden con `Technology.name`. Esto permite rendering sin joins pero requiere consistencia manual.
+
+---
+
+## Conversion de Timestamps
+
+La funcion `toDate()` en collections.ts maneja la conversion de tipos Firestore:
+- `Firestore.Timestamp` -> `.toDate()`
+- `string` (ISO 8601) -> `new Date(string)`
+- `number` (millis) -> `new Date(number)`
+- `Date` -> pass-through
+- `null/undefined` -> throws
+
+---
 
 ## Reglas de Seguridad
 
-### Firestore
+### Firestore (firestore.rules)
 ```
-read: público (cualquier usuario puede leer)
-write: solo request.auth.uid == 'G26dKlezR6cghnfv7NrBmQiXdUG3'
+allow read: if true;
+allow write: if request.auth != null && request.auth.uid == 'G26dKlezR6cghnfv7NrBmQiXdUG3';
 ```
 
-### Storage
+### Storage (storage.rules)
 ```
-read: público
-write: solo request.auth.uid == 'G26dKlezR6cghnfv7NrBmQiXdUG3'
+allow read: if true;
+allow write: if request.auth != null && request.auth.uid == 'G26dKlezR6cghnfv7NrBmQiXdUG3';
 ```
+
+Lectura publica, escritura restringida a un unico UID de admin.

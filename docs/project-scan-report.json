@@ -1,9 +1,9 @@
 {
   "workflow_version": "1.2.0",
   "timestamps": {
-    "started": "2026-03-24T10:00:00Z",
-    "last_updated": "2026-03-24T10:45:00Z",
-    "completed": "2026-03-24T10:45:00Z"
+    "started": "2026-03-26T06:30:00Z",
+    "last_updated": "2026-03-26T06:45:00Z",
+    "completed": "2026-03-26T06:45:00Z"
   },
   "mode": "full_rescan",
   "scan_level": "exhaustive",
@@ -11,69 +11,75 @@
   "project_knowledge": "/Users/christopherbobadillaplasencia/Desktop/01-Proyectos-Activos/ChrisBP/portfolio/docs",
   "completed_steps": [
     {
+      "step": "step_0.5",
+      "status": "completed",
+      "timestamp": "2026-03-26T06:30:00Z",
+      "summary": "Loaded documentation-requirements.csv, extracted web project type row with all boolean flags"
+    },
+    {
       "step": "step_1",
       "status": "completed",
-      "timestamp": "2026-03-24T10:01:00Z",
+      "timestamp": "2026-03-26T06:31:00Z",
       "summary": "Classified as monolith with 1 part: web (Astro 6 + Svelte 5 + TailwindCSS 4 + TypeScript + Firebase)"
     },
     {
       "step": "step_2",
       "status": "completed",
-      "timestamp": "2026-03-24T10:02:00Z",
-      "summary": "Found 8 existing outdated docs (Flutter era) + README.md + .github/workflows/ci.yml"
+      "timestamp": "2026-03-26T06:32:00Z",
+      "summary": "Found 8 existing docs (v2.0.0 from 2026-03-24) + README.md + .github/workflows/ci.yml"
     },
     {
       "step": "step_3",
       "status": "completed",
-      "timestamp": "2026-03-24T10:05:00Z",
-      "summary": "Tech stack: Astro 6 + Svelte 5 + Tailwind CSS 4 + TypeScript 5.9 + Firebase 12 + Zod 4 + TipTap 3 + Playwright + Vitest"
+      "timestamp": "2026-03-26T06:33:00Z",
+      "summary": "Tech stack: Astro 6.0.5, Svelte 5.53.12, Tailwind CSS 4.2.1, TypeScript 5.9.3, Firebase 12.10.0, Zod 4.3.6, TipTap 3.20.4, SortableJS 1.15.7, Sharp 0.34.5, sanitize-html 2.17.1"
     },
     {
       "step": "step_4",
       "status": "completed",
-      "timestamp": "2026-03-24T10:20:00Z",
-      "summary": "Exhaustive scan: 158 source files, 51 components (17 Astro + 34 Svelte), 26 lib files, 4 Firestore collections, 18 routes, ~52 test files (~500+ assertions)"
+      "timestamp": "2026-03-26T06:38:00Z",
+      "summary": "Exhaustive scan: ~160 source files, 50 components (18 Astro + 32 Svelte), 2 layouts, 31 lib files, 4 Firestore collections, 18 routes, 44 unit test files + 20 E2E specs"
     },
     {
       "step": "step_5",
       "status": "completed",
-      "timestamp": "2026-03-24T10:25:00Z",
-      "summary": "Source tree documented with annotated directory structure, 9 critical folders"
+      "timestamp": "2026-03-26T06:39:00Z",
+      "summary": "Source tree documented with annotated directory structure, 8 critical folders identified"
     },
     {
       "step": "step_6",
       "status": "completed",
-      "timestamp": "2026-03-24T10:30:00Z",
-      "summary": "Dev setup, commands, CI/CD pipeline (GitHub Actions), Firebase Hosting deployment documented"
+      "timestamp": "2026-03-26T06:40:00Z",
+      "summary": "Dev setup, commands, CI/CD pipeline (GitHub Actions 8-step), Firebase Hosting deployment documented"
     },
     {
       "step": "step_8",
       "status": "completed",
-      "timestamp": "2026-03-24T10:35:00Z",
-      "summary": "Architecture doc: Astro Islands pattern, layers, state management, data model, routing, auth, image management, testing, CI/CD"
+      "timestamp": "2026-03-26T06:41:00Z",
+      "summary": "Architecture doc: Astro Islands pattern, 4 layers, 22 technologies, data model, 18 routes, auth, image management, 3-tier testing, CI/CD pipeline"
     },
     {
       "step": "step_9",
       "status": "completed",
-      "timestamp": "2026-03-24T10:40:00Z",
+      "timestamp": "2026-03-26T06:42:00Z",
       "summary": "All supporting docs written: project-overview, source-tree-analysis, component-inventory, data-models, development-guide, deployment-guide"
     },
     {
       "step": "step_10",
       "status": "completed",
-      "timestamp": "2026-03-24T10:42:00Z",
-      "summary": "Master index v2.0.0 generated with all 7 doc links, no incomplete markers"
+      "timestamp": "2026-03-26T06:43:00Z",
+      "summary": "Master index v3.0.0 generated with all 7 doc links, no incomplete markers"
     },
     {
       "step": "step_11",
       "status": "completed",
-      "timestamp": "2026-03-24T10:44:00Z",
-      "summary": "Validation complete: 8 docs, 1348 total lines, 0 incomplete markers, all files exist"
+      "timestamp": "2026-03-26T06:44:00Z",
+      "summary": "Validation complete: 8 docs, all files exist, 0 incomplete markers"
     },
     {
       "step": "step_12",
       "status": "completed",
-      "timestamp": "2026-03-24T10:45:00Z",
+      "timestamp": "2026-03-26T06:45:00Z",
       "summary": "Workflow complete"
     }
   ],
@@ -87,18 +93,19 @@
   ],
   "findings": {
     "project_classification": "Monolith, 1 part, web (Astro 6 + Svelte 5 + Firebase)",
-    "technology_stack": "Astro 6, Svelte 5, Tailwind CSS 4, TypeScript 5.9, Firebase 12, Zod 4, TipTap 3, SortableJS, Sharp",
-    "source_files_count": 158,
-    "components_count": 51,
-    "components_astro": 17,
-    "components_svelte": 34,
-    "lib_files_count": 26,
+    "technology_stack": "Astro 6.0.5, Svelte 5.53.12, Tailwind CSS 4.2.1, TypeScript 5.9.3, Firebase 12.10.0, Zod 4.3.6, TipTap 3.20.4, SortableJS 1.15.7, Sharp 0.34.5",
+    "source_files_count": 160,
+    "components_count": 52,
+    "components_astro": 18,
+    "components_svelte": 32,
+    "layouts_count": 2,
+    "lib_files_count": 31,
     "routes_count": 18,
     "firestore_collections": 4,
-    "test_files_count": 52,
-    "test_assertions_approx": "500+",
-    "e2e_specs": 15,
-    "translation_keys": "150+",
+    "zod_schemas": 6,
+    "unit_test_files": 44,
+    "e2e_spec_files": 20,
+    "translation_keys": "200+",
     "locales": 2
   },
   "outputs_generated": [

@@ -1,181 +1,153 @@
 # Guía de Desarrollo — Portfolio ChrisBP
 
-> Generado: 2026-03-24 | Escaneo Exhaustivo | Astro 6 + Svelte 5 + Firebase
+> Generado: 2026-03-26 | Modo: Re-escaneo Exhaustivo | v3.0.0
 
-## Prerrequisitos
+## Requisitos Previos
 
-| Herramienta | Versión | Propósito |
-|-------------|---------|-----------|
-| Node.js | ≥22.12.0 | Runtime (ver `.nvmrc`) |
-| pnpm | 10 | Package manager |
-| Java | 21+ (Temurin) | Firebase Emulators |
-| Firebase CLI | ^15.10.1 | Emuladores locales (incluido como devDependency) |
+| Requisito | Versión | Notas |
+|-----------|---------|-------|
+| Node.js | >=22.12.0 | Definido en .nvmrc |
+| pnpm | 10 | Package manager del proyecto |
+| Java | 21 | Para Firebase Emulators |
+| Firebase CLI | 15.10+ | Para emuladores locales |
 
 ## Setup Inicial
 
 ```bash
-# Clonar repositorio
+# 1. Clonar repositorio
 git clone <repository-url>
 cd portfolio
 
-# Instalar dependencias
+# 2. Instalar dependencias
 pnpm install
 
-# Configurar variables de entorno
+# 3. Configurar variables de entorno
 cp .env.example .env
-# Editar .env con credenciales Firebase
+# Editar .env con credenciales Firebase (ver .env.example para detalles)
 ```
 
-### Variables de Entorno
+### Variables de Entorno Requeridas
 
-**Firebase Admin SDK (servidor — build-time):**
+**Cliente Firebase (browser):**
+- `PUBLIC_FIREBASE_API_KEY` — API key pública
+- `PUBLIC_FIREBASE_AUTH_DOMAIN` — Dominio de auth
+- `PUBLIC_FIREBASE_PROJECT_ID` — ID del proyecto
+- `PUBLIC_FIREBASE_STORAGE_BUCKET` — Bucket de storage
+- `PUBLIC_FIREBASE_MESSAGING_SENDER_ID` — Sender ID
+- `PUBLIC_FIREBASE_APP_ID` — App ID
+- `PUBLIC_ADMIN_UID` — UID del admin
+
+**Admin SDK (build-time, opcional para dev):**
 - `FIREBASE_ADMIN_PROJECT_ID`
 - `FIREBASE_ADMIN_CLIENT_EMAIL`
 - `FIREBASE_ADMIN_PRIVATE_KEY`
 
-**Firebase Client SDK (navegador — runtime):**
-- `PUBLIC_FIREBASE_API_KEY`
-- `PUBLIC_FIREBASE_AUTH_DOMAIN`
-- `PUBLIC_FIREBASE_PROJECT_ID`
-- `PUBLIC_FIREBASE_STORAGE_BUCKET`
-- `PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
-- `PUBLIC_FIREBASE_APP_ID`
+**Contacto:**
+- `PUBLIC_CONTACT_EMAIL`
+- `PUBLIC_WHATSAPP_NUMBER`
 
-**Configuración de la App:**
-- `PUBLIC_ADMIN_UID` — UID del admin para auth
-- `PUBLIC_CONTACT_EMAIL` — Email de contacto
-- `PUBLIC_WHATSAPP_NUMBER` — Número WhatsApp
+**E2E Tests:**
+- `E2E_ADMIN_EMAIL` — Email del admin para tests
+- `E2E_ADMIN_PASSWORD` — Password del admin para tests
 
-**Emuladores (desarrollo local):**
-- `PUBLIC_USE_EMULATORS=true` — Conectar a emuladores locales
-- `USE_EMULATORS=true` — Admin SDK contra emuladores
+**Emuladores:**
+- `PUBLIC_USE_EMULATORS=false` — Activar/desactivar emuladores (browser)
+- `USE_EMULATORS=false` — Activar/desactivar emuladores (server)
 
-## Comandos de Desarrollo
+## Comandos Principales
 
 | Comando | Descripción |
 |---------|-------------|
-| `pnpm dev` | Servidor de desarrollo Astro (localhost:4321) |
-| `pnpm build` | Build de producción (output: `dist/`) |
-| `pnpm preview` | Preview del build (localhost:4321) |
-| `pnpm type-check` | Verificación de tipos TypeScript (`astro check`) |
-| `pnpm lint` | Linting con ESLint |
+| `pnpm dev` | Servidor de desarrollo Astro (hot reload) |
+| `pnpm build` | Build estático de producción |
+| `pnpm preview` | Preview del build local |
+| `pnpm type-check` | Verificación de tipos TypeScript |
+| `pnpm lint` | Linter ESLint |
 | `pnpm format` | Formateo con Prettier |
-| `pnpm test` | Tests unitarios (Vitest) |
-| `pnpm test:watch` | Tests en modo watch |
-| `pnpm test:coverage` | Tests con cobertura V8 |
+| `pnpm test` | Tests unitarios (Vitest, single run) |
+| `pnpm test:watch` | Tests unitarios en modo watch |
+| `pnpm test:coverage` | Tests con reporte de cobertura |
 | `pnpm test:e2e` | Tests E2E (Playwright) |
-| `pnpm emulators` | Firebase emuladores (Auth, Firestore, Storage) |
-| `pnpm migrate` | Migración Flutter → Web (one-time) |
-| `pnpm seed:experiences` | Seed datos de experiencias (one-time) |
+| `pnpm emulators` | Iniciar Firebase Emulators (auth, firestore, storage) |
 
 ## Flujo de Desarrollo Local
 
 ```bash
-# Terminal 1: Firebase Emuladores
+# Terminal 1: Emuladores Firebase
 pnpm emulators
 
 # Terminal 2: Servidor de desarrollo
 pnpm dev
-
-# Terminal 3: Tests en watch mode (opcional)
-pnpm test:watch
+# Abre http://localhost:4321
 ```
 
-**Emuladores disponibles:**
-- Auth: `http://127.0.0.1:9099`
-- Firestore: `http://127.0.0.1:8080`
-- Storage: `http://127.0.0.1:9199`
-- Emulator UI: `http://127.0.0.1:4000`
+Emuladores disponibles en:
+- Firebase Emulator UI: http://127.0.0.1:4000
+- Auth: 127.0.0.1:9099
+- Firestore: 127.0.0.1:8080
+- Storage: 127.0.0.1:9199
 
-## Convenciones del Proyecto
+## Scripts de Mantenimiento
+
+| Comando | Descripción |
+|---------|-------------|
+| `pnpm migrate` | Ejecutar migración de datos Firestore |
+| `pnpm seed:experiences` | Seed de experiencias laborales |
+| `pnpm cleanup:e2e` | Limpiar datos de E2E tests |
+| `pnpm cleanup:images` | Limpiar imágenes huérfanas en Storage |
+
+## Convenciones de Código
 
 ### Estructura de Archivos
-
-```
-src/components/{category}/ComponentName.svelte   # Svelte interactivo
-src/components/{category}/ComponentName.astro     # Astro estático
-src/components/{category}/__tests__/name.test.ts  # Tests colocados
-src/lib/{module}/filename.ts                      # Lógica de negocio
-src/lib/{module}/__tests__/filename.test.ts       # Tests colocados
-src/pages/{route}.astro                           # Páginas (routing)
-```
-
-### Naming Conventions
-
-- **Componentes:** PascalCase (`ProjectForm.svelte`, `HeroSection.astro`)
-- **Archivos TS:** kebab-case (`image-service.ts`, `toast-store.svelte.ts`)
-- **Tests:** `{filename}.test.ts` en carpeta `__tests__/`
-- **E2E:** `{feature}.spec.ts` en `tests/e2e/`
-- **Schemas:** `{entity}-schema.ts`
-- **Slugs:** Siempre desde campo EN (via `slugify()`)
+- Componentes Astro: `PascalCase.astro`
+- Componentes Svelte: `PascalCase.svelte`
+- Módulos TypeScript: `kebab-case.ts`
+- Tests: `__tests__/nombre-del-archivo.test.ts` (colocados junto al código fuente)
+- Factories de test: `src/test/factories/`
 
 ### TypeScript
+- Config: `strictest` (extends `astro/tsconfigs/strictest`)
+- Todas las entidades validadas con esquemas Zod
+- Tres variantes por entidad: schema (completo), firestore (sin id), form (campos editables)
 
-- Config: `strictest` (base Astro)
-- Validación runtime con Zod (no solo tipos)
-- Triple schema pattern para cada entidad
+### Estilos
+- Tailwind CSS 4 via `@tailwindcss/vite` plugin
+- No hay archivo de configuración Tailwind separado
+- Estilos globales en `src/styles/global.css`
+- Fuentes: Poppins (body), JetBrains Mono (code) via Google Fonts
 
-### CSS / Estilos
-
-- Tailwind CSS 4 via plugin Vite
-- Design tokens CSS en `src/styles/global.css`
-- Dark mode via clase `.dark` en `<html>`
-- Tipografía responsive con `clamp()`
-- Breakpoints: sm (28.125rem), lg (56.25rem), xl (75rem)
+### Linting y Formateo
+- ESLint: TypeScript + Astro + Svelte plugins
+- Prettier: semi, singleQuote, trailingComma: all, printWidth: 100
+- Archivos ignorados: dist/, _flutter-archive/, _bmad/, _bmad-output/, .claude/, docs/
 
 ### i18n
-
-- EN es default (sin prefijo URL)
-- ES tiene prefijo `/es/`
-- Páginas duplicadas en `src/pages/` y `src/pages/es/`
-- Contenido bilingüe en Firestore como `{ es, en }`
-- Traducciones estáticas en `src/lib/i18n/translations.ts`
+- Idioma default: Inglés (sin prefijo URL)
+- Español: prefijo `/es/`
+- Slugs siempre generados del campo EN
+- Traducciones en `src/lib/i18n/translations.ts` (200+ claves)
 
 ## Testing
 
 ### Tests Unitarios (Vitest)
-
 ```bash
-pnpm test              # Run once
-pnpm test:watch        # Watch mode
-pnpm test:coverage     # Con cobertura V8
+pnpm test          # Single run
+pnpm test:watch    # Watch mode
+pnpm test:coverage # Con cobertura
 ```
-
-- **Config:** `vitest.config.ts`
-- **Include:** `src/**/*.{test,spec}.{js,ts}`
-- **Exclude:** `node_modules, dist, _flutter-archive, _bmad, _bmad-output, tests/e2e`
-- **Browser conditions:** Habilitado para Testing Library + Svelte 5
+- 44 archivos de test, ~500+ assertions
+- Coverage provider: v8
+- Include: `src/**/*.{test,spec}.{js,ts}`
+- Framework: @testing-library/svelte para componentes
+- Resolución: `conditions: ['browser']` para SSR vs client
 
 ### Tests E2E (Playwright)
-
 ```bash
-pnpm test:e2e          # Run all E2E
+pnpm test:e2e
 ```
-
-- **Config:** `playwright.config.ts`
-- **Test dir:** `tests/e2e/`
-- **Projects:** `public` (páginas públicas) + `admin` (panel admin)
-- **WebServer:** Auto-start `pnpm preview` en localhost:4321
-- **Auth setup:** `tests/e2e/auth.setup.ts` + `.auth/admin.json`
-
-### Factories
-
-Ubicadas en `src/test/factories/`:
-- `createProject()` — Proyecto con datos bilingües y imágenes
-- `createTechnology()` — Tecnología con nombre y experiencia
-- `createExperience()` — Experiencia con fechas y responsabilidades
-- `createBlogPost()` — Post con contenido TipTap y timestamps
-
-## Quality Gates
-
-| Gate | Herramienta | Threshold |
-|------|------------|-----------|
-| Linting | ESLint (flat config) | Sin errores |
-| Type Safety | `astro check` (strictest) | Sin errores |
-| Unit Tests | Vitest | Todos pasan |
-| E2E Tests | Playwright | Todos pasan |
-| Performance | Lighthouse CI | ≥0.95 |
-| Accessibility | Lighthouse CI | ≥0.95 |
-| Best Practices | Lighthouse CI | ≥0.95 |
-| SEO | Lighthouse CI | ≥0.95 |
-| Contrast | Tests de contraste | WCAG AA |
+- 20 spec files
+- Dos proyectos: `public` (páginas públicas) y `admin` (panel admin)
+- Webserver: `pnpm preview` en puerto 4321
+- Auth setup: login admin guardado en `.auth/admin.json`
+- Global teardown: limpieza de datos de test
+- Tests incluyen: CRUD, accesibilidad (axe-core), performance, SEO, responsive

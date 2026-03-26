@@ -1,145 +1,148 @@
-# Inventario de Componentes UI — Portfolio ChrisBP
+# Inventario de Componentes — Portfolio ChrisBP
 
-> Generado: 2026-03-24 | Escaneo Exhaustivo | 51 componentes (17 Astro, 34 Svelte)
+> Generado: 2026-03-26 | Modo: Re-escaneo Exhaustivo | v3.0.0
 
 ## Resumen
 
-| Categoría | Astro | Svelte | Total |
-|-----------|-------|--------|-------|
-| Layout | 4 | 3 | 7 |
-| Home | 4 | 0 | 4 |
-| Common | 7 | 0 | 7 |
-| Blog | 2 | 0 | 2 |
-| Projects | 0 | 2 | 2 |
-| Contact | 0 | 1 | 1 |
-| Admin | 1 | 27 | 28 |
-| **Total** | **17** | **34** | **51** |
+| Tipo | Cantidad | Ubicación |
+|------|----------|-----------|
+| Astro Components | 18 | src/components/**/*.astro |
+| Svelte Components | 32 | src/components/**/*.svelte |
+| Layouts | 2 | src/layouts/*.astro |
+| **Total** | **52** | — |
 
-## Layout (7)
+## Componentes Comunes (src/components/common/)
 
 | Componente | Tipo | Props | Descripción |
-|------------|------|-------|-------------|
-| `Header.astro` | Astro | `currentPage?, locale` | Navegación principal con logo y menú desktop |
-| `Footer.astro` | Astro | `locale` | Footer con links sociales (TikTok, GitHub, LinkedIn) |
-| `Banner.astro` | Astro | `locale` | Banner de bienvenida con gradiente |
-| `ThemeScript.astro` | Astro | — | Script anti-FOUC para tema (sync en `<head>`) |
-| `ThemeToggle.svelte` | Svelte | `currentLocale` | Toggle dark/light con persistencia localStorage |
-| `LocaleToggle.svelte` | Svelte | `currentLocale, currentPath` | Toggle idioma EN/ES con manipulación de URL |
-| `MobileMenu.svelte` | Svelte | `currentPage?, locale` | Menú hamburguesa responsive con focus trap |
+|-----------|------|-------|-------------|
+| Badge.astro | Astro | variant ('technology' \| 'status' \| 'language'), value?, class? | Badge con 3 variantes visuales |
+| Button.astro | Astro | variant ('primary' \| 'secondary' \| 'danger' \| 'ghost'), href?, type?, disabled?, download?, target?, rel? | Botón/enlace universal |
+| Card.astro | Astro | as ('article' \| 'div'), hoverable?, class? | Wrapper de card con hover opcional |
+| Container.astro | Astro | variant ('default' \| 'narrow'), class? | Contenedor con max-width responsive |
+| Input.astro | Astro | type ('text' \| 'textarea' \| 'select' \| 'file'), name, label, required?, error?, placeholder?, value?, class? | Input genérico con manejo de errores |
+| Section.astro | Astro | variant ('default' \| 'hero' \| 'compact'), id?, class? | Wrapper de sección con padding responsive |
+| SkipNav.astro | Astro | locale | Skip-to-content para accesibilidad |
 
-## Home (4)
-
-| Componente | Tipo | Props | Descripción |
-|------------|------|-------|-------------|
-| `HeroSection.astro` | Astro | `locale` | Hero con avatar, heading, CTA buttons |
-| `TechnologiesSection.astro` | Astro | `technologies[], locale` | Grid de logos de tecnologías |
-| `ProjectsSection.astro` | Astro | `projects[], locale` | Grid de 3 proyectos destacados |
-| `ExperienceSection.astro` | Astro | `experiences[], locale` | Timeline de experiencia laboral |
-
-## Common (7)
+## Componentes de Blog (src/components/blog/)
 
 | Componente | Tipo | Props | Descripción |
-|------------|------|-------|-------------|
-| `Container.astro` | Astro | `variant?('default'\|'narrow'), class?` | Wrapper max-width (75rem / 45rem) |
-| `Section.astro` | Astro | `variant?('default'\|'hero'\|'compact'), id?, class?` | Sección semántica con padding |
-| `Button.astro` | Astro | `variant?, href?, type?, disabled?, download?` | Botón/enlace (primary, secondary, danger, ghost) |
-| `Card.astro` | Astro | `as?('article'\|'div'), hoverable?, class?` | Tarjeta con bordes y hover opcional |
-| `Badge.astro` | Astro | `variant('technology'\|'status'\|'language'), value?, class?` | Etiqueta inline (tech, estado, idioma) |
-| `Input.astro` | Astro | `type?, name, label, required?, error?, placeholder?, value?` | Input con label y mensaje de error |
-| `SkipNav.astro` | Astro | `locale` | Skip navigation para accesibilidad |
+|-----------|------|-------|-------------|
+| BlogCard.astro | Astro | post (BlogPost), locale, readingTimeLabel | Card de preview de artículo con cover image |
+| BlogContent.astro | Astro | contentHtml | Renderizado de HTML sanitizado de TipTap |
 
-## Blog (2)
+## Componentes de Home (src/components/home/)
 
 | Componente | Tipo | Props | Descripción |
-|------------|------|-------|-------------|
-| `BlogCard.astro` | Astro | `post, locale, readingTimeLabel` | Card preview de artículo (cover, título, fecha, tiempo lectura) |
-| `BlogContent.astro` | Astro | `contentHtml` | Renderizado de HTML blog con estilos markdown |
+|-----------|------|-------|-------------|
+| HeroSection.astro | Astro | locale | Hero con avatar, heading, descripción, CTAs |
+| ProjectsSection.astro | Astro | projects (Project[]), locale | Grid de 3 proyectos destacados |
+| TechnologiesSection.astro | Astro | technologies (Technology[]), locale | Grid flexbox de logos de tecnología |
+| ExperienceSection.astro | Astro | experiences (Experience[]), locale | Timeline de experiencia laboral |
 
-## Projects (2)
-
-| Componente | Tipo | Props | Descripción |
-|------------|------|-------|-------------|
-| `ProjectFilter.svelte` | Svelte | `projects[], technologies[], locale, *labels` | Filtro dropdown por tecnología con resultados reactivos |
-| `ImageViewer.svelte` | Svelte | `screenshots[], locale` | Galería fullscreen con navegación por teclas |
-
-## Contact (1)
+## Componentes de Layout (src/components/layout/)
 
 | Componente | Tipo | Props | Descripción |
-|------------|------|-------|-------------|
-| `ContactForm.svelte` | Svelte | `locale` | Formulario con country picker → WhatsApp o Email |
+|-----------|------|-------|-------------|
+| Banner.astro | Astro | locale | Banner superior con mensaje de bienvenida |
+| Header.astro | Astro | currentPage, locale | Header sticky con nav, toggles de tema/idioma |
+| Footer.astro | Astro | locale | Footer con redes sociales (TikTok, GitHub, LinkedIn) |
+| ThemeScript.astro | Astro | — | Script inline anti-FOUC para persistencia de tema |
+| LocaleToggle.svelte | Svelte | currentLocale, currentPath | Toggle de idioma con banderas (posición fija) |
+| MobileMenu.svelte | Svelte | currentPage, locale | Menú hamburguesa con animación slide-down |
+| ThemeToggle.svelte | Svelte | currentLocale | Toggle dark/light mode (posición fija) |
 
-## Admin — Layout y Navegación (3)
-
-| Componente | Tipo | Props | Descripción |
-|------------|------|-------|-------------|
-| `AdminBreadcrumb.astro` | Astro | `currentPath` | Breadcrumb del admin |
-| `AdminDashboard.svelte` | Svelte | — | Dashboard con conteos de colecciones Firestore |
-| `AdminSidebar.svelte` | Svelte | `currentPath` | Sidebar responsive con logout |
-
-## Admin — Autenticación (2)
+## Componentes de Proyectos (src/components/projects/)
 
 | Componente | Tipo | Props | Descripción |
-|------------|------|-------|-------------|
-| `LoginForm.svelte` | Svelte | — | Login Firebase (email + password) |
-| `AuthGuard.svelte` | Svelte | `children: Snippet` | Wrapper de autenticación (spinner → redirect) |
+|-----------|------|-------|-------------|
+| ProjectFilter.svelte | Svelte | projects, technologies, locale, labels... | Filtro por tecnología con ARIA live region |
+| ImageViewer.svelte | Svelte | screenshots ({url, alt}[]), locale | Galería modal con navegación prev/next |
 
-## Admin — CRUD Pages (4)
-
-| Componente | Tipo | Props | Descripción |
-|------------|------|-------|-------------|
-| `ProjectsCrudPage.svelte` | Svelte | — | Container: list/create/edit + delete + image cleanup |
-| `TechnologiesCrudPage.svelte` | Svelte | — | Container: list/create/edit + delete + image cleanup |
-| `ExperiencesCrudPage.svelte` | Svelte | — | Container: list/create/edit + delete |
-| `BlogCrudPage.svelte` | Svelte | — | Container: list/create/edit + delete + image cleanup |
-
-## Admin — Listas (4)
+## Componentes de Contacto (src/components/contact/)
 
 | Componente | Tipo | Props | Descripción |
-|------------|------|-------|-------------|
-| `ProjectList.svelte` | Svelte | `onCreateNew, onEdit?, onDelete?` | Lista con drag-reorder (SortableJS) + featured |
-| `TechnologyList.svelte` | Svelte | `onCreateNew, onEdit?, onDelete?` | Lista con drag-reorder (SortableJS) |
-| `ExperienceList.svelte` | Svelte | `onCreateNew, onEdit?, onDelete?` | Lista con formato de fechas |
-| `BlogList.svelte` | Svelte | `onCreateNew, onEdit?, onDelete?` | Lista ordenada por fecha creación |
+|-----------|------|-------|-------------|
+| ContactForm.svelte | Svelte | locale | Formulario con validación Zod (nombre, email, teléfono, mensaje, canal) |
 
-## Admin — Formularios (4)
+## Componentes Admin — Autenticación y Navegación (src/components/admin/)
 
 | Componente | Tipo | Props | Descripción |
-|------------|------|-------|-------------|
-| `ProjectForm.svelte` | Svelte | `mode?, initialData?, onCancel, onSaved` | Formulario completo: bilingüe, imágenes, techs, slug auto |
-| `TechnologyForm.svelte` | Svelte | `mode?, initialData?, onCancel, onSaved` | Formulario: nombre, años experiencia, imagen |
-| `ExperienceForm.svelte` | Svelte | `mode?, initialData?, onCancel, onSaved` | Formulario: bilingüe, fechas, "actualmente trabajando" |
-| `BlogForm.svelte` | Svelte | `mode?, initialData?, onCancel, onSaved` | Formulario: TipTap editor bilingüe, cover, inline images |
+|-----------|------|-------|-------------|
+| AuthGuard.svelte | Svelte | children (Snippet) | Guardia de ruta: redirige a login si no autenticado |
+| LoginForm.svelte | Svelte | — | Login email/password con Firebase Auth |
+| AdminDashboard.svelte | Svelte | — | Dashboard con conteos de colecciones Firestore |
+| AdminSidebar.svelte | Svelte | currentPath | Sidebar con nav items, logout, drawer móvil con keyboard trap |
+| AdminBreadcrumb.astro | Astro | currentPath | Breadcrumb dinámico para rutas admin |
+| Toast.svelte | Svelte | — | Sistema de notificaciones toast (éxito/warning/error) |
+| ConfirmDialog.svelte | Svelte | title, message, confirmLabel, cancelLabel, onConfirm, onCancel | Diálogo de confirmación para operaciones destructivas |
 
-## Admin — Helpers de Formulario (5)
-
-| Componente | Tipo | Props | Descripción |
-|------------|------|-------|-------------|
-| `BilingualField.svelte` | Svelte | `label, nameEs, nameEn, type?, required?, errorEs?, errorEn?` | Input bilingüe: tabs mobile, side-by-side desktop |
-| `BilingualArrayField.svelte` | Svelte | `label, itemsEs, itemsEn, required?` | Array bilingüe: add/remove items (max 10) |
-| `ImageUploader.svelte` | Svelte | `label, slot, required?, error?, uploadProgress?` | Upload drag-drop con preview y progreso |
-| `ScreenshotManager.svelte` | Svelte | `screenshots, onChange?` | Multi-imagen: upload, preview grid, undo remove (max 10) |
-| `TechnologySelector.svelte` | Svelte | `selected, onChange?` | Checkbox group de tecnologías desde Firestore |
-
-## Admin — Editores y Diálogos (5)
+## Componentes Admin — Campos Compartidos
 
 | Componente | Tipo | Props | Descripción |
-|------------|------|-------|-------------|
-| `RichTextEditor.svelte` | Svelte | `content, onUpdate, label, error?, onInsertImage?` | TipTap WYSIWYG: headings, bold, code, listas, links, imágenes |
-| `ImageUploadDialog.svelte` | Svelte | `open, postId, onClose, onImageUploaded` | Modal upload de imagen inline para blog |
-| `LinkDialog.svelte` | Svelte | `open, initialUrl?, onApply, onRemove, onCancel` | Modal para agregar/editar links en editor |
-| `ConfirmDialog.svelte` | Svelte | `open, title, message, confirmLabel, cancelLabel, confirming?, onConfirm, onCancel` | Modal de confirmación reutilizable con focus trap |
-| `Toast.svelte` | Svelte | — (usa toastStore) | Sistema de notificaciones toast (success/warning/error) |
+|-----------|------|-------|-------------|
+| BilingualField.svelte | Svelte | label, nameEs (bind), nameEn (bind), type, required?, idPrefix, errors | Input/textarea bilingüe con tabs ES/EN |
+| BilingualArrayField.svelte | Svelte | label, arrayEs (bind), arrayEn (bind), required?, idPrefix, errors | Array bilingüe con add/remove |
+| ImageUploader.svelte | Svelte | label, slot (ImageSlot, bind), required?, error?, uploadProgress?, onChange? | Upload drag-drop con preview (max 5MB) |
+| ImageUploadDialog.svelte | Svelte | — | Diálogo para upload de imágenes |
+| ScreenshotManager.svelte | Svelte | — | Gestor de screenshots múltiples con reordenamiento |
+| TechnologySelector.svelte | Svelte | — | Multi-select para tecnologías de proyecto |
+| RichTextEditor.svelte | Svelte | content (TipTap JSON), onUpdate, label, error?, onInsertImage? | Editor TipTap (StarterKit + Image + Link) |
+| LinkDialog.svelte | Svelte | — | Diálogo para insertar enlaces en editor |
 
-## Patrones Arquitectónicos Clave
+## Componentes Admin — CRUD por Entidad
 
-### Patrón CRUD Container
-Cada módulo admin sigue: `CrudPage` → `List` + `Form` + `ConfirmDialog` + `Toast`
+### Blog
+| Componente | Tipo | Props | Descripción |
+|-----------|------|-------|-------------|
+| BlogForm.svelte | Svelte | mode ('create' \| 'edit'), initialData?, onCancel, onSaved | Formulario blog: título, slug, contenido bilingual, cover image, status |
+| BlogList.svelte | Svelte | — | Tabla de blog posts con acciones edit/delete |
+| BlogCrudPage.svelte | Svelte | — | Orquestador: lista/formulario/diálogo de blog |
 
-### Image Slot Pattern
-Estados de imagen: `empty` → `new` → `existing` → `replaced` → `removed` con transiciones seguras
+### Proyectos
+| Componente | Tipo | Props | Descripción |
+|-----------|------|-------|-------------|
+| ProjectForm.svelte | Svelte | mode, initialData?, onCancel, onSaved | Formulario proyecto: nombre, descripción, features, imágenes, tecnologías, URLs |
+| ProjectList.svelte | Svelte | — | Tabla de proyectos con drag-drop reordering |
+| ProjectsCrudPage.svelte | Svelte | — | Orquestador: lista/formulario/diálogo de proyectos |
 
-### Bilingual Field Pattern
-Campos ES/EN con tabs en mobile y side-by-side en desktop, validación independiente por locale
+### Experiencias
+| Componente | Tipo | Props | Descripción |
+|-----------|------|-------|-------------|
+| ExperienceForm.svelte | Svelte | mode, initialData?, onCancel, onSaved | Formulario experiencia: empresa, cargo bilingual, responsabilidades, fechas |
+| ExperienceList.svelte | Svelte | — | Tabla de experiencias con acciones |
+| ExperiencesCrudPage.svelte | Svelte | — | Orquestador: lista/formulario/diálogo de experiencias |
 
-### Orphan Cleanup
-Imágenes subidas se rastrean; si el save falla, se limpian automáticamente
+### Tecnologías
+| Componente | Tipo | Props | Descripción |
+|-----------|------|-------|-------------|
+| TechnologyForm.svelte | Svelte | mode, initialData?, onCancel, onSaved | Formulario tecnología: nombre, imagen, años experiencia |
+| TechnologyList.svelte | Svelte | — | Tabla de tecnologías con drag-drop reordering |
+| TechnologiesCrudPage.svelte | Svelte | — | Orquestador: lista/formulario/diálogo de tecnologías |
+
+## Layouts (src/layouts/)
+
+| Layout | Props | Descripción |
+|--------|-------|-------------|
+| BaseLayout.astro | title, description, currentPage, ogImage?, ogType?, ogDescription?, jsonLd? | Layout público: SEO completo, OG, JSON-LD, View Transitions (ClientRouter), hreflang, Banner + Header + Footer + SkipNav |
+| AdminLayout.astro | title, showSidebar? | Layout admin: sidebar responsive, breadcrumb, dark mode forzado |
+
+## Patrones de Diseño
+
+### Patrón CrudPage
+Cada entidad admin sigue el mismo patrón:
+- **CrudPage** orquesta vista lista/formulario y gestiona el flujo delete
+- **List** muestra tabla con acciones (edit, delete, reorder)
+- **Form** maneja create/edit con validación Zod
+- **ConfirmDialog** confirma operaciones destructivas
+- **Toast** notifica resultado de operaciones
+
+### Patrón Astro Islands
+- Componentes Astro para contenido estático (SEO-friendly, zero JS)
+- Componentes Svelte con `client:load` para interactividad inmediata (admin, toggles)
+- Componentes Svelte con `client:visible` para lazy-loading (filtros, formularios)
+
+### Patrón BilingualField
+- Tabs ES/EN en un solo componente
+- Binding bidireccional para ambos idiomas
+- Validación por separado para cada idioma
+- Reutilizado en todos los formularios admin
