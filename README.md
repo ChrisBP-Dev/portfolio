@@ -272,6 +272,10 @@ All variables are documented in `.env.example`. Copy it to `.env` and fill in yo
 
 > **Note:** `PUBLIC_*` and `FIREBASE_ADMIN_*` variables are typed in `src/env.d.ts` and accessed via `import.meta.env` (Astro context). `E2E_*` variables are accessed via `process.env` in `playwright.config.ts` (Node.js context) and are not typed in `env.d.ts`.
 
+## Built With AI
+
+This portfolio is a brownfield migration from a Flutter Web app. The entire lifecycle — product brief, PRD, architecture, UX design, epics, stories, implementation, code review, and retrospectives — was orchestrated using the [BMad Method](https://github.com/bmadcode/BMAD-METHOD) (an AI-assisted development framework) and [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code) by Anthropic. Specialized BMAD agents handled each phase, from strategic planning through production deployment.
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
