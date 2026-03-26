@@ -38,6 +38,6 @@ export default [
     },
   },
   {
-    ignores: ['dist/', 'node_modules/', '_flutter-archive/', '_bmad/', '_bmad-output/', '.astro/', 'lighthouserc.cjs'],
+    ignores: ['dist/', 'node_modules/', '_flutter-archive/', '_bmad/', '_bmad-output/', '.astro/', '.claude/', 'lighthouserc.cjs'],
   },
 ];
