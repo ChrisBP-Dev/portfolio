@@ -19,6 +19,7 @@
     "emulators": "firebase emulators:start --only auth,firestore,storage",
     "migrate": "node --env-file=.env --import tsx src/lib/scripts/migrate-firestore-data.ts",
     "seed:experiences": "node --env-file=.env --import tsx src/lib/scripts/seed-experiences.ts",
+    "seed:blog": "node --env-file=.env --import tsx src/lib/scripts/seed-blog-beyond-vibe-coding.ts",
     "cleanup:e2e": "node --env-file=.env --import tsx src/lib/scripts/cleanup-e2e-data.ts",
     "cleanup:images": "node --env-file=.env --import tsx src/lib/scripts/cleanup-orphan-images.ts"
   },

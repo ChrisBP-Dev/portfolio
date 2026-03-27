@@ -20,15 +20,17 @@ const readingTime = readingTimeLabel.replace('{minutes}', String(calculateReadin
 <a href={href} class="block focus:outline-2 focus:outline-offset-2 focus:outline-accent rounded-xl">
   <Card as="article" hoverable={true} class="p-0">
     {post.coverImage && (
-      <img
-        src={post.coverImage.url}
-        alt={post.title[locale]}
-        loading="lazy"
-        decoding="async"
-        width="640"
-        height="360"
-        class="w-full aspect-video object-cover rounded-t-xl"
-      />
+      <div class="flex items-center justify-center bg-surface rounded-t-xl h-52 min-h-32 overflow-hidden">
+        <img
+          src={post.coverImage.url}
+          alt={post.title[locale]}
+          loading="lazy"
+          decoding="async"
+          width="640"
+          height="360"
+          class="w-full max-h-52 object-contain"
+        />
+      </div>
     )}
     <div class="p-4">
       <h2 class="text-lg font-semibold text-text-primary mb-2">{post.title[locale]}</h2>
