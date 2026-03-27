@@ -272,6 +272,27 @@ All variables are documented in `.env.example`. Copy it to `.env` and fill in yo
 
 > **Note:** `PUBLIC_*` and `FIREBASE_ADMIN_*` variables are typed in `src/env.d.ts` and accessed via `import.meta.env` (Astro context). `E2E_*` variables are accessed via `process.env` in `playwright.config.ts` (Node.js context) and are not typed in `env.d.ts`.
 
+## Admin Panel
+
+The admin panel (`/admin`) provides a CMS for managing all portfolio content. Requires Firebase Authentication (Email/Password).
+
+| Section | Route | Description |
+|---------|-------|-------------|
+| Dashboard | `/admin` | Overview with links to all sections |
+| Projects | `/admin/projects` | CRUD for portfolio projects. Bilingual (EN/ES) names, descriptions, features. Main image + screenshot gallery. Technology tagging. Drag-and-drop ordering. Featured toggle (max 3) |
+| Technologies | `/admin/technologies` | CRUD for tech stack entries. Logo image, experience years, display order |
+| Experiences | `/admin/experiences` | CRUD for work experience. Bilingual job titles and responsibilities. Date ranges with nullable end date (current position) |
+| Blog | `/admin/blog` | CRUD for blog posts. Rich text editor (TipTap) with inline image upload. Cover image, bilingual title/content, publish/draft status |
+| Resume | `/admin/resume` | Upload, preview, and replace resume PDF. File stored in Firebase Storage, metadata in Firestore. The public "Download Resume" button on the homepage dynamically uses this URL — no static file in the repo |
+
+All sections support:
+- **Bilingual content** — EN/ES fields with tab switching
+- **Image management** — Upload with progress tracking, automatic WebP optimization, orphan cleanup
+- **Validation** — Zod schema validation on both client and server
+- **i18n** — Full Spanish/English admin UI
+
+> **Note:** The resume PDF is served from Firebase Storage, not from the repository. After uploading via the admin panel, a site rebuild (`pnpm build`) is required for the public download button to reflect the new URL — the homepage is statically generated at build time.
+
 ## Built With AI
 
 This portfolio is a brownfield migration from a Flutter Web app. The entire lifecycle — product brief, PRD, architecture, UX design, epics, stories, implementation, code review, and retrospectives — was orchestrated using the [BMad Method](https://github.com/bmadcode/BMAD-METHOD) (an AI-assisted development framework) and [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code) by Anthropic. Specialized BMAD agents handled each phase, from strategic planning through production deployment.

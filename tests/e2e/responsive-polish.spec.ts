@@ -342,12 +342,18 @@ test.describe('Mobile touch targets (375px)', () => {
   test('CTA buttons meet 44px minimum', async ({ page }) => {
     await page.goto('/');
 
+    // "Get in Touch" is always present; "Download Resume" is conditionally rendered
     const ctaLinks = page.getByRole('link', { name: /Get in Touch|Download Resume/i });
     const count = await ctaLinks.count();
+    // At minimum "Get in Touch" should be present
     expect(count).toBeGreaterThan(0);
 
     for (let i = 0; i < count; i++) {
-      const box = await ctaLinks.nth(i).boundingBox();
+      const el = ctaLinks.nth(i);
+      const isVisible = await el.isVisible();
+      if (!isVisible) continue;
+
+      const box = await el.boundingBox();
       expect(box, `CTA link ${i} should have a bounding box`).toBeTruthy();
       expect(box!.height).toBeGreaterThanOrEqual(44);
     }

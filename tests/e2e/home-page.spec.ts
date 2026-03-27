@@ -11,7 +11,13 @@ test.describe('Home Page — EN (default locale)', () => {
     await expect(page.getByRole('heading', { level: 1 })).toContainText('experiences');
 
     await expect(page.getByRole('link', { name: 'Get in Touch' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Download Resume' })).toBeVisible();
+
+    // Download Resume is conditionally rendered — only visible when a resume exists in Firestore
+    const resumeLink = page.getByRole('link', { name: 'Download Resume' });
+    const resumeCount = await resumeLink.count();
+    if (resumeCount > 0) {
+      await expect(resumeLink).toBeVisible();
+    }
   });
 
   test('knowledge of section is visible with title and at least 1 technology', async ({
@@ -68,7 +74,13 @@ test.describe('Home Page — ES', () => {
     await expect(page.getByRole('heading', { level: 1 })).toContainText('experiencias');
 
     await expect(page.getByRole('link', { name: 'Contáctame' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Descargar CV' })).toBeVisible();
+
+    // Descargar CV is conditionally rendered — only visible when a resume exists in Firestore
+    const resumeLinkEs = page.getByRole('link', { name: 'Descargar CV' });
+    const resumeCountEs = await resumeLinkEs.count();
+    if (resumeCountEs > 0) {
+      await expect(resumeLinkEs).toBeVisible();
+    }
   });
 
   test('knowledge of section displays Spanish title', async ({ page }) => {

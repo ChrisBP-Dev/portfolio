@@ -9,6 +9,7 @@ import {
   getAllProjects,
   getAllExperiences,
   getPublishedBlogPosts,
+  getResumeUrl,
 } from '../collections';
 import {
   createProject,
@@ -221,6 +222,59 @@ describe('Firebase Collections', () => {
       const { db } = createMockDb([]);
       const result = await getPublishedBlogPosts(db as never);
       expect(result).toEqual([]);
+    });
+  });
+
+  describe('getResumeUrl', () => {
+    /** Creates a mock Firestore db for getResumeUrl that supports doc().get() chain. */
+    function createMockDocDb(docData: Record<string, unknown> | null) {
+      const docSnapshot = {
+        exists: docData !== null,
+        data: () => docData,
+      };
+      const docRef = {
+        get: vi.fn().mockResolvedValue(docSnapshot),
+      };
+      const collectionRef = {
+        doc: vi.fn().mockReturnValue(docRef),
+      };
+      const db = {
+        collection: vi.fn().mockReturnValue(collectionRef),
+      };
+      return { db, collectionRef, docRef };
+    }
+
+    it('returns URL when Settings/resume doc exists with valid url field', async () => {
+      const { db } = createMockDocDb({ url: 'https://storage.example.com/resume.pdf' });
+
+      const result = await getResumeUrl(db as never);
+
+      expect(result).toBe('https://storage.example.com/resume.pdf');
+      expect(db.collection).toHaveBeenCalledWith(COLLECTION_PATHS.settings);
+    });
+
+    it('returns null when doc does not exist', async () => {
+      const { db } = createMockDocDb(null);
+
+      const result = await getResumeUrl(db as never);
+
+      expect(result).toBeNull();
+    });
+
+    it('returns null when doc exists but url field is missing', async () => {
+      const { db } = createMockDocDb({ storagePath: 'resume/current.pdf' });
+
+      const result = await getResumeUrl(db as never);
+
+      expect(result).toBeNull();
+    });
+
+    it('returns null when doc exists but url is not a string', async () => {
+      const { db } = createMockDocDb({ url: 12345 });
+
+      const result = await getResumeUrl(db as never);
+
+      expect(result).toBeNull();
     });
   });
 
