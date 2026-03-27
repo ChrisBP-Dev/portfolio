@@ -1,0 +1,11 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import AuthGuard from '../../components/admin/AuthGuard.svelte';
+import ResumeManager from '../../components/admin/ResumeManager.svelte';
+---
+
+<AdminLayout title="Resume — Admin ChrisBP">
+  <AuthGuard client:only="svelte">
+    <ResumeManager client:only="svelte" />
+  </AuthGuard>
+</AdminLayout>

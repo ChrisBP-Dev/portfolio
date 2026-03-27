@@ -163,6 +163,7 @@ const translations: Record<string, Record<Locale, string>> = {
   'admin.sidebar.technologies': { es: 'Tecnologías', en: 'Technologies' },
   'admin.sidebar.experiences': { es: 'Experiencias', en: 'Experiences' },
   'admin.sidebar.blog': { es: 'Blog', en: 'Blog' },
+  'admin.sidebar.resume': { es: 'Currículum', en: 'Resume' },
   'admin.sidebar.toggle': { es: 'Abrir menú', en: 'Open menu' },
 
   // Admin — Dashboard cards
@@ -383,6 +384,28 @@ const translations: Record<string, Record<Locale, string>> = {
   'admin.blog.insertButton': { es: 'Insertar', en: 'Insert' },
   'admin.blog.imageUploadError': { es: 'Error al subir la imagen. Intente de nuevo.', en: 'Failed to upload image. Please try again.' },
   'admin.blog.imageAltText': { es: 'Texto alternativo (opcional)', en: 'Alt text (optional)' },
+
+  // Admin — Resume
+  'admin.resume.title': { es: 'Currículum', en: 'Resume' },
+  'admin.resume.upload': { es: 'Subir CV', en: 'Upload Resume' },
+  'admin.resume.replace': { es: 'Reemplazar CV', en: 'Replace Resume' },
+  'admin.resume.preview': { es: 'Vista previa', en: 'Preview' },
+  'admin.resume.empty': { es: 'No hay currículum subido aún.', en: 'No resume uploaded yet.' },
+  'admin.resume.emptyCta': { es: 'Sube tu CV en formato PDF para que los visitantes puedan descargarlo.', en: 'Upload your resume in PDF format so visitors can download it.' },
+  'admin.resume.invalidType': { es: 'Solo se permiten archivos PDF', en: 'Only PDF files are allowed' },
+  'admin.resume.fileTooLarge': { es: 'El archivo debe ser menor a 10MB', en: 'File must be smaller than 10MB' },
+  'admin.resume.uploadSuccess': { es: 'Currículum subido exitosamente', en: 'Resume uploaded successfully' },
+  'admin.resume.uploadError': { es: 'Error al subir el currículum', en: 'Error uploading resume' },
+  'admin.resume.deleteConfirm': { es: '¿Eliminar el currículum actual?', en: 'Delete the current resume?' },
+  'admin.resume.delete': { es: 'Eliminar CV', en: 'Delete Resume' },
+  'admin.resume.deleteSuccess': { es: 'Currículum eliminado exitosamente', en: 'Resume deleted successfully' },
+  'admin.resume.deleteError': { es: 'Error al eliminar el currículum', en: 'Error deleting resume' },
+  'admin.resume.dragOrClick': { es: 'Arrastra o haz clic para subir', en: 'Drag or click to upload' },
+  'admin.resume.fileFormats': { es: 'PDF — máx. 10MB', en: 'PDF — max 10MB' },
+  'admin.resume.uploadedAt': { es: 'Subido el', en: 'Uploaded on' },
+  'admin.resume.fileName': { es: 'Archivo', en: 'File' },
+  'admin.resume.openInNewTab': { es: 'Abrir en nueva pestaña', en: 'Open in new tab' },
+  'admin.resume.uploading': { es: 'Subiendo...', en: 'Uploading...' },
 };
 
 export function t(key: string, locale: Locale): string {

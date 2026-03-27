@@ -43,5 +43,8 @@ coverage/
 # Legacy Flutter project
 _flutter-archive/
 
+# Resume PDF (managed via Firebase Storage)
+public/resume.pdf
+
 # Logs
 *.log

@@ -33,12 +33,13 @@ function createMockDb(docs: Array<{ id: string; data: Record<string, unknown> }>
 
 describe('Firebase Collections', () => {
   describe('COLLECTION_PATHS', () => {
-    it('[P0] 1.10-UNIT-001: COLLECTION_PATHS has exactly 4 entries with correct Firestore collection names', () => {
-      expect(Object.keys(COLLECTION_PATHS)).toHaveLength(4);
+    it('[P0] 1.10-UNIT-001: COLLECTION_PATHS has exactly 5 entries with correct Firestore collection names', () => {
+      expect(Object.keys(COLLECTION_PATHS)).toHaveLength(5);
       expect(COLLECTION_PATHS.projects).toBe('Projects');
       expect(COLLECTION_PATHS.technologies).toBe('Technologies');
       expect(COLLECTION_PATHS.experiences).toBe('Experiences');
       expect(COLLECTION_PATHS.blogPosts).toBe('BlogPosts');
+      expect(COLLECTION_PATHS.settings).toBe('Settings');
     });
   });
 

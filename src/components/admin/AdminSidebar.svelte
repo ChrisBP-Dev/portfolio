@@ -22,6 +22,7 @@
     { path: '/admin/technologies', labelKey: 'admin.sidebar.technologies', icon: 'technologies' },
     { path: '/admin/experiences', labelKey: 'admin.sidebar.experiences', icon: 'experiences' },
     { path: '/admin/blog', labelKey: 'admin.sidebar.blog', icon: 'blog' },
+    { path: '/admin/resume', labelKey: 'admin.sidebar.resume', icon: 'resume' },
   ];
 
   function isActive(itemPath: string): boolean {
@@ -145,6 +146,11 @@
                 <line x1="16" y1="13" x2="8" y2="13"></line>
                 <line x1="16" y1="17" x2="8" y2="17"></line>
               </svg>
+            {:else if item.icon === 'resume'}
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
             {/if}
           </span>
           <span class="hidden lg:inline group-hover:inline truncate">{t(item.labelKey, locale)}</span>
@@ -246,6 +252,11 @@
                     <polyline points="14 2 14 8 20 8"></polyline>
                     <line x1="16" y1="13" x2="8" y2="13"></line>
                     <line x1="16" y1="17" x2="8" y2="17"></line>
+                  </svg>
+                {:else if item.icon === 'resume'}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
                   </svg>
                 {/if}
               </span>

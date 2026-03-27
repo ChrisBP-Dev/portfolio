@@ -10,9 +10,10 @@ import { localizeHref } from '../../data/navigation';
 
 interface Props {
   locale: Locale;
+  resumeUrl?: string;
 }
 
-const { locale } = Astro.props;
+const { locale, resumeUrl } = Astro.props;
 
 const contactHref = localizeHref('/contact', locale);
 ---
@@ -45,9 +46,11 @@ const contactHref = localizeHref('/contact', locale);
         <Button variant="primary" href={contactHref}>
           {t('home.hero.cta.contact', locale)}
         </Button>
-        <Button variant="secondary" href="/resume.pdf" download>
-          {t('home.hero.cta.resume', locale)}
-        </Button>
+        {resumeUrl && (
+          <Button variant="secondary" href={resumeUrl} target="_blank" rel="noopener noreferrer" download>
+            {t('home.hero.cta.resume', locale)}
+          </Button>
+        )}
       </div>
     </div>
   </Container>

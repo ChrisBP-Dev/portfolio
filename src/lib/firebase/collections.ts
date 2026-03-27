@@ -13,6 +13,7 @@ export const COLLECTION_PATHS = {
   technologies: 'Technologies',
   experiences: 'Experiences',
   blogPosts: 'BlogPosts',
+  settings: 'Settings',
 } as const;
 
 function toDate(val: unknown): Date {
@@ -99,4 +100,12 @@ export async function getAllExperiences(db: Firestore): Promise<Experience[]> {
   return snapshot.docs.map((doc) =>
     parseExperience(doc.data() as Record<string, unknown>, doc.id),
   );
+}
+
+export async function getResumeUrl(db: Firestore): Promise<string | null> {
+  const doc = await db.collection(COLLECTION_PATHS.settings).doc('resume').get();
+  if (!doc.exists) return null;
+  const data = doc.data();
+  if (!data || typeof data.url !== 'string') return null;
+  return data.url;
 }
