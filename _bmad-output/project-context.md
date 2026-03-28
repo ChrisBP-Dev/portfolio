@@ -1,11 +1,11 @@
 ---
 project_name: 'portfolio'
 user_name: 'Christopher'
-date: '2026-03-26'
+date: '2026-03-28'
 sections_completed: ['technology_stack', 'language_rules', 'framework_rules', 'testing_rules', 'code_quality', 'workflow_rules', 'critical_rules']
 status: 'complete'
-rule_count: 199
-lines: 510
+rule_count: 213
+lines: 528
 optimized_for_llm: true
 ---
 
@@ -53,6 +53,7 @@ _Este archivo contiene reglas y patrones críticos que los agentes de IA deben s
 - pnpm, Node.js >= 22.12.0, ESLint 10 + Prettier 3.8.1
 - Firebase Hosting con cache headers inmutables
 - Scripts de mantenimiento: `cleanup:e2e`, `cleanup:images` (dry-run por defecto)
+- Scripts de seed: `seed:experiences`, `seed:blog` (requieren `.env` + `--import tsx`)
 
 ### Dependencias Adicionales
 - sanitize-html 2.17.1, sharp 0.34.5, tsx 4.21.0
@@ -74,6 +75,7 @@ _Este archivo contiene reglas y patrones críticos que los agentes de IA deben s
 - **Guard de inicialización en forms**: Edit mode requiere flags (`initialized`, `initializedForId`) para prevenir loops infinitos en `$effect` al cargar datos iniciales
 - **Constantes de colección duplicadas en client**: Admin components duplican nombres de colección localmente — NO importar de `collections.ts` (evita side-effects del Admin SDK en browser)
 - **Dates con timezone local**: `new Date(value + 'T00:00:00')` para interpretar fechas como medianoche local, no UTC
+- **`toDate()` polimórfico en parsers de Firestore**: Schemas que incluyen fechas deben manejar 4 formatos: `Date` nativo, Firestore `Timestamp` (con `.toDate()`), ISO string, y Unix timestamp (number). Helper `toDate()` centraliza la coerción — NUNCA asumir un solo formato
 - **Interpolación de traducciones admin**: Placeholders `{key}` con `.replace()` para valores dinámicos en strings de traducción
 - **Slug auto-generation desde EN (defaultLocale)**: Slugs aparecen en URLs sin prefijo de locale (`/blog/my-article`, `/projects/my-project`). Generar siempre desde el campo EN usando `slugify(titleEn)`. Nunca desde ES — el sitio es English-first (`defaultLocale = 'en'`). Cuando el campo EN queda vacío, el slug debe limpiarse (`slug = titleEn ? slugify(titleEn) : ''`)
 - **`exactOptionalPropertyTypes` compliance**: Props opcionales con `?:` NO aceptan `undefined` implícitamente. Declarar explícito: `ogImage?: string | undefined`. Sin `| undefined` explícito, TypeScript rechaza valores que pueden ser `undefined` en runtime
@@ -198,6 +200,14 @@ _Este archivo contiene reglas y patrones críticos que los agentes de IA deben s
 - **`prefers-reduced-motion`**: Respetar `@media (prefers-reduced-motion: reduce)` — deshabilitar View Transitions y animaciones CSS
 - **Focus visible obligatorio**: Todos los elementos interactivos deben tener `outline-style` visible en `:focus-visible`
 
+#### Settings Collection Pattern (Post-Epic 5)
+- **Documentos individuales en `Settings`**: Cada setting es un doc con ID descriptivo (ej: `resume`). Query directa por ID, no collection scan
+- **`getResumeUrl()` como helper**: Funciones tipadas en `collections.ts` para cada setting — retornan `null` si no existe. Páginas públicas consumen en build-time via Admin SDK
+- **Resilient upload state machine**: Upload → get URL → write Firestore → cleanup old file. Si Firestore falla → rollback Storage. Cleanup de archivo anterior es fire-and-forget con `.catch(console.warn)`
+- **Storage path fijo para singleton**: `resume/current.pdf` — siempre sobreescribe. No UUID-based paths para archivos que son uno solo
+- **Upload progress con cancelación**: `uploadBytesResumable` + `$state` para progress bar. Upload task cancelable en unmount y por botón. Distinguir cancel de usuario (silencioso) vs error real (toast)
+- **Resume URL no hardcodeada**: Fetch dinámico desde Firestore — `{...(resumeUrl ? { resumeUrl } : {})}` spread condicional para props opcionales
+
 #### Firebase Dual SDK Pattern
 - **Build time (Admin SDK)**: `src/lib/firebase/firebase-admin.ts` — queries Firestore para generar HTML estático
 - **Browser (Client SDK)**: `src/lib/firebase/client.ts` — singleton: Auth, Firestore, Storage para admin UI
@@ -280,6 +290,7 @@ _Este archivo contiene reglas y patrones críticos que los agentes de IA deben s
 - **Exclusión admin**: Tests verifican que rutas `/admin` NO aparecen en sitemap
 
 #### Proceso de Testing (Lecciones Epics 3-5)
+- **Tests de schemas con mocks de Firestore Timestamp**: Testear parsers de fecha con `{ toDate: () => new Date(...) }` para simular Timestamps. Cubrir los 4 formatos: Date, Timestamp mock, ISO string, number
 - **Accessibility desde Epic 1**: axe-core WCAG debe integrarse desde el primer epic — detección tardía multiplica rework (contraste de colores descubierto en Epic 5 requirió cambio sistémico de CSS variables)
 - **E2E contra producción requiere cleanup**: Sin scripts automáticos, datos orphan se acumulan (~20 docs + ~37 imágenes por epic). `globalTeardown` es infraestructura esencial
 
@@ -319,14 +330,14 @@ src/
 ├── layouts/                 # Wrappers de página (BaseLayout, AdminLayout)
 ├── lib/firebase/            # SDKs client + admin + orphan-cleanup.ts, image-slot-processor.ts
 ├── lib/i18n/                # Traducciones y config
-├── lib/schemas/             # Zod schemas (source of truth) + blog-post-schema.ts
+├── lib/schemas/             # Zod schemas (source of truth) + blog-post-schema.ts, resume-schema.ts
 ├── lib/types/               # Tipos derivados de schemas
 ├── lib/utils/               # Utilidades puras (formatDate, slugify, toast-store, error-messages,
 │                            #   tiptap-renderer.ts, tiptap-helpers.ts, reading-time.ts,
 │                            #   sanitize-blog-html.ts, seo.ts)
 ├── lib/scripts/             # Scripts de build/seed (migrate, seed) + cleanup (e2e, orphans)
 ├── pages/                   # File-based routing + robots.txt.ts (dynamic route)
-├── pages/admin/             # Admin pages (index, login, projects, technologies, experiences, blog)
+├── pages/admin/             # Admin pages (index, login, projects, technologies, experiences, blog, resume)
 ├── pages/blog/              # Blog pages (index.astro, [slug].astro)
 ├── pages/es/blog/           # Blog pages ES (index.astro, [slug].astro)
 ├── styles/                  # CSS global + Tailwind
@@ -387,6 +398,7 @@ src/
 #### Scripts de Datos
 - `pnpm migrate` — migración one-time Firestore (Flutter schema → schema profesional)
 - `pnpm seed:experiences` — seed de experiencias en emuladores
+- `pnpm seed:blog` — seed de blog posts (requiere `.env` con credenciales Firebase)
 
 #### Scripts de Mantenimiento (Epic 5)
 - `pnpm cleanup:e2e [--execute]` — elimina docs Firestore + imágenes Storage con slug `e2e-*`. Preview por defecto
@@ -450,6 +462,8 @@ src/
 - NUNCA agregar JSON-LD a listing pages — solo en home (Person), project detail (CreativeWork) y blog article (BlogPosting)
 - NUNCA ejecutar scripts de cleanup sin flag `--execute` — dry-run es el default por seguridad
 - NUNCA usar `display="block"` en fonts — `display="swap"` obligatorio para prevenir FOIT
+- NUNCA hardcodear URL de resume en componentes — siempre fetch dinámico desde Firestore Settings collection
+- NUNCA usar UUID-based paths para archivos singleton en Storage — usar path fijo (`resume/current.pdf`) que sobreescribe
 
 #### Defer Criteria (Post-Retros Epics 3-4)
 - **Defer SOLO con plan concreto**: Si code review encuentra defecto y no hay story futura planeada → corregir en story actual. "Pre-existente" sin plan = se resuelve ahora
@@ -478,6 +492,9 @@ src/
 - **`resolveOgImage()` centralizado**: Toda página pasa por esta función para garantizar og:image. Default: `/images/og-default.png` con width/height. Custom: sin dimensiones (pueden variar)
 - **JSON-LD escape en BaseLayout**: `.replaceAll('</', '<\\/')` antes de inyectar JSON-LD en `<script>` tag — defense-in-depth contra XSS de contenido CMS
 - **Slug uniqueness query pattern**: `where('slug', '==', value), limit(2)` + try-catch fail-closed. `limit(2)` detecta duplicados corruptos; `limit(1)` los ignora silenciosamente
+- **Settings como documentos individuales**: Collection `Settings` con doc ID como key (`resume`, etc.). No usar sub-collections ni un mega-documento. Cada setting tiene su propio schema Zod y parser
+- **Rollback en upload multi-step**: Si upload a Storage OK pero Firestore falla → rollback con `deleteObject()`. Si rollback falla → log + orphan aceptable (mismo patrón que Image Lifecycle)
+- **Cancel vs Error en uploads**: `storage/canceled` es acción del usuario → silenciar. Cualquier otro error → toast. Distinguir en el catch
 - **axe-core solo critical/serious**: Fixture filtra violations por `impact` — `critical` y `serious` fallan el test, `minor` y `moderate` se ignoran para evitar false positives
 - **Toast deduplication**: `toastStore` previene duplicados verificando mensaje existente antes de agregar. Sin esto, errores de red generan floods de toasts idénticos
 - **E2E cleanup como infraestructura**: `globalTeardown` en Playwright ejecuta `cleanup:e2e` automáticamente. Sin esto, ~20 docs + ~37 imágenes orphan por epic en Firestore/Storage
@@ -508,4 +525,4 @@ src/
 - Actualizar cuando cambie el stack tecnológico
 - Revisar después de cada epic para eliminar reglas obsoletas y agregar nuevas
 
-Última actualización: 2026-03-26
+Última actualización: 2026-03-28
